@@ -7,9 +7,18 @@ type TextAlign = 'left' | 'center' | 'right' | 'justify';
 type TextDecoration = 'none' | 'underline' | 'line-through' | 'overline';
 type TextTransform = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
 
+type ThemeColorUsage = {
+  bg: string;
+  text: string;
+  border: string;
+  hover: string;
+  active: string;
+  subtle: string;
+};
+
 interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: Variant;
-  size?: number | string; 
+  size?: number | string;
   weight?: number | 'normal' | 'bold' | 'bolder' | 'lighter';
   align?: TextAlign;
   decoration?: TextDecoration;
@@ -20,20 +29,10 @@ interface TextProps extends React.HTMLAttributes<HTMLSpanElement> {
   truncate?: boolean;
   width?: number | string;
   height?: number | string;
-
   bg?: keyof ThemeColorUsage;
   text?: keyof ThemeColorUsage;
-  children: string;
+  children: React.ReactNode;
 }
-
-type ThemeColorUsage = {
-  bg: string;
-  text: string;
-  border: string;
-  hover: string;
-  active: string;
-  subtle: string;
-};
 
 export const Text: React.FC<TextProps> = ({
   variant = 'neutral',
@@ -48,6 +47,8 @@ export const Text: React.FC<TextProps> = ({
   truncate = false,
   width,
   height,
+  bg,
+  text,
   className,
   style,
   children,
@@ -60,8 +61,8 @@ export const Text: React.FC<TextProps> = ({
     <span
       className={className}
       style={{
-        color: slot.text,
-        backgroundColor: slot.bg,
+        color: text ? slot[text] : slot.text,
+        backgroundColor: bg ? slot[bg] : slot.bg,
         fontSize: size,
         fontWeight: weight,
         textAlign: align,
@@ -72,6 +73,7 @@ export const Text: React.FC<TextProps> = ({
         whiteSpace: nowrap ? 'nowrap' : undefined,
         overflow: truncate ? 'hidden' : undefined,
         textOverflow: truncate ? 'ellipsis' : undefined,
+        display: truncate ? 'inline-block' : undefined,
         width,
         height,
         ...style,

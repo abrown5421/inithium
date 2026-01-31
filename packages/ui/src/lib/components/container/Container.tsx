@@ -14,6 +14,15 @@ type JustifyContent =
 
 type AlignItems = 'stretch' | 'flex-start' | 'center' | 'flex-end' | 'baseline';
 
+type ThemeColorUsage = {
+  bg: string;
+  text: string;
+  border: string;
+  hover: string;
+  active: string;
+  subtle: string;
+};
+
 interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: Variant;
   flex?: boolean;
@@ -28,19 +37,15 @@ interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   minHeight?: number | string;
   maxWidth?: number | string;
   maxHeight?: number | string;
-
+  padding?: number | string;
+  margin?: number | string;
+  border?: boolean | string;
+  borderWidth?: number | string;
+  borderRadius?: number | string;
+  overflow?: 'visible' | 'hidden' | 'scroll' | 'auto';
   bg?: keyof ThemeColorUsage;
   text?: keyof ThemeColorUsage;
 }
-
-type ThemeColorUsage = {
-  bg: string;
-  text: string;
-  border: string;
-  hover: string;
-  active: string;
-  subtle: string;
-};
 
 export const Container: React.FC<ContainerProps> = ({
   variant = 'neutral',
@@ -56,6 +61,14 @@ export const Container: React.FC<ContainerProps> = ({
   minHeight,
   maxWidth,
   maxHeight,
+  padding,
+  margin,
+  border,
+  borderWidth,
+  borderRadius,
+  overflow,
+  bg,
+  text,
   className,
   style,
   children,
@@ -63,13 +76,16 @@ export const Container: React.FC<ContainerProps> = ({
 }) => {
   const { theme } = useTheme();
   const slot = theme.colors[variant];
-
+  const computedBorder =
+    border === true ? '1px solid' :
+    typeof border === 'string' ? border :
+    undefined;
   return (
     <div
       className={className}
       style={{
-        backgroundColor: slot.bg,
-        color: slot.text,
+        backgroundColor: bg ? slot[bg] : slot.bg,
+        color: text ? slot[text] : slot.text,
         borderColor: slot.border,
         display: flex ? 'flex' : undefined,
         flexDirection: flex ? direction : undefined,
@@ -83,6 +99,12 @@ export const Container: React.FC<ContainerProps> = ({
         minHeight,
         maxWidth,
         maxHeight,
+        padding,
+        margin,
+        border: computedBorder,
+        borderWidth,
+        borderRadius,
+        overflow,
         ...style,
       }}
       {...props}
