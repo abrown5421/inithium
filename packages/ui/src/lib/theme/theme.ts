@@ -46,11 +46,11 @@ export const lightTheme: Theme = {
       subtle: '#F3E8FF',
     },
     accent: {
-      bg: '#F59E0B',
+      bg: '#fca611',
       text: '#000000',
-      border: '#D97706',
-      hover: '#FBBF24',
-      active: '#B45309',
+      border: '#B45309',
+      hover: '#F59E0B',
+      active: '#92400E',
       subtle: '#FEF3C7',
     },
     neutral: {
@@ -86,11 +86,11 @@ export const lightTheme: Theme = {
       subtle: '#FEE2E2',
     },
     warning: {
-      bg: '#FACC15',
+      bg: '#fcbd00', 
       text: '#000000',
-      border: '#EAB308',
-      hover: '#FDE047',
-      active: '#CA8A04',
+      border: '#B45309',
+      hover: '#F59E0B',
+      active: '#92400E',
       subtle: '#FEF9C3',
     },
     info: {
