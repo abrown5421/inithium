@@ -8,7 +8,9 @@ interface ThemeContextProps {
 
 const ThemeContext = createContext<ThemeContextProps>({
   theme: lightTheme,
-  toggleMode: () => {console.log('tog')},
+  toggleMode: () => {
+    console.log('tog');
+  },
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -18,10 +20,14 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export const ThemeProvider = ({ initialMode = 'light', children }: ThemeProviderProps) => {
+export const ThemeProvider = ({
+  initialMode = 'light',
+  children,
+}: ThemeProviderProps) => {
   const [mode, setMode] = useState<ColorMode>(initialMode);
 
-  const toggleMode = () => setMode(prev => (prev === 'light' ? 'dark' : 'light'));
+  const toggleMode = () =>
+    setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
 
   const theme = mode === 'light' ? lightTheme : darkTheme;
 

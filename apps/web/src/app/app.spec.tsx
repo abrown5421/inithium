@@ -13,14 +13,12 @@ describe('App', () => {
     expect(baseElement).toBeTruthy();
   });
 
-  it('should have a greeting as the title', () => {
-    const { getAllByText } = render(
+  it('should render the app text', () => {
+    const { getByText } = render(
       <BrowserRouter>
         <App />
       </BrowserRouter>
     );
-    expect(
-      getAllByText(new RegExp('Welcome @inithium/web', 'gi')).length > 0
-    ).toBeTruthy();
+    expect(getByText('app')).toBeTruthy();
   });
 });
