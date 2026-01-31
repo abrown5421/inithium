@@ -28,7 +28,7 @@ describe('Text component', () => {
 
   it('applies default styles from theme', () => {
     const { container } = render(<Text>Test</Text>);
-    const span = (container as any).firstElementChild as HTMLElement;
+    const span = container.firstElementChild as HTMLElement;
     expect(span).toHaveStyle({
       color: mockTheme.theme.colors.neutral.text,
       backgroundColor: mockTheme.theme.colors.neutral.bg,
@@ -52,14 +52,14 @@ describe('Text component', () => {
         Styled Text
       </Text>
     );
-    const span = (container as any).firstElementChild as HTMLElement;
-    expect((span as any).style.fontSize).toBe('18px');
-    expect((span as any).style.fontWeight).toBe('bold');
-    expect((span as any).style.textAlign).toBe('center');
-    expect((span as any).style.textDecoration).toBe('underline');
-    expect((span as any).style.textTransform).toBe('uppercase');
-    expect((span as any).style.lineHeight).toBe('1.5');
-    expect((span as any).style.letterSpacing).toBe('2px');
+    const span = container.firstElementChild as HTMLElement;
+    expect(span.style.fontSize).toBe('18px');
+    expect(span.style.fontWeight).toBe('bold');
+    expect(span.style.textAlign).toBe('center');
+    expect(span.style.textDecoration).toBe('underline');
+    expect(span.style.textTransform).toBe('uppercase');
+    expect(span.style.lineHeight).toBe('1.5');
+    expect(span.style.letterSpacing).toBe('2px');
   });
 
   it('applies nowrap and truncate styles', () => {
@@ -68,10 +68,10 @@ describe('Text component', () => {
         Long text that should be truncated
       </Text>
     );
-    const span = (container as any).firstElementChild as HTMLElement;
-    expect((span as any).style.whiteSpace).toBe('nowrap');
-    expect((span as any).style.overflow).toBe('hidden');
-    expect((span as any).style.textOverflow).toBe('ellipsis');
+    const span = container.firstElementChild as HTMLElement;
+    expect(span.style.whiteSpace).toBe('nowrap');
+    expect(span.style.overflow).toBe('hidden');
+    expect(span.style.textOverflow).toBe('ellipsis');
   });
 
   it('applies width, height, and custom styles', () => {
@@ -80,15 +80,15 @@ describe('Text component', () => {
         Sized Text
       </Text>
     );
-    const span = (container as any).firstElementChild as HTMLElement;
-    expect((span as any).style.width).toBe('200px');
-    expect((span as any).style.height).toBe('30px');
-    expect((span as any).style.padding).toBe('5px');
+    const span = container.firstElementChild as HTMLElement;
+    expect(span.style.width).toBe('200px');
+    expect(span.style.height).toBe('30px');
+    expect(span.style.padding).toBe('5px');
   });
 
   it('applies the correct theme variant', () => {
     const { container } = render(<Text variant="primary">Primary Text</Text>);
-    const span = (container as any).firstElementChild as HTMLElement;
+    const span = container.firstElementChild as HTMLElement;
     expect(span).toHaveStyle({
       color: mockTheme.theme.colors.primary.text,
       backgroundColor: mockTheme.theme.colors.primary.bg,
