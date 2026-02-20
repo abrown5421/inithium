@@ -1,12 +1,13 @@
 {
-  "name": "@org/source",
+  "name": "@inithium/source",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
     "@nx/js": "22.5.1",
+    "@nx/node": "^22.5.1",
+    "@nx/vue": "^22.5.1",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
@@ -17,5 +18,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "vue": "^3.5.13"
+  }
 }
