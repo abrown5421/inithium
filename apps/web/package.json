@@ -1,5 +1,12 @@
 {
   "name": "@inithium/web",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.4",
+    "vite": "^7.3.1"
+  }
 }
