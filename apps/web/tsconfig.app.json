@@ -26,6 +26,9 @@
       "path": "../../packages/api-client/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/assets/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/auth/tsconfig.lib.json"
     },
     {

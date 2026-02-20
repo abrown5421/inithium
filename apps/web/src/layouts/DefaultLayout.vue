@@ -2,10 +2,10 @@
 import { IBox, IText, IButton, useTheme } from '@inithium/ui';
 import { useAuth } from '@inithium/auth';
 import { useRouter } from 'vue-router';
-
+import { logo } from '@inithium/assets';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const { user, isAuthenticated, logout } = useAuth(API_URL);
-const { isDark, toggleMode } = useTheme();
+// const { isDark, toggleMode } = useTheme();
 const router = useRouter();
 
 async function handleLogout() {
@@ -23,13 +23,15 @@ async function handleLogout() {
     <IBox
       as="nav"
       surface="surfaceAlt"
+      :px="6"
+      :py="4"
       style="display: flex; align-items: center; justify-content: space-between"
     >
-      <IText as="span" size="xl" weight="bold" color="brand">Inithium</IText>
+      <img :src="logo" alt="Inithium Logo" style="height: 40px; width: auto" />
       <div style="display: flex; align-items: center; gap: 1rem">
-        <IButton variant="ghost" size="sm" @click="toggleMode">
+        <!-- <IButton variant="ghost" size="sm" @click="toggleMode">
           {{ isDark ? '☀️' : '🌙' }}
-        </IButton>
+        </IButton> -->
         <template v-if="isAuthenticated">
           <IText size="sm" color="secondary">{{ user?.displayName }}</IText>
           <IButton

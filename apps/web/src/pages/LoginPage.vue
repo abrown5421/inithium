@@ -22,12 +22,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <IBox
-    surface="surface"
-    radius="xl"
-    shadow="lg"
-    style="width: 100%; max-width: 24rem"
-  >
+  <IBox surface="surface" radius="xl" shadow="lg" :p="8" style="width: 30%">
     <IText as="h1" size="2xl" weight="bold" style="margin-bottom: 1.5rem"
       >Sign in</IText
     >

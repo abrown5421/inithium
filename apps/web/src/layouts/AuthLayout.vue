@@ -1,12 +1,19 @@
+<script>
+import { IBox } from '@inithium/ui';
+</script>
+
 <template>
-  <div
+  <IBox
+    as="div"
+    surface="surface"
     style="
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
+      align-items: center;
     "
   >
     <RouterView />
-  </div>
+  </IBox>
 </template>

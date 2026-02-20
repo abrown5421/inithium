@@ -21,6 +21,6 @@
   "scripts": {
     "generate-index": "node tools/generate-assets-index.mjs",
     "prebuild": "npm run generate-index",
-    "build": "tsc --build tsconfig.lib.json"
+    "build": "tsc --build tsconfig.lib.json && node tools/copy-assets.mjs"
   }
 }
