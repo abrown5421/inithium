@@ -3,34 +3,15 @@
 <br />
 
 ```
-██╗███╗   ██╗██╗████████╗██╗  ██╗██╗██╗   ██╗███╗   ███╗
-██║████╗  ██║██║╚══██╔══╝██║  ██║██║██║   ██║████╗ ████║
-██║██╔██╗ ██║██║   ██║   ███████║██║██║   ██║██╔████╔██║
-██║██║╚██╗██║██║   ██║   ██╔══██║██║██║   ██║██║╚██╔╝██║
-██║██║ ╚████║██║   ██║   ██║  ██║██║╚██████╔╝██║ ╚═╝ ██║
-╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝     ╚═╝
+                                                        ██╗███╗   ██╗██╗████████╗██╗  ██╗██╗██╗   ██╗███╗   ███╗
+                                                        ██║████╗  ██║██║╚══██╔══╝██║  ██║██║██║   ██║████╗ ████║
+                                                        ██║██╔██╗ ██║██║   ██║   ███████║██║██║   ██║██╔████╔██║
+                                                        ██║██║╚██╗██║██║   ██║   ██╔══██║██║██║   ██║██║╚██╔╝██║
+                                                        ██║██║ ╚████║██║   ██║   ██║  ██║██║╚██████╔╝██║ ╚═╝ ██║
+                                                         ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝     ╚═╝
 ```
 
 ### A fully-featured, scalable monorepo starter for modern web applications.
-
-<br />
-
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![NX](https://img.shields.io/badge/NX-Monorepo-143157?style=for-the-badge&logo=nx&logoColor=white)
-
-<br />
-
-![JWT](https://img.shields.io/badge/Auth-JWT-FB015B?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Headless UI](https://img.shields.io/badge/Headless-UI-66E3FF?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)
-
-<br />
 
 > **Inithium** provides a standardized architecture that lets your team skip the boilerplate and go straight to building features — with type safety, shared business logic, a full design system, and centralized authentication baked in from day one.
 
