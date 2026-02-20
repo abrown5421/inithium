@@ -18,6 +18,7 @@
     "strict": true,
     "target": "es2022",
     "customConditions": ["@inithium/source"],
+    "baseUrl": ".",
     "paths": {
       "@inithium/shared":     ["packages/shared/src/index.ts"],
       "@inithium/ui":         ["packages/ui/src/index.ts"],
