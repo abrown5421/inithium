@@ -10,5 +10,12 @@
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "../auth/tsconfig.lib.json"
+    },
+    {
+      "path": "../shared/tsconfig.lib.json"
+    }
+  ]
 }

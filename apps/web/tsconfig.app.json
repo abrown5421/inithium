@@ -20,5 +20,16 @@
     "src/**/*.spec.vue",
     "src/**/*.test.vue"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.vue"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.vue"],
+  "references": [
+    {
+      "path": "../../packages/api-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.lib.json"
+    }
+  ]
 }
