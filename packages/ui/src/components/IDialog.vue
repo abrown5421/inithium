@@ -11,7 +11,7 @@ import IText from './IText.vue';
 import { useTheme } from '../theme/ThemeProvider';
 import { computed } from 'vue';
 
-const props = defineProps<{
+defineProps<{
   open: boolean;
   title?: string;
 }>();
