@@ -17,6 +17,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@inithium/source"]
+    "customConditions": ["@inithium/source"],
+    "paths": {
+      "@inithium/shared":     ["packages/shared/src/index.ts"],
+      "@inithium/ui":         ["packages/ui/src/index.ts"],
+      "@inithium/auth":       ["packages/auth/src/index.ts"],
+      "@inithium/api-client": ["packages/api-client/src/index.ts"]
+    }
   }
 }
