@@ -3,7 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
 } from 'vue-router';
-import { useAuth } from '@inithium/auth';
+import { getStoredToken, isTokenExpired } from '@inithium/auth';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -52,10 +52,14 @@ export const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const { isAuthenticated } = useAuth(
-    import.meta.env.VITE_API_URL || 'http://localhost:5000'
-  );
-  if (to.meta.requiresAuth && !isAuthenticated.value) {
+  if (!to.meta.requiresAuth) return true;
+
+  const token = getStoredToken();
+  const isValid = token && !isTokenExpired(token);
+
+  if (!isValid) {
     return { name: 'Login', query: { redirect: to.fullPath } };
   }
+
+  return true;
 });
