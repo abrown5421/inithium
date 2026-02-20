@@ -1,21 +1,14 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
+import 'dotenv/config';
+import app from './app';
+import { connectDB } from './lib/db';
 
-import express from 'express';
-import * as path from 'path';
+const PORT = Number(process.env.PORT) || 5000;
 
-const app = express();
+async function bootstrap() {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`[API] Server running on http://localhost:${PORT}`);
+  });
+}
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to api!' });
-});
-
-const port = process.env.PORT || 3333;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
-});
-server.on('error', console.error);
+bootstrap().catch(console.error);
