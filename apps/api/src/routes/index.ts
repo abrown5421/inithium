@@ -1,7 +1,14 @@
 import type { Express, Request, Response } from 'express';
+import { createAuthRouter } from '@inithium/auth';
 import { getMongoClient } from '../db/mongo-client';
+import { getConfig } from '../config/env';
 
-export function registerRoutes(app: Express): void {
+export async function registerRoutes(app: Express): Promise<void> {
+  const client = await getMongoClient();
+  const config = getConfig();
+
+  app.use('/auth', createAuthRouter({ client, config }));
+
   app.get('/', (_req: Request, res: Response) => {
     res.json({ message: 'Inithium API' });
   });
@@ -12,7 +19,6 @@ export function registerRoutes(app: Express): void {
 
   app.get('/health/db', async (_req: Request, res: Response) => {
     try {
-      const client = await getMongoClient();
       await client.db().command({ ping: 1 });
 
       res.json({ status: 'ok' });
