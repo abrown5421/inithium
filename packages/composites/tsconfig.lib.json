@@ -7,14 +7,18 @@
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [],
   "exclude": [
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.tsx"
   ]
 }
