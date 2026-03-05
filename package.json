@@ -17,6 +17,7 @@
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
     "@swc/jest": "~0.2.38",
+    "@tailwindcss/vite": "^4.2.1",
     "@testing-library/dom": "10.4.0",
     "@testing-library/react": "16.3.0",
     "@types/bcrypt": "^6.0.0",
@@ -56,12 +57,16 @@
     "apps/*"
   ],
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
+    "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "6.30.3"
+    "react-router-dom": "6.30.3",
+    "tailwind-merge": "^3.5.0"
   }
 }

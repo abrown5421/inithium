@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { builtinModules } from 'module';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -12,12 +13,6 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
     }),
   ],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [],
-  // },
-  // Configuration for building your library.
-  // See: https://vite.dev/guide/build.html#library-mode
   build: {
     outDir: './dist',
     emptyOutDir: true,
@@ -26,17 +21,17 @@ export default defineConfig(() => ({
       transformMixedEsModules: true,
     },
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: '@inithium/auth',
       fileName: 'index',
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
-      formats: ['es' as const],
+      formats: ['cjs' as const], 
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: [],
+      external: (id: string) => {
+        if (id.startsWith('.') || path.isAbsolute(id)) return false;
+        if (builtinModules.includes(id) || id.startsWith('node:')) return true;
+        return true;
+      },
     },
   },
 }));

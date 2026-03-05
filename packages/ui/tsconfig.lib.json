@@ -1,16 +1,21 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
+    "jsx": "react-jsx",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*.ts"],
-  "references": [],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "references": [
+    {
+      "path": "../theme/tsconfig.lib.json"
+    }
+  ],
   "exclude": [
     "jest.config.ts",
     "jest.config.cts",
