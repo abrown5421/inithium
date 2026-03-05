@@ -11,27 +11,36 @@ import { cn } from '@inithium/theme';
 
 export const Navbar: React.FC<NavbarProps> = ({ links, user, onLogout }) => {
   return (
-    <nav className="w-full bg-primary p-4 flex justify-between items-center">
+    <nav className="w-full bg-surface p-2 flex justify-between items-center shadow-sm">
       <div className="flex items-center space-x-1">
         {links.map((link) =>
           link.dropdown ? (
-            <Menu key={link.label}>
-              <MenuButton>{link.label}</MenuButton>
-              <MenuItems>
-                {link.dropdown.map((item) => (
-                  <MenuItem
-                    key={item.label}
-                    onClick={item.onClick ?? (item.href ? () => {
-                      if (typeof window !== "undefined") {
-                        window.location.href = item.href!;
+            <div key={link.label} className="relative self-stretch flex items-center">
+              <Menu>
+                <MenuButton>{link.label}</MenuButton>
+                <MenuItems
+                  className="!fixed"
+                >
+                  {link.dropdown.map((item) => (
+                    <MenuItem
+                      key={item.label}
+                      onClick={
+                        item.onClick ??
+                        (item.href
+                          ? () => {
+                              if (typeof window !== "undefined") {
+                                window.location.href = item.href!;
+                              }
+                            }
+                          : undefined)
                       }
-                    } : undefined)}
-                  >
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </MenuItems>
-            </Menu>
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </Menu>
+            </div>
           ) : (
             <a
               key={link.label}
@@ -60,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({ links, user, onLogout }) => {
           <span className="text-sm font-medium text-primary-foreground">
             {user.name}
           </span>
-          <Button variant="ghost" size="sm" onClick={onLogout}>
+          <Button variant="ghost" size="sm">
             Logout
           </Button>
         </div>

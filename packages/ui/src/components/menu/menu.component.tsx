@@ -37,7 +37,14 @@ export function MenuItems(props: IMenuItemsProps): React.JSX.Element {
   const { children, className } = props;
 
   return (
-    <HeadlessUIMenuItems className={cn('popover-panel mt-2', className)}>
+    <HeadlessUIMenuItems
+      anchor="bottom start"
+      className={cn(
+        'absolute left-0 top-full mt-2 z-50',
+        'popover-panel',
+        className
+      )}
+    >
       {children}
     </HeadlessUIMenuItems>
   );

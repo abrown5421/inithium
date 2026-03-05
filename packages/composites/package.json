@@ -14,5 +14,12 @@
       "default": "./dist/index.js"
     }
   },
-  "dependencies": {}
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "@inithium/ui": "*",
+    "@inithium/theme": "*"
+  }
 }

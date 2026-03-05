@@ -1,16 +1,14 @@
-@import "tailwindcss";
-
 @theme {
   /* Brand */
-  --color-primary: oklch(55% 0.22 250);
-  --color-primary-foreground: oklch(98% 0.01 250);
-  --color-secondary: oklch(65% 0.12 250);
+  --color-primary: oklch(0.55 0.2532 274.59);
+  --color-primary-foreground: oklch(0.9686 0.0288 214.24);
+  --color-secondary: oklch(0.7127 0.1546 261.88);
   --color-secondary-foreground: oklch(15% 0.04 250);
-  --color-accent: oklch(70% 0.18 180);
-  --color-accent-foreground: oklch(15% 0.04 180);
+  --color-accent: oklch(0.5735 0.1505 193.76);
+  --color-accent-foreground: oklch(0.9892 0.0362 180);
 
   /* Surface */
-  --color-background: oklch(100% 0 0);
+  --color-background: oklch(0.9716 0.0041 247.06);
   --color-foreground: oklch(10% 0.02 250);
   --color-card: oklch(98% 0.005 250);
   --color-card-foreground: oklch(10% 0.02 250);
