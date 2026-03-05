@@ -1,4 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import "@inithium/theme/styles/theme.css";
+
+/* Tell Tailwind's scanner to include all packages that contain
+   components with Tailwind utility classes. Without these, v4's
+   automatic detection stops at apps/web/src and misses everything
+   in the monorepo packages. */
+@source "../../../packages/composites/src";
+@source "../../../packages/ui/src";
