@@ -1,18 +1,16 @@
-export * from './types/component.types';
-export * from './types/field.types';
-
-export * from './components/button';
-export * from './components/dialog';
-export * from './components/disclosure';
-export * from './components/tabs';
-export * from './components/menu';
-export * from './components/input';
-export * from './components/textarea';
-export * from './components/select';
-export * from './components/listbox';
-export * from './components/switch';
-export * from './components/checkbox';
-export * from './components/fieldset';
-
-export * from './utils/variants';
+export * from './types/component.types.js';
+export * from './types/field.types.js';
+export * from './components/button/index.js';
+export * from './components/checkbox/index.js';
+export * from './components/dialog/index.js';
+export * from './components/disclosure/index.js';
+export * from './components/fieldset/index.js';
+export * from './components/input/index.js';
+export * from './components/listbox/index.js';
+export * from './components/menu/index.js';
+export * from './components/select/index.js';
+export * from './components/switch/index.js';
+export * from './components/tabs/index.js';
+export * from './components/textarea/index.js';
+export * from './utils/variants.js';
 
