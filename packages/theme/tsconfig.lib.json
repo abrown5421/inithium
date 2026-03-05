@@ -7,9 +7,11 @@
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    "jsx": "react-jsx",
+    "lib": ["es2020", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [],
   "exclude": [
     "jest.config.ts",
