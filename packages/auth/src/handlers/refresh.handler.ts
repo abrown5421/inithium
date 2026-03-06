@@ -1,17 +1,14 @@
-import type { MongoClient } from 'mongodb';
-import { ObjectId } from 'mongodb';
-import type { JwtPayload, RefreshTokenDocument, TokenResponse } from '@inithium/shared';
+import type { UserRepository, RefreshTokenRepository, JwtPayload, TokenResponse } from '@inithium/shared';
 import type { Request, Response } from 'express';
 import type { AuthConfig } from '../config/auth-config.interface.js';
-import { findRefreshTokenByFamily, hashRefreshToken, revokeTokenById, revokeTokenFamily, storeRefreshToken } from '../tokens/refresh-token.utils.js';
+import { hashRefreshToken, verifyRefreshToken } from '../tokens/refresh-token.utils.js';
 import { generateRefreshTokenString, signAccessToken } from '../tokens/token.utils.js';
-import { findUserById } from '../users/user.repository.js';
 import { parseDuration } from '../utils/parse-duration.js';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export function createRefreshHandler(
-  client: MongoClient,
+  users: UserRepository,
+  tokens: RefreshTokenRepository,
   config: AuthConfig,
 ): (req: Request, res: Response) => Promise<void> {
   return async (req: Request, res: Response): Promise<void> => {
@@ -25,20 +22,17 @@ export function createRefreshHandler(
     const authHeader = req.headers.authorization;
     const bearer = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length).trim() : '';
     const decoded = bearer ? jwt.decode(bearer) : null;
-
     const decodedPayload = decoded && typeof decoded === 'object' ? (decoded as Partial<JwtPayload>) : null;
     const rtFamily = typeof decodedPayload?.rtFamily === 'string' ? decodedPayload.rtFamily : null;
     const sub = typeof decodedPayload?.sub === 'string' ? decodedPayload.sub : null;
 
     const now = new Date();
-    const refreshTokens = client.db().collection<RefreshTokenDocument>('refresh_tokens');
-
-    let tokenDoc: RefreshTokenDocument | null = null;
+    let tokenDoc = null;
 
     if (rtFamily) {
-      const latestAny = await refreshTokens.findOne({ family: rtFamily }, { sort: { createdAt: -1 } });
+      const latestAny = await tokens.findAnyByFamily(rtFamily);
       if (latestAny?.isRevoked) {
-        await revokeTokenFamily(client, rtFamily);
+        await tokens.revokeFamily(rtFamily);
         res.status(401).json({ error: 'Token reuse detected. Please log in again.' });
         return;
       }
@@ -46,27 +40,14 @@ export function createRefreshHandler(
         res.status(401).json({ error: 'Refresh token expired' });
         return;
       }
-
-      tokenDoc = await findRefreshTokenByFamily(client, rtFamily);
+      tokenDoc = await tokens.findLatestByFamily(rtFamily);
     } else if (sub) {
-      let userId: ObjectId | null = null;
-      try {
-        userId = new ObjectId(sub);
-      } catch {
-        userId = null;
-      }
-
-      if (userId) {
-        const candidates = await refreshTokens
-          .find({ userId, isRevoked: false, expiresAt: { $gt: now } }, { sort: { createdAt: -1 }, limit: 25 })
-          .toArray();
-
-        for (const candidate of candidates) {
-          const match = await bcrypt.compare(rawRefreshToken, candidate.tokenHash);
-          if (match) {
-            tokenDoc = candidate;
-            break;
-          }
+      const candidates = await tokens.findValidByUserId(sub, 25);
+      for (const candidate of candidates) {
+        const match = await verifyRefreshToken(rawRefreshToken, candidate.tokenHash);
+        if (match) {
+          tokenDoc = candidate;
+          break;
         }
       }
     }
@@ -77,7 +58,7 @@ export function createRefreshHandler(
     }
 
     if (tokenDoc.isRevoked) {
-      await revokeTokenFamily(client, tokenDoc.family);
+      await tokens.revokeFamily(tokenDoc.family);
       res.status(401).json({ error: 'Token reuse detected. Please log in again.' });
       return;
     }
@@ -87,16 +68,16 @@ export function createRefreshHandler(
       return;
     }
 
-    const valid = await bcrypt.compare(rawRefreshToken, tokenDoc.tokenHash);
+    const valid = await verifyRefreshToken(rawRefreshToken, tokenDoc.tokenHash);
     if (!valid) {
-      await revokeTokenFamily(client, tokenDoc.family);
+      await tokens.revokeFamily(tokenDoc.family);
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    await revokeTokenById(client, tokenDoc._id);
+    await tokens.revokeById(tokenDoc.id);
 
-    const user = await findUserById(client, tokenDoc.userId);
+    const user = await users.findById(tokenDoc.userId);
     if (!user) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
@@ -104,10 +85,10 @@ export function createRefreshHandler(
 
     const newRawRefreshToken = generateRefreshTokenString();
     const newTokenHash = await hashRefreshToken(newRawRefreshToken);
-    const expiresAt = new Date(now.getTime() + parseDuration(config.refreshTokenExpiresIn));//error here
+    const expiresAt = new Date(now.getTime() + parseDuration(config.refreshTokenExpiresIn));
 
-    await storeRefreshToken(client, {
-      userId: user._id,
+    await tokens.store({
+      userId: user.id,
       tokenHash: newTokenHash,
       family: tokenDoc.family,
       isRevoked: false,
@@ -116,7 +97,7 @@ export function createRefreshHandler(
     });
 
     const accessToken = signAccessToken(
-      { sub: user._id.toHexString(), email: user.email, role: user.role, rtFamily: tokenDoc.family },
+      { sub: user.id, email: user.email, role: user.role, rtFamily: tokenDoc.family },
       config,
     );
 
@@ -131,7 +112,7 @@ export function createRefreshHandler(
     const response: TokenResponse = {
       accessToken,
       user: {
-        _id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified,

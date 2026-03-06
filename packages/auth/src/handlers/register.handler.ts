@@ -1,15 +1,11 @@
-import type { MongoClient } from 'mongodb';
-
-import { UserRole, type RegisterRequest, type TokenResponse } from '@inithium/shared';
+import type { UserRepository, RefreshTokenRepository, RegisterRequest, TokenResponse } from '@inithium/shared';
+import { UserRole } from '@inithium/shared';
 import type { Request, Response } from 'express';
-
-import type { AuthConfig } from '../config/auth-config.interface';
-import { hashPassword } from '../password/password.utils';
-import { storeRefreshToken, hashRefreshToken } from '../tokens/refresh-token.utils';
-import { generateRefreshTokenString, signAccessToken } from '../tokens/token.utils';
-import { createUser, findUserByEmail } from '../users/user.repository';
-import { parseDuration } from '../utils/parse-duration';
-
+import type { AuthConfig } from '../config/auth-config.interface.js';
+import { hashPassword } from '../password/password.utils.js';
+import { hashRefreshToken } from '../tokens/refresh-token.utils.js';
+import { generateRefreshTokenString, signAccessToken } from '../tokens/token.utils.js';
+import { parseDuration } from '../utils/parse-duration.js';
 import crypto from 'crypto';
 
 function isValidEmail(email: string): boolean {
@@ -21,7 +17,8 @@ function getCookieSecureFlag(): boolean {
 }
 
 export function createRegisterHandler(
-  client: MongoClient,
+  users: UserRepository,
+  tokens: RefreshTokenRepository,
   config: AuthConfig,
 ): (req: Request, res: Response) => Promise<void> {
   return async (req: Request, res: Response): Promise<void> => {
@@ -43,18 +40,18 @@ export function createRegisterHandler(
       return;
     }
 
-    const existing = await findUserByEmail(client, email);
+    const existing = await users.findByEmail(email);
     if (existing) {
       res.status(409).json({ error: 'Email already in use' });
       return;
     }
 
     const passwordHash = await hashPassword(password, config.bcryptRounds);
-    const user = await createUser(client, email, passwordHash, UserRole.User);
+    const user = await users.create(email, passwordHash, UserRole.User);
 
     const family = crypto.randomUUID();
     const accessToken = signAccessToken(
-      { sub: user._id.toHexString(), email: user.email, role: user.role, rtFamily: family },
+      { sub: user.id, email: user.email, role: user.role, rtFamily: family },
       config,
     );
 
@@ -64,8 +61,8 @@ export function createRegisterHandler(
     const now = new Date();
     const expiresAt = new Date(now.getTime() + parseDuration(config.refreshTokenExpiresIn));
 
-    await storeRefreshToken(client, {
-      userId: user._id,
+    await tokens.store({
+      userId: user.id,
       tokenHash,
       family,
       isRevoked: false,
@@ -84,7 +81,7 @@ export function createRegisterHandler(
     const response: TokenResponse = {
       accessToken,
       user: {
-        _id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
