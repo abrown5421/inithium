@@ -1,5 +1,6 @@
 import React from 'react';
-import { Navbar, NavbarUser, NavLink } from '@inithium/composites';
+import { Footer, Navbar, NavbarUser } from '@inithium/composites';
+import { NavLink } from '@inithium/shared';
 
 export const secondaryLinks: NavLink[] = [
   { label: "Profile", href: "/profile" }
@@ -72,7 +73,12 @@ const App: React.FC = () => {
               secondaryLinks={secondaryLinks}
               user={user}
               onLogout={handleLogout}
-            />           
+            />    
+            <div>Content</div>
+            <Footer
+              links={navLinks}
+              secondaryLinks={secondaryLinks}
+            />       
         </div>
     );
 };
