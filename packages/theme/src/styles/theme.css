@@ -128,7 +128,7 @@
   }
   .btn-ghost {
     @apply bg-transparent text-foreground
-           hover:bg-muted active:bg-muted;
+           hover:text-secondary active:text-primary;
   }
   .btn-outline {
     @apply border border-border bg-transparent text-foreground
