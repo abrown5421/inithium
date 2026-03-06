@@ -55,20 +55,18 @@ export function MenuItem(props: IMenuItemProps): React.JSX.Element {
 
   return (
     <HeadlessUIMenuItem disabled={disabled}>
-      {({ disabled: isDisabled }) => (
-        <button
-          type="button"
-          onClick={isDisabled ? undefined : onClick}
-          className={cn(
-            'block w-full cursor-default px-3 py-2 text-left text-sm text-foreground transition-colors',
-            'data-[focus]:bg-muted',
-            'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
-            className,
-          )}
-        >
-          {children}
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          'block w-full cursor-default px-3 py-2 text-left text-sm text-foreground transition-colors',
+          'data-[focus]:bg-muted',
+          'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+          className,
+        )}
+      >
+        {children}
+      </button>
     </HeadlessUIMenuItem>
   );
 }
