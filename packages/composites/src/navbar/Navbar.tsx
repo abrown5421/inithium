@@ -3,8 +3,6 @@ import { AvatarButtonProps, DrawerProps, NavbarProps } from './navbar.types.js';
 import { Menu, MenuButton, MenuItems, MenuItem, Button } from '@inithium/ui';
 import { useIsAtLeast } from '@inithium/shared';
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
 function NavIcon({ open }: { open: boolean }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -18,8 +16,6 @@ function NavIcon({ open }: { open: boolean }) {
     </svg>
   );
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function useActivePath() {
   const [path, setPath] = useState(() =>
@@ -41,8 +37,6 @@ function navigate(href?: string, onClose?: () => void) {
   if (href && typeof window !== 'undefined') window.location.href = href;
   onClose?.();
 }
-
-// ─── DrawerLinks ──────────────────────────────────────────────────────────────
 
 function DrawerLinks({
   links,
@@ -99,8 +93,6 @@ function DrawerLinks({
     </ul>
   );
 }
-
-// ─── Drawer ───────────────────────────────────────────────────────────────────
 
 function Drawer({ open, onClose, links, secondaryLinks, user, onLogout }: DrawerProps) {
   const includeLinks = !useIsAtLeast('lg');
@@ -166,8 +158,6 @@ function Drawer({ open, onClose, links, secondaryLinks, user, onLogout }: Drawer
   );
 }
 
-// ─── AvatarButton ─────────────────────────────────────────────────────────────
-
 function AvatarButton({ user, onClick }: AvatarButtonProps) {
   const initials = user.name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
   return (
@@ -187,8 +177,6 @@ function AvatarButton({ user, onClick }: AvatarButtonProps) {
     </button>
   );
 }
-
-// ─── Navbar ───────────────────────────────────────────────────────────────────
 
 export const Navbar: React.FC<NavbarProps> = ({ logoSrc, logoText, links, secondaryLinks, user, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);

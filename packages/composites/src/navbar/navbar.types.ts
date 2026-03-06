@@ -1,14 +1,4 @@
-export interface NavLink {
-  label: string;
-  href?: string;
-  dropdown?: DropdownItem[];
-}
-
-export interface DropdownItem {
-  label: string;
-  href?: string;
-  onClick?: () => void;
-}
+import type { NavLink } from '@inithium/shared';
 
 export interface NavbarUser {
   name: string;
