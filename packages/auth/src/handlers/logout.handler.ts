@@ -1,10 +1,10 @@
-import type { MongoClient } from 'mongodb';
+import type { RefreshTokenRepository, JwtPayload } from '@inithium/shared';
 import type { Request, Response } from 'express';
-import type { JwtPayload } from '@inithium/shared';
-import { revokeTokenFamily } from '../tokens/refresh-token.utils.js';
 import jwt from 'jsonwebtoken';
 
-export function createLogoutHandler(client: MongoClient): (req: Request, res: Response) => Promise<void> {
+export function createLogoutHandler(
+  tokens: RefreshTokenRepository,
+): (req: Request, res: Response) => Promise<void> {
   return async (req: Request, res: Response): Promise<void> => {
     const cookies = (req as Request & { cookies?: Record<string, unknown> }).cookies;
     const rawRefreshToken = typeof cookies?.refreshToken === 'string' ? cookies.refreshToken : null;
@@ -21,7 +21,7 @@ export function createLogoutHandler(client: MongoClient): (req: Request, res: Re
     const rtFamily = typeof payload?.rtFamily === 'string' ? payload.rtFamily : null;
 
     if (rtFamily) {
-      await revokeTokenFamily(client, rtFamily);
+      await tokens.revokeFamily(rtFamily);
     }
 
     res.clearCookie('refreshToken', {

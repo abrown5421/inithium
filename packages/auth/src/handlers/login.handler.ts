@@ -1,11 +1,9 @@
-import type { MongoClient } from 'mongodb';
-import type { LoginRequest, TokenResponse } from '@inithium/shared';
+import type { UserRepository, RefreshTokenRepository, LoginRequest, TokenResponse } from '@inithium/shared';
 import type { Request, Response } from 'express';
 import type { AuthConfig } from '../config/auth-config.interface.js';
 import { comparePassword } from '../password/password.utils.js';
-import { hashRefreshToken, storeRefreshToken } from '../tokens/refresh-token.utils.js';
+import { hashRefreshToken } from '../tokens/refresh-token.utils.js';
 import { generateRefreshTokenString, signAccessToken } from '../tokens/token.utils.js';
-import { findUserByEmail, updateLastLogin } from '../users/user.repository.js';
 import { parseDuration } from '../utils/parse-duration.js';
 import crypto from 'crypto';
 
@@ -18,7 +16,8 @@ function getCookieSecureFlag(): boolean {
 }
 
 export function createLoginHandler(
-  client: MongoClient,
+  users: UserRepository,
+  tokens: RefreshTokenRepository,
   config: AuthConfig,
 ): (req: Request, res: Response) => Promise<void> {
   return async (req: Request, res: Response): Promise<void> => {
@@ -40,7 +39,7 @@ export function createLoginHandler(
       return;
     }
 
-    const user = await findUserByEmail(client, email);
+    const user = await users.findByEmail(email);
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
@@ -52,11 +51,11 @@ export function createLoginHandler(
       return;
     }
 
-    await updateLastLogin(client, user._id);
+    await users.updateLastLogin(user.id);
 
     const family = crypto.randomUUID();
     const accessToken = signAccessToken(
-      { sub: user._id.toHexString(), email: user.email, role: user.role, rtFamily: family },
+      { sub: user.id, email: user.email, role: user.role, rtFamily: family },
       config,
     );
 
@@ -66,8 +65,8 @@ export function createLoginHandler(
     const now = new Date();
     const expiresAt = new Date(now.getTime() + parseDuration(config.refreshTokenExpiresIn));
 
-    await storeRefreshToken(client, {
-      userId: user._id,
+    await tokens.store({
+      userId: user.id,
       tokenHash,
       family,
       isRevoked: false,
@@ -86,7 +85,7 @@ export function createLoginHandler(
     const response: TokenResponse = {
       accessToken,
       user: {
-        _id: user._id,
+        id: user.id,
         email: user.email,
         role: user.role,
         isEmailVerified: user.isEmailVerified,

@@ -1,10 +1,14 @@
-import type { ObjectId } from 'mongodb';
-
+/**
+ * DB-agnostic refresh token document.
+ *
+ * All IDs are strings here. The MongoDB repository layer is responsible
+ * for converting ObjectId <-> string at the boundary.
+ */
 export interface RefreshTokenDocument {
-  _id: ObjectId;
-  userId: ObjectId;
+  id: string;
+  userId: string;
   tokenHash: string;
-  family: string; // UUID - used for rotation theft detection
+  family: string; // UUID — used for rotation theft detection
   isRevoked: boolean;
   expiresAt: Date;
   createdAt: Date;
