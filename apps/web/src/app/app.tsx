@@ -1,6 +1,10 @@
 import React from 'react';
 import { Navbar, NavbarUser, NavLink } from '@inithium/composites';
 
+export const secondaryLinks: NavLink[] = [
+  { label: "Profile", href: "/profile" }
+]
+
 export const navLinks: NavLink[] = [
   {
     label: "Home",
@@ -63,7 +67,9 @@ const App: React.FC = () => {
     return (
         <div className="h-full w-full bg-surface">
             <Navbar
+              logoText='Inithium'
               links={navLinks}
+              secondaryLinks={secondaryLinks}
               user={user}
               onLogout={handleLogout}
             />           
