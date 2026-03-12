@@ -102,6 +102,8 @@ importers:
 
   apps/web: {}
 
+  packages/shared: {}
+
 packages:
 
   '@babel/code-frame@7.29.0':
