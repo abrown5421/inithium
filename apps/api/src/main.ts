@@ -1,14 +1,20 @@
-import express from 'express';
+import 'dotenv/config';
+import { createApp } from './app';
+import { connectDB } from './db/connection';
 
-const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const PORT = process.env.PORT ?? 3001;
 
-const app = express();
+async function bootstrap() {
+  try {
+    await connectDB();
+    const app = createApp();
+    app.listen(PORT, () =>
+      console.log(`[Server] Listening on http://localhost:${PORT}`),
+    );
+  } catch (err) {
+    console.error('[Server] Failed to start:', err);
+    process.exit(1);
+  }
+}
 
-app.get('/', (req, res) => {
-  res.send({ message: 'Hello API' });
-});
-
-app.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
-});
+bootstrap();
