@@ -11,7 +11,7 @@
       "@nx/react/typings/image.d.ts",
       "vite/client"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "module": "esnext",
     "moduleResolution": "bundler"
   },
@@ -27,5 +27,14 @@
     "src/**/*.spec.jsx",
     "src/**/*.test.jsx"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../../packages/shared/src/**/*.ts"
+  ],
+  "references": [
+    { "path": "../../packages/shared/tsconfig.lib.json" }
+  ]
 }
