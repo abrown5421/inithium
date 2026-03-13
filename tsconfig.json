@@ -13,12 +13,18 @@
       "path": "./packages/shared"
     },
     {
+<<<<<<< HEAD
       "path": "./packages/server-core"
     },
     {
       "path": "./packages/crud"
     },
     {
+=======
+      "path": "./packages/ui"
+    },
+    {
+>>>>>>> d3ab20f8843e310fd1cdcf1d6e80e3ff35abd345
       "path": "./packages/ui"
     }
   ]
