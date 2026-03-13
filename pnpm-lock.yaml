@@ -136,6 +136,8 @@ importers:
 
   apps/web: {}
 
+  packages/server-core: {}
+
   packages/shared:
     dependencies:
       zod:
