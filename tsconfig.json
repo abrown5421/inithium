@@ -14,6 +14,9 @@
     },
     {
       "path": "./packages/server-core"
+    },
+    {
+      "path": "./packages/crud"
     }
   ]
 }
