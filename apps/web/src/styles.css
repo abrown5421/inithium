@@ -1,1 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── UI Package globals (Tailwind v4 + design tokens) ─────── */
+@import "@inithium/ui/styles";
+
+/* ── Scan app source files for Tailwind classes ──────────────
+   The @source paths here are relative to this file (apps/web/src).
+   The ui package's globals.css already scans packages/ui/src.    */
+@source "./**/*.{ts,tsx}";
+@source "../../packages/ui/src/**/*.{ts,tsx}";
