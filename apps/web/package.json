@@ -1,5 +1,14 @@
 {
   "name": "@inithium/web",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@inithium/ui": "workspace:*",
+    "@reduxjs/toolkit": "^2.8.2",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  }
 }
