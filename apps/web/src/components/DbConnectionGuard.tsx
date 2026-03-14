@@ -1,4 +1,7 @@
 import { useGetHealthQuery } from '../services/api';
+import {
+  Loader
+} from '@inithium/ui';
 
 interface Props {
   children: React.ReactNode;
@@ -11,8 +14,8 @@ export function DbConnectionGuard({ children }: Props) {
 
   if (isLoading) {
     return (
-      <div className="status-screen">
-        <p>Checking database connection…</p>
+      <div className="h-screen w-screen flex justify-center items-center">
+        <Loader size="xl" />
       </div>
     );
   }
