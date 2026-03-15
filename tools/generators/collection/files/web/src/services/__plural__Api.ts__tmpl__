@@ -1,0 +1,64 @@
+import { createCrudApi } from './crudApi.factory';
+
+// ---------------------------------------------------------------------------
+// Document type
+// ---------------------------------------------------------------------------
+// This inline interface mirrors the shape returned by the API.
+// Once you add I<%= className %> to @inithium/shared you can replace this with:
+//   import type { I<%= className %> } from '@inithium/shared';
+// ---------------------------------------------------------------------------
+export interface I<%= className %> {
+  _id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  // TODO: add your fields here (keep in sync with the backend model)
+}
+
+// ---------------------------------------------------------------------------
+// DTOs
+// ---------------------------------------------------------------------------
+export type Create<%= className %>DTO = Omit<I<%= className %>, '_id' | 'createdAt' | 'updatedAt'>;
+export type Update<%= className %>DTO = Partial<Create<%= className %>DTO>;
+
+// ---------------------------------------------------------------------------
+// API slice
+// ---------------------------------------------------------------------------
+// createCrudApi automatically generates five typed endpoints:
+//
+//   getAll    GET    /api/<%= plural %>
+//   getById   GET    /api/<%= plural %>/:id
+//   create    POST   /api/<%= plural %>
+//   update    PUT    /api/<%= plural %>/:id
+//   remove    DELETE /api/<%= plural %>/:id
+//
+// Use `extraEndpoints` to add endpoints for any custom backend routes.
+// ---------------------------------------------------------------------------
+export const <%= propertyNamePlural %>Api = createCrudApi<
+  I<%= className %>,
+  Create<%= className %>DTO,
+  Update<%= className %>DTO
+>({
+  reducerPath: '<%= propertyNamePlural %>Api',
+  collectionPath: '/api/<%= plural %>',
+  tagType: '<%= tagType %>',
+
+  // TODO: uncomment and extend for custom routes, e.g.:
+  // extraEndpoints: (builder) => ({
+  //   search<%= classNamePlural %>: builder.query<I<%= className %>[], string>({
+  //     query: (q) => `/api/<%= plural %>/search?q=${encodeURIComponent(q)}`,
+  //     providesTags: [{ type: '<%= tagType %>', id: 'SEARCH' }],
+  //   }),
+  // }),
+});
+
+// ---------------------------------------------------------------------------
+// Aliased hooks  (mirrors the usersApi naming convention)
+// ---------------------------------------------------------------------------
+export const {
+  useGetAllQuery:    useGet<%= classNamePlural %>Query,
+  useGetByIdQuery:   useGet<%= className %>ByIdQuery,
+  useCreateMutation: useCreate<%= className %>Mutation,
+  useUpdateMutation: useUpdate<%= className %>Mutation,
+  useRemoveMutation: useRemove<%= className %>Mutation,
+} = <%= propertyNamePlural %>Api;
