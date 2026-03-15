@@ -5,7 +5,10 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022", "dom"],
+    "lib": [
+      "es2022",
+      "dom"
+    ],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmitOnError": true,
@@ -18,7 +21,12 @@
     "target": "es2022",
     "baseUrl": ".",
     "paths": {
-      "@inithium/*": ["packages/*/src"]
+      "@inithium/*": [
+        "packages/*/src"
+      ],
+      "@inithium/nx-generators": [
+        "tools/generators/index.ts"
+      ]
     }
   }
 }

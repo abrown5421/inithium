@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "collection": {
+      "factory": "./collection/index",
+      "schema": "./collection/schema.json",
+      "description": "Scaffolds a new CRUD collection (backend files + frontend RTK Query slice) and wires everything into the app automatically."
+    }
+  }
+}

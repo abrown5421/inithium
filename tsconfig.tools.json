@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist/tools",
+    "rootDir": "tools",
+    "composite": false,
+    "declaration": false,
+    "noEmitOnError": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["tools/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

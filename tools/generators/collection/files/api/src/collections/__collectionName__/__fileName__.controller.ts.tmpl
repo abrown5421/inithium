@@ -1,0 +1,47 @@
+import type { Request, Response, NextFunction } from 'express';
+import { BaseController } from '../../crud/index.js';
+import { <%= propertyName %>Service, type <%= className %>Service } from './<%= fileName %>.service.js';
+import type { I<%= className %> } from './<%= fileName %>.model.js';
+
+// ---------------------------------------------------------------------------
+// Controller
+// ---------------------------------------------------------------------------
+// BaseController already handles all five base CRUD operations:
+//
+//   POST   /          → create(req, res, next)
+//   GET    /          → findAll(req, res, next)
+//   GET    /:id       → findById(req, res, next)
+//   PUT    /:id       → update(req, res, next)
+//   DELETE /:id       → remove(req, res, next)
+//
+// To expose custom routes, add action methods below and register them in
+// the routes file (<%= fileName %>.routes.ts).
+// Remember to bind each custom method in the constructor.
+// ---------------------------------------------------------------------------
+export class <%= className %>Controller extends BaseController<I<%= className %>> {
+  protected declare service: <%= className %>Service;
+
+  constructor() {
+    super(<%= propertyName %>Service);
+    this.service = <%= propertyName %>Service;
+    // TODO: bind custom methods here, e.g.:
+    // this.search = this.search.bind(this);
+  }
+
+  // TODO: add custom action methods here, e.g.:
+  // async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const q = String(req.query['q'] ?? '');
+  //     if (!q.trim()) {
+  //       res.status(400).json({ status: 'error', message: 'Query param "q" is required' });
+  //       return;
+  //     }
+  //     const results = await this.service.search(q);
+  //     res.status(200).json(results);
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
+}
+
+export const <%= propertyName %>Controller = new <%= className %>Controller();

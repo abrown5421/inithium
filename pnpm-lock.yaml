@@ -42,6 +42,9 @@ importers:
       '@babel/preset-react':
         specifier: ^7.14.5
         version: 7.28.5(@babel/core@7.29.0)
+      '@nx/devkit':
+        specifier: 22.5.4
+        version: 22.5.4(nx@22.5.4(@swc-node/register@1.11.1(@swc/core@1.15.18(@swc/helpers@0.5.19))(@swc/types@0.1.25)(typescript@5.9.3))(@swc/core@1.15.18(@swc/helpers@0.5.19)))
       '@nx/esbuild':
         specifier: 22.5.4
         version: 22.5.4(@babel/traverse@7.29.0)(@swc-node/register@1.11.1(@swc/core@1.15.18(@swc/helpers@0.5.19))(@swc/types@0.1.25)(typescript@5.9.3))(@swc/core@1.15.18(@swc/helpers@0.5.19))(esbuild@0.19.12)(nx@22.5.4(@swc-node/register@1.11.1(@swc/core@1.15.18(@swc/helpers@0.5.19))(@swc/types@0.1.25)(typescript@5.9.3))(@swc/core@1.15.18(@swc/helpers@0.5.19)))
@@ -210,6 +213,8 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.14)
+
+  tools/generators: {}
 
 packages:
 

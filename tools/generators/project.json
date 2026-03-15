@@ -1,0 +1,7 @@
+{
+  "name": "@inithium/nx-generators",
+  "projectType": "library",
+  "root": "tools/generators",
+  "sourceRoot": "tools/generators",
+  "targets": {}
+}

@@ -1,0 +1,33 @@
+import { BaseService } from '../../crud/index.js';
+import { <%= className %>Model, type I<%= className %> } from './<%= fileName %>.model.js';
+
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
+// BaseService already provides the following operations out of the box:
+//
+//   create(data)             → Promise<I<%= className %>>
+//   findAll()                → Promise<I<%= className %>[]>
+//   findById(id)             → Promise<I<%= className %>>        (throws NotFoundError)
+//   updateById(id, updates)  → Promise<I<%= className %>>        (throws NotFoundError)
+//   deleteById(id)           → Promise<void>                     (throws NotFoundError)
+//
+// Add any domain-specific query or mutation methods below.
+// ---------------------------------------------------------------------------
+export class <%= className %>Service extends BaseService<I<%= className %>> {
+  constructor() {
+    super(<%= className %>Model);
+  }
+
+  // TODO: add custom service methods here, e.g.:
+  // async findByName(name: string): Promise<I<%= className %> | null> {
+  //   return <%= className %>Model.findOne({ name }).lean();
+  // }
+  //
+  // async search(query: string): Promise<I<%= className %>[]> {
+  //   const regex = new RegExp(query, 'i');
+  //   return <%= className %>Model.find({ name: regex }).lean();
+  // }
+}
+
+export const <%= propertyName %>Service = new <%= className %>Service();
