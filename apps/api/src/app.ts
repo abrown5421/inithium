@@ -3,33 +3,18 @@ import cors from 'cors';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { userRouter } from './collections/users/user.routes.js';
-// ── Add new collections here as they are generated ──────────────────────────
-// import { productRouter } from './collections/products/product.routes.js';
-// import { orderRouter }   from './collections/orders/order.routes.js';
-// ────────────────────────────────────────────────────────────────────────────
 import { errorHandler, notFoundHandler } from './errors/index.js';
 
 export function createApp(): Express {
   const app = express();
 
-  app.use(
-    cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }),
-  );
+  app.use(cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }));
   app.use(express.json());
 
-  // ── Infrastructure routes ─────────────────────────────────────────────────
   app.use(healthRouter);
   app.use(authRouter);
-
-  // ── CRUD collections ──────────────────────────────────────────────────────
-  // Each router gets POST / GET / GET:id / PUT / DELETE automatically via
-  // createCrudRouter, plus any collection-specific extensions defined in
-  // the collection's own routes file.
   app.use('/api/users', userRouter);
-  // app.use('/api/products', productRouter);
-  // app.use('/api/orders',   orderRouter);
 
-  // ── Error handling (must be last) ─────────────────────────────────────────
   app.use(notFoundHandler);
   app.use(errorHandler);
 
