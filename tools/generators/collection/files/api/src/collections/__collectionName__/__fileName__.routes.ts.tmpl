@@ -1,0 +1,22 @@
+import { createCrudRouter } from '../../crud/index.js';
+import { <%= propertyName %>Controller } from './<%= fileName %>.controller.js';
+
+// ---------------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------------
+// createCrudRouter automatically wires the five base CRUD routes:
+//
+//   POST   /api/<%= plural %>        → create
+//   GET    /api/<%= plural %>        → findAll
+//   GET    /api/<%= plural %>/:id    → findById
+//   PUT    /api/<%= plural %>/:id    → update
+//   DELETE /api/<%= plural %>/:id    → remove
+//
+// Mount any additional custom routes below.
+// ---------------------------------------------------------------------------
+const router = createCrudRouter(<%= propertyName %>Controller);
+
+// TODO: add custom routes here, e.g.:
+// router.get('/search', <%= propertyName %>Controller.search);
+
+export { router as <%= propertyName %>Router };

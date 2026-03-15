@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "id": "collection",
+  "title": "Collection Generator",
+  "description": "Scaffolds a new CRUD collection (backend files + frontend RTK Query slice) and wires everything into the app automatically.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The collection name in singular form (e.g. 'product', 'order'). The generator derives plural, PascalCase, camelCase, etc. automatically.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the collection name? (singular, e.g. product)"
+    }
+  },
+  "required": ["name"]
+}
