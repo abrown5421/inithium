@@ -1,0 +1,37 @@
+import mongoose, { Schema, type Model, type Document } from 'mongoose';
+
+// ---------------------------------------------------------------------------
+// Interface
+// ---------------------------------------------------------------------------
+// TODO: Replace the placeholder `name` field with your real document shape.
+// ---------------------------------------------------------------------------
+export interface I<%= className %> extends Document {
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
+const <%= propertyName %>Schema = new Schema<I<%= className %>>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    // TODO: add your fields here
+  },
+  {
+    timestamps: true,
+  },
+);
+
+// ---------------------------------------------------------------------------
+// Model
+// ---------------------------------------------------------------------------
+export const <%= className %>Model: Model<I<%= className %>> = mongoose.model<I<%= className %>>(
+  '<%= className %>',
+  <%= propertyName %>Schema,
+);
