@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "./out-tsc/jest",
     "types": ["jest", "node"],
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@inithium/types": ["../types/src/index.ts"],
+      "@inithium/api-core": ["./src/index.ts"]
+    }
   },
   "include": [
     "jest.config.ts",
