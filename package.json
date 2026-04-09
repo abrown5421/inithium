@@ -28,6 +28,7 @@
     "@types/node": "20.19.9",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/supertest": "^7.2.0",
     "@vitejs/plugin-react": "^6.0.0",
     "@vitest/coverage-v8": "~4.0.0",
     "@vitest/ui": "~4.0.0",
@@ -48,12 +49,14 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "6.30.3",
+    "supertest": "^7.2.2",
     "zod": "^4.3.6"
   }
 }
