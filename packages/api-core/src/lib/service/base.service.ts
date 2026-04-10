@@ -5,7 +5,6 @@ import type {
 } from '@inithium/types';
 
 export type MongoId = string | Types.ObjectId;
-
 export type MongoFilter = Record<string, unknown>;
 
 export interface BulkUpdateItem<T> {
@@ -19,6 +18,22 @@ export interface UpdateManyBody<T> {
 
 export class BaseService<T> {
   constructor(protected readonly model: Model<T>) {}
+
+  async create(data: Partial<T>): Promise<T> {
+    return this.createOne(data);
+  }
+
+  async findById(id: MongoId): Promise<T | null> {
+    return this.model.findById(id).lean<T>().exec();
+  }
+
+  async findOne(filter: MongoFilter): Promise<T | null> {
+    return this.readOne(filter);
+  }
+
+  async updateById(id: MongoId, patch: UpdateQuery<T>): Promise<T | null> {
+    return this.updateOne(id, patch);
+  }
 
   async createOne(data: Partial<T>): Promise<T> {
     const doc = new this.model(data);
@@ -38,11 +53,10 @@ export class BaseService<T> {
     filter: MongoFilter,
     pagination: PaginationQuery = {}
   ): Promise<PaginatedResult<T>> {
-    const page  = Math.max(1, pagination.page  ?? 1);
+    const page = Math.max(1, pagination.page ?? 1);
     const limit = Math.min(100, Math.max(1, pagination.limit ?? 20));
-    const skip  = (page - 1) * limit;
-
-    const sortField = pagination.sort  ?? 'createdAt';
+    const skip = (page - 1) * limit;
+    const sortField = pagination.sort ?? 'createdAt';
     const sortOrder = pagination.order === 'asc' ? 1 : -1;
 
     const [items, total] = await Promise.all([
@@ -84,7 +98,8 @@ export class BaseService<T> {
           .exec()
       )
     );
-    return results.filter((r) => r !== null) as T[];
+    
+    return (results as any[]).filter((r): r is T => r !== null);
   }
 
   async deleteOne(id: MongoId): Promise<boolean> {

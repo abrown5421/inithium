@@ -18,6 +18,9 @@
     },
     {
       "path": "../../packages/api-collections/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/asset-manager/tsconfig.lib.json"
     }
   ]
 }

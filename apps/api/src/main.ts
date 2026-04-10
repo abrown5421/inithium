@@ -1,28 +1,52 @@
-  import 'dotenv/config';
-  import express from 'express';
-  import { connectDB } from '@inithium/api-core';
-  import { usersRouter } from '@inithium/api-collections';
+import 'dotenv/config';
+import express from 'express';
+import { connectDB } from '@inithium/api-core';
+import { assetsRouter, usersRouter, assetsService } from '@inithium/api-collections';
+import { createAssetManager } from '@inithium/asset-manager';
 
-  const host = process.env.HOST ?? 'localhost';
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-  const mongoUri = process.env.MONGO_URI!;
+interface AppConfig {
+  readonly host: string;
+  readonly port: number;
+  readonly mongoUri: string;
+}
 
-  const app = express();
+const getConfiguration = (): AppConfig => ({
+  host: process.env.HOST ?? 'localhost',
+  port: process.env.PORT ? Number(process.env.PORT) : 3000,
+  mongoUri: process.env.MONGO_URI ?? '',
+});
 
-  app.use(express.json());
+const initializeRoutes =
+  (routers: Record<string, express.Router>) => (app: express.Express) => {
+    Object.entries(routers).forEach(([path, router]) => app.use(path, router));
+    return app;
+  };
 
-  app.get('/', (_req, res) => {
-    res.json({ message: 'Hello API' });
+const bootstrap = async (): Promise<void> => {
+  const config = getConfiguration();
+
+  const { handshakeRouter, proxyRouter } = await createAssetManager({
+    assetsService,
   });
 
-  app.use('/users', usersRouter);
+  const app = express();
+  app.use(express.json());
 
-  async function bootstrap() {
-    await connectDB(mongoUri);
+  initializeRoutes({
+    '/proxy': proxyRouter,
+    '/users': usersRouter,
+    '/assets': assetsRouter,
+    '/asset': handshakeRouter,
+  })(app);
 
-    app.listen(port, host, () => {
-      console.log(`[ ready ] http://${host}:${port}`);
-    });
-  }
+  await connectDB(config.mongoUri);
 
-  bootstrap();
+  app.listen(config.port, config.host, () => {
+    console.log(`[ ready ] http://${config.host}:${config.port}`);
+  });
+};
+
+bootstrap().catch((err) => {
+  console.error('Fatal Error during bootstrap:', err);
+  process.exit(1);
+});
