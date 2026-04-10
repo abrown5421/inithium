@@ -1,5 +1,7 @@
 /* eslint-disable */
 const { readFileSync } = require('fs');
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('../../tsconfig.base.json');
 
 // Reading the SWC compilation config for the spec files
 const swcJestConfig = JSON.parse(
@@ -18,4 +20,7 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: 'test-output/jest/coverage',
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/../../',
+  }),
 };

@@ -10,14 +10,10 @@ await build({
   outfile: join(__dirname, 'dist/main.js'),
   bundle: true,
   platform: 'node',
-  format: 'cjs',
+  format: 'esm',
   target: 'node20',
   sourcemap: !isProduction,
-  // This is the key: resolves @inithium/source export condition,
-  // which maps to ./src/index.ts in each package — so workspace
-  // packages are bundled from source rather than their dist.
   conditions: ['@inithium/source'],
-  // Only externalize true npm dependencies, not workspace packages
   external: [
     'express',
     'mongoose',
@@ -27,10 +23,17 @@ await build({
     'zod',
     'tslib',
   ],
-  // Suppress warnings about the packages' own "type": "module"
-  // since we're outputting CJS
   banner: {
-    js: '/* bundled by esbuild */',
+    js: `
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+`,
   },
+  outExtension: { '.js': '.js' },
   logLevel: 'info',
 });

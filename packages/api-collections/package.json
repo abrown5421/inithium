@@ -17,14 +17,9 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "mongoose": "^8.0.0",
-    "express": "^4.21.2"
-  },
-  "peerDependencies": {
-    "@inithium/api-core": "*",
-    "@inithium/types": "*"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21"
+    "mongoose": "^9.4.1",
+    "express": "^4.21.2",
+    "@inithium/api-core": "workspace:*",
+    "@inithium/types": "workspace:*"
   }
 }

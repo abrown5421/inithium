@@ -1,11 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "paths": {
-      "*": ["./*"],
-      "@inithium/types": ["../types/src/index.ts"],
-      "@inithium/api-core": ["../api-core/src/index.ts"]
-    },
     "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
@@ -15,17 +10,8 @@
   },
   "include": ["src/**/*.ts"],
   "references": [
-    {
-      "path": "../types/tsconfig.lib.json"
-    },
-    {
-      "path": "../api-core/tsconfig.lib.json"
-    }
+    { "path": "../types/tsconfig.lib.json" },
+    { "path": "../api-core/tsconfig.lib.json" }
   ],
-  "exclude": [
-    "jest.config.ts",
-    "jest.config.cts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
-  ]
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

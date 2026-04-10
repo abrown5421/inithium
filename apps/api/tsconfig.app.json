@@ -10,7 +10,14 @@
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
   "references": [
-    { "path": "../../packages/api-core/tsconfig.lib.json" },
-    { "path": "../../packages/api-collections/tsconfig.lib.json" }
+    {
+      "path": "../../packages/types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/api-core/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/api-collections/tsconfig.lib.json"
+    }
   ]
 }

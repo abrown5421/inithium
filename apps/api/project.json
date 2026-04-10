@@ -1,0 +1,40 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "api",
+  "projectType": "application",
+  "sourceRoot": "apps/api/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node build.mjs",
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"],
+      "cache": true
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node dist/main.js",
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "apps/api/jest.config.cts"
+      },
+      "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p tsconfig.app.json --noEmit",
+        "cwd": "apps/api"
+      }
+    }
+  }
+}
