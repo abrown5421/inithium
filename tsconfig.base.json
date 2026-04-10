@@ -12,6 +12,7 @@
     "paths": {
       "@inithium/api-core": ["./packages/api-core/src/index.ts"],
       "@inithium/api-collections": ["./packages/api-collections/src/index.ts"],
+      "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"],
       "@inithium/types": ["./packages/types/src/index.ts"],
       "@inithium/utils": ["./packages/utils/src/index.ts"],
       "@inithium/validators": ["./packages/validators/src/index.ts"]

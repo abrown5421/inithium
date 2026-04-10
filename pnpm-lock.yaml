@@ -219,6 +219,12 @@ importers:
         specifier: ^2.3.0
         version: 2.8.1
 
+  packages/asset-manager:
+    dependencies:
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
   packages/types: {}
 
   packages/utils:
