@@ -1,5 +1,19 @@
-import { AvatarrProps } from "./avatar.types.js";
-import { BannerProps } from "./banner.types.js";
+import { AvatarOptions } from "./avatar.types.js";
+import { TrianglifyOptions } from "./banner.types.js";
+
+export type GenderSelection = 'Male' | 'Female' | 'Prefer Not to Say' | 'Other';
+
+export type Gender = 
+  | { type: 'Male' | 'Female' | 'Prefer Not to Say'; custom?: never }
+  | { type: 'Other'; custom: string };
+
+export interface Address {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    country?: string;
+}
 
 export interface User {
     _id: string;
@@ -8,6 +22,11 @@ export interface User {
     first_name: string;
     last_name: string;
     role: 'super-admin' | 'admin' | 'editor' | 'writer' | 'user'; 
-    user_banner?: BannerProps;
-    user_avatar?: AvatarrProps;
+    user_banner?: TrianglifyOptions;
+    user_avatar?: AvatarOptions;
+    bio?: string;
+    gender?: Gender; 
+    phone_number?: string;
+    dob?: string;
+    address?: Address;
 }

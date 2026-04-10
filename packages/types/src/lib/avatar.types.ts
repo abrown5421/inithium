@@ -1,14 +1,12 @@
-import { TrianglifyOptions } from "./banner.types.js";
-
 export interface AvatarOptions {
   gradient?: string;
   font?: string;
   variant?: 'square' | 'circular';
 }
 
-export interface AvatarrProps {
+export interface AvatarProps {
   src?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   alt?: string;
-  options?: TrianglifyOptions;
+  options?: AvatarOptions;
 }

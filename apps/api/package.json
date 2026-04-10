@@ -5,46 +5,24 @@
   "nx": {
     "targets": {
       "build": {
-        "executor": "@nx/esbuild:esbuild",
-        "outputs": [
-          "{options.outputPath}"
-        ],
+        "executor": "nx:run-commands",
+        "outputs": ["{projectRoot}/dist"],
         "defaultConfiguration": "production",
         "options": {
-          "platform": "node",
-          "outputPath": "apps/api/dist",
-          "format": [
-            "cjs"
-          ],
-          "bundle": false,
-          "main": "apps/api/src/main.ts",
-          "tsConfig": "apps/api/tsconfig.app.json",
-          "assets": [
-            "apps/api/src/assets"
-          ],
-          "esbuildOptions": {
-            "sourcemap": true,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "command": "node apps/api/build.mjs",
+          "cwd": "{workspaceRoot}"
         },
         "configurations": {
-          "development": {},
+          "development": {
+            "command": "node apps/api/build.mjs"
+          },
           "production": {
-            "esbuildOptions": {
-              "sourcemap": false,
-              "outExtension": {
-                ".js": ".js"
-              }
-            }
+            "command": "node apps/api/build.mjs --production"
           }
         }
       },
       "prune-lockfile": {
-        "dependsOn": [
-          "build"
-        ],
+        "dependsOn": ["build"],
         "cache": true,
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
@@ -56,32 +34,23 @@
         }
       },
       "copy-workspace-modules": {
-        "dependsOn": [
-          "build"
-        ],
+        "dependsOn": ["build"],
         "cache": true,
-        "outputs": [
-          "{workspaceRoot}/apps/api/dist/workspace_modules"
-        ],
+        "outputs": ["{workspaceRoot}/apps/api/dist/workspace_modules"],
         "executor": "@nx/js:copy-workspace-modules",
         "options": {
           "buildTarget": "build"
         }
       },
       "prune": {
-        "dependsOn": [
-          "prune-lockfile",
-          "copy-workspace-modules"
-        ],
+        "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
         "executor": "nx:noop"
       },
       "serve": {
         "continuous": true,
         "executor": "@nx/js:node",
         "defaultConfiguration": "development",
-        "dependsOn": [
-          "build"
-        ],
+        "dependsOn": ["build"],
         "options": {
           "buildTarget": "@inithium/api:build",
           "runBuildTargetDependencies": false

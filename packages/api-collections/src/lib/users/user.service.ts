@@ -6,6 +6,7 @@ export class UserService extends BaseService<User> {
   constructor() {
     super(UserModel);
   }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.model
       .findOne({ email: email.toLowerCase() })
@@ -13,6 +14,7 @@ export class UserService extends BaseService<User> {
       .lean<User>()
       .exec();
   }
+
   async findByRole(role: User['role']): Promise<User[]> {
     const result = await this.readMany({ role } as any);
     return result.items;
