@@ -2,7 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/jest",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@inithium/types": ["../../packages/types/src/index.ts"],
+      "@inithium/api-core": ["../../packages/api-core/src/index.ts"],
+      "@inithium/api-collections": ["../../packages/api-collections/src/index.ts"]
+    }
   },
   "include": [
     "jest.config.ts",

@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@inithium/*": ["./packages/*/src/index.ts"]
-    },
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -11,6 +8,13 @@
     "target": "es2022",
     "skipLibCheck": true,
     "strict": true,
-    "customConditions": ["@inithium/source"]
+    "customConditions": ["@inithium/source"],
+    "paths": {
+      "@inithium/api-core": ["./packages/api-core/src/index.ts"],
+      "@inithium/api-collections": ["./packages/api-collections/src/index.ts"],
+      "@inithium/types": ["./packages/types/src/index.ts"],
+      "@inithium/utils": ["./packages/utils/src/index.ts"],
+      "@inithium/validators": ["./packages/validators/src/index.ts"]
+    }
   }
 }
