@@ -12,6 +12,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./fonts": {
+      "@inithium/source": "./src/lib/theme/fonts.css",
+      "import": "./dist/fonts.css",
+      "default": "./dist/fonts.css"
     }
   }
 }

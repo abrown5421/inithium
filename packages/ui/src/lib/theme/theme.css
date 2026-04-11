@@ -1,13 +1,10 @@
 @theme {
-  /* Brand */
   --color-primary: var(--primary);
   --color-primary-contrast: var(--primary-contrast);
   --color-secondary: var(--secondary);
   --color-secondary-contrast: var(--secondary-contrast);
   --color-accent: var(--accent);
   --color-accent-contrast: var(--accent-contrast);
-
-  /* Semantic - Ensure these match :root exactly */
   --color-success: var(--success);
   --color-success-contrast: var(--success-contrast);
   --color-warning: var(--warning);
@@ -16,8 +13,6 @@
   --color-danger-contrast: var(--danger-contrast);
   --color-info: var(--info);
   --color-info-contrast: var(--info-contrast);
-
-  /* Surfaces - Cleaned up to 4 surfaces */
   --color-surface: var(--surface);
   --color-surface-contrast: var(--surface-contrast);
   --color-surface2: var(--surface2);
@@ -26,6 +21,9 @@
   --color-surface3-contrast: var(--surface3-contrast);
   --color-surface4: var(--surface4);
   --color-surface4-contrast: var(--surface4-contrast);
+  --font-display: var(--font-display);
+  --font-body:    var(--font-body);
+  --font-mono:    var(--font-mono);
 }
 
 :root {
@@ -34,9 +32,7 @@
   --secondary: #0f6666;
   --secondary-contrast: #e6f2f5;
   --accent: #f2a65a;
-  --accent-contrast: #121314;
-  
-  /* Semantics */
+  --accent-contrast: #121314;  
   --success: #407d31;
   --success-contrast: #e6f2f5;
   --warning: #e0b351;
@@ -45,8 +41,6 @@
   --danger-contrast: #e6f2f5;
   --info: #41c5cc;
   --info-contrast: #e6f2f5;
-
-  /* Surfaces */
   --surface: #ffffff;
   --surface-contrast: #121314;
   --surface2: #fafeff;
@@ -55,6 +49,9 @@
   --surface3-contrast: #2b2b2a;
   --surface4: #c5dbe0;
   --surface4-contrast: #474747;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Josefin Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
 }
 
 @variant dark (&:where(.dark, [data-theme="dark"] *));
