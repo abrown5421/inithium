@@ -1,31 +1,25 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
-    "emitDeclarationOnly": false,
-    "declaration": true,
-    "declarationMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
     "lib": ["ES2022"],
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "types": ["node"],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src/**/*.ts"],
-  "references": [],
   "exclude": [
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
-  ]
+  ],
+  "references": []
 }
