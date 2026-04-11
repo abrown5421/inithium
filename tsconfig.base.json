@@ -3,20 +3,19 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "es2022",
     "skipLibCheck": true,
     "strict": true,
-    "customConditions": ["@inithium/source"],
+    "forceConsistentCasingInFileNames": true,
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "paths": {
-      "@inithium/api-core": ["./packages/api-core/src/index.ts"],
-      "@inithium/api-collections": ["./packages/api-collections/src/index.ts"],
-      "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"],
       "@inithium/types": ["./packages/types/src/index.ts"],
       "@inithium/utils": ["./packages/utils/src/index.ts"],
       "@inithium/validators": ["./packages/validators/src/index.ts"],
-      "@inithium/ui": ["./packages/ui/src/index.ts"]
+      "@inithium/ui": ["./packages/ui/src/index.ts"],
+      "@inithium/api-core": ["./packages/api-core/src/index.ts"],
+      "@inithium/api-collections": ["./packages/api-collections/src/index.ts"],
+      "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"]
     }
   }
 }

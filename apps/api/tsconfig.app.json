@@ -1,26 +1,22 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "rootDir": "src",
-    "outDir": "../../dist/apps/api",
-    "types": ["node"],
-    "tsBuildInfoFile": "../../dist/apps/api/tsconfig.app.tsbuildinfo"
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ],
   "references": [
-    {
-      "path": "../../packages/types/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/api-core/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/api-collections/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/asset-manager/tsconfig.lib.json"
-    }
+    { "path": "../../packages/types/tsconfig.lib.json" },
+    { "path": "../../packages/api-core/tsconfig.lib.json" },
+    { "path": "../../packages/api-collections/tsconfig.lib.json" },
+    { "path": "../../packages/asset-manager/tsconfig.lib.json" }
   ]
 }

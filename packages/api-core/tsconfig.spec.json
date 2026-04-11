@@ -1,13 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./out-tsc/jest",
     "types": ["jest", "node"],
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@inithium/types": ["../types/src/index.ts"],
-      "@inithium/api-core": ["./src/index.ts"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "jest.config.ts",
@@ -17,8 +15,6 @@
     "src/**/*.d.ts"
   ],
   "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
+    { "path": "./tsconfig.lib.json" }
   ]
 }
