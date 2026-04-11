@@ -1,1 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import "../../../packages/ui/src/lib/theme/theme.css";
+
+@source "../src";
+@source "../../../packages/ui/src";

@@ -15,7 +15,8 @@
       "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"],
       "@inithium/types": ["./packages/types/src/index.ts"],
       "@inithium/utils": ["./packages/utils/src/index.ts"],
-      "@inithium/validators": ["./packages/validators/src/index.ts"]
+      "@inithium/validators": ["./packages/validators/src/index.ts"],
+      "@inithium/ui": ["./packages/ui/src/index.ts"]
     }
   }
 }
