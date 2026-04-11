@@ -1,29 +1,20 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import dts from 'vite-plugin-dts';
 import tailwindcss from '@tailwindcss/vite';
+import * as path from 'path';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../node_modules/.vite/apps/web',
-  server: {
-    port: 5173,
-    host: 'localhost',
-    fs: {
-      allow: ['../..'],
-    },
-  },
-  preview: {
-    port: 5173,
-    host: 'localhost',
-  },
+  cacheDir: '../../node_modules/.vite/packages/ui',
   plugins: [
-    tailwindcss(),
     react(),
-    nxViteTsPaths(),
-    tsconfigPaths(),
+    tailwindcss(),
+    dts({
+      entryRoot: 'src',
+      tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
+    }),
   ],
   build: {
     outDir: './dist',
@@ -32,9 +23,18 @@ export default defineConfig(() => ({
     commonjsOptions: {
       transformMixedEsModules: true,
     },
+    lib: {
+      entry: 'src/index.ts',
+      name: '@inithium/ui',
+      fileName: 'index',
+      formats: ['es' as const],
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'tailwindcss'], // Added tailwindcss as external if you don't want it bundled
+    },
   },
   test: {
-    name: '@inithium/web',
+    name: '@inithium/ui',
     watch: false,
     globals: true,
     environment: 'jsdom',

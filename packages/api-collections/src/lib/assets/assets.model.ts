@@ -21,3 +21,20 @@ const AssetSchema = new Schema<Asset>(
 AssetSchema.index({ category: 1 });
 
 export const AssetModel = mongoose.model<Asset>('Asset', AssetSchema);
+
+const KNOWN_INDEXES = new Set(['_id_', 'storage_key_1', 'category_1']);
+
+AssetModel.on('index', async () => {
+  try {
+    const existing = await AssetModel.collection.indexes();
+    await Promise.all(
+      existing
+        .filter((idx) => !KNOWN_INDEXES.has(idx.name as string))
+        .map((idx) =>
+          AssetModel.collection.dropIndex(idx.name as string).catch(() => undefined)
+        )
+    );
+  } catch {
+    // Collection may not exist yet on first run — nothing to do.
+  }
+});
