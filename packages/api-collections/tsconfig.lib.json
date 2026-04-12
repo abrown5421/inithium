@@ -17,7 +17,14 @@
     "src/**/*.test.ts"
   ],
   "references": [
-    { "path": "../types/tsconfig.lib.json" },
-    { "path": "../api-core/tsconfig.lib.json" }
+    {
+      "path": "../validators/tsconfig.lib.json"
+    },
+    {
+      "path": "../types/tsconfig.lib.json"
+    },
+    {
+      "path": "../api-core/tsconfig.lib.json"
+    }
   ]
 }

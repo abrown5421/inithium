@@ -58,7 +58,7 @@ describe('User Module', () => {
       await UserModel.create(mockUser);
       const user = await usersService.findByEmail(mockUser.email);
       expect(user).toBeDefined();
-      expect(user?.password).toBeDefined(); // Testing the .select('+password') logic
+      expect(user?.password).toBeDefined();
     });
 
     it('should find users by role', async () => {
@@ -80,10 +80,10 @@ describe('User Module', () => {
       expect(response.body.data[0].email).toBe(mockUser.email);
     });
 
-    it('GET /users/by-role/:role - should return 400 for invalid role', async () => {
+    it('GET /users/by-role/:role - should return 422 for invalid role', async () => {
       const response = await request(app).get('/users/by-role/not-a-role');
-      expect(response.status).toBe(400);
-      expect(response.body.error).toContain('Invalid role');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBeDefined();
     });
   });
 });

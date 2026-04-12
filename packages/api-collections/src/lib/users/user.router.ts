@@ -1,24 +1,27 @@
+import { Router } from 'express';
 import { createCollectionRouter } from '@inithium/api-core';
+import { validate, userValidators } from '@inithium/validators';
 import type { User } from '@inithium/types';
 import { usersService } from './user.service.js';
 
-export const usersRouter = createCollectionRouter<User>(
-  usersService,
-  (router) => {
-    router.get('/by-role/:role', async (req, res) => {
+const extendRouter = (router: Router): void => {
+  router.get(
+    '/by-role/:role',
+    validate(userValidators.byRole),
+    async (req, res, next) => {
       try {
         const role = req.params.role as User['role'];
-        const validRoles: User['role'][] = ['super-admin', 'admin', 'editor', 'writer', 'user'];
-        
-        if (!validRoles.includes(role)) {
-          return res.status(400).json({ success: false, error: `Invalid role: ${role}` });
-        }
-
         const users = await usersService.findByRole(role);
         res.json({ success: true, data: users });
-      } catch (err: any) {
-        res.status(500).json({ success: false, error: err?.message });
+      } catch (err) {
+        next(err);
       }
-    });
-  }
+    }
+  );
+};
+
+export const usersRouter = createCollectionRouter<User>(
+  usersService,
+  userValidators,
+  extendRouter
 );
