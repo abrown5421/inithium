@@ -1,4 +1,4 @@
-import { Button } from '@inithium/ui';
+import { Button, Text } from '@inithium/ui';
 
 export function App() {
   return (

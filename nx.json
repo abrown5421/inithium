@@ -25,7 +25,8 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["packages/ui"]
     },
     {
       "plugin": "@nx/vite/plugin",
