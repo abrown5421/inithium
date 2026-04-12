@@ -3,17 +3,18 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "rootDir": "src",
     "outDir": "dist",
     "declarationDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [
       "node",
       "@nx/react/typings/cssmodule.d.ts",
       "@nx/react/typings/image.d.ts",
       "vite/client"
-    ]
+    ],
+    "noEmit": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
@@ -29,6 +30,7 @@
     "src/**/*.test.tsx"
   ],
   "references": [
-    { "path": "../utils/tsconfig.lib.json" }
+    { "path": "../utils/tsconfig.lib.json" },
+    { "path": "../types/tsconfig.lib.json" }
   ]
 }
