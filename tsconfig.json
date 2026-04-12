@@ -3,14 +3,35 @@
   "compileOnSave": false,
   "files": [],
   "references": [
-    { "path": "./packages/types" },
-    { "path": "./packages/utils" },
-    { "path": "./packages/validators" },
-    { "path": "./packages/ui" },
-    { "path": "./packages/api-core" },
-    { "path": "./packages/api-collections" },
-    { "path": "./packages/asset-manager" },
-    { "path": "./apps/web" },
-    { "path": "./apps/api" }
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/utils"
+    },
+    {
+      "path": "./packages/validators"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/api-core"
+    },
+    {
+      "path": "./packages/api-collections"
+    },
+    {
+      "path": "./packages/asset-manager"
+    },
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./tools/generators"
+    }
   ]
 }

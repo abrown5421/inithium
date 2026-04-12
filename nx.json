@@ -70,6 +70,10 @@
     }
   },
   "generators": {
+    "@inithium/generators": {
+      "create-collection": {},
+      "delete-collection": {}
+    },
     "@nx/react": {
       "application": {
         "babel": true,

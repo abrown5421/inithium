@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "id": "create-collection",
+  "title": "Create API Collection",
+  "description": "Scaffold a new API collection with model, service, router, validators, and type interface",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the collection in kebab-case (e.g. blog-posts)",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the name of the collection? (kebab-case)"
+    }
+  },
+  "required": ["name"]
+}

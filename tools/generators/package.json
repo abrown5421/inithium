@@ -1,0 +1,13 @@
+{
+  "name": "@inithium/generators",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "generators": "./generators.json",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@nx/devkit": "22.6.2"
+  }
+}

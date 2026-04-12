@@ -1,0 +1,11 @@
+import { BaseService } from '@inithium/api-core';
+import type { <%= singularPascal %> } from '@inithium/types';
+import { <%= singularPascal %>Model } from './<%= singular %>.model.js';
+
+export class <%= singularPascal %>Service extends BaseService<<%= singularPascal %>> {
+  constructor() {
+    super(<%= singularPascal %>Model);
+  }
+}
+
+export const <%= singularCamel %>sService = new <%= singularPascal %>Service();

@@ -1,0 +1,50 @@
+import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import express from 'express';
+import { <%= singularPascal %>Model } from './<%= singular %>.model.js';
+import { <%= singularCamel %>sService } from './<%= singular %>.service.js';
+import { <%= singularCamel %>sRouter } from './<%= singular %>.router.js';
+
+const app = express();
+app.use(express.json());
+app.use('/<%= kebab %>', <%= singularCamel %>sRouter);
+
+let mongoServer: MongoMemoryServer;
+
+beforeAll(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  await mongoose.connect(mongoServer.getUri());
+});
+
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer.stop();
+});
+
+afterEach(async () => {
+  await <%= singularPascal %>Model.deleteMany({});
+});
+
+describe('<%= singularPascal %> Module', () => {
+  describe('<%= singularPascal %>Model & Schema', () => {
+    it('should be defined', () => {
+      expect(<%= singularPascal %>Model).toBeDefined();
+    });
+  });
+
+  describe('<%= singularPascal %>Service', () => {
+    it('should be defined', () => {
+      expect(<%= singularCamel %>sService).toBeDefined();
+    });
+  });
+
+  describe('<%= singularPascal %>Router (Integration)', () => {
+    it('GET /<%= kebab %> - should return paginated results', async () => {
+      const response = await request(app).get('/<%= kebab %>');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toBeDefined();
+    });
+  });
+});

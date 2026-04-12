@@ -1,0 +1,9 @@
+import mongoose, { Schema } from 'mongoose';
+import type { <%= singularPascal %> } from '@inithium/types';
+
+const <%= singularPascal %>Schema = new Schema<<%= singularPascal %>>(
+  {},
+  { timestamps: true }
+);
+
+export const <%= singularPascal %>Model = mongoose.model<<%= singularPascal %>>('<%= singularPascal %>', <%= singularPascal %>Schema);

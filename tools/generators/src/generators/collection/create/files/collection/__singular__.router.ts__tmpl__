@@ -1,0 +1,6 @@
+import { createCollectionRouter } from '@inithium/api-core';
+import { <%= singularCamel %>Validators } from '@inithium/validators';
+import type { <%= singularPascal %> } from '@inithium/types';
+import { <%= singularCamel %>sService } from './<%= singular %>.service.js';
+
+export const <%= singularCamel %>sRouter = createCollectionRouter<<%= singularPascal %>>(<%= singularCamel %>sService, <%= singularCamel %>Validators);
