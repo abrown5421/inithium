@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/master/packages/nx/schemas/generators-collection-schema.json",
+  "name": "@inithium/generators",
+  "version": "0.0.1",
+  "generators": {
+    "create-collection": {
+      "factory": "./dist/generators/collection/create/index.js",
+      "schema": "./src/generators/collection/create/schema.json",
+      "description": "Scaffold a new API collection with model, service, router, validators, and type interface"
+    },
+    "delete-collection": {
+      "factory": "./dist/generators/collection/delete/index.js",
+      "schema": "./src/generators/collection/delete/schema.json",
+      "description": "Remove an existing API collection and all associated scaffolding"
+    }
+  }
+}

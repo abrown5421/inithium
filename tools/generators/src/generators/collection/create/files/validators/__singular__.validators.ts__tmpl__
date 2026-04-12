@@ -1,0 +1,51 @@
+import { z } from 'zod';
+import { mongoIdSchema, paginationQuerySchema, bulkDeleteBodySchema } from './primitives.js';
+
+const <%= singularCamel %>WriteSchema = z.object({});
+
+const <%= singularCamel %>PatchSchema = <%= singularCamel %>WriteSchema.partial();
+
+const bulkUpdateItemSchema = z.object({
+  id:     mongoIdSchema,
+  update: <%= singularCamel %>PatchSchema,
+});
+
+export const <%= singularCamel %>Validators = {
+  createOne: z.object({ body: <%= singularCamel %>WriteSchema }),
+
+  createMany: z.object({
+    body: z.object({
+      items: z.array(<%= singularCamel %>WriteSchema).min(1, '`items` must be a non-empty array'),
+    }),
+  }),
+
+  readOne: z.object({
+    params: z.object({ id: mongoIdSchema }),
+  }),
+
+  readMany: z.object({
+    query: paginationQuerySchema,
+  }),
+
+  updateOne: z.object({
+    params: z.object({ id: mongoIdSchema }),
+    body:   <%= singularCamel %>PatchSchema,
+  }),
+
+  updateMany: z.object({
+    body: z.object({
+      items: z.array(bulkUpdateItemSchema).min(1, '`items` must be a non-empty array'),
+    }),
+  }),
+
+  deleteOne: z.object({
+    params: z.object({ id: mongoIdSchema }),
+  }),
+
+  deleteMany: z.object({
+    body: bulkDeleteBodySchema,
+  }),
+};
+
+export type <%= singularPascal %>Write = z.infer<typeof <%= singularCamel %>WriteSchema>;
+export type <%= singularPascal %>Patch = z.infer<typeof <%= singularCamel %>PatchSchema>;

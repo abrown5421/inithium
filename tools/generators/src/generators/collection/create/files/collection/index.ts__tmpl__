@@ -1,0 +1,3 @@
+export * from './<%= singular %>.model.js';
+export * from './<%= singular %>.service.js';
+export * from './<%= singular %>.router.js';

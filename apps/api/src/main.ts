@@ -1,18 +1,22 @@
 import 'dotenv/config';
 import express from 'express';
 import { connectDB, errorMiddleware } from '@inithium/api-core';
-import { assetsRouter, usersRouter, assetsService } from '@inithium/api-collections';
+import {
+  assetsRouter,
+  usersRouter,
+  assetsService,
+} from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
 
 interface AppConfig {
-  readonly host:     string;
-  readonly port:     number;
+  readonly host: string;
+  readonly port: number;
   readonly mongoUri: string;
 }
 
 const getConfiguration = (): AppConfig => ({
-  host:     process.env.HOST      ?? 'localhost',
-  port:     process.env.PORT      ? Number(process.env.PORT) : 3000,
+  host: process.env.HOST ?? 'localhost',
+  port: process.env.PORT ? Number(process.env.PORT) : 3000,
   mongoUri: process.env.MONGO_URI ?? '',
 });
 
@@ -26,16 +30,18 @@ const initializeRoutes =
 const bootstrap = async (): Promise<void> => {
   const config = getConfiguration();
 
-  const { handshakeRouter, proxyRouter } = await createAssetManager({ assetsService });
+  const { handshakeRouter, proxyRouter } = await createAssetManager({
+    assetsService,
+  });
 
   const app = express();
   app.use(express.json());
 
   initializeRoutes({
-    '/proxy':  proxyRouter,
-    '/users':  usersRouter,
+    '/proxy': proxyRouter,
+    '/users': usersRouter,
     '/assets': assetsRouter,
-    '/asset':  handshakeRouter,
+    '/asset': handshakeRouter,
   })(app);
 
   app.use(errorMiddleware);
