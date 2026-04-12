@@ -13,6 +13,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./middleware": {
+      "@inithium/source": "./src/lib/middleware/index.ts",
+      "types": "./dist/lib/middleware/index.d.ts",
+      "import": "./dist/lib/middleware/index.js",
+      "default": "./dist/lib/middleware/index.js"
     }
   },
   "dependencies": {
