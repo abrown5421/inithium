@@ -1,6 +1,5 @@
 import React from 'react';
-import { cn } from '@inithium/utils';
-import { ThemeColor } from '@inithium/types';
+import { cn, BG_COLOR_MAP, BORDER_COLOR_MAP } from '@inithium/utils';
 import type {
   BaseBoxProps,
   BorderRadius,
@@ -118,28 +117,6 @@ const OVERFLOW_Y_MAP: Record<Overflow, string> = {
   clip: 'overflow-y-clip',
 };
 
-const BG_MAP: Record<ThemeColor, string> = {
-  primary: 'bg-primary',
-  secondary: 'bg-secondary',
-  accent: 'bg-accent',
-  success: 'bg-success',
-  warning: 'bg-warning',
-  danger: 'bg-danger',
-  info: 'bg-info',
-  surface2: 'bg-surface2',
-};
-
-const BORDER_COLOR_MAP: Record<ThemeColor, string> = {
-  primary: 'border-primary',
-  secondary: 'border-secondary',
-  accent: 'border-accent',
-  success: 'border-success',
-  warning: 'border-warning',
-  danger: 'border-danger',
-  info: 'border-info',
-  surface2: 'border-surface2',
-};
-
 type SpacingPrefix =
   | 'p' | 'px' | 'py' | 'pt' | 'pr' | 'pb' | 'pl'
   | 'm' | 'mx' | 'my' | 'mt' | 'mr' | 'mb' | 'ml';
@@ -216,7 +193,7 @@ export const Box: React.FC<BaseBoxProps> = ({
     gapClass(gap),
     gapXClass(gapX),
     gapYClass(gapY),
-    bg && BG_MAP[bg],
+    bg && BG_COLOR_MAP[bg],
     border && BORDER_WIDTH_MAP[borderWidth],
     border && borderColor && BORDER_COLOR_MAP[borderColor],
     rounded && ROUNDED_MAP[rounded],

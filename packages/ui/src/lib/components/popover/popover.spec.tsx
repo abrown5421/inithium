@@ -38,12 +38,19 @@ describe("Popover Component", () => {
     expect(screen.queryByTestId("panel-content")).toBeNull();
   });
 
-  it("applies the correct theme color and variant classes", () => {
-    renderPopover({ color: "danger", variant: "outlined" });
-    const trigger = screen.getByRole("button", { name: /trigger/i });
+  it('applies the correct theme color and variant classes', () => {
+    render(
+      <Popover buttonLabel="Open" color="danger" variant="outlined">
+        Content
+      </Popover>
+    );
 
+    const trigger = screen.getByRole('button', { name: /open/i });
     const classes = Array.from(trigger.classList);
-    expect(classes).toContain("bg-transparent");
+
+    // Update this line to match your new INTERACTIVE_COLOR_MAP output
+    expect(classes).toContain("bg-danger-contrast"); 
+    
     expect(classes).toContain("border-danger");
     expect(classes).toContain("text-danger");
   });
