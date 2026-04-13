@@ -4,6 +4,7 @@ import { connectDB, errorMiddleware } from '@inithium/api-core';
 import {
   assetsRouter,
   usersRouter,
+  authRouter,
   assetsService,
 } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
@@ -15,8 +16,8 @@ interface AppConfig {
 }
 
 const getConfiguration = (): AppConfig => ({
-  host: process.env.HOST ?? 'localhost',
-  port: process.env.PORT ? Number(process.env.PORT) : 3000,
+  host:     process.env.HOST     ?? 'localhost',
+  port:     process.env.PORT     ? Number(process.env.PORT) : 3000,
   mongoUri: process.env.MONGO_URI ?? '',
 });
 
@@ -38,10 +39,11 @@ const bootstrap = async (): Promise<void> => {
   app.use(express.json());
 
   initializeRoutes({
-    '/proxy': proxyRouter,
-    '/users': usersRouter,
+    '/proxy':  proxyRouter,
+    '/auth':   authRouter,
+    '/users':  usersRouter,
     '/assets': assetsRouter,
-    '/asset': handshakeRouter,
+    '/asset':  handshakeRouter,
   })(app);
 
   app.use(errorMiddleware);

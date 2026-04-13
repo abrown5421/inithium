@@ -19,6 +19,7 @@
     "tslib": "^2.3.0",
     "mongoose": "^9.4.1",
     "express": "^4.21.2",
+    "bcryptjs": "^3.0.2",
     "@inithium/api-core": "workspace:*",
     "@inithium/types": "workspace:*"
   }
