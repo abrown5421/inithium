@@ -1,10 +1,10 @@
-import { Button, Text } from '@inithium/ui';
+import { Box, Button, Text } from '@inithium/ui';
 
 export function App() {
   return (
-    <div className='p-4'>
+    <Box className='p-4'>
       <Button color='accent' variant='ghost'>Click</Button>
-    </div>
+    </Box>
   );
 }
 
