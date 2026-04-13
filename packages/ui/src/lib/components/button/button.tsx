@@ -4,9 +4,9 @@ import {
   BaseButtonProps,
   ButtonSize,
   ButtonVariant,
-  ThemeColor,
 } from "./button.types";
 import { cn } from "@inithium/utils";
+import { ThemeColor } from "@inithium/types";
 
 const COLOR_MAP: Record<
   ThemeColor,
