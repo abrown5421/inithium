@@ -1,11 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { ThemeFont, TextSize, TextWeight, TextStyle, TextDecoration } from "@inithium/types";
 import {
-  ThemeFont,
-  TextSize,
-  TextWeight,
-  TextStyle,
-  TextDecoration,
   TextAs,
 } from "./text.types";
 import { Text } from "./text";
