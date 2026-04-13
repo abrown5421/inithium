@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@inithium/types": "*"
+    "@inithium/types": "workspace:*"
   }
 }
