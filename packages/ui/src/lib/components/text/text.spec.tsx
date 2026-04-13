@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import {
-  ThemeColor,
   ThemeFont,
   TextSize,
   TextWeight,
@@ -10,6 +9,7 @@ import {
   TextAs,
 } from "./text.types";
 import { Text } from "./text";
+import { ThemeColor } from "@inithium/types";
 
 const CONTENT = "Hello World";
 
