@@ -34,8 +34,8 @@ const _SAFE_LIST = `
   text-info-contrast bg-info-contrast border-info-contrast hover:text-info-contrast hover:bg-info-contrast
 
   /* --- SURFACES --- */
-  text-surface bg-surface border-surface hover:text-surface hover:bg-surface text-surface-contrast bg-surface-contrast
-  text-surface2 bg-surface2 border-surface2 hover:text-surface2 hover:bg-surface2 text-surface2-contrast bg-surface2-contrast
-  text-surface3 bg-surface3 border-surface3 hover:text-surface3 hover:bg-surface3 text-surface3-contrast bg-surface3-contrast
-  text-surface4 bg-surface4 border-surface4 hover:text-surface4 hover:bg-surface4 text-surface4-contrast bg-surface4-contrast
+  text-surface bg-surface border-surface hover:text-surface hover:text-surface-contrast hover:bg-surface text-surface-contrast bg-surface-contrast
+  text-surface2 bg-surface2 border-surface2 hover:text-surface2 hover:text-surface2-contrast hover:bg-surface2 text-surface2-contrast bg-surface2-contrast
+  text-surface3 bg-surface3 border-surface3 hover:text-surface3 hover:text-surface3-contrast hover:bg-surface3 text-surface3-contrast bg-surface3-contrast
+  text-surface4 bg-surface4 border-surface4 hover:text-surface4 hover:text-surface4-contrast hover:bg-surface4 text-surface4-contrast bg-surface4-contrast
 `;
