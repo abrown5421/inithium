@@ -1,55 +1,77 @@
-import React, { useState } from 'react';
-import { Box, Text, Switch } from '@inithium/ui';
-import type { ThemeColor } from '@inithium/types';
+import { useRef, useState } from 'react';
+import { Box, Text } from '@inithium/ui';
+import type { AnimationObject } from '@inithium/types';
 
-/**
- * Functional constant defining the available theme colors derived from ThemeColor type.
- */
-const THEME_COLORS: ThemeColor[] = [
-  'primary',
-  'secondary',
-  'accent',
-  'success',
-  'warning',
-  'danger',
-  'info',
-  'surface',
-  'surface2',
-  'surface3',
-  'surface4'
-];
+const createController = () => {
+  let resolveExit: () => void;
+
+  return {
+    phase: 'idle' as const,
+
+    triggerExit: () => {
+      return new Promise<void>((resolve) => {
+        resolveExit = resolve;
+        setTimeout(() => {
+          resolve();
+        }, 600);
+      });
+    },
+
+    triggerEnter: () => {},
+
+    resolveExit: () => resolveExit?.(),
+  };
+};
 
 export function App() {
-  const [states, setStates] = useState<Record<string, boolean>>(
-    THEME_COLORS.reduce((acc, color) => ({ ...acc, [color]: true }), {})
-  );
+  const [index, setIndex] = useState(0);
 
-  const toggleColor = (color: ThemeColor) => (checked: boolean) => {
-    setStates((prev) => ({ ...prev, [color]: checked }));
+  const controllerRef = useRef(createController());
+
+  const animation: AnimationObject = {
+    entry: 'fadeInUp',
+    exit: 'fadeOutDown',
+    entryDelay: 'delay-1s',
+    exitDelay: 'delay-1s',
+    entrySpeed: 'fast',
+    exitSpeed: 'fast',
+    controller: controllerRef.current,
+  };
+
+  const messages = [
+    'Welcome to Inithium',
+    'Animations are working',
+    'Exit → Enter sequencing',
+    'Delays applied correctly',
+  ];
+
+  const handleNext = async () => {
+    await controllerRef.current.triggerExit();
+    setIndex((prev) => (prev + 1) % messages.length);
   };
 
   return (
-    <Box direction='col' className="p-8 gap-6">
-      <Box direction='col' className="gap-2">
-        <Text size='2xl' weight='bold' color='primary'>
-          Switch Color Palette
-        </Text>
-        <Text className="opacity-70">
-          Demonstrating all available ThemeColor variants for the Inithium Switch component.
+    <Box direction="col" className="p-8 gap-4">
+      <Box animation={animation}>
+        <Text size="2xl" weight="bold" color="primary">
+          {messages[index]}
         </Text>
       </Box>
 
-      <Box direction='col' className="gap-4">
-        {THEME_COLORS.map((color) => (
-          <Switch
-            key={color}
-            color={color}
-            checked={states[color]}
-            onChange={toggleColor(color)}
-            label={color.charAt(0).toUpperCase() + color.slice(1)}
-            description={`Switch variant using the ${color} theme token.`}
-          />
-        ))}
+      <Box direction="row" gap="4">
+        <button
+          onClick={handleNext}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Next
+        </button>
+
+        <button
+          onClick={() => setIndex(0)}
+          className="px-4 py-2 bg-gray-500 text-white rounded"
+        >
+          Reset
+        </button>
       </Box>
     </Box>
   );
