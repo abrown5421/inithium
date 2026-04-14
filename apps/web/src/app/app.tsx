@@ -8,30 +8,17 @@ export function App() {
 
   return (
     <Box direction='col' className="p-8">
-      <Button onClick={toggleDialog(true)}>
-        Open Modal
-      </Button>
-
-      <Dialog 
-        open={isOpen} 
-        onClose={toggleDialog(false)}
-        title="Account Update"
-        description="Your changes will be saved immediately."
-        size="base"
-        color="primary"
-      >
-        <Box className="mt-4">
-          <Text>Are you sure you want to proceed with these changes?</Text>
-          <Box direction="row" className="mt-6 gap-2 justify-end">
-            <Button variant="ghost" onClick={toggleDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={toggleDialog(false)}>
-              Confirm
-            </Button>
-          </Box>
-        </Box>
-      </Dialog>
+      <Text size='2xl' weight='bold' className="mb-4" color='primary'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='secondary'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='accent'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='success'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='warning'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='danger'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='info'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='surface'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='surface2'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='surface3'>Welcome to Inithium UI</Text>
+      <Text size='2xl' weight='bold' className="mb-4" color='surface4'>Welcome to Inithium UI</Text>
     </Box>
   );
 }

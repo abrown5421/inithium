@@ -6,4 +6,7 @@ export type ThemeColor =
   | 'warning' 
   | 'danger' 
   | 'info' 
-  | 'surface2';
+  | 'surface'
+  | 'surface2'
+  | 'surface3'
+  | 'surface4'
