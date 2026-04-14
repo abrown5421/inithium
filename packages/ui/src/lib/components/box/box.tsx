@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { cn, BG_COLOR_MAP, BORDER_COLOR_MAP } from '@inithium/utils';
+import { AnimationObject } from '@inithium/types';
 import type {
   BaseBoxProps,
   BorderRadius,
@@ -133,7 +134,23 @@ const gapXClass = (value?: GapScale): string =>
 const gapYClass = (value?: GapScale): string =>
   value !== undefined ? `gap-y-${value}` : '';
 
-export const Box: React.FC<BaseBoxProps> = ({
+type ExtendedBoxProps = BaseBoxProps & {
+  animation?: AnimationObject;
+};
+
+const buildAnimationClass = (
+  name: string,
+  delay?: string,
+  speed?: string,
+) =>
+  cn(
+    'animate__animated',
+    `animate__${name}`,
+    delay && `animate__${delay}`,
+    speed && `animate__${speed}`,
+  );
+
+export const Box: React.FC<ExtendedBoxProps> = ({
   as: Tag = 'div',
   display = 'flex',
   position,
@@ -161,8 +178,52 @@ export const Box: React.FC<BaseBoxProps> = ({
   className = '',
   style,
   children,
+  animation,
   ...props
 }) => {
+  const [renderedChildren, setRenderedChildren] = useState(children);
+  const [animClass, setAnimClass] = useState('');
+  const ref = useRef<any>(null);
+  const prevChildren = useRef(children);
+
+  useEffect(() => {
+    if (!animation) {
+      setRenderedChildren(children);
+      return;
+    }
+
+    if (children === prevChildren.current) return;
+
+    const run = async () => {
+      if (animation.controller?.triggerExit) {
+        setAnimClass(
+          buildAnimationClass(
+            animation.exit,
+            animation.exitDelay,
+            animation.exitSpeed,
+          ),
+        );
+        await animation.controller.triggerExit();
+      }
+
+      setRenderedChildren(children);
+
+      if (animation.controller?.triggerEnter) {
+        setAnimClass(
+          buildAnimationClass(
+            animation.entry,
+            animation.entryDelay,
+            animation.entrySpeed,
+          ),
+        );
+        animation.controller.triggerEnter();
+      }
+    };
+
+    run();
+    prevChildren.current = children;
+  }, [children, animation]);
+
   const classes = cn(
     DISPLAY_MAP[display],
     DIRECTION_MAP[direction],
@@ -200,12 +261,13 @@ export const Box: React.FC<BaseBoxProps> = ({
     overflow && OVERFLOW_MAP[overflow],
     overflowX && OVERFLOW_X_MAP[overflowX],
     overflowY && OVERFLOW_Y_MAP[overflowY],
+    animClass,
     className,
   );
 
   return (
-    <Tag {...props} style={style} className={classes}>
-      {children}
+    <Tag ref={ref} {...props} style={style} className={classes}>
+      {renderedChildren}
     </Tag>
   );
 };
