@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import { Box } from '@inithium/ui';
-import type { PageDefinition } from './registry';
-import type { AnimationController } from '@inithium/types';
+import type { AnimationController, PageDefinition } from '@inithium/types';
 
 interface PageShellProps {
   page: PageDefinition;
@@ -25,6 +24,7 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       fullWidth
       fullHeight
       bg={page.bg}
+      color={page.color}
       animation={animation}
     >
       <Suspense fallback={null}>
