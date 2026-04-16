@@ -32,6 +32,15 @@
     },
     {
       "path": "./tools/generators"
+    },
+    {
+      "path": "./packages/store"
+    },
+    {
+      "path": "./packages/router"
+    },
+    {
+      "path": "./packages/pages"
     }
   ]
 }

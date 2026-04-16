@@ -15,7 +15,10 @@
       "@inithium/ui": ["./packages/ui/src/index.ts"],
       "@inithium/api-core": ["./packages/api-core/src/index.ts"],
       "@inithium/api-collections": ["./packages/api-collections/src/index.ts"],
-      "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"]
+      "@inithium/asset-manager": ["./packages/asset-manager/src/index.ts"],
+      "@inithium/pages": ["./packages/pages/src/index.ts"],
+      "@inithium/store": ["./packages/store/src/index.ts"],
+      "@inithium/router": ["./packages/router/src/index.ts"]
     }
   }
 }
