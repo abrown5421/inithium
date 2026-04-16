@@ -1,17 +1,5 @@
 import React from 'react';
-import type { AnimateEntry, AnimateExit, AnimateSpeed } from '@inithium/types';
-import type { ThemeColor } from '@inithium/types';
-
-export interface PageDefinition {
-  key: string;
-  path: string;
-  entry: AnimateEntry;
-  exit: AnimateExit;
-  entrySpeed?: AnimateSpeed;
-  exitSpeed?: AnimateSpeed;
-  bg: ThemeColor;
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
-}
+import type { PageDefinition } from '@inithium/types';//Module '"@inithium/types"' has no exported member 'PageDefinition'.ts(2305)
 
 export const PAGE_REGISTRY: PageDefinition[] = [
   {
@@ -21,6 +9,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOut',
     bg: 'surface',
     component: React.lazy(() => import('./pages/home/home')),
+    navigation: { label: 'Home', location: 'main', order: 1 },
   },
   {
     key: 'documentation',
@@ -29,6 +18,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOut',
     bg: 'surface',
     component: React.lazy(() => import('./pages/documentation/documentation')),
+    navigation: { label: 'Documentation', location: 'main', order: 2 },
   },
   {
     key: 'privacy-policy',
@@ -37,6 +27,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOut',
     bg: 'surface',
     component: React.lazy(() => import('./pages/privacy-policy/privacy-policy')),
+    navigation: { label: 'Privacy Policy', location: 'footer', order: 1 },
   },
   {
     key: 'login',

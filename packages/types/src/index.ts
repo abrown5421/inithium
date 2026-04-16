@@ -7,3 +7,4 @@ export * from './lib/theme.types.js';
 export * from './lib/auth.types.js';
 export * from './lib/typography.types.js'
 export * from './lib/animation.types.js';
+export * from './lib/page.types.js';
