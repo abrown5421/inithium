@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PageDefinition } from '@inithium/types';//Module '"@inithium/types"' has no exported member 'PageDefinition'.ts(2305)
+import type { PageDefinition } from '@inithium/types';
 
 export const PAGE_REGISTRY: PageDefinition[] = [
   {
@@ -34,7 +34,8 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     path: '/auth/login',
     entry: 'fadeInUp',
     exit: 'fadeOutDown',
-    bg: 'surface2',
+    bg: 'surface-contrast',
+    color: 'surface',
     component: React.lazy(() => import('./pages/login/login')),
   },
   {
@@ -42,12 +43,12 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     path: '/auth/signup',
     entry: 'fadeInUp',
     exit: 'fadeOutDown',
-    bg: 'surface2',
+    bg: 'surface-contrast',
+    color: 'surface',
     component: React.lazy(() => import('./pages/sign-up/sign-up')),
   },
 ];
 
-// Lookup helpers
 export const getPageByKey = (key: string) =>
   PAGE_REGISTRY.find((p) => p.key === key);
 

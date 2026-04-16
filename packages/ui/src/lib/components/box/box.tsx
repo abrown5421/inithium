@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { cn, BG_COLOR_MAP, BORDER_COLOR_MAP } from '@inithium/utils';
+import { cn, BG_COLOR_MAP, BORDER_COLOR_MAP, TEXT_COLOR_MAP } from '@inithium/utils';
 import { AnimationObject } from '@inithium/types';
 import type {
   BaseBoxProps,
@@ -168,6 +168,7 @@ export const Box: React.FC<ExtendedBoxProps> = ({
   m, mx, my, mt, mr, mb, ml,
   gap, gapX, gapY,
   bg,
+  color,
   border,
   borderColor,
   borderWidth = '1',
@@ -255,6 +256,7 @@ export const Box: React.FC<ExtendedBoxProps> = ({
     gapXClass(gapX),
     gapYClass(gapY),
     bg && BG_COLOR_MAP[bg],
+    color && TEXT_COLOR_MAP[color]?.text,
     border && BORDER_WIDTH_MAP[borderWidth],
     border && borderColor && BORDER_COLOR_MAP[borderColor],
     rounded && ROUNDED_MAP[rounded],

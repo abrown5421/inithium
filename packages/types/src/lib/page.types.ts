@@ -20,6 +20,7 @@ export interface PageDefinition {
   entrySpeed?: AnimateSpeed;
   exitSpeed?: AnimateSpeed;
   bg: ThemeColor;
+  color?: ThemeColor;
   component: React.LazyExoticComponent<React.ComponentType<any>>;
   navigation?: NavigationConfig;
 }

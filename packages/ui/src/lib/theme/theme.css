@@ -30,6 +30,7 @@
 }
 
 :root {
+  --height-shell: calc(100dvh - 48px);
   --primary: #0f5066;
   --primary-contrast: #e6f2f5;
   --secondary: #0f6666;
@@ -70,4 +71,8 @@
   --surface4: #474747;
   --shadow-rgb: 255, 255, 255;
   --surface4-contrast: #c5dbe0;
+}
+
+@utility h-shell {
+  height: var(--height-shell);
 }

@@ -159,6 +159,7 @@ export interface BaseBoxProps extends React.HTMLAttributes<HTMLElement> {
   gapX?: GapScale;
   gapY?: GapScale;
   bg?: ThemeColor;
+  color?: ThemeColor;
   border?: boolean;
   borderColor?: ThemeColor;
   borderWidth?: BorderWidth;

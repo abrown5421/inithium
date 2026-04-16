@@ -39,7 +39,7 @@ const TransitionLayout: React.FC = () => {
 
 const RouterShell: React.FC = () => {
   return (
-    <Box className="min-h-screen bg-surface" direction="col">
+    <Box className="h-shell bg-surface-contrast" direction="col">
       <Outlet />
     </Box>
   );
