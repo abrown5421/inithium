@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -14,11 +14,15 @@ import { Box } from '@inithium/ui';
 const TransitionLayout: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const { controller, activePage } = usePageTransition();
+  const { controller, activePage, phase } = usePageTransition();
+  const initialized = useRef(false);
 
   useEffect(() => {
-    dispatch(initialize(location.pathname));
-  }, [dispatch, location.pathname]);
+    if (!initialized.current) {
+      initialized.current = true;
+      dispatch(initialize(location.pathname));
+    }
+  }, [dispatch]); // ← no location.pathname dep
 
   useEffect(() => {
     if (activePage !== null && activePage !== location.pathname) {
@@ -26,15 +30,19 @@ const TransitionLayout: React.FC = () => {
     }
   }, [location.pathname, activePage, dispatch]);
 
+  useEffect(() => {
+    if (phase === 'entering') {
+      controller.triggerEnter();
+    }
+  }, [phase]); // ← watch phase, not location
+
   const currentPageDef = PAGE_REGISTRY.find(
     (p) => p.key === activePage || p.path === activePage,
   );
 
   if (!currentPageDef) return null;
 
-  return (
-    <PageShell page={currentPageDef} controller={controller} />
-  );
+  return <PageShell page={currentPageDef} controller={controller} />;
 };
 
 const RouterShell: React.FC = () => {

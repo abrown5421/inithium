@@ -13,9 +13,15 @@ describe('Color Maps Abstraction', () => {
   describe('INTERACTIVE_COLOR_MAP', () => {
     it.each(colors)('should provide consistent tokens for %s', (color) => {
       const tokens = INTERACTIVE_COLOR_MAP[color];
-      
+      const isContrast = color.endsWith('-contrast');
+      const baseColor = isContrast ? color.replace(/-contrast$/, '') : color;
+
+      // bg is always the color itself
       expect(tokens.bg).toBe(`bg-${color}`);
-      expect(tokens.bgContrast).toBe(`bg-${color}-contrast`);
+
+      // bgContrast inverts: for base colors it points to contrast, for contrast colors it points back to base
+      expect(tokens.bgContrast).toBe(isContrast ? `bg-${baseColor}` : `bg-${color}-contrast`);
+
       expect(tokens.text).toBe(`text-${color}`);
       expect(tokens.hoverBg).toBe(`hover:bg-${color}`);
       expect(tokens.hoverBorderB).toBe(`hover:border-b-${color}`);

@@ -20,7 +20,8 @@
   --color-surface3: var(--surface3);
   --color-surface3-contrast: var(--surface3-contrast);
   --color-surface4: var(--surface4);
-  --color-surface4-contrast: var(--surface4-contrast);--shadow-glow: 0 0 10px rgba(var(--shadow-color), 0.1);
+  --color-surface4-contrast: var(--surface4-contrast);
+  --shadow-glow: 0 0 10px rgba(var(--shadow-color), 0.1);
   --shadow-glow: 0 0 10px rgba(var(--shadow-rgb), 0.15);
   --shadow-nav: 0 4px 6px -1px rgba(var(--shadow-rgb), 0.1);
   --shadow-footer: 0 -4px 6px -1px rgba(var(--shadow-rgb), 0.1);
@@ -30,7 +31,7 @@
 }
 
 :root {
-  --height-shell: calc(100dvh - 48px);
+  --height-shell: calc(100dvh - 64px);
   --primary: #0f5066;
   --primary-contrast: #e6f2f5;
   --secondary: #0f6666;

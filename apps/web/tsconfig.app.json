@@ -30,13 +30,16 @@
   ],
   "references": [
     {
+      "path": "../../packages/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/pages/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/router/tsconfig.lib.json"
     },
     {
       "path": "../../packages/store/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/ui/tsconfig.lib.json"
     }
   ]
 }
