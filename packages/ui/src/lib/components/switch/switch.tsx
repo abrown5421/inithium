@@ -2,9 +2,9 @@ import React from 'react';
 import { Switch as HeadlessSwitch } from '@headlessui/react';
 import { cn } from '@inithium/utils';
 import type { ThemeColor, ComponentSize } from '@inithium/types';
-import type { SwitchProps } from './switch.types';
+import type { SwitchColor, SwitchProps } from './switch.types';
 
-const CHECKED_COLOR_MAP: Record<ThemeColor, string> = {
+const CHECKED_COLOR_MAP: Record<SwitchColor, string> = {
   primary: 'bg-primary',
   secondary: 'bg-secondary',
   accent: 'bg-accent',
@@ -66,7 +66,7 @@ export const Switch: React.FC<SwitchProps> = ({
     'relative inline-flex flex-shrink-0 items-center rounded-full border-2 border-transparent',
     'transition-colors duration-200 ease-in-out cursor-pointer',
     'focus:outline-none data-[focus]:ring-2 data-[focus]:ring-offset-2',
-    active ? CHECKED_COLOR_MAP[color] : 'bg-gray-300',
+    active ? CHECKED_COLOR_MAP[color] : 'bg-gray-300', //err
     TRACK_SIZE_MAP[size],
     switchClassName,
   );

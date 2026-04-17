@@ -27,7 +27,6 @@ export const transitionSlice = createSlice({
   name: 'transition',
   initialState,
   reducers: {
-    /** Called by the router when a new route is requested */
     requestTransition(state, action: PayloadAction<string>) {
       if (state.activePage === action.payload) return;
       state.pendingPage = action.payload;
