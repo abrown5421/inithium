@@ -7,7 +7,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "dom", "dom.iterable"],
     "paths": {
       "@inithium/types": ["./packages/types/src/index.ts"],
       "@inithium/utils": ["./packages/utils/src/index.ts"],

@@ -118,9 +118,36 @@ const OVERFLOW_Y_MAP: Record<Overflow, string> = {
   clip: 'overflow-y-clip',
 };
 
-type SpacingPrefix =
-  | 'p' | 'px' | 'py' | 'pt' | 'pr' | 'pb' | 'pl'
-  | 'm' | 'mx' | 'my' | 'mt' | 'mr' | 'mb' | 'ml';
+const SPACING_VALUES: SpacingScale[] = [
+  '0','1','2','3','4','5','6','7','8','9','10','11','12',
+  '14','16','20','24','28','32','36','40','44','48','52',
+  '56','60','64','72','80','96','px','auto',
+];
+
+const GAP_VALUES: GapScale[] = [
+  '0','1','2','3','4','5','6','7','8','9','10','11','12',
+  '14','16','20','24','28','32','36','40','44','48','52',
+  '56','60','64','72','80','96','px',
+];
+
+type SpacingPrefix = 'p'|'px'|'py'|'pt'|'pr'|'pb'|'pl'|'m'|'mx'|'my'|'mt'|'mr'|'mb'|'ml';
+type GapPrefix = 'gap' | 'gap-x' | 'gap-y';
+
+export const SPACING_MAP = Object.fromEntries(
+  (['p','px','py','pt','pr','pb','pl','m','mx','my','mt','mr','mb','ml'] as SpacingPrefix[])
+    .map(prefix => [
+      prefix,
+      Object.fromEntries(SPACING_VALUES.map(v => [v, `${prefix}-${v}`]))
+    ])
+) as Record<SpacingPrefix, Record<SpacingScale, string>>;
+
+export const GAP_MAP = Object.fromEntries(
+  (['gap','gap-x','gap-y'] as GapPrefix[])
+    .map(prefix => [
+      prefix,
+      Object.fromEntries(GAP_VALUES.map(v => [v, `${prefix}-${v}`]))
+    ])
+) as Record<GapPrefix, Record<GapScale, string>>;
 
 const spacingClass = (prefix: SpacingPrefix, value?: SpacingScale): string =>
   value !== undefined ? `${prefix}-${value}` : '';
@@ -238,23 +265,23 @@ export const Box: React.FC<ExtendedBoxProps> = ({
     position && POSITION_MAP[position],
     fullWidth && 'w-full',
     fullHeight && 'h-full',
-    spacingClass('p', p),
-    spacingClass('px', px),
-    spacingClass('py', py),
-    spacingClass('pt', pt),
-    spacingClass('pr', pr),
-    spacingClass('pb', pb),
-    spacingClass('pl', pl),
-    spacingClass('m', m),
-    spacingClass('mx', mx),
-    spacingClass('my', my),
-    spacingClass('mt', mt),
-    spacingClass('mr', mr),
-    spacingClass('mb', mb),
-    spacingClass('ml', ml),
-    gapClass(gap),
-    gapXClass(gapX),
-    gapYClass(gapY),
+    p  && SPACING_MAP['p'][p],
+    px && SPACING_MAP['px'][px],
+    py && SPACING_MAP['py'][py],
+    pt && SPACING_MAP['pt'][pt],
+    pr && SPACING_MAP['pr'][pr],
+    pb && SPACING_MAP['pb'][pb],
+    pl && SPACING_MAP['pl'][pl],
+    m  && SPACING_MAP['m'][m],
+    mx && SPACING_MAP['mx'][mx],
+    my && SPACING_MAP['my'][my],
+    mt && SPACING_MAP['mt'][mt],
+    mr && SPACING_MAP['mr'][mr],
+    mb && SPACING_MAP['mb'][mb],
+    ml && SPACING_MAP['ml'][ml],
+    gap  && GAP_MAP['gap'][gap],
+    gapX && GAP_MAP['gap-x'][gapX],
+    gapY && GAP_MAP['gap-y'][gapY],
     bg && BG_COLOR_MAP[bg],
     color && TEXT_COLOR_MAP[color]?.text,
     border && BORDER_WIDTH_MAP[borderWidth],

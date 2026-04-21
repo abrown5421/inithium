@@ -25,6 +25,8 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       fullHeight
       bg={page.bg}
       color={page.color}
+      align={page.centerContent ? 'center' : undefined}
+      justify={page.centerContent ? 'center' : undefined}
       animation={animation}
     >
       <Suspense fallback={null}>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Input as HeadlessInput, Field, Label, Description } from '@headlessui/react';
-import { cn, INTERACTIVE_COLOR_MAP, COMPONENT_SIZE_MAP } from '@inithium/utils';
+import { Field, Label, Description } from '@headlessui/react';
+import { cn, INTERACTIVE_COLOR_MAP } from '@inithium/utils';
 import type { ThemeColor, ComponentSize } from '@inithium/types';
 import type { InputVariant, InputProps } from './input.types';
 
@@ -23,7 +23,13 @@ const getVariantStyles = (variant: InputVariant, color: ThemeColor, invalid: boo
 
   if (invalid) {
     const danger = INTERACTIVE_COLOR_MAP['danger'];
-    return cn('border-2', danger.border, 'bg-surface text-on-surface', 'focus:outline-none data-[focus]:ring-2 data-[focus]:ring-offset-1', `data-[focus]:${danger.border}`);
+    return cn(
+      'border-2',
+      danger.border,
+      'bg-surface text-on-surface',
+      'focus:outline-none focus:ring-2 focus:ring-offset-1',
+      danger.border,
+    );
   }
 
   const styles: Record<InputVariant, string> = {
@@ -32,22 +38,22 @@ const getVariantStyles = (variant: InputVariant, color: ThemeColor, invalid: boo
       c.bg,
       c.textContrast,
       'placeholder:opacity-60',
-      'focus:outline-none data-[focus]:ring-2 data-[focus]:ring-offset-1',
-      `data-[focus]:${c.border}`,
+      'focus:outline-none focus:ring-2 focus:ring-offset-1',
+      `focus:${c.border}`,
     ),
     outlined: cn(
       'border-2 bg-surface text-on-surface',
       c.border,
       'placeholder:text-on-surface/40',
-      'focus:outline-none data-[focus]:ring-2 data-[focus]:ring-offset-1',
-      `data-[focus]:${c.border}`,
+      'focus:outline-none focus:ring-2 focus:ring-offset-1',
+      `focus:${c.border}`,
     ),
     ghost: cn(
       'border-0 border-b-2 rounded-none bg-transparent text-on-surface',
       c.border,
       'placeholder:text-on-surface/40',
       'focus:outline-none',
-      `data-[focus]:${c.border}`,
+      `focus:${c.border}`,
     ),
   };
 
@@ -73,6 +79,9 @@ export const Input: React.FC<InputProps> = ({
   disabled = false,
   type = 'text',
   ...props
+  // ...props now spreads React.InputHTMLAttributes<HTMLInputElement> minus
+  // size/color — so onChange is typed as ChangeEventHandler<HTMLInputElement>
+  // and e.target.value is fully available to all consumers.
 }) => {
   const c = INTERACTIVE_COLOR_MAP[color as ThemeColor];
 
@@ -100,10 +109,10 @@ export const Input: React.FC<InputProps> = ({
           </span>
         )}
 
-        <HeadlessInput
+        <input
           type={type}
-          invalid={invalid}
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             'w-full rounded-md transition duration-200 disabled:cursor-not-allowed',
             INPUT_SIZE_MAP[size as ComponentSize],
@@ -124,9 +133,7 @@ export const Input: React.FC<InputProps> = ({
       </div>
 
       {description && !error && (
-        <Description
-          className={cn('text-xs text-on-surface/60', descriptionClassName)}
-        >
+        <Description className={cn('text-xs text-on-surface/60', descriptionClassName)}>
           {description}
         </Description>
       )}

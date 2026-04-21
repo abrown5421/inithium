@@ -4,7 +4,7 @@ import type { AnimationController, AnimationPhase } from '@inithium/types';
 import { AppDispatch, RootState } from '../store.js';
 import { commitTransition, enterComplete } from '../slices/transition.slice.js';
 
-const ANIMATION_DURATION_MS = 600; 
+const ANIMATION_DURATION_MS = 300; 
 
 export const usePageTransition = (): {
   controller: AnimationController;

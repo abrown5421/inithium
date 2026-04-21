@@ -26,6 +26,7 @@
   ],
   "references": [
     { "path": "../ui/tsconfig.lib.json" },
-    { "path": "../types/tsconfig.lib.json" }
+    { "path": "../types/tsconfig.lib.json" },
+    { "path": "../router/tsconfig.lib.json" }
   ]
 }
