@@ -33,9 +33,10 @@ root.render(
         pages={getNavLinks(PAGE_REGISTRY)}
         isAuthenticated={false}
         onNavigate={router.navigate}
+        onLoginClick={() => router.navigate('/auth/login')}
         logo={{
           imageSrc: CONFIG.LOGO_URL,
-          title: CONFIG.APP_TITLE
+          title: CONFIG.APP_TITLE,
         }}
       />
       <AppRouter />

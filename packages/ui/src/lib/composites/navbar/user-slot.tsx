@@ -2,6 +2,7 @@ import React from "react";
 import { Avatar } from "../avatar/avatar";
 import { Button } from "../../components/button";
 import { Icon } from "../../components/icon";
+import { usePageTransition } from "@inithium/store";
 
 interface UserSlotProps {
   isAuthenticated: boolean;
@@ -22,6 +23,13 @@ export const UserSlot: React.FC<UserSlotProps> = ({
   onHamburgerClick,
   onLoginClick,
 }) => {
+  const { controller } = usePageTransition();
+
+  const handleLoginClick = async () => {
+    await controller.triggerExit();
+    onLoginClick();
+  };
+
   if (isAuthenticated) {
     return (
       <Avatar
@@ -36,16 +44,16 @@ export const UserSlot: React.FC<UserSlotProps> = ({
 
   return (
     <>
-      <button
+      <Button
         onClick={onHamburgerClick}
         aria-label="Open navigation menu"
         className="flex lg:hidden items-center justify-center rounded-md p-1.5 text-on-surface hover:bg-surface3 transition-colors"
       >
         <Icon name="Bars3Icon" iconStyle="solid-24" size="sm" aria-hidden />
-      </button>
+      </Button>
 
       <div className="hidden lg:flex">
-        <Button variant="filled" size="sm" color="primary" onClick={onLoginClick}>
+        <Button variant="filled" size="sm" color="primary" onClick={handleLoginClick}> 
           Login
         </Button>
       </div>

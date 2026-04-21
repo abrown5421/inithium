@@ -26,14 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const openSlideout = useCallback(() => setSlideoutOpen(true), []);
   const closeSlideout = useCallback(() => setSlideoutOpen(false), []);
 
-  const handleLoginClick = useCallback(() => {
-    if (onLoginClick) {
-      onLoginClick();
-    } else {
-      window.location.href = "/auth/login";
-    }
-  }, [onLoginClick]);
-
   return (
     <>
       <Box
@@ -54,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             user={user}
             onAvatarClick={openSlideout}
             onHamburgerClick={openSlideout}
-            onLoginClick={handleLoginClick}
+            onLoginClick={onLoginClick ?? (() => {})}
           />
         </div>
       </Box>
