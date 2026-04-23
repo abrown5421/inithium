@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "composite": true,
@@ -25,7 +26,17 @@
     "**/*.test.tsx"
   ],
   "references": [
-    { "path": "../ui/tsconfig.lib.json" },
-    { "path": "../types/tsconfig.lib.json" }
+    {
+      "path": "../store/tsconfig.lib.json"
+    },
+    {
+      "path": "../types/tsconfig.lib.json"
+    },
+    {
+      "path": "../ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../router/tsconfig.lib.json"
+    }
   ]
 }

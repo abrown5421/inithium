@@ -22,7 +22,7 @@ const TransitionLayout: React.FC = () => {
       initialized.current = true;
       dispatch(initialize(location.pathname));
     }
-  }, [dispatch]); // ← no location.pathname dep
+  }, [dispatch]);
 
   useEffect(() => {
     if (activePage !== null && activePage !== location.pathname) {
@@ -34,7 +34,7 @@ const TransitionLayout: React.FC = () => {
     if (phase === 'entering') {
       controller.triggerEnter();
     }
-  }, [phase]); // ← watch phase, not location
+  }, [phase]); 
 
   const currentPageDef = PAGE_REGISTRY.find(
     (p) => p.key === activePage || p.path === activePage,

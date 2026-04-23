@@ -16,6 +16,10 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
     controller,
   };
 
+  const centeringProps = page.centered 
+    ? { align: 'center' as const, justify: 'center' as const } 
+    : {};
+
   return (
     <Box
       as="main"
@@ -26,6 +30,7 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       bg={page.bg}
       color={page.color}
       animation={animation}
+      {...centeringProps} 
     >
       <Suspense fallback={null}>
         <page.component />

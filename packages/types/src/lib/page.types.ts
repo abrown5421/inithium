@@ -23,4 +23,5 @@ export interface PageDefinition {
   color?: ThemeColor;
   component: React.LazyExoticComponent<React.ComponentType<any>>;
   navigation?: NavigationConfig;
+  centered?: boolean;
 }
