@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Box } from '@inithium/ui';
+import { Box } from '../../components/box/box';
 import type { AnimationController, PageDefinition } from '@inithium/types';
 
 interface PageShellProps {
@@ -16,8 +16,8 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
     controller,
   };
 
-  const centeringProps = page.centered 
-    ? { align: 'center' as const, justify: 'center' as const } 
+  const centeringProps = page.centered
+    ? { align: 'center' as const, justify: 'center' as const }
     : {};
 
   return (
@@ -30,7 +30,7 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       bg={page.bg}
       color={page.color}
       animation={animation}
-      {...centeringProps} 
+      {...centeringProps}
     >
       <Suspense fallback={null}>
         <page.component />

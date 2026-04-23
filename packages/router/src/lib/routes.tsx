@@ -6,12 +6,20 @@ import {
   Outlet,
 } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { PAGE_REGISTRY, PageShell } from '@inithium/pages'; 
+import { PageShell } from '@inithium/ui';
 import { usePageTransition, requestTransition, initialize } from '@inithium/store';
 import type { AppDispatch } from '@inithium/store';
 import { Box } from '@inithium/ui';
+import type { PageDefinition } from '@inithium/types';
 
-const TransitionLayout: React.FC = () => {
+type AppRouterInstance = ReturnType<typeof createBrowserRouter>;
+
+interface AppRouterProps {
+  pages: PageDefinition[];
+  router: AppRouterInstance;
+}
+
+const TransitionLayout: React.FC<{ pages: PageDefinition[] }> = ({ pages }) => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const { controller, activePage, phase } = usePageTransition();
@@ -34,9 +42,9 @@ const TransitionLayout: React.FC = () => {
     if (phase === 'entering') {
       controller.triggerEnter();
     }
-  }, [phase]); 
+  }, [phase]);
 
-  const currentPageDef = PAGE_REGISTRY.find(
+  const currentPageDef = pages.find(
     (p) => p.key === activePage || p.path === activePage,
   );
 
@@ -53,23 +61,31 @@ const RouterShell: React.FC = () => {
   );
 };
 
-export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
-  {
-    path: '/',
-    element: <RouterShell />, 
-    children: [
-      {
-        path: '',
-        element: <TransitionLayout />,
-        children: PAGE_REGISTRY.map((page) => ({
-          path: page.path === '/' ? '' : page.path.replace(/^\//, ''),
-          element: <Outlet />,
-        })),
-      },
-    ],
-  },
-]);
+export const createAppRouter = (pages: PageDefinition[]): AppRouterInstance =>
+  createBrowserRouter([
+    {
+      path: '/',
+      element: <RouterShell />,
+      children: [
+        {
+          path: '',
+          element: <TransitionLayout pages={pages} />,
+          children: pages.map((page) => ({
+            path: page.path === '/' ? '' : page.path.replace(/^\//, ''),
+            element: <Outlet />,
+          })),
+        },
+      ],
+    },
+  ]);
 
-export const AppRouter: React.FC = () => {
+export let router: AppRouterInstance;
+
+export const initRouter = (pages: PageDefinition[]): AppRouterInstance => {
+  router = createAppRouter(pages);
+  return router;
+};
+
+export const AppRouter: React.FC<AppRouterProps> = ({ router }) => {
   return <RouterProvider router={router} />;
 };

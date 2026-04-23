@@ -1,1 +1,1 @@
-export { router, AppRouter } from './lib/routes';
+export { AppRouter, createAppRouter, initRouter, router } from './lib/routes';
