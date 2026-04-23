@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from "react";
 import { Box, Input, Text, Button, Icon } from "@inithium/ui";
 import { usePageTransition } from "@inithium/store";
-import { router } from '@inithium/router';
+import { router } from "@inithium/router";
 
 interface LoginProps {
-  onNavigate: (path: string) => void;
   onSubmit?: (email: string, password: string) => Promise<void> | void;
 }
 
@@ -24,7 +23,7 @@ const validatePassword = (val: string) => {
   return "";
 };
 
-const Login: React.FC<LoginProps> = ({ onNavigate, onSubmit }) => {
+const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const { controller } = usePageTransition();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
@@ -34,7 +33,7 @@ const Login: React.FC<LoginProps> = ({ onNavigate, onSubmit }) => {
   const updateField =
     (field: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
+      const value = (e.target as HTMLInputElement).value;
       setForm((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
     };

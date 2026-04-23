@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { router, AppRouter } from '@inithium/router';
+import { AppRouter, initRouter } from '@inithium/router';
 import { store } from '@inithium/store';
 import { PAGE_REGISTRY } from '@inithium/pages';
 import { Navbar } from '@inithium/ui';
@@ -22,6 +22,8 @@ const getNavLinks = (registry: typeof PAGE_REGISTRY) =>
       label: p.navigation!.label,
     }));
 
+const router = initRouter(PAGE_REGISTRY);
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -39,7 +41,7 @@ root.render(
           title: CONFIG.APP_TITLE,
         }}
       />
-      <AppRouter />
+      <AppRouter pages={PAGE_REGISTRY} router={router} />
     </Provider>
   </StrictMode>
 );
