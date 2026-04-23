@@ -36,6 +36,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOutDown',
     bg: 'surface-contrast',
     color: 'surface',
+    centered: true,
     component: React.lazy(() => import('./pages/login/login')),
   },
   {
@@ -45,6 +46,7 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOutDown',
     bg: 'surface-contrast',
     color: 'surface',
+    centered: true,
     component: React.lazy(() => import('./pages/sign-up/sign-up')),
   },
 ];
