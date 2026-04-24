@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -36,6 +33,18 @@ vi.mock('@inithium/ui', () => ({
 
 describe('AppRouter', () => {
   let store: any;
+  let routerInstance: any;
+
+  const mockPages = [
+    { 
+      key: 'home', 
+      path: '/', 
+      entry: 'fadeIn', 
+      exit: 'fadeOut', 
+      bg: 'surface', 
+      component: () => <div data-testid="home-page">Home</div> 
+    }
+  ];
 
   beforeEach(() => {
     store = configureStore({
@@ -43,13 +52,14 @@ describe('AppRouter', () => {
         transition: (state = { activePage: '/' }) => state,
       },
     });
-    store.dispatch = vi.fn();
+    
+    routerInstance = createAppRouter(mockPages);
   });
 
   it('renders the router provider and initial route', () => {
     render(
       <Provider store={store}>
-        <AppRouter />
+        <AppRouter router={routerInstance} />
       </Provider>
     );
 
@@ -59,7 +69,7 @@ describe('AppRouter', () => {
   it('contains the RouterShell structure', () => {
     render(
       <Provider store={store}>
-        <AppRouter />
+        <AppRouter router={routerInstance} />
       </Provider>
     );
 

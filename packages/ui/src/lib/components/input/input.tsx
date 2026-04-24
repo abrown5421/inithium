@@ -79,7 +79,7 @@ export const Input: React.FC<InputProps> = ({
   return (
     <Field
       disabled={disabled}
-      className={cn('flex flex-col gap-1', disabled && 'opacity-50', className)}
+      className={cn('flex flex-col gap-1 w-full', disabled && 'opacity-50', className)}
     >
       {label && (
         <Label
