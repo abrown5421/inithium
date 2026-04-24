@@ -7,6 +7,7 @@ import {
   verifyRefreshToken,
 } from '@inithium/api-core';
 import { usersService } from '../users/user.service.js';
+import type { TrianglifyOptions, AvatarOptions } from '@inithium/types';
 
 const SALT_ROUNDS = 12;
 
@@ -48,11 +49,37 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
+    const GRADIENTS = [
+      { colors: ['#4f46e5', '#7c3aed'], accent: '#06b6d4' },
+      { colors: ['#059669', '#0284c7'], accent: '#34d399' },
+      { colors: ['#dc2626', '#9333ea'], accent: '#f59e0b' },
+      { colors: ['#0891b2', '#1d4ed8'], accent: '#818cf8' },
+    ];
+
+    const seed = data.email.charCodeAt(0) % GRADIENTS.length;
+    const { colors, accent } = GRADIENTS[seed];
+
+    const user_banner: TrianglifyOptions = {
+      cell_size: 35,
+      variance: 0.55,
+      x_colors: ['#0f5066', '#ffffff'],
+      y_colors: ['#08594c', '#000000'],
+    };
+
+    const user_avatar: AvatarOptions = {
+      gradient: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
+      font: 'display',
+      variant: 'circular',
+    };
+
     const created = await usersService.createOne({
       ...data,
+      last_name: data.last_name ?? '',
       password: hashedPassword,
       role: 'user',
-    } as Partial<User>);
+      user_banner,
+      user_avatar,
+    });
 
     const payload = buildPayload(created as any);
     return {

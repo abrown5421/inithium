@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser'; //Cannot find module 'cookie-parser' or its corresponding type declarations.ts(2307)
 import { connectDB, errorMiddleware } from '@inithium/api-core';
 import {
   assetsRouter,
@@ -36,7 +38,14 @@ const bootstrap = async (): Promise<void> => {
   });
 
   const app = express();
+
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    credentials: true,
+  }));
+
   app.use(express.json());
+  app.use(cookieParser());
 
   initializeRoutes({
     '/proxy':  proxyRouter,

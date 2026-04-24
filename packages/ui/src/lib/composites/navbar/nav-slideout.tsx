@@ -2,7 +2,9 @@ import React, { useEffect } from "react";
 import { Dialog, DialogPanel, DialogBackdrop } from "@headlessui/react";
 import { PageRegistryEntry, ProfileLink, NavItemGroup } from "./navbar.types";
 import { Icon } from "../../components/icon";
-import { usePageTransition } from "@inithium/store";
+import { Button } from "../../components/button";
+import { usePageTransition, useLogoutMutation } from "@inithium/store";
+import { Box } from "../../components/box";
 
 interface NavSlideoutProps {
   open: boolean;
@@ -68,6 +70,17 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
   profileLinks = [],
 }) => {
   const flatNav = flattenNavPages(pages);
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    onClose();
+    try {
+      await logout().unwrap();
+    } catch (error) {
+      // Functional error handling: the state clears on success via extraReducers
+      // Failures can be handled here if logging/toast is required
+    }
+  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -127,7 +140,7 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
 
                   {flatNav.length > 0 && (
                     <section>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-on-surface-muted">
+                      <p className="mb-2 text-xs font-semibond uppercase tracking-widest text-on-surface-muted">
                         Pages
                       </p>
                       <ul className="space-y-1">
@@ -145,6 +158,18 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
                     </section>
                   )}
                 </div>
+
+                {isAuthenticated && (
+                  <Box m="4">
+                    <Button
+                      className="w-full"
+                      color="danger"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  </Box>
+                )}
               </div>
             </DialogPanel>
           </div>

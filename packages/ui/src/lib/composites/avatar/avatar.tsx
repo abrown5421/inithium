@@ -27,6 +27,25 @@ const RenderContent = ({ src, alt, initials, options }: Partial<AvatarProps>) =>
   );
 };
 
+const AvatarSurface = ({ src, alt, initials, options }: Partial<AvatarProps>) => 
+  src ? (
+    <img 
+      src={src} 
+      alt={alt} 
+      className="h-full w-full object-cover" 
+    />
+  ) : (
+    <div
+      className={cn(
+        "flex h-full w-full items-center justify-center font-bold",
+        options?.font
+      )}
+      style={{ background: options?.gradient ?? "var(--fallback-gradient)" }}
+    >
+      {initials}
+    </div>
+  );
+  
 export const Avatar: React.FC<AvatarProps> = ({
   src,
   initials,
@@ -38,7 +57,8 @@ export const Avatar: React.FC<AvatarProps> = ({
   ...props
 }) => {
   const containerClasses = cn(
-    "relative inline-flex flex-shrink-0 overflow-hidden select-none items-center justify-center border-2 border-transparent",
+    "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none",
+    "aspect-square border-2 border-transparent", 
     SIZE_MAP[size],
     options?.variant === "square" ? "rounded-md" : "rounded-full",
     onClick && "hover:opacity-80 transition-opacity cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2",
