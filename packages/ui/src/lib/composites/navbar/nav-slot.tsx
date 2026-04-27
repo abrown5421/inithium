@@ -11,7 +11,7 @@ interface NavSlotProps {
 }
 
 const isGroup = (item: PageRegistryEntry): item is NavItemGroup =>
-  item.type === "group";
+  (item as any).type === "group";
 
 const NavLink: React.FC<{ page: NavItemLink; onNavigate?: (path: string) => void }> = ({
   page,
@@ -43,8 +43,8 @@ const NavGroup: React.FC<{ page: NavItemGroup; onNavigate?: (path: string) => vo
   const { controller } = usePageTransition();
 
   const items = page.children
-    .filter((c) => c.showInNav !== false)
-    .map((c) => ({ label: c.label, value: c.path }));
+    .filter((c: any) => c.showInNav !== false)
+    .map((c: any) => ({ label: c.label, value: c.path }));
 
   if (items.length === 0) return null;
 
@@ -73,7 +73,7 @@ const NavGroup: React.FC<{ page: NavItemGroup; onNavigate?: (path: string) => vo
 };
 
 export const NavSlot: React.FC<NavSlotProps> = ({ pages, onNavigate, className }) => {
-  const visible = pages.filter((p) => p.showInNav !== false);
+  const visible = pages.filter((p) => (p as any).showInNav !== false);
 
   if (visible.length === 0) return null;
 
@@ -86,7 +86,7 @@ export const NavSlot: React.FC<NavSlotProps> = ({ pages, onNavigate, className }
         isGroup(page) ? (
           <NavGroup key={page.path} page={page} onNavigate={onNavigate} />
         ) : (
-          <NavLink key={page.path} page={page} onNavigate={onNavigate} />
+          <NavLink key={page.path} page={page as NavItemLink} onNavigate={onNavigate} />
         )
       )}
     </nav>

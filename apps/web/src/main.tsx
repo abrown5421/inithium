@@ -22,6 +22,7 @@ const getNavLinks = (registry: typeof PAGE_REGISTRY) =>
       type: 'link' as const,
       path: p.path,
       label: p.navigation!.label,
+      location: p.navigation!.location,
     }));
 
 const router = initRouter(PAGE_REGISTRY);

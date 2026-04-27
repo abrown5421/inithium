@@ -61,7 +61,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     "aspect-square border-2 border-transparent", 
     SIZE_MAP[size],
     options?.variant === "square" ? "rounded-md" : "rounded-full",
-    onClick && "hover:opacity-80 transition-opacity cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2",
+    onClick && "hover:opacity-80 transition-opacity cursor-pointer",
     className
   );
 
