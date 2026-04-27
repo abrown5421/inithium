@@ -21,7 +21,7 @@ const isGroup = (item: PageRegistryEntry): item is NavItemGroup =>
 const flattenNavPages = (pages: PageRegistryEntry[]) => {
   const result: { path: string; label: string }[] = [];
   for (const page of pages) {
-    if (page.showInNav === false) continue;
+    if ((page as any).showInNav === false) continue;
     if (isGroup(page)) {
       for (const child of page.children) {
         if (child.showInNav !== false) {

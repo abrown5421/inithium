@@ -9,8 +9,13 @@ import { NavbarProps, ProfileLink } from "./navbar.types";
 const DEFAULT_PROFILE_LINKS: ProfileLink[] = [
   { path: "/profile", label: "Profile" },
   { path: "/settings", label: "Settings" },
-  { path: "/auth/logout", label: "Sign out" },
 ];
+
+const getPagesByLocation = (pages: any[], location: string) =>
+  pages.filter((p) => {
+    const loc = p.navigation?.location ?? p.location;
+    return loc ? loc === location : location === "main";
+  });
 
 export const Navbar: React.FC<NavbarProps> = ({
   logo,
@@ -26,6 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const openSlideout = useCallback(() => setSlideoutOpen(true), []);
   const closeSlideout = useCallback(() => setSlideoutOpen(false), []);
 
+  const mainPages = getPagesByLocation(pages, "main");
+
   return (
     <>
       <Box
@@ -39,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <LogoSlot imageSrc={logo?.imageSrc} title={logo?.title} />
 
         <div className="flex items-center gap-3 ml-auto">
-          <NavSlot pages={pages} onNavigate={onNavigate} />
+          <NavSlot pages={mainPages} onNavigate={onNavigate} />
 
           <UserSlot
             isAuthenticated={isAuthenticated}
@@ -55,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         open={slideoutOpen}
         onClose={closeSlideout}
         isAuthenticated={isAuthenticated}
-        pages={pages}
+        pages={mainPages}
         onNavigate={onNavigate}
         profileLinks={profileLinks}
       />

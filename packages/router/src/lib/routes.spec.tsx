@@ -2,77 +2,94 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { AppRouter } from './routes';
+import type { PageDefinition } from '@inithium/types';
+import { 
+  AppRouter, 
+  createAppRouter 
+} from './routes';
+import { 
+  initialize, 
+  usePageTransition 
+} from '@inithium/store';
 
 vi.mock('@inithium/store', () => ({
-  usePageTransition: vi.fn(() => ({
-    controller: { phase: 'entered', triggerExit: vi.fn(), triggerEnter: vi.fn() },
-    activePage: '/',
-  })),
-  initialize: vi.fn((path) => ({ type: 'transition/initialize', payload: path })),
-  requestTransition: vi.fn((path) => ({ type: 'transition/requestTransition', payload: path })),
-}));
-
-vi.mock('@inithium/pages', () => ({
-  PAGE_REGISTRY: [
-    { 
-      key: 'home', 
-      path: '/', 
-      entry: 'fadeIn', 
-      exit: 'fadeOut', 
-      bg: 'surface', 
-      component: () => <div data-testid="home-page">Home</div> 
-    }
-  ],
-  PageShell: ({ page }: any) => <div data-testid="page-shell"><page.component /></div>,
+  usePageTransition: vi.fn(),
+  requestTransition: vi.fn(() => ({ type: 'transition/request' })),
+  initialize: vi.fn(() => ({ type: 'transition/initialize' })),
 }));
 
 vi.mock('@inithium/ui', () => ({
-  Box: ({ children }: any) => <div data-testid="ui-box">{children}</div>,
+  PageShell: ({ page }: any) => <div data-testid="page-shell">{page.key}</div>,
+  Box: ({ children, className }: any) => <div className={className}>{children}</div>,
 }));
 
-describe('AppRouter', () => {
-  let store: any;
-  let routerInstance: any;
+const createMockStore = (initialState = {}) => 
+  configureStore({
+    reducer: (state = initialState) => state,
+  });
 
-  const mockPages = [
-    { 
-      key: 'home', 
-      path: '/', 
-      entry: 'fadeIn', 
-      exit: 'fadeOut', 
-      bg: 'surface', 
-      component: () => <div data-testid="home-page">Home</div> 
-    }
-  ];
+const renderWithContext = (ui: React.ReactElement) => {
+  const store = createMockStore();
+  return {
+    ...render(<Provider store={store}>{ui}</Provider>),
+    store,
+  };
+};
+
+describe('AppRouter & TransitionLayout Logic', () => {
+  const mockPages = ([
+    { key: 'home', path: '/' },
+    { key: 'about', path: '/about' }
+  ] as any) as PageDefinition[];
+
+  const mockTransitionState = (overrides = {}) => {
+    (usePageTransition as any).mockReturnValue({
+      controller: { triggerEnter: vi.fn() },
+      activePage: '/',
+      phase: 'idle',
+      ...overrides,
+    });
+  };
 
   beforeEach(() => {
-    store = configureStore({
-      reducer: {
-        transition: (state = { activePage: '/' }) => state,
-      },
+    vi.clearAllMocks();
+  });
+
+  describe('createAppRouter', () => {
+    it('should configure a router with nested children for each page definition', () => {
+      const router = createAppRouter(mockPages);
+      const transitionLayoutRoute = router.routes[0].children?.[0];
+      expect(transitionLayoutRoute?.children).toHaveLength(mockPages.length);
     });
-    
-    routerInstance = createAppRouter(mockPages);
   });
 
-  it('renders the router provider and initial route', () => {
-    render(
-      <Provider store={store}>
-        <AppRouter router={routerInstance} />
-      </Provider>
-    );
+  describe('TransitionLayout Lifecycle', () => {
+    it('should dispatch initialize on the first mount', () => {
+      mockTransitionState();
+      const router = createAppRouter(mockPages);
 
-    expect(screen.getByTestId('home-page')).toBeDefined();
-  });
+      renderWithContext(<AppRouter router={router} pages={mockPages} />);
+      expect(initialize).toHaveBeenCalledTimes(1);
+    });
 
-  it('contains the RouterShell structure', () => {
-    render(
-      <Provider store={store}>
-        <AppRouter router={routerInstance} />
-      </Provider>
-    );
+    it('should render the PageShell corresponding to the activePage state', () => {
+      mockTransitionState({ activePage: '/' });
+      const router = createAppRouter(mockPages);
 
-    expect(screen.getByTestId('ui-box')).toBeDefined();
+      renderWithContext(<AppRouter router={router} pages={mockPages} />);
+      
+      const shell = screen.getByTestId('page-shell');
+      expect((shell as any).innerHTML).toBe('home');
+    });
+
+    it('should return null if the activePage does not match any page definition', () => {
+      mockTransitionState({ activePage: '/unknown' });
+      const router = createAppRouter(mockPages);
+
+      renderWithContext(<AppRouter router={router} pages={mockPages} />);
+
+      const shell = screen.queryByTestId('page-shell');
+      expect(shell).toBeNull();
+    });
   });
 });
