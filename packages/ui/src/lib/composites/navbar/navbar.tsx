@@ -6,8 +6,8 @@ import { UserSlot } from "./user-slot";
 import { NavSlideout } from "./nav-slideout";
 import { NavbarProps, ProfileLink } from "./navbar.types";
 
-const DEFAULT_PROFILE_LINKS: ProfileLink[] = [
-  { path: "/profile", label: "Profile" },
+const getDefaultProfileLinks = (userId?: string): ProfileLink[] => [
+  { path: userId ? `/profile/${userId}` : "/profile", label: "Profile" },
   { path: "/settings", label: "Settings" },
 ];
 
@@ -24,8 +24,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   user,
   onNavigate,
   onLoginClick,
-  profileLinks = DEFAULT_PROFILE_LINKS,
+  profileLinks,
 }) => {
+  const resolvedProfileLinks = profileLinks ?? getDefaultProfileLinks(user?.id);
   const [slideoutOpen, setSlideoutOpen] = useState(false);
 
   const openSlideout = useCallback(() => setSlideoutOpen(true), []);
@@ -64,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         isAuthenticated={isAuthenticated}
         pages={mainPages}
         onNavigate={onNavigate}
-        profileLinks={profileLinks}
+        profileLinks={resolvedProfileLinks}
       />
     </>
   );

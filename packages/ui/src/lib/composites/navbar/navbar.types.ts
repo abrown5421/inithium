@@ -23,6 +23,7 @@ export type NavItem = NavItemLink | NavItemGroup;
 export type PageRegistryEntry = NavItem;
 
 export type NavbarUser = {
+  id?: string;
   src?: string;
   initials?: string;
   gradient?: string;

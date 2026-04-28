@@ -72,7 +72,6 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
     router.navigate("/auth/signup");
   };
 
-  // Derive a human-readable server error message
   const serverError = error
     ? "data" in error
       ? (error.data as { message?: string })?.message ?? "Login failed. Please try again."

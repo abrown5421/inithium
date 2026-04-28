@@ -40,6 +40,14 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     component: React.lazy(() => import('./pages/login/login')),
   },
   {
+    key: 'profile',
+    path: '/profile/:userId',
+    entry: 'fadeIn',
+    exit: 'fadeOut',
+    bg: 'surface',
+    component: React.lazy(() => import('./pages/profile/profile')),
+  },
+  {
     key: 'signup',
     path: '/auth/signup',
     entry: 'fadeInUp',

@@ -30,9 +30,10 @@ const router = initRouter(PAGE_REGISTRY);
 const mapToNavbarUser = (user: User | null | undefined): NavbarUser | undefined => {
   if (!user) return undefined;
 
-  const { first_name, last_name, user_avatar } = user;
+  const { _id, first_name, last_name, user_avatar } = user;
 
   return {
+    id: _id,
     initials: `${first_name?.[0] ?? ''}${last_name?.[0] ?? ''}`.toUpperCase(),
     src: (user as any).avatar_url,
     gradient: user_avatar?.gradient,
