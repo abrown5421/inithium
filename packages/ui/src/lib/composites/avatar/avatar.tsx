@@ -27,7 +27,7 @@ const RenderContent = ({ src, alt, initials, options }: Partial<AvatarProps>) =>
   );
 };
 
-const AvatarSurface = ({ src, alt, initials, options }: Partial<AvatarProps>) => 
+export const AvatarSurface = ({ src, alt, initials, options }: Partial<AvatarProps>) => 
   src ? (
     <img 
       src={src} 
@@ -49,7 +49,7 @@ const AvatarSurface = ({ src, alt, initials, options }: Partial<AvatarProps>) =>
 export const Avatar: React.FC<AvatarProps> = ({
   src,
   initials,
-  size = "md",
+  large = false,
   alt = "User avatar",
   options,
   onClick,
@@ -57,8 +57,9 @@ export const Avatar: React.FC<AvatarProps> = ({
   ...props
 }) => {
   const containerClasses = cn(
-    "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none h-12 w-12",
+    "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none",
     "aspect-square border-2 border-transparent", 
+    large ? "h-32 w-32 text-2xl" : "h-12 w-12",
     options?.variant === "square" ? "rounded-md" : "rounded-full",
     onClick && "hover:opacity-80 transition-opacity cursor-pointer",
     className

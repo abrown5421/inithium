@@ -61,7 +61,6 @@ const SessionGate = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   const { user, isAuthenticated } = useCurrentUser();
  
-  useEffect(() => {console.log(user)}, [user])
   return (
     <>
       <Navbar
