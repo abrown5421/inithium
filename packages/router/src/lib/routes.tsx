@@ -4,6 +4,7 @@ import {
   RouterProvider,
   useLocation,
   Outlet,
+  matchPath,
 } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { PageShell } from '@inithium/ui';
@@ -44,11 +45,15 @@ const TransitionLayout: React.FC<{ pages: PageDefinition[] }> = ({ pages }) => {
     }
   }, [phase]);
 
-  const currentPageDef = pages.find(
-    (p) => p.key === activePage || p.path === activePage,
-  );
+  const currentPageDef = pages.find((p) => {
+    if (p.key === activePage) return true; 
+    return !!matchPath({ path: p.path, end: true }, activePage || '');
+  });
 
-  if (!currentPageDef) return null;
+  if (!currentPageDef) {
+    console.warn(`No page definition found for route: ${activePage}`);
+    return null;
+  }
 
   return <PageShell page={currentPageDef} controller={controller} />;
 };

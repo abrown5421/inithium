@@ -1,7 +1,7 @@
 import React from "react";
 import { Button as HeadlessButton } from "@headlessui/react";
 import { cn } from "@inithium/utils";
-import { AvatarProps, SIZE_MAP } from "@inithium/types";
+import { AvatarProps } from "@inithium/types";
 
 const RenderContent = ({ src, alt, initials, options }: Partial<AvatarProps>) => {
   if (src) {
@@ -57,9 +57,8 @@ export const Avatar: React.FC<AvatarProps> = ({
   ...props
 }) => {
   const containerClasses = cn(
-    "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none",
+    "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none h-12 w-12",
     "aspect-square border-2 border-transparent", 
-    SIZE_MAP[size],
     options?.variant === "square" ? "rounded-md" : "rounded-full",
     onClick && "hover:opacity-80 transition-opacity cursor-pointer",
     className

@@ -17,10 +17,3 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   options?: AvatarOptions;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
-
-export const SIZE_MAP: Record<AvatarSize, string> = {
-  sm: "h-8 w-8 text-xs",
-  md: "h-14 w-14 text-base",
-  lg: "h-16 w-16 text-xl",
-  xl: "h-24 w-24 text-2xl",
-};
