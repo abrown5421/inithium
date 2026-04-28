@@ -16,7 +16,7 @@
       "vite/client"
     ]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../types/trianglify.d.ts"],
   "exclude": [
     "out-tsc",
     "dist",
