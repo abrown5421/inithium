@@ -35,7 +35,6 @@ export const UserSlot: React.FC<UserSlotProps> = ({
       <Avatar
         src={user?.src}
         initials={user?.initials}
-        size="md"
         options={{ gradient: user?.gradient }}
         onClick={onAvatarClick}
       />

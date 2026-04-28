@@ -2,23 +2,22 @@ declare module 'trianglify' {
   interface Options {
     width?: number;
     height?: number;
-    cell_size?: number;
+    cellSize?: number;
     variance?: number;
     seed?: string | number | null;
-    x_colors?: string | string[];
-    y_colors?: string | string[] | 'match';
+    xColors?: string | string[]; 
+    yColors?: string | string[] | 'match';
     fill?: boolean;
-    stroke_width?: number;
+    strokeWidth?: number; 
     points?: number[][];
   }
 
   interface Pattern {
     opts: Options;
-    toSVG(): SVGElement;
-    toCanvas(): HTMLCanvasElement;
-    toSVGDataUri(): string;
+    toSVG(options?: any): SVGElement;
+    toCanvas(options?: any): HTMLCanvasElement;
   }
 
   function trianglify(options?: Options): Pattern;
-  export = trianglify;
+  export default trianglify; 
 }
