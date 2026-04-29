@@ -27,6 +27,8 @@ export type NavbarUser = {
   src?: string;
   initials?: string;
   gradient?: string;
+  variant?: string;
+  font?: string
 };
 
 export type ProfileLink = {

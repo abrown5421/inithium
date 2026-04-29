@@ -40,7 +40,6 @@ export const createBaseApi = <T extends { _id: string }>(
       readOne: builder.query<T, string>({
         query: (id) => `/${id}`,
         transformResponse: (raw: any) => {
-            console.log("RAW readOne response:", raw);
             return raw.data!;
         },
         providesTags: (_res, _err, id) => [{ type: entityName, id }],

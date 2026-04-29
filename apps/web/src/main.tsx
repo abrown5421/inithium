@@ -37,6 +37,8 @@ const mapToNavbarUser = (user: User | null | undefined): NavbarUser | undefined 
     initials: `${first_name?.[0] ?? ''}${last_name?.[0] ?? ''}`.toUpperCase(),
     src: (user as any).avatar_url,
     gradient: user_avatar?.gradient,
+    variant: user_avatar?.variant,
+    font: user_avatar?.font,
   };
 };
 

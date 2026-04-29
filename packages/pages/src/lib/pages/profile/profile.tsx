@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Banner, Box, Loader, Avatar, Text, Icon, Button } from "@inithium/ui";
-import { Dialog } from "@inithium/ui"; // adjust import path as needed
+import { Banner, Box, Loader, Avatar, Text, Icon, Button, BannerForm, AvatarForm } from "@inithium/ui";
+import { Dialog } from "@inithium/ui";
 import { useCurrentUser, useReadOneQuery } from "@inithium/store";
 
 const Profile = () => {
@@ -19,12 +19,15 @@ const Profile = () => {
   if (isError || !user) return <Box p="4">Error loading profile.</Box>;
 
   const userInitials = ((user.first_name?.[0] ?? '') + (user.last_name?.[0] ?? '')).toUpperCase();
+
   const getGenderDisplay = (gender: typeof user.gender): string | null => {
     if (!gender?.type) return null;
     return gender.type === 'Other' ? (gender.custom ?? 'Other') : gender.type;
   };
 
   const genderLabel = getGenderDisplay(user.gender);
+
+  useEffect(() => {console.log(user)}, [user])
 
   return (
     <Box direction="col" fullWidth bg="surface" color="surface-contrast" gap="0">
@@ -51,7 +54,6 @@ const Profile = () => {
       </div>
 
       <Box direction="col" className="w-full md:w-5/6 lg:w-3/4 mx-auto">
-
         <Box
           px="4"
           className="mt-[-64px] z-10 flex flex-col md:flex-row items-center md:items-start"
@@ -61,7 +63,7 @@ const Profile = () => {
               <Avatar
                 large
                 initials={userInitials}
-                options={{ gradient: user?.user_avatar?.gradient }}
+                options={{ gradient: user?.user_avatar?.gradient, variant: user?.user_avatar?.variant, font: user?.user_avatar?.font }}
                 className="border-4 border-surface"
               />
               {isOwnProfile && (
@@ -150,42 +152,31 @@ const Profile = () => {
         open={bannerDialogOpen}
         onClose={() => setBannerDialogOpen(false)}
         title="Edit Banner"
-        description="Update your profile banner image or style."
+        description="Customise the trianglify pattern displayed behind your profile."
         color="primary"
         size="lg"
       >
-        <Box direction="col" gap="4" className="min-h-[120px]" justify="center" align="center">
-          <Text color="surface2-contrast" size="sm">Banner editor form — coming soon.</Text>
-        </Box>
-        <Box direction="row" gap="2" justify="end" className="mt-4">
-          <Button variant="outlined" color="primary" size="sm" onClick={() => setBannerDialogOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="filled" color="primary" size="sm" onClick={() => setBannerDialogOpen(false)}>
-            Save
-          </Button>
-        </Box>
+        <BannerForm
+          userId={userId}
+          initial={user.user_banner}
+          onSaved={() => setBannerDialogOpen(false)}
+        />
       </Dialog>
 
       <Dialog
         open={avatarDialogOpen}
         onClose={() => setAvatarDialogOpen(false)}
         title="Edit Avatar"
-        description="Update your profile picture or avatar style."
+        description="Choose a gradient, font, and shape for your profile picture."
         color="primary"
         size="base"
       >
-        <Box direction="col" gap="4" className="min-h-[120px]" justify="center" align="center">
-          <Text color="surface2-contrast" size="sm">Avatar editor form — coming soon.</Text>
-        </Box>
-        <Box direction="row" gap="2" justify="end" className="mt-4">
-          <Button variant="outlined" color="primary" size="sm" onClick={() => setAvatarDialogOpen(false)}>
-            Cancel
-          </Button>
-          <Button variant="filled" color="primary" size="sm" onClick={() => setAvatarDialogOpen(false)}>
-            Save
-          </Button>
-        </Box>
+        <AvatarForm
+          userId={userId}
+          initials={userInitials}
+          initial={user.user_avatar}
+          onSaved={() => setAvatarDialogOpen(false)}
+        />
       </Dialog>
     </Box>
   );

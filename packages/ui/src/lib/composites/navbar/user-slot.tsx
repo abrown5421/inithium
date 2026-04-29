@@ -3,6 +3,7 @@ import { Avatar } from "../avatar/avatar";
 import { Button } from "../../components/button";
 import { Icon } from "../../components/icon";
 import { usePageTransition } from "@inithium/store";
+import { ThemeFont } from "@inithium/types";
 
 interface UserSlotProps {
   isAuthenticated: boolean;
@@ -10,6 +11,8 @@ interface UserSlotProps {
     src?: string;
     initials?: string;
     gradient?: string;
+    variant?: 'square' | 'circular';
+    font?: ThemeFont
   };
   onAvatarClick: () => void;
   onHamburgerClick: () => void;
@@ -35,7 +38,7 @@ export const UserSlot: React.FC<UserSlotProps> = ({
       <Avatar
         src={user?.src}
         initials={user?.initials}
-        options={{ gradient: user?.gradient }}
+        options={{ gradient: user?.gradient, font: user?.font, variant: user?.variant }}
         onClick={onAvatarClick}
       />
     );
