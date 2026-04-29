@@ -58,8 +58,8 @@ export const Avatar: React.FC<AvatarProps> = ({
 }) => {
   const containerClasses = cn(
     "relative inline-flex flex-shrink-0 items-center justify-center overflow-hidden select-none",
-    "aspect-square border-2 border-transparent", 
-    large ? "h-32 w-32 text-2xl" : "h-12 w-12",
+    "aspect-square border-2", 
+    large ? "h-32 w-32 text-2xl border-surface" : "h-12 w-12 border-transparent",
     options?.variant === "square" ? "rounded-md" : "rounded-full",
     onClick && "hover:opacity-80 transition-opacity cursor-pointer",
     className
