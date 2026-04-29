@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         justify="between"
         px="4"
         bg="surface2"
-        className="h-16 w-full"
+        className="h-16 w-full shadow-nav z-30 relative"
       >
         <LogoSlot imageSrc={logo?.imageSrc} title={logo?.title} />
 

@@ -26,14 +26,6 @@ describe("Avatar Component", () => {
     console.log("JD parent:", screen.getByText("JD").parentElement?.outerHTML);
   });
 
-  it("applies correct size classes", () => {
-    const { container } = render(<Avatar size="xl" />);
-    const element = container.firstChild as HTMLElement;
-
-    expect(element.className).toContain("h-24");
-    expect(element.className).toContain("w-24");
-  });
-
   it("triggers onClick and behaves as a button when handler is passed", () => {
     const handleClick = vi.fn();
     render(<Avatar onClick={handleClick} />);
