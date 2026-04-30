@@ -20,7 +20,16 @@ interface AppRouterProps {
   router: AppRouterInstance;
 }
 
-const TransitionLayout: React.FC<{ pages: PageDefinition[] }> = ({ pages }) => {
+interface TransitionLayoutProps {
+  pages: PageDefinition[];
+  notFoundPage: PageDefinition;
+  errorPage: PageDefinition;
+}
+
+const TransitionLayout: React.FC<TransitionLayoutProps> = ({
+  pages,
+  notFoundPage,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const { controller, activePage, phase } = usePageTransition();
@@ -45,15 +54,11 @@ const TransitionLayout: React.FC<{ pages: PageDefinition[] }> = ({ pages }) => {
     }
   }, [phase]);
 
-  const currentPageDef = pages.find((p) => {
-    if (p.key === activePage) return true; 
-    return !!matchPath({ path: p.path, end: true }, activePage || '');
-  });
-
-  if (!currentPageDef) {
-    console.warn(`No page definition found for route: ${activePage}`);
-    return null;
-  }
+  const currentPageDef =
+    pages.find((p) => {
+      if (p.key === activePage) return true;
+      return !!matchPath({ path: p.path, end: true }, activePage || '');
+    }) ?? notFoundPage;
 
   return <PageShell page={currentPageDef} controller={controller} />;
 };
@@ -66,19 +71,33 @@ const RouterShell: React.FC = () => {
   );
 };
 
-export const createAppRouter = (pages: PageDefinition[]): AppRouterInstance =>
+export const createAppRouter = (
+  pages: PageDefinition[],
+  notFoundPage: PageDefinition,
+  errorPage: PageDefinition,
+): AppRouterInstance =>
   createBrowserRouter([
     {
       path: '/',
       element: <RouterShell />,
+      errorElement: <PageShell page={errorPage} controller={{ triggerEnter: () => {} } as any} />,
       children: [
         {
           path: '',
-          element: <TransitionLayout pages={pages} />,
-          children: pages.map((page) => ({
-            path: page.path === '/' ? '' : page.path.replace(/^\//, ''),
-            element: <Outlet />,
-          })),
+          element: (
+            <TransitionLayout
+              pages={pages}
+              notFoundPage={notFoundPage}
+              errorPage={errorPage}
+            />
+          ),
+          children: [
+            ...pages.map((page) => ({
+              path: page.path === '/' ? '' : page.path.replace(/^\//, ''),
+              element: <Outlet />,
+            })),
+            { path: '*', element: <Outlet /> },
+          ],
         },
       ],
     },
@@ -86,8 +105,12 @@ export const createAppRouter = (pages: PageDefinition[]): AppRouterInstance =>
 
 export let router: AppRouterInstance;
 
-export const initRouter = (pages: PageDefinition[]): AppRouterInstance => {
-  router = createAppRouter(pages);
+export const initRouter = (
+  pages: PageDefinition[],
+  notFoundPage: PageDefinition,
+  errorPage: PageDefinition,
+): AppRouterInstance => {
+  router = createAppRouter(pages, notFoundPage, errorPage);
   return router;
 };
 

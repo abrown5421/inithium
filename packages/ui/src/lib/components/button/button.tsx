@@ -34,7 +34,7 @@ export const Button: React.FC<BaseButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    "border-2 rounded-md transition duration-200 ease-in-out focus:outline-none data-[focus]:outline-white hover:cursor-pointer";
+    "border-2 rounded-md transition-all duration-200 ease-in-out focus:outline-none data-[focus]:outline-white hover:cursor-pointer";
 
   return (
     <HeadlessButton

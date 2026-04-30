@@ -10,6 +10,6 @@ export interface BaseButtonProps extends HeadlessButtonProps {
   color?: ThemeColor;
   className?: string;
   style?: React.CSSProperties;
-  onClick?: () => void | unknown;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   children?: React.ReactNode;
 }

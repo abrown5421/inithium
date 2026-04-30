@@ -4,11 +4,11 @@ import { Provider } from 'react-redux';
 import { AppRouter, initRouter } from '@inithium/router';
 import { store, useCurrentUser } from '@inithium/store';
 import { authApi } from '@inithium/store';
-import { PAGE_REGISTRY } from '@inithium/pages';
+import { PAGE_REGISTRY, getPageByKey } from '@inithium/pages';
 import { Navbar } from '@inithium/ui';
+import { User } from '@inithium/types';
 import './styles.css';
 import 'animate.css';
-import { User } from '@inithium/types';
 
 const CONFIG = Object.freeze({
   LOGO_URL: import.meta.env.VITE_LOGO_URL,
@@ -20,7 +20,7 @@ const buildNavLinks = (
   user?: User | null
 ) =>
   registry
-    .filter((p) => !!p.navigation)
+    .filter((p) => !!p.navigation && !p.isErrorPage)
     .map((p) => {
       const nav = p.navigation!;
       const path =
@@ -39,7 +39,9 @@ const buildNavLinks = (
       };
     });
 
-const router = initRouter(PAGE_REGISTRY);
+const notFoundPage = getPageByKey('not-found')!;
+const errorPage = getPageByKey('error')!;
+const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage);
 
 const SessionGate = ({ children }: { children: React.ReactNode }) => {
   const [ready, setReady] = useState(false);

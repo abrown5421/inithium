@@ -79,6 +79,26 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     centered: true,
     component: React.lazy(() => import('./pages/sign-up/sign-up')),
   },
+  {
+    key: 'not-found',
+    path: '/404',
+    entry: 'fadeInUp',
+    exit: 'fadeOutDown',
+    bg: 'danger',
+    isErrorPage: true,
+    centered: true,
+    component: React.lazy(() => import('./pages/page-error/not-found/not-found')),
+  },
+  {
+    key: 'error',
+    path: '/error',
+    entry: 'fadeInUp',
+    exit: 'fadeOutDown',
+    bg: 'danger',
+    isErrorPage: true,
+    centered: true,
+    component: React.lazy(() => import('./pages/page-error/error/error')),
+  },
 ];
 
 export const getPageByKey = (key: string) =>

@@ -15,12 +15,10 @@
     "types": ["node", "vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": [
-    "dist",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ],
+  "exclude": ["dist", "**/*.spec.ts", "**/*.test.ts"],
   "references": [
-    { "path": "../types/tsconfig.lib.json" }
+    {
+      "path": "../types/tsconfig.lib.json"
+    }
   ]
 }
