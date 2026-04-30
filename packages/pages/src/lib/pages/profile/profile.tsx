@@ -10,10 +10,12 @@ import {
   Button, 
   BannerForm, 
   AvatarForm, 
-  Dialog 
+  Dialog, 
+  Tabs
 } from "@inithium/ui";
 import { useCurrentUser, useReadOneQuery } from "@inithium/store";
 import { AnimationObject } from "@inithium/types";
+import { buildProfileTabs, PROFILE_TABS_REGISTRY } from "./profile-tabs.registry";
 
 const Profile = () => {
   const { userId: urlUserId } = useParams<{ userId: string }>();
@@ -81,8 +83,8 @@ const Profile = () => {
       fullWidth
       bg="surface"
       color="surface-contrast"
-      gap="0"
       animation={profileAnimation}
+      className="h-shell"
     >
       <div className="relative">
         <Banner
@@ -106,12 +108,13 @@ const Profile = () => {
         )}
       </div>
 
-      <Box direction="col" className="w-full md:w-5/6 lg:w-3/4 mx-auto">
+      <Box direction="col" className="w-full h-full lg:w-3/4 mx-auto">
+        {/* Avatar Section */}
         <Box
           px="4"
-          className="mt-[-64px] z-10 flex flex-col md:flex-row items-center md:items-start"
+          className="mt-[-64px] z-10 flex flex-col items-center lg:items-start"
         >
-          <Box className="md:flex-3 flex justify-center md:justify-start">
+          <Box className="lg:flex-3 flex justify-center lg:justify-start w-full">
             <div className="relative inline-block">
               <Avatar
                 large
@@ -121,7 +124,7 @@ const Profile = () => {
                   variant: user?.user_avatar?.variant, 
                   font: user?.user_avatar?.font 
                 }}
-                className="border-4 border-surface"
+                className="border-4 border-surface shadow-lg"
               />
               {isOwnProfile && (
                 <div className="absolute bottom-1 right-1 z-10">
@@ -139,21 +142,22 @@ const Profile = () => {
               )}
             </div>
           </Box>
-          <Box className="hidden md:flex md:flex-9" />
         </Box>
 
+        {/* Content Section */}
         <Box
           p="4"
-          gap="6"
+          gap="4"
           direction="col"
-          className="flex md:flex-row"
+          className="flex lg:flex-row h-full"
         >
+          {/* User Info Column */}
           <Box
             direction="col"
             gap="2"
-            className="w-full md:flex-3 items-center md:items-start text-center md:text-left"
+            className="w-full h-full lg:flex-3 items-center lg:items-start text-center lg:text-left"
           >
-            <Box direction="row" align="center" gap="2">
+            <Box direction="row" align="center" justify="center" className="lg:justify-start" gap="2">
               <Text size="lg" weight="bold" color="surface-contrast" font="display">
                 {user.first_name} {user.last_name}
               </Text>
@@ -162,7 +166,7 @@ const Profile = () => {
               </Text>
             </Box>
 
-            <Box direction="col" gap="1" className="items-center md:items-start">
+            <Box direction="col" gap="1" className="items-center lg:items-start">
               <Box direction="row" align="center" gap="3">
                 <Icon name="AtSymbolIcon" color="primary" size="sm" />
                 <Text color="surface2-contrast" size="sm">{user.email}</Text>
@@ -191,23 +195,23 @@ const Profile = () => {
                 </Box>
               )}
             </Box>
-            <Text size="xs" color="surface2-contrast">{user.bio}</Text>
+            <Text size="xs" color="surface2-contrast" className="mt-2">{user.bio}</Text>
           </Box>
 
+          {/* Tabs Column */}
           <Box
             direction="col"
-            className="w-full md:flex-9 min-h-[300px] mt-4 md:mt-0"
-            border={true}
-            rounded="lg"
-            p="8"
-            justify="center"
-            align="center"
+            className="w-full h-full lg:flex-9 mt-4 lg:mt-0"
           >
-            <Text color="surface2-contrast">Profile Page Content Placeholder</Text>
+            <Tabs
+              tabs={buildProfileTabs(PROFILE_TABS_REGISTRY, isOwnProfile, activeUserId)}
+              color="primary"
+            />
           </Box>
         </Box>
       </Box>
 
+      {/* Dialogs remain unchanged */}
       <Dialog
         open={bannerDialogOpen}
         onClose={() => setBannerDialogOpen(false)}

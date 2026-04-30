@@ -33,9 +33,9 @@ const getVariantStyles = (variant: TabsVariant, color: ThemeColor): string => {
     ),
     ghost: cn(
       'border-b-2 border-transparent transition duration-200',
+      'hover:border-surface4-contrast',
+      'data-[selected]:border-primary',
       c.text,
-      'data-[selected]:border-b-2',
-      'data-[selected]:' + c.hoverBorderB.replace('hover:', ''),
     ),
   };
 
@@ -56,18 +56,20 @@ export const Tabs: React.FC<TabsProps> = ({
   onChange,
   vertical = false,
 }) => {
-  const c = INTERACTIVE_COLOR_MAP[color as ThemeColor];
-
   return (
     <TabGroup
       defaultIndex={defaultIndex}
       onChange={onChange}
       vertical={vertical}
-      className={cn('w-full', vertical && 'flex gap-4', className)}
+      className={cn(
+        'w-full h-full flex', 
+        vertical ? 'flex-row gap-4' : 'flex-col', 
+        className
+      )}
     >
       <TabList
         className={cn(
-          'flex gap-1',
+          'flex flex-none gap-1',
           vertical ? 'flex-col' : 'flex-row',
           variant !== 'ghost' && 'bg-surface2 p-1 rounded-lg',
           listClassName,
@@ -89,12 +91,19 @@ export const Tabs: React.FC<TabsProps> = ({
           </Tab>
         ))}
       </TabList>
-      <TabPanels className={cn('mt-4', vertical && 'mt-0 flex-1')}>
+
+      <TabPanels 
+        className={cn(
+          'flex-1 min-h-0', 
+          !vertical && 'mt-4', 
+          panelClassName
+        )}
+      >
         {tabs.map((tab, i) => (
           <TabPanel
             key={i}
             className={cn(
-              'focus:outline-none transition duration-200 data-[closed]:opacity-0',
+              'h-full focus:outline-none transition duration-200 data-[closed]:opacity-0',
               panelClassName,
             )}
           >
