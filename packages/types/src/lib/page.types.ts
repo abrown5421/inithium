@@ -26,4 +26,5 @@ export interface PageDefinition {
   component: React.LazyExoticComponent<React.ComponentType<any>>;
   navigation?: NavigationConfig;
   centered?: boolean;
+  isErrorPage?: boolean;
 }
