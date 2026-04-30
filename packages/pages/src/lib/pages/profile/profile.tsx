@@ -1,22 +1,60 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Banner, Box, Loader, Avatar, Text, Icon, Button, BannerForm, AvatarForm } from "@inithium/ui";
-import { Dialog } from "@inithium/ui";
+import { 
+  Banner, 
+  Box, 
+  Loader, 
+  Avatar, 
+  Text, 
+  Icon, 
+  Button, 
+  BannerForm, 
+  AvatarForm, 
+  Dialog 
+} from "@inithium/ui";
 import { useCurrentUser, useReadOneQuery } from "@inithium/store";
+import { AnimationObject } from "@inithium/types";
 
 const Profile = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const { userId: urlUserId } = useParams<{ userId: string }>();
   const { user: authUser } = useCurrentUser();
-  const isOwnProfile = authUser?._id === userId;
-  const { data: user, isLoading, isError } = useReadOneQuery(userId ?? '', {
-    skip: !userId,
+
+  const lastValidId = useRef<string | undefined>(urlUserId);
+  if (urlUserId && urlUserId !== lastValidId.current) {
+    lastValidId.current = urlUserId;
+  }
+
+  const activeUserId = urlUserId || lastValidId.current;
+  const { data: user, isLoading, isError } = useReadOneQuery(activeUserId ?? '', {
+    skip: !activeUserId,
   });
 
+  const isOwnProfile = authUser?._id === activeUserId;
+  const [isReady, setIsReady] = useState(false);
   const [bannerDialogOpen, setBannerDialogOpen] = useState(false);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
 
-  if (!userId || isLoading) return <Loader size={18} color="primary-contrast" />;
-  if (isError || !user) return <Box p="4">Error loading profile.</Box>;
+  useEffect(() => {
+    if (!isLoading && user) {
+      const timer = setTimeout(() => {
+        setIsReady(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return () => setIsReady(false);
+  }, [isLoading, activeUserId, user]);
+
+  if (!activeUserId || (isLoading && !user) || !isReady) {
+    return (
+      <Box direction="col" justify="center" align="center" className="w-full h-full">
+        <Loader size={58} color="primary" />
+      </Box>
+    );
+  }
+
+  if (isError || !user) {
+    return <Box p="4">Error loading profile.</Box>;
+  }
 
   const userInitials = ((user.first_name?.[0] ?? '') + (user.last_name?.[0] ?? '')).toUpperCase();
 
@@ -27,8 +65,25 @@ const Profile = () => {
 
   const genderLabel = getGenderDisplay(user.gender);
 
+  const profileAnimation: AnimationObject = {
+    entry: 'fadeIn',
+    exit: 'fadeOut',
+    controller: {
+      phase: isReady ? 'entered' : 'idle',
+      triggerExit: async () => {},
+      triggerEnter: () => {},
+    }
+  };
+
   return (
-    <Box direction="col" fullWidth bg="surface" color="surface-contrast" gap="0">
+    <Box
+      direction="col"
+      fullWidth
+      bg="surface"
+      color="surface-contrast"
+      gap="0"
+      animation={profileAnimation}
+    >
       <div className="relative">
         <Banner
           options={user.user_banner}
@@ -61,7 +116,11 @@ const Profile = () => {
               <Avatar
                 large
                 initials={userInitials}
-                options={{ gradient: user?.user_avatar?.gradient, variant: user?.user_avatar?.variant, font: user?.user_avatar?.font }}
+                options={{ 
+                  gradient: user?.user_avatar?.gradient, 
+                  variant: user?.user_avatar?.variant, 
+                  font: user?.user_avatar?.font 
+                }}
                 className="border-4 border-surface"
               />
               {isOwnProfile && (
@@ -98,7 +157,9 @@ const Profile = () => {
               <Text size="lg" weight="bold" color="surface-contrast" font="display">
                 {user.first_name} {user.last_name}
               </Text>
-              <Text weight="bold" color="primary" size="sm">{isOwnProfile && "(you)"}</Text>
+              <Text weight="bold" color="primary" size="sm">
+                {isOwnProfile && "(you)"}
+              </Text>
             </Box>
 
             <Box direction="col" gap="1" className="items-center md:items-start">
@@ -156,7 +217,7 @@ const Profile = () => {
         size="lg"
       >
         <BannerForm
-          userId={userId}
+          userId={activeUserId}
           initial={user.user_banner}
           onSaved={() => setBannerDialogOpen(false)}
         />
@@ -171,7 +232,7 @@ const Profile = () => {
         size="base"
       >
         <AvatarForm
-          userId={userId}
+          userId={activeUserId}
           initials={userInitials}
           initial={user.user_avatar}
           onSaved={() => setAvatarDialogOpen(false)}
