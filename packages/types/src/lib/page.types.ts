@@ -1,5 +1,6 @@
 import { AnimateEntry, AnimateExit, AnimateSpeed } from "./animation.types.js";
 import { ThemeColor } from "./theme.types.js";
+import { User } from "./user.types.js";
 
 export type NavLocation = 'main' | 'profile' | 'footer' | 'none';
 
@@ -10,6 +11,7 @@ export interface NavigationConfig {
   authenticated?: boolean;
   anonymous?: boolean;
   isButton?: boolean;
+  resolveNavPath?: (user: User) => string;
 }
 
 export interface PageDefinition {

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import cookieParser from 'cookie-parser'; //Cannot find module 'cookie-parser' or its corresponding type declarations.ts(2307)
+import cookieParser from 'cookie-parser';
 import { connectDB, errorMiddleware } from '@inithium/api-core';
 import {
   assetsRouter,

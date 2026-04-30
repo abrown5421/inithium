@@ -8,7 +8,7 @@ import { NavbarProps, ProfileLink } from "./navbar.types";
 
 const getDefaultProfileLinks = (userId?: string): ProfileLink[] => [
   { path: userId ? `/profile/${userId}` : "/profile", label: "Profile" },
-  { path: "/settings", label: "Settings" },
+  { path: userId ? `/settings/${userId}` : "/settings", label: "Settings" },
 ];
 
 const getPagesByLocation = (pages: any[], location: string) =>

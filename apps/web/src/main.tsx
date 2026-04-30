@@ -8,21 +8,36 @@ import { PAGE_REGISTRY } from '@inithium/pages';
 import { Navbar } from '@inithium/ui';
 import './styles.css';
 import 'animate.css';
+import { User } from '@inithium/types';
 
 const CONFIG = Object.freeze({
   LOGO_URL: import.meta.env.VITE_LOGO_URL,
   APP_TITLE: 'Inithium',
 });
 
-const getNavLinks = (registry: typeof PAGE_REGISTRY) =>
+const buildNavLinks = (
+  registry: typeof PAGE_REGISTRY,
+  user?: User | null
+) =>
   registry
     .filter((p) => !!p.navigation)
-    .map((p) => ({
-      type: 'link' as const,
-      path: p.path,
-      label: p.navigation!.label,
-      location: p.navigation!.location,
-    }));
+    .map((p) => {
+      const nav = p.navigation!;
+      const path =
+        nav.resolveNavPath && user
+          ? nav.resolveNavPath(user)
+          : p.path;
+
+      return {
+        type: 'link' as const,
+        path,
+        label: nav.label,
+        location: nav.location,
+        order: nav.order,
+        authenticated: nav.authenticated,
+        anonymous: nav.anonymous,
+      };
+    });
 
 const router = initRouter(PAGE_REGISTRY);
 
@@ -46,11 +61,12 @@ const SessionGate = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   const { user, isAuthenticated } = useCurrentUser();
+  const navLinks = buildNavLinks(PAGE_REGISTRY, user);
  
   return (
     <>
       <Navbar
-        pages={getNavLinks(PAGE_REGISTRY)}
+        pages={navLinks}
         isAuthenticated={isAuthenticated}
         user={user}
         onNavigate={router.navigate}
