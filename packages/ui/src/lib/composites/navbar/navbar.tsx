@@ -26,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLoginClick,
   profileLinks,
 }) => {
-  const resolvedProfileLinks = profileLinks ?? getDefaultProfileLinks(user?.id);
+  const resolvedProfileLinks = profileLinks ?? getDefaultProfileLinks(user?._id);
   const [slideoutOpen, setSlideoutOpen] = useState(false);
 
   const openSlideout = useCallback(() => setSlideoutOpen(true), []);

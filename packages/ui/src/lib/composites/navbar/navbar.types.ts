@@ -1,3 +1,5 @@
+import { User } from "@inithium/types";
+
 export type NavbarLogoProps = {
   imageSrc?: string;
   title?: string;
@@ -22,15 +24,6 @@ export type NavItem = NavItemLink | NavItemGroup;
 
 export type PageRegistryEntry = NavItem;
 
-export type NavbarUser = {
-  id?: string;
-  src?: string;
-  initials?: string;
-  gradient?: string;
-  variant?: string;
-  font?: string
-};
-
 export type ProfileLink = {
   path: string;
   label: string;
@@ -40,8 +33,16 @@ export type NavbarProps = {
   logo?: NavbarLogoProps;
   pages: PageRegistryEntry[];
   isAuthenticated: boolean;
-  user?: NavbarUser;
+  user?: User | null; 
   onNavigate?: (path: string) => void;
   onLoginClick?: () => void;
   profileLinks?: ProfileLink[];
 };
+
+export interface UserSlotProps {
+  isAuthenticated: boolean;
+  user?: User | null;
+  onAvatarClick: () => void;
+  onHamburgerClick: () => void;
+  onLoginClick: () => void;
+}

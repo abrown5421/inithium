@@ -5,10 +5,9 @@ import { AppRouter, initRouter } from '@inithium/router';
 import { store, useCurrentUser } from '@inithium/store';
 import { authApi } from '@inithium/store';
 import { PAGE_REGISTRY } from '@inithium/pages';
-import { Navbar, NavbarUser } from '@inithium/ui';
+import { Navbar } from '@inithium/ui';
 import './styles.css';
 import 'animate.css';
-import { User } from '@inithium/types';
 
 const CONFIG = Object.freeze({
   LOGO_URL: import.meta.env.VITE_LOGO_URL,
@@ -26,21 +25,6 @@ const getNavLinks = (registry: typeof PAGE_REGISTRY) =>
     }));
 
 const router = initRouter(PAGE_REGISTRY);
-
-const mapToNavbarUser = (user: User | null | undefined): NavbarUser | undefined => {
-  if (!user) return undefined;
-
-  const { _id, first_name, last_name, user_avatar } = user;
-
-  return {
-    id: _id,
-    initials: `${first_name?.[0] ?? ''}${last_name?.[0] ?? ''}`.toUpperCase(),
-    src: (user as any).avatar_url,
-    gradient: user_avatar?.gradient,
-    variant: user_avatar?.variant,
-    font: user_avatar?.font,
-  };
-};
 
 const SessionGate = ({ children }: { children: React.ReactNode }) => {
   const [ready, setReady] = useState(false);
@@ -68,7 +52,7 @@ const App = () => {
       <Navbar
         pages={getNavLinks(PAGE_REGISTRY)}
         isAuthenticated={isAuthenticated}
-        user={mapToNavbarUser(user)}
+        user={user}
         onNavigate={router.navigate}
         onLoginClick={() => router.navigate('/auth/login')}
         logo={{

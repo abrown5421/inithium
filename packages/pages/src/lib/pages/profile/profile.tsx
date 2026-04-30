@@ -27,8 +27,6 @@ const Profile = () => {
 
   const genderLabel = getGenderDisplay(user.gender);
 
-  useEffect(() => {console.log(user)}, [user])
-
   return (
     <Box direction="col" fullWidth bg="surface" color="surface-contrast" gap="0">
       <div className="relative">
@@ -88,7 +86,8 @@ const Profile = () => {
         <Box
           p="4"
           gap="6"
-          className="flex flex-col md:flex-row"
+          direction="col"
+          className="flex md:flex-row"
         >
           <Box
             direction="col"
@@ -136,7 +135,7 @@ const Profile = () => {
 
           <Box
             direction="col"
-            className="w-full md:flex-9 min-h-[300px]"
+            className="w-full md:flex-9 min-h-[300px] mt-4 md:mt-0"
             border={true}
             rounded="lg"
             p="8"
