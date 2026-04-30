@@ -10,7 +10,7 @@ describe('transitionSlice', () => {
   const initialState: TransitionState = {
     activePage: null,
     pendingPage: null,
-    phase: 'idle',
+    phase: 'entered',
   };
 
   it('should handle initial state', () => {
