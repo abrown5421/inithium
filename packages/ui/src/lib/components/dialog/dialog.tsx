@@ -14,7 +14,7 @@ const DIALOG_SIZE_MAP: Record<DialogSize, string> = {
   base: 'max-w-md',
   lg: 'max-w-lg',
   xl: 'max-w-xl',
-  full: 'max-w-full mx-4',
+  full: 'max-w-full mx-32',
 };
 
 export const Dialog: React.FC<DialogProps> = ({

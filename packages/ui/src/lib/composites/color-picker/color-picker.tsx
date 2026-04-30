@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { cn } from '@inithium/utils';
@@ -150,7 +148,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           role="dialog"
           aria-label="Color picker"
           className={cn(
-            'absolute z-50 mt-2 left-0 top-full',
+            'absolute z-50 bottom-full right-0 mb-2', 
             'p-3 rounded-xl',
             'bg-surface shadow-xl ring-1 ring-black/10 dark:ring-white/10',
           )}

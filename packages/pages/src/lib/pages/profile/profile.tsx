@@ -214,7 +214,7 @@ const Profile = () => {
         title="Edit Banner"
         description="Customise the trianglify pattern displayed behind your profile."
         color="primary"
-        size="lg"
+        size="full"
       >
         <BannerForm
           userId={activeUserId}

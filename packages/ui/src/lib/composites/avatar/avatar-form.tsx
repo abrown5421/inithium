@@ -13,7 +13,7 @@ interface AvatarFormProps {
 }
 
 const DEFAULT_OPTIONS: AvatarOptions = {
-  gradient: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+  gradient: "linear-gradient(135deg, #0f5066 0%, #ADCEC4 100%)",
   font: "sans",
   variant: "circular",
 };
@@ -21,15 +21,15 @@ const DEFAULT_OPTIONS: AvatarOptions = {
 const parseGradient = (
   gradient?: string
 ): { color1: string; color2: string; angle: number } => {
-  if (!gradient) return { color1: "#6366f1", color2: "#8b5cf6", angle: 135 };
+  if (!gradient) return { color1: "#0f5066", color2: "#ADCEC4", angle: 135 };
 
   const angleMatch = gradient.match(/(\d+)deg/);
   const hexMatches = gradient.match(/#[0-9a-fA-F]{3,6}/g);
 
   return {
     angle: angleMatch ? parseInt(angleMatch[1], 10) : 135,
-    color1: hexMatches?.[0] ?? "#6366f1",
-    color2: hexMatches?.[1] ?? "#8b5cf6",
+    color1: hexMatches?.[0] ?? "#0f5066",
+    color2: hexMatches?.[1] ?? "#ADCEC4",
   };
 };
 
