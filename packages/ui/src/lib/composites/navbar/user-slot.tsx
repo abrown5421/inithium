@@ -4,15 +4,20 @@ import { Button } from "../../components/button";
 import { Icon } from "../../components/icon";
 import { usePageTransition } from "@inithium/store";
 import { UserSlotProps } from "./navbar.types";
+import { useLocation } from 'react-router-dom';
 
 export const UserSlot: React.FC<UserSlotProps> = ({
   isAuthenticated,
   user,
+  collapseOnLogin,
   onAvatarClick,
   onHamburgerClick,
   onLoginClick,
 }) => {
   const { controller } = usePageTransition();
+  const location = useLocation();
+
+  const shouldCollapse = collapseOnLogin && location.pathname === '/auth/login';
 
   const handleLoginClick = async () => {
     await controller.triggerExit();
@@ -45,8 +50,11 @@ export const UserSlot: React.FC<UserSlotProps> = ({
         <Icon name="Bars3Icon" iconStyle="solid-24" size="sm" />
       </Button>
 
-      <div className="hidden lg:flex">
-        <Button variant="filled" size="sm" color="primary" onClick={handleLoginClick}> 
+      <div
+        className="hidden lg:flex justify-end overflow-hidden transition-[max-width] duration-500 ease-in-out"
+        style={{ maxWidth: shouldCollapse ? '0px' : '200px' }}
+      >
+        <Button variant="filled" size="sm" color="primary" onClick={handleLoginClick}>
           Login
         </Button>
       </div>
