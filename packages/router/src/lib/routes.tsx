@@ -33,14 +33,6 @@ const TransitionLayout: React.FC<TransitionLayoutProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const { controller, activePage, phase } = usePageTransition();
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      dispatch(initialize(location.pathname));
-    }
-  }, [dispatch]);
 
   useEffect(() => {
     if (activePage !== null && activePage !== location.pathname) {
@@ -55,10 +47,9 @@ const TransitionLayout: React.FC<TransitionLayoutProps> = ({
   }, [phase]);
 
   const currentPageDef =
-    pages.find((p) => {
-      if (p.key === activePage) return true;
-      return !!matchPath({ path: p.path, end: true }, activePage || '');
-    }) ?? notFoundPage;
+    pages.find((p) =>
+      matchPath({ path: p.path, end: true }, activePage ?? location.pathname)
+    ) ?? notFoundPage;
 
   return <PageShell page={currentPageDef} controller={controller} />;
 };

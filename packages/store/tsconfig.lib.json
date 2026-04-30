@@ -4,6 +4,7 @@
     "composite": true,
     "rootDir": "src",
     "outDir": "dist",
+    "lib": ["ES2020", "DOM"],
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "module": "esnext",

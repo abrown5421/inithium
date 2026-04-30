@@ -8,16 +8,15 @@ export interface TransitionState {
 }
 
 const initialState: TransitionState = {
-  activePage: null,
+  activePage: typeof window !== 'undefined' ? window.location.pathname : null,
   pendingPage: null,
-  phase: 'idle',
+  phase: 'entered',
 };
 
 export const commitTransition = createAsyncThunk(
   'transition/commit',
   async (_, { getState, dispatch }) => {
     const state = (getState() as { transition: TransitionState }).transition;
-    
     if (state.pendingPage !== null) {
       dispatch(transitionSlice.actions._promote());
     }
@@ -47,9 +46,7 @@ export const transitionSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(commitTransition.fulfilled, () => {
-      // Logic handled in reducers
-    });
+    builder.addCase(commitTransition.fulfilled, () => {});
   },
 });
 
