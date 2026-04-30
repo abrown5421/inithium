@@ -3,6 +3,7 @@ import { User } from "@inithium/types";
 export type NavbarLogoProps = {
   imageSrc?: string;
   title?: string;
+  collapseOnHome?: boolean;
 };
 
 export type NavItemBase = {
@@ -42,6 +43,7 @@ export type NavbarProps = {
 export interface UserSlotProps {
   isAuthenticated: boolean;
   user?: User | null;
+  collapseOnLogin?: boolean;
   onAvatarClick: () => void;
   onHamburgerClick: () => void;
   onLoginClick: () => void;

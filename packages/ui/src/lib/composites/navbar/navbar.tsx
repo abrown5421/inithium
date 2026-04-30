@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         bg="surface2"
         className="h-16 w-full shadow-nav z-30 relative"
       >
-        <LogoSlot imageSrc={logo?.imageSrc} title={logo?.title} />
+        <LogoSlot imageSrc={logo?.imageSrc} title={logo?.title} collapseOnHome />
 
         <div className="flex items-center gap-3 ml-auto">
           <NavSlot pages={mainPages} onNavigate={onNavigate} />
@@ -52,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <UserSlot
             isAuthenticated={isAuthenticated}
             user={user}
+            collapseOnLogin
             onAvatarClick={openSlideout}
             onHamburgerClick={openSlideout}
             onLoginClick={onLoginClick ?? (() => {})}
