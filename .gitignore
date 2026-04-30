@@ -51,4 +51,4 @@ vitest.config.*.timestamp*
 test-output
 
 .env
-.zip
+*.zip
