@@ -46,6 +46,28 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     exit: 'fadeOut',
     bg: 'surface',
     component: React.lazy(() => import('./pages/profile/profile')),
+    navigation: {
+      label: 'Profile',
+      location: 'profile',
+      order: 1,
+      authenticated: true,
+      resolveNavPath: (user) => `/profile/${user._id}`,
+    },
+  },
+  {
+    key: 'settings',
+    path: '/settings/:userId',
+    entry: 'fadeIn',
+    exit: 'fadeOut',
+    bg: 'surface',
+    component: React.lazy(() => import('./pages/settings/settings')),
+    navigation: {
+      label: 'Settings',
+      location: 'profile',
+      order: 2,
+      authenticated: true,
+      resolveNavPath: (user) => `/settings/${user._id}`,
+    },
   },
   {
     key: 'signup',
