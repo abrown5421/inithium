@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate, authValidators } from '@inithium/validators';
 import type { LoginCredentials } from '@inithium/types';
 import { authService } from './auth.service.js';
+import { requireAuth } from '@inithium/api-core';
 
 export const authRouter: Router = Router();
 
@@ -58,6 +59,27 @@ authRouter.post(
 
       const tokens = await authService.refresh(refreshToken);
       res.status(200).json({ success: true, data: tokens });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+authRouter.patch(
+  '/change-password',
+  requireAuth,
+  async (req, res, next) => {
+    try {
+      const userId = (req as any).user.sub; 
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        res.status(400).json({ success: false, error: 'currentPassword and newPassword are required' });
+        return;
+      }
+
+      await authService.changePassword(userId, currentPassword, newPassword);
+      res.status(200).json({ success: true, data: null });
     } catch (err) {
       next(err);
     }
