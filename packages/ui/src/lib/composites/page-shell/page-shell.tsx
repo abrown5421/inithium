@@ -31,6 +31,7 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       color={page.color}
       animation={animation}
       {...centeringProps}
+      className='h-shell'
     >
       <Suspense fallback={null}>
         <page.component />

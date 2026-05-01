@@ -41,7 +41,6 @@ const buildNavLinks = (
 
 const notFoundPage = getPageByKey('not-found')!;
 const errorPage = getPageByKey('error')!;
-const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage);
 
 const SessionGate = ({ children }: { children: React.ReactNode }) => {
   const [ready, setReady] = useState(false);
@@ -50,38 +49,40 @@ const SessionGate = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     refresh()
       .unwrap()
-      .catch(() => {
-      })
-      .finally(() => {
-        setReady(true);
-      });
+      .catch(() => {})
+      .finally(() => setReady(true));
   }, []);
 
   if (!ready) return null;
   return <>{children}</>;
 };
 
-const App = () => {
+// Navbar lives inside the router so useLocation() has context.
+// It reads its own state via hooks, so we can define it as a stable component.
+const AppNavbar: React.FC = () => {
   const { user, isAuthenticated } = useCurrentUser();
   const navLinks = buildNavLinks(PAGE_REGISTRY, user);
- 
+
   return (
-    <>
-      <Navbar
-        pages={navLinks}
-        isAuthenticated={isAuthenticated}
-        user={user}
-        onNavigate={router.navigate}
-        onLoginClick={() => router.navigate('/auth/login')}
-        logo={{
-          imageSrc: CONFIG.LOGO_URL,
-          title: CONFIG.APP_TITLE,
-        }}
-      />
-      <AppRouter pages={PAGE_REGISTRY} router={router} />
-    </>
+    <Navbar
+      pages={navLinks}
+      isAuthenticated={isAuthenticated}
+      user={user}
+      onNavigate={router.navigate}
+      onLoginClick={() => router.navigate('/auth/login')}
+      logo={{
+        imageSrc: CONFIG.LOGO_URL,
+        title: CONFIG.APP_TITLE,
+      }}
+    />
   );
 };
+
+const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage, <AppNavbar />);
+
+const App = () => (
+  <AppRouter pages={PAGE_REGISTRY} router={router} />
+);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

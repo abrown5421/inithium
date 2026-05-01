@@ -6,6 +6,19 @@ import { usePageTransition } from "@inithium/store";
 import { UserSlotProps } from "./navbar.types";
 import { useLocation } from 'react-router-dom';
 
+function useCollapseTransition(shouldCollapse: boolean) {
+  const [isCollapsed, setIsCollapsed] = React.useState(shouldCollapse);
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setIsCollapsed(shouldCollapse);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [shouldCollapse]);
+
+  return isCollapsed;
+}
+
 export const UserSlot: React.FC<UserSlotProps> = ({
   isAuthenticated,
   user,
@@ -17,7 +30,7 @@ export const UserSlot: React.FC<UserSlotProps> = ({
   const { controller } = usePageTransition();
   const location = useLocation();
 
-  const shouldCollapse = collapseOnLogin && location.pathname === '/auth/login';
+  const isCollapsed = useCollapseTransition((collapseOnLogin ?? false) && location.pathname === '/auth/login');
 
   const handleLoginClick = async () => {
     await controller.triggerExit();
@@ -52,7 +65,7 @@ export const UserSlot: React.FC<UserSlotProps> = ({
 
       <div
         className="hidden lg:flex justify-end overflow-hidden transition-[max-width] duration-500 ease-in-out"
-        style={{ maxWidth: shouldCollapse ? '0px' : '200px' }}
+        style={{ maxWidth: isCollapsed ? '0px' : '200px' }}
       >
         <Button variant="filled" size="sm" color="primary" onClick={handleLoginClick}>
           Login

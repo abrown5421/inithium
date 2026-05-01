@@ -8,18 +8,31 @@ interface LogoSlotProps extends NavbarLogoProps {
   className?: string;
 }
 
+function useCollapseTransition(shouldCollapse: boolean) {
+  const [isCollapsed, setIsCollapsed] = React.useState(shouldCollapse);
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setIsCollapsed(shouldCollapse);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [shouldCollapse]);
+
+  return isCollapsed;
+}
+
 export const LogoSlot: React.FC<LogoSlotProps> = ({ imageSrc, title, className, collapseOnHome }) => {
   if (!imageSrc && !title) return null;
   const location = useLocation();
 
-  const shouldCollapse = collapseOnHome && location.pathname === '/';
+  const isCollapsed = useCollapseTransition((collapseOnHome ?? false) && location.pathname === '/');
 
   return (
     <Box className={`flex items-center gap-2 shrink-0 ${className ?? ""}`}>
       {imageSrc && (
         <div
           className="overflow-hidden transition-[max-width] duration-500 ease-in-out"
-          style={{ maxWidth: shouldCollapse ? '0px' : '200px' }}
+          style={{ maxWidth: isCollapsed ? '0px' : '200px' }}
         >
           <img
             src={imageSrc}
