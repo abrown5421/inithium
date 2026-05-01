@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Box, Input, Text, Button, Icon, Loader } from "@inithium/ui";
 import { usePageTransition } from "@inithium/store";
 import { router } from "@inithium/router";
-import { useRegisterMutation } from "@inithium/store";
-import { useCurrentUser } from "@inithium/store"; 
+import { useRegisterMutation, useCurrentUser } from "@inithium/store";
 
 interface SignUpProps {
   onSuccess?: () => void;
@@ -54,7 +53,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess }) => {
   const updateField =
     (field: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = (e.target as HTMLInputElement).value;
+      const value = e.target.value;
       setForm((prev) => ({ ...prev, [field]: value }));
       setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
     };
@@ -76,6 +75,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess }) => {
 
   const togglePassword = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setShowPassword((prev) => !prev);
   };
 
@@ -91,9 +91,7 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess }) => {
       
       refetch();
       onSuccess?.();
-    } catch {
-      // Error handled by RTK Query state
-    }
+    } catch {}
   };
 
   const handleTogglePage = async (e: React.MouseEvent) => {
@@ -170,9 +168,28 @@ const SignUp: React.FC<SignUpProps> = ({ onSuccess }) => {
         invalid={!!fieldErrors.password}
         placeholder="••••••••"
         trailingIcon={
-          <button type="button" onClick={togglePassword} className="focus:outline-none cursor-pointer z-10">
-            <Icon name={showPassword ? "EyeSlashIcon" : "EyeIcon"} iconStyle="solid-20" size="sm" />
-          </button>
+          <div className="relative z-[100] flex items-center justify-center pointer-events-auto">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPassword(!showPassword);
+              }}
+              className="focus:outline-none cursor-pointer p-1 hover:opacity-70 transition-opacity"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              <Icon
+                name={showPassword ? "EyeSlashIcon" : "EyeIcon"}
+                iconStyle="solid-20"
+                size="sm"
+              />
+            </button>
+          </div>
         }
       />
 
