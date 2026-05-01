@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
   const updateField =
     (field: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = (e.target as HTMLInputElement).value;
+      const value = e.target.value;
       setForm((prev) => ({ ...prev, [field]: value }));
       setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: "" } : prev));
     };
@@ -60,10 +60,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
     try {
       await login({ email: form.email, password: form.password }).unwrap();
       onSuccess?.();
-    } catch {
-      // Server error is surfaced via the `error` value from the mutation hook;
-      // no extra handling needed here unless you want a toast etc.
-    }
+    } catch {}
   };
 
   const handleTogglePage = async (e: React.MouseEvent) => {
@@ -123,18 +120,28 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
         invalid={!!fieldErrors.password}
         placeholder="••••••••"
         trailingIcon={
-          <button
-            type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={togglePassword}
-            className="focus:outline-none cursor-pointer z-10"
-          >
-            <Icon
-              name={showPassword ? "EyeSlashIcon" : "EyeIcon"}
-              iconStyle="solid-20"
-              size="sm"
-            />
-          </button>
+          <div className="relative z-[100] flex items-center justify-center pointer-events-auto">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPassword(!showPassword);
+              }}
+              className="focus:outline-none cursor-pointer p-1 hover:opacity-70 transition-opacity"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              <Icon
+                name={showPassword ? "EyeSlashIcon" : "EyeIcon"}
+                iconStyle="solid-20"
+                size="sm"
+              />
+            </button>
+          </div>
         }
       />
 

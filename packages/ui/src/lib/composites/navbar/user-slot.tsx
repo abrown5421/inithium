@@ -30,7 +30,7 @@ export const UserSlot: React.FC<UserSlotProps> = ({
   const { controller } = usePageTransition();
   const location = useLocation();
 
-  const isCollapsed = useCollapseTransition((collapseOnLogin ?? false) && location.pathname === '/auth/login');
+  const isCollapsed = useCollapseTransition((collapseOnLogin ?? false) && (location.pathname === '/auth/login' || location.pathname === '/auth/signup'));
 
   const handleLoginClick = async () => {
     await controller.triggerExit();
