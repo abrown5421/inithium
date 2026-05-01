@@ -16,4 +16,5 @@ export interface JwtPayload {
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
+  user: Omit<User, 'password'>;
 }

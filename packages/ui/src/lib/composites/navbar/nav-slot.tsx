@@ -29,7 +29,7 @@ const NavLink: React.FC<{ page: NavItemLink; onNavigate?: (path: string) => void
     <a
       href={page.path}
       onClick={handleClick}
-      className="px-3 py-1.5 rounded-md text-sm font-medium text-on-surface hover:bg-surface3 transition-colors duration-150"
+      className="px-3 py-1.5 rounded-md text-sm font-medium text-surface2-contrast hover:bg-surface3 transition-colors duration-150"
     >
       {page.label}
     </a>

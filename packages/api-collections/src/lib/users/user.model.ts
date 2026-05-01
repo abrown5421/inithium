@@ -19,6 +19,7 @@ const AvatarOptionsSchema = new Schema(
   },
   { _id: false },
 );
+
 const GenderSchema = new Schema(
   {
     type: {
@@ -65,6 +66,7 @@ const UserSchema = new Schema<User>(
     phone_number: { type: String },
     dob: { type: String },
     address: { type: AddressSchema },
+    dark_mode: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

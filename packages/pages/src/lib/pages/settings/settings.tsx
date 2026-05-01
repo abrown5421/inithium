@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Input, Text, Button, Icon, Loader } from '@inithium/ui';
-import { useCurrentUser, useUpdateOneMutation, useUpdateMeMutation, useChangePasswordMutation } from '@inithium/store';
+import { useCurrentUser, useUpdateOneMutation, useChangePasswordMutation } from '@inithium/store';
+import { applyDarkMode, persistDarkMode } from '@inithium/utils';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_CRITERIA = [/[A-Z]/, /[a-z]/, /[0-9]/, /[!@#$%^&*(),.?":{}|<>]/];
@@ -277,6 +278,74 @@ const PasswordUpdateForm: React.FC<{ userId: string }> = ({ userId }) => {
   );
 };
 
+const DarkModeToggle: React.FC<{ userId: string; initialValue: boolean }> = ({
+  userId,
+  initialValue,
+}) => {
+  const [updateOne, { isLoading }] = useUpdateOneMutation();
+  const [enabled, setEnabled] = useState(initialValue);
+
+  const handleToggle = async () => {
+    const next = !enabled;
+    setEnabled(next);
+    applyDarkMode(next);
+    persistDarkMode(next);
+    try {
+      await updateOne({ id: userId, patch: { dark_mode: next } }).unwrap();
+    } catch {
+      setEnabled(!next);
+      applyDarkMode(!next);
+      persistDarkMode(!next);
+    }
+  };
+
+  return (
+    <Box direction="col" gap="4" fullWidth>
+      <Box direction="col" gap="1">
+        <Text size="sm" weight="semibold" color="surface-contrast">
+          Appearance
+        </Text>
+        <Text size="xs" color="surface2-contrast">
+          Choose your preferred color scheme.
+        </Text>
+      </Box>
+
+      <Box direction="row" justify="between" align="center">
+        <Box direction="col" gap="1">
+          <Text size="sm" weight="medium" color="surface-contrast">
+            Dark Mode
+          </Text>
+          <Text size="xs" color="surface2-contrast">
+            Reduces brightness and uses dark surfaces throughout the app.
+          </Text>
+        </Box>
+
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          disabled={isLoading}
+          onClick={handleToggle}
+          className={[
+            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent',
+            'transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2',
+            'focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
+            enabled ? 'bg-primary' : 'bg-surface4',
+          ].join(' ')}
+        >
+          <span
+            className={[
+              'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md',
+              'transform transition-transform duration-200 ease-in-out',
+              enabled ? 'translate-x-5' : 'translate-x-0',
+            ].join(' ')}
+          />
+        </button>
+      </Box>
+    </Box>
+  );
+};
+
 const Settings = () => {
   const { user: authUser } = useCurrentUser();
 
@@ -294,7 +363,6 @@ const Settings = () => {
       fullWidth
       bg="surface"
       color="surface-contrast"
-      className="h-shell"
     >
       <Box
         direction="col"
@@ -333,6 +401,19 @@ const Settings = () => {
           className="border border-on-surface/10"
         >
           <PasswordUpdateForm userId={authUser._id} />
+        </Box>
+
+        <div className="border-t border-on-surface/10" />
+
+        <Box
+          direction="col"
+          gap="4"
+          p="4"
+          bg="surface2"
+          rounded="md"
+          className="border border-on-surface/10"
+        >
+          <DarkModeToggle userId={authUser._id} initialValue={authUser.dark_mode ?? false} />
         </Box>
       </Box>
     </Box>

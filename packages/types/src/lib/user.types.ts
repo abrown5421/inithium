@@ -29,4 +29,5 @@ export interface User {
     phone_number?: string;
     dob?: string;
     address?: Address;
+    dark_mode: boolean;
 }

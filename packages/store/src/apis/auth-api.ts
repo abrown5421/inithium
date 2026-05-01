@@ -1,14 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { AuthTokens } from '@inithium/types';
 import type { RootState } from '../store.js';
 
-export interface AuthTokens {
-  accessToken: string;
-}
-
-export interface FullAuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+export type { AuthTokens };
 
 export interface LoginRequest {
   email: string;

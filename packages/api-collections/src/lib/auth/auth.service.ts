@@ -17,6 +17,11 @@ const buildPayload = (user: User & { _id: unknown }): JwtPayload => ({
   role:  user.role,
 });
 
+const stripPassword = (user: User): Omit<User, 'password'> => {
+  const { password: _password, ...rest } = user as User & { password?: string };
+  return rest;
+};
+
 export class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthTokens> {
     const { email, password } = credentials;
@@ -36,6 +41,7 @@ export class AuthService {
     return {
       accessToken:  signAccessToken(payload),
       refreshToken: signRefreshToken(payload),
+      user:         stripPassword(user),
     };
   }
 
@@ -57,7 +63,7 @@ export class AuthService {
     ];
 
     const seed = data.email.charCodeAt(0) % GRADIENTS.length;
-    const { colors, accent } = GRADIENTS[seed];
+    const { colors } = GRADIENTS[seed];
 
     const user_banner: TrianglifyOptions = {
       cell_size: 35,
@@ -85,10 +91,11 @@ export class AuthService {
     return {
       accessToken:  signAccessToken(payload),
       refreshToken: signRefreshToken(payload),
+      user:         stripPassword(created),
     };
   }
 
-  async refresh(refreshToken: string): Promise<Pick<AuthTokens, 'accessToken'>> {
+  async refresh(refreshToken: string): Promise<AuthTokens> {
     let payload: JwtPayload;
     try {
       payload = verifyRefreshToken(refreshToken);
@@ -107,7 +114,11 @@ export class AuthService {
       role:  payload.role,
     };
 
-    return { accessToken: signAccessToken(newPayload) };
+    return {
+      accessToken:  signAccessToken(newPayload),
+      refreshToken: signRefreshToken(newPayload),
+      user:         stripPassword(user),
+    };
   }
 
   async changePassword(
@@ -118,7 +129,7 @@ export class AuthService {
     const user = await usersService.findByEmail(
       (await usersService.findById(userId) as any)?.email
     );
-    
+
     if (!user) {
       throw Object.assign(new Error('User not found'), { status: 404 });
     }
@@ -130,7 +141,6 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
-
     await usersService.updateById(userId, { $set: { password: hashedPassword } });
   }
 }

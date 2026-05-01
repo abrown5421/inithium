@@ -84,7 +84,6 @@ const Profile = () => {
       bg="surface"
       color="surface-contrast"
       animation={profileAnimation}
-      className="h-shell"
     >
       <div className="relative">
         <Banner
