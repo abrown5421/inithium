@@ -31,7 +31,7 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       color={page.color}
       animation={animation}
       {...centeringProps}
-      className='h-shell'
+      className='h-shell overflow-scroll no-scrollbar'
     >
       <Suspense fallback={null}>
         <page.component />

@@ -7,6 +7,7 @@ import { authApi } from '@inithium/store';
 import { PAGE_REGISTRY, getPageByKey } from '@inithium/pages';
 import { Navbar } from '@inithium/ui';
 import { User } from '@inithium/types';
+import { initDarkMode } from '@inithium/utils';
 import './styles.css';
 import 'animate.css';
 
@@ -49,7 +50,12 @@ const SessionGate = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     refresh()
       .unwrap()
-      .catch(() => {})
+      .then((result) => {
+        initDarkMode(result.user.dark_mode);
+      })
+      .catch(() => {
+        initDarkMode();
+      })
       .finally(() => setReady(true));
   }, []);
 
@@ -57,8 +63,6 @@ const SessionGate = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Navbar lives inside the router so useLocation() has context.
-// It reads its own state via hooks, so we can define it as a stable component.
 const AppNavbar: React.FC = () => {
   const { user, isAuthenticated } = useCurrentUser();
   const navLinks = buildNavLinks(PAGE_REGISTRY, user);

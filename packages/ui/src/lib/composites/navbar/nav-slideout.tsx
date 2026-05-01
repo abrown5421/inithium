@@ -5,6 +5,7 @@ import { Icon } from "../../components/icon";
 import { Button } from "../../components/button";
 import { usePageTransition, useLogoutMutation } from "@inithium/store";
 import { Box } from "../../components/box";
+import { Text } from "../../components/text";
 
 interface NavSlideoutProps {
   open: boolean;
@@ -54,7 +55,7 @@ const SlideoutLink: React.FC<{
     <a
       href={path}
       onClick={handleClick}
-      className="block rounded-md px-3 py-2 text-sm font-medium text-on-surface hover:bg-surface3 transition-colors"
+      className="block rounded-md px-3 py-2 text-sm font-medium text-surface4-contrast hover:text-primary transition-colors"
     >
       {label}
     </a>
@@ -105,12 +106,12 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
             >
               <div className="flex h-full flex-col overflow-y-auto bg-surface2 shadow-xl">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-surface3">
-                  <span className="text-sm font-semibold text-on-surface">
+                  <Text className="text-sm font-semibold" color="surface-contrast">
                     {isAuthenticated ? "Menu" : "Navigation"}
-                  </span>
+                  </Text>
                   <button
                     onClick={onClose}
-                    className="rounded-md p-1.5 text-on-surface-muted hover:text-on-surface hover:bg-surface3 transition-colors"
+                    className="rounded-md p-1.5 text-surface-contrast hover:text-surface-contrast hover:bg-surface3 transition-colors"
                     aria-label="Close menu"
                   >
                     <Icon name="XMarkIcon" iconStyle="solid-24" size="sm" aria-hidden />
@@ -120,7 +121,7 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
                 <div className="flex-1 px-4 py-4 space-y-6">
                   {isAuthenticated && profileLinks.length > 0 && (
                     <section>
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-on-surface-muted">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-surface-contrast">
                         Account
                       </p>
                       <ul className="space-y-1">
@@ -140,7 +141,7 @@ export const NavSlideout: React.FC<NavSlideoutProps> = ({
 
                   {flatNav.length > 0 && (
                     <section>
-                      <p className="mb-2 text-xs font-semibond uppercase tracking-widest text-on-surface-muted">
+                      <p className="mb-2 text-xs font-semibond uppercase tracking-widest text-surface-contrast">
                         Pages
                       </p>
                       <ul className="space-y-1">
