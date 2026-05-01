@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { PageShell } from '@inithium/ui';
-import { usePageTransition, requestTransition, initialize } from '@inithium/store';
+import { usePageTransition, requestTransition } from '@inithium/store';
 import type { AppDispatch } from '@inithium/store';
 import { Box } from '@inithium/ui';
 import type { PageDefinition } from '@inithium/types';
@@ -24,6 +24,10 @@ interface TransitionLayoutProps {
   pages: PageDefinition[];
   notFoundPage: PageDefinition;
   errorPage: PageDefinition;
+}
+
+interface RouterShellProps {
+  navbar: React.ReactNode;
 }
 
 const TransitionLayout: React.FC<TransitionLayoutProps> = ({
@@ -54,9 +58,10 @@ const TransitionLayout: React.FC<TransitionLayoutProps> = ({
   return <PageShell page={currentPageDef} controller={controller} />;
 };
 
-const RouterShell: React.FC = () => {
+const RouterShell: React.FC<RouterShellProps> = ({ navbar }) => {
   return (
-    <Box className="h-shell bg-surface-contrast" direction="col">
+    <Box className="bg-surface-contrast" direction="col">
+      {navbar}
       <Outlet />
     </Box>
   );
@@ -66,11 +71,12 @@ export const createAppRouter = (
   pages: PageDefinition[],
   notFoundPage: PageDefinition,
   errorPage: PageDefinition,
+  navbar: React.ReactNode,
 ): AppRouterInstance =>
   createBrowserRouter([
     {
       path: '/',
-      element: <RouterShell />,
+      element: <RouterShell navbar={navbar} />,
       errorElement: <PageShell page={errorPage} controller={{ triggerEnter: () => {} } as any} />,
       children: [
         {
@@ -100,8 +106,9 @@ export const initRouter = (
   pages: PageDefinition[],
   notFoundPage: PageDefinition,
   errorPage: PageDefinition,
+  navbar: React.ReactNode,
 ): AppRouterInstance => {
-  router = createAppRouter(pages, notFoundPage, errorPage);
+  router = createAppRouter(pages, notFoundPage, errorPage, navbar);
   return router;
 };
 
