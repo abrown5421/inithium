@@ -69,6 +69,14 @@ export const authApi = createApi({
       transformResponse: (raw: ApiResponse<AuthTokens>) => raw.data,
     }),
 
+    changePassword: builder.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: (body) => ({
+        url: '/auth/change-password',
+        method: 'PATCH',
+        body,
+      }),
+    }),
+
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
@@ -83,4 +91,5 @@ export const {
   useRegisterMutation,
   useRefreshMutation,
   useLogoutMutation,
+  useChangePasswordMutation,
 } = authApi;

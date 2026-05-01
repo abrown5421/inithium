@@ -96,7 +96,6 @@ export class AuthService {
       throw Object.assign(new Error('Refresh token invalid or expired'), { status: 401 });
     }
 
-    // Verify the user still exists
     const user = await usersService.findById(payload.sub);
     if (!user) {
       throw Object.assign(new Error('User not found'), { status: 401 });
@@ -109,6 +108,30 @@ export class AuthService {
     };
 
     return { accessToken: signAccessToken(newPayload) };
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    const user = await usersService.findByEmail(
+      (await usersService.findById(userId) as any)?.email
+    );
+    
+    if (!user) {
+      throw Object.assign(new Error('User not found'), { status: 404 });
+    }
+
+    const passwordHash = (user as any).password as string;
+    const valid = await bcrypt.compare(currentPassword, passwordHash);
+    if (!valid) {
+      throw Object.assign(new Error('Current password is incorrect'), { status: 401 });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    await usersService.updateById(userId, { $set: { password: hashedPassword } });
   }
 }
 
