@@ -84,6 +84,7 @@ const Profile = () => {
       bg="surface"
       color="surface-contrast"
       animation={profileAnimation}
+      className="h-full"
     >
       <div className="relative">
         <Banner
@@ -108,7 +109,6 @@ const Profile = () => {
       </div>
 
       <Box direction="col" className="w-full h-full lg:w-3/4 mx-auto">
-        {/* Avatar Section */}
         <Box
           px="4"
           className="mt-[-64px] z-10 flex flex-col items-center lg:items-start"
@@ -143,14 +143,12 @@ const Profile = () => {
           </Box>
         </Box>
 
-        {/* Content Section */}
         <Box
           p="4"
           gap="4"
           direction="col"
           className="flex lg:flex-row h-full"
         >
-          {/* User Info Column */}
           <Box
             direction="col"
             gap="2"
@@ -197,10 +195,13 @@ const Profile = () => {
             <Text size="xs" color="surface2-contrast" className="mt-2">{user.bio}</Text>
           </Box>
 
-          {/* Tabs Column */}
           <Box
             direction="col"
-            className="w-full h-full lg:flex-9 mt-4 lg:mt-0"
+            gap="4"
+            p="4"
+            bg="surface2"
+            rounded="md"
+            className="w-full h-full lg:flex-9 mt-4 lg:mt-0 border border-surface2-contrast"
           >
             <Tabs
               tabs={buildProfileTabs(PROFILE_TABS_REGISTRY, isOwnProfile, activeUserId)}
@@ -210,7 +211,6 @@ const Profile = () => {
         </Box>
       </Box>
 
-      {/* Dialogs remain unchanged */}
       <Dialog
         open={bannerDialogOpen}
         onClose={() => setBannerDialogOpen(false)}

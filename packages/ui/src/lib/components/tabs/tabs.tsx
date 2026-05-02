@@ -33,9 +33,9 @@ const getVariantStyles = (variant: TabsVariant, color: ThemeColor): string => {
     ),
     ghost: cn(
       'border-b-2 border-transparent transition duration-200',
+      'text-surface2-contrast',
       'hover:border-surface4-contrast',
-      'data-[selected]:border-primary',
-      c.text,
+      'data-[selected]:border-primary data-[selected]:text-primary',
     ),
   };
 
@@ -62,8 +62,8 @@ export const Tabs: React.FC<TabsProps> = ({
       onChange={onChange}
       vertical={vertical}
       className={cn(
-        'w-full h-full flex', 
-        vertical ? 'flex-row gap-4' : 'flex-col', 
+        'w-full h-full flex',
+        vertical ? 'flex-row gap-4' : 'flex-col',
         className
       )}
     >
@@ -92,10 +92,10 @@ export const Tabs: React.FC<TabsProps> = ({
         ))}
       </TabList>
 
-      <TabPanels 
+      <TabPanels
         className={cn(
-          'flex-1 min-h-0', 
-          !vertical && 'mt-4', 
+          'flex-1 min-h-0',
+          !vertical && 'mt-4',
           panelClassName
         )}
       >
