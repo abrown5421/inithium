@@ -385,12 +385,12 @@ const Settings = () => {
           p="4"
           bg="surface2"
           rounded="md"
-          className="border border-on-surface/10"
+          className="border border-surface2-contrast"
         >
           <EmailUpdateForm userId={authUser._id} currentEmail={authUser.email} />
         </Box>
 
-        <div className="border-t border-on-surface/10" />
+        <div className="border-t border-surface2-contrast" />
 
         <Box
           direction="col"
@@ -398,12 +398,12 @@ const Settings = () => {
           p="4"
           bg="surface2"
           rounded="md"
-          className="border border-on-surface/10"
+          className="border border-surface2-contrast"
         >
           <PasswordUpdateForm userId={authUser._id} />
         </Box>
 
-        <div className="border-t border-on-surface/10" />
+        <div className="border-t border-surface2-contrast" />
 
         <Box
           direction="col"
@@ -411,7 +411,7 @@ const Settings = () => {
           p="4"
           bg="surface2"
           rounded="md"
-          className="border border-on-surface/10"
+          className="border border-surface2-contrast"
         >
           <DarkModeToggle userId={authUser._id} initialValue={authUser.dark_mode ?? false} />
         </Box>
