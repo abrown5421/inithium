@@ -1,5 +1,7 @@
+import { Box } from "@inithium/ui";
+
 const Home = () => {
-  return <div>home</div>;
+  return <Box p="4" color="surface-contrast">home</Box>;
 };
 
 export default Home;
