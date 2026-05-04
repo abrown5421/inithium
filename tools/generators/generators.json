@@ -12,6 +12,16 @@
       "factory": "./dist/generators/collection/delete/index.js",
       "schema": "./src/generators/collection/delete/schema.json",
       "description": "Remove an existing API collection and all associated scaffolding"
+    },
+    "create-page": {
+      "factory": "./dist/generators/page/create/index.js",
+      "schema": "./src/generators/page/create/schema.json",
+      "description": "Scaffold a new page component and inject its full definition into the PAGE_REGISTRY"
+    },
+    "delete-page": {
+      "factory": "./dist/generators/page/delete/index.js",
+      "schema": "./src/generators/page/delete/schema.json",
+      "description": "Remove a page component and strip its entry from the PAGE_REGISTRY"
     }
   }
 }
