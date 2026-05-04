@@ -24,15 +24,18 @@ interface TransitionLayoutProps {
   pages: PageDefinition[];
   notFoundPage: PageDefinition;
   errorPage: PageDefinition;
+  footer?: React.ReactNode;
 }
 
 interface RouterShellProps {
   navbar: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 const TransitionLayout: React.FC<TransitionLayoutProps> = ({
   pages,
   notFoundPage,
+  footer,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
@@ -55,14 +58,14 @@ const TransitionLayout: React.FC<TransitionLayoutProps> = ({
       matchPath({ path: p.path, end: true }, activePage ?? location.pathname)
     ) ?? notFoundPage;
 
-  return <PageShell page={currentPageDef} controller={controller} />;
+  return <PageShell page={currentPageDef} controller={controller} footer={footer} />;
 };
 
-const RouterShell: React.FC<RouterShellProps> = ({ navbar }) => {
+const RouterShell: React.FC<RouterShellProps> = ({ navbar, footer }) => {
   return (
-    <Box className="bg-surface-contrast" direction="col">
+    <Box direction="col" fullHeight className="overflow-scroll no-scrollbar">
       {navbar}
-      <Outlet />
+      <Outlet context={{ footer }} />
     </Box>
   );
 };
@@ -72,11 +75,12 @@ export const createAppRouter = (
   notFoundPage: PageDefinition,
   errorPage: PageDefinition,
   navbar: React.ReactNode,
+  footer?: React.ReactNode,
 ): AppRouterInstance =>
   createBrowserRouter([
     {
       path: '/',
-      element: <RouterShell navbar={navbar} />,
+      element: <RouterShell navbar={navbar} footer={footer} />,
       errorElement: <PageShell page={errorPage} controller={{ triggerEnter: () => {} } as any} />,
       children: [
         {
@@ -86,6 +90,7 @@ export const createAppRouter = (
               pages={pages}
               notFoundPage={notFoundPage}
               errorPage={errorPage}
+              footer={footer}
             />
           ),
           children: [
@@ -107,8 +112,9 @@ export const initRouter = (
   notFoundPage: PageDefinition,
   errorPage: PageDefinition,
   navbar: React.ReactNode,
+  footer?: React.ReactNode,
 ): AppRouterInstance => {
-  router = createAppRouter(pages, notFoundPage, errorPage, navbar);
+  router = createAppRouter(pages, notFoundPage, errorPage, navbar, footer);
   return router;
 };
 

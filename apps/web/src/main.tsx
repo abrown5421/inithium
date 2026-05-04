@@ -5,7 +5,7 @@ import { AppRouter, initRouter } from '@inithium/router';
 import { store, useCurrentUser } from '@inithium/store';
 import { authApi } from '@inithium/store';
 import { PAGE_REGISTRY, getPageByKey } from '@inithium/pages';
-import { AlertComposite, Navbar } from '@inithium/ui';
+import { AlertComposite, Navbar, Footer } from '@inithium/ui';
 import { User } from '@inithium/types';
 import { initDarkMode } from '@inithium/utils';
 import './styles.css';
@@ -82,7 +82,20 @@ const AppNavbar: React.FC = () => {
   );
 };
 
-const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage, <AppNavbar />);
+const AppFooter: React.FC = () => {
+  const { user } = useCurrentUser();
+  const navLinks = buildNavLinks(PAGE_REGISTRY, user);
+
+  return (
+    <Footer
+      pages={navLinks}
+      onNavigate={router.navigate}
+      copyright={`© ${new Date().getFullYear()} ${CONFIG.APP_TITLE}. All rights reserved.`}
+    />
+  );
+};
+
+const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage, <AppNavbar />, <AppFooter />);
 
 const App = () => (
   <>

@@ -1,5 +1,7 @@
+import { Box } from "@inithium/ui";
+
 const Documentation = () => {
-  return <div>Documentation</div>;
+  return <Box p="4" color="surface-contrast">Documentation</Box>;
 };
 
 export default Documentation;

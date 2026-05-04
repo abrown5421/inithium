@@ -5,9 +5,10 @@ import type { AnimationController, PageDefinition } from '@inithium/types';
 interface PageShellProps {
   page: PageDefinition;
   controller: AnimationController;
+  footer?: React.ReactNode;
 }
 
-export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
+export const PageShell: React.FC<PageShellProps> = ({ page, controller, footer }) => {
   const animation = {
     entry: page.entry,
     exit: page.exit,
@@ -26,16 +27,24 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller }) => {
       display="flex"
       direction="col"
       fullWidth
-      fullHeight
       bg={page.bg}
       color={page.color}
       animation={animation}
-      {...centeringProps}
-      className='h-shell overflow-scroll no-scrollbar'
     >
-      <Suspense fallback={null}>
-        <page.component />
-      </Suspense>
+      {/* Fills exactly the visible viewport below the navbar — footer lives below this */}
+      <Box
+        display="flex"
+        direction="col"
+        fullWidth
+        {...centeringProps}
+        className="h-shell shrink-0"
+      >
+        <Suspense fallback={null}>
+          <page.component />
+        </Suspense>
+      </Box>
+
+      {footer}
     </Box>
   );
 };
