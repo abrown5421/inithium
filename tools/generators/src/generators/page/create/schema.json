@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "id": "create-page",
+  "title": "Create Page",
+  "description": "Scaffold a new page with a component, registry entry, and optional navigation config",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The page name in kebab-case (e.g. blog-posts)",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "What is the name of the page? (kebab-case)"
+    },
+    "path": {
+      "type": "string",
+      "description": "The URL path for this page (e.g. /blog or /blog/:id)",
+      "x-prompt": "What is the URL path for this page? (e.g. /blog)"
+    },
+    "entry": {
+      "type": "string",
+      "description": "Animate.css entry animation class",
+      "default": "fadeIn",
+      "x-prompt": {
+        "message": "Which entry animation should this page use?",
+        "type": "list",
+        "items": [
+          "fadeIn", "fadeInDown", "fadeInUp", "fadeInLeft", "fadeInRight",
+          "zoomIn", "zoomInDown", "zoomInUp",
+          "slideInDown", "slideInLeft", "slideInRight", "slideInUp",
+          "bounceIn", "bounceInDown", "bounceInUp",
+          "backInDown", "backInLeft", "backInRight", "backInUp",
+          "flipInX", "flipInY",
+          "rotateIn",
+          "lightSpeedInLeft", "lightSpeedInRight"
+        ]
+      }
+    },
+    "exit": {
+      "type": "string",
+      "description": "Animate.css exit animation class",
+      "default": "fadeOut",
+      "x-prompt": {
+        "message": "Which exit animation should this page use?",
+        "type": "list",
+        "items": [
+          "fadeOut", "fadeOutDown", "fadeOutUp", "fadeOutLeft", "fadeOutRight",
+          "zoomOut", "zoomOutDown", "zoomOutUp",
+          "slideOutDown", "slideOutLeft", "slideOutRight", "slideOutUp",
+          "bounceOut", "bounceOutDown", "bounceOutUp",
+          "backOutDown", "backOutLeft", "backOutRight", "backOutUp",
+          "flipOutX", "flipOutY",
+          "rotateOut",
+          "lightSpeedOutLeft", "lightSpeedOutRight",
+          "hinge", "rollOut"
+        ]
+      }
+    },
+    "bg": {
+      "type": "string",
+      "description": "Background ThemeColor for this page",
+      "default": "surface",
+      "x-prompt": {
+        "message": "Which background color should this page use?",
+        "type": "list",
+        "items": [
+          "surface", "surface2", "surface3", "surface4",
+          "surface-contrast", "primary", "secondary", "accent",
+          "success", "warning", "danger", "info"
+        ]
+      }
+    },
+    "color": {
+      "type": "string",
+      "description": "Optional foreground ThemeColor override",
+      "x-prompt": {
+        "message": "Foreground color override? (leave blank for none)",
+        "type": "list",
+        "items": [
+          "none",
+          "surface", "surface-contrast", "primary", "secondary", "accent",
+          "success", "warning", "danger", "info"
+        ]
+      }
+    },
+    "centered": {
+      "type": "boolean",
+      "description": "Whether the page content should be centered",
+      "default": false,
+      "x-prompt": "Should the page content be centered?"
+    },
+    "isErrorPage": {
+      "type": "boolean",
+      "description": "Whether this is an error page (excluded from navigation)",
+      "default": false,
+      "x-prompt": "Is this an error/fallback page?"
+    },
+    "entrySpeed": {
+      "type": "string",
+      "description": "Optional animation speed modifier for entry",
+      "x-prompt": {
+        "message": "Entry animation speed? (leave blank for default)",
+        "type": "list",
+        "items": ["none", "slow", "slower", "fast", "faster"]
+      }
+    },
+    "exitSpeed": {
+      "type": "string",
+      "description": "Optional animation speed modifier for exit",
+      "x-prompt": {
+        "message": "Exit animation speed? (leave blank for default)",
+        "type": "list",
+        "items": ["none", "slow", "slower", "fast", "faster"]
+      }
+    },
+    "addNavigation": {
+      "type": "boolean",
+      "description": "Whether to add a navigation entry for this page",
+      "default": false,
+      "x-prompt": "Add this page to the navigation?"
+    },
+    "navLabel": {
+        "type": "string",
+        "description": "Navigation label (required when addNavigation is true)",
+        "x-prompt": "What label should be used in the navigation?"
+    },
+    "navLocation": {
+      "type": "string",
+      "description": "Where in the nav this page should appear",
+      "x-prompt": {
+        "message": "Which navigation slot?",
+        "type": "list",
+        "items": ["main", "footer", "profile", "none"]
+      }
+    },
+    "navOrder": {
+      "type": "number",
+      "description": "Order within the nav slot"
+    },
+    "navAuthenticated": {
+      "type": "boolean",
+      "description": "Only show in nav when the user is authenticated",
+      "default": false
+    },
+    "navAnonymous": {
+      "type": "boolean",
+      "description": "Only show in nav when the user is not authenticated",
+      "default": false
+    },
+    "navDynamic": {
+      "type": "boolean",
+      "description": "Whether the nav path must be resolved from the current user (e.g. /profile/:userId)",
+      "default": false
+    },
+    "navDynamicField": {
+      "type": "string",
+      "description": "User field used to resolve the dynamic nav path (e.g. _id)"
+    }
+  },
+  "required": ["name", "path", "entry", "exit", "bg"]
+}

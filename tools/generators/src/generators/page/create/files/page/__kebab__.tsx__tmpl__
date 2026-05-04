@@ -1,0 +1,11 @@
+import { Box } from '@inithium/ui';
+
+const <%= pascal %> = () => {
+  return (
+    <Box p="4" color="surface-contrast">
+      <%= pascal %>
+    </Box>
+  );
+};
+
+export default <%= pascal %>;

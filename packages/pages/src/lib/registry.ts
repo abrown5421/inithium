@@ -26,7 +26,9 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     entry: 'fadeIn',
     exit: 'fadeOut',
     bg: 'surface',
-    component: React.lazy(() => import('./pages/privacy-policy/privacy-policy')),
+    component: React.lazy(
+      () => import('./pages/privacy-policy/privacy-policy')
+    ),
     navigation: { label: 'Privacy Policy', location: 'footer', order: 1 },
   },
   {
@@ -87,7 +89,9 @@ export const PAGE_REGISTRY: PageDefinition[] = [
     bg: 'danger',
     isErrorPage: true,
     centered: true,
-    component: React.lazy(() => import('./pages/page-error/not-found/not-found')),
+    component: React.lazy(
+      () => import('./pages/page-error/not-found/not-found')
+    ),
   },
   {
     key: 'error',

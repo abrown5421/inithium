@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "id": "delete-page",
+  "title": "Delete Page",
+  "description": "Remove an existing page component and its registry entry",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The page name in kebab-case (e.g. blog-posts)",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Which page do you want to delete? (kebab-case)"
+    }
+  },
+  "required": ["name"]
+}
