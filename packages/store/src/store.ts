@@ -3,10 +3,12 @@ import transitionReducer from './slices/transition.slice.js';
 import authReducer from './slices/auth.slice.js';
 import { authApi } from './apis/auth-api.js';
 import { usersApi } from './apis/users-api.js';
+import alertReducer from "./slices/alert.slice.js"
 
 const rootReducer = combineReducers({
   transition: transitionReducer,
   auth: authReducer,
+  alert: alertReducer,
   [authApi.reducerPath]: authApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
 });
