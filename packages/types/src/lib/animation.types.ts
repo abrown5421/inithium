@@ -52,5 +52,5 @@ export interface AnimationObject {
   exitDelay?: AnimateDelay;
   entrySpeed?: AnimateSpeed;
   exitSpeed?: AnimateSpeed;
-  controller: AnimationController;
+  controller?: AnimationController;
 }
