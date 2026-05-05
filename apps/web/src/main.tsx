@@ -98,10 +98,10 @@ const AppFooter: React.FC = () => {
 const router = initRouter(PAGE_REGISTRY, notFoundPage, errorPage, <AppNavbar />, <AppFooter />);
 
 const App = () => (
-  <>
+  <div className='bg-surface4'>
     <AlertComposite />
     <AppRouter pages={PAGE_REGISTRY} router={router} />
-  </>
+  </div>
 );
 
 const root = ReactDOM.createRoot(
