@@ -24,6 +24,9 @@
   "references": [
     {
       "path": "../validators/tsconfig.lib.json"
+    },
+    {
+      "path": "../api-collections/tsconfig.lib.json"
     }
   ]
 }
