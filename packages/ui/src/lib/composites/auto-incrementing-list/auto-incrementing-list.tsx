@@ -20,7 +20,6 @@ export const AutoIncrementingList: React.FC<AutoIncrementingListProps> = ({
   gap = '3',
 }) => {
   const initialCount = Math.max(defaultCount ?? min, min);
-
   const [items, setItems] = useState<number[]>(() => createItems(initialCount));
 
   const count = items.length;
@@ -43,64 +42,38 @@ export const AutoIncrementingList: React.FC<AutoIncrementingListProps> = ({
 
   return (
     <Box direction="col" gap={gap} className={className}>
-      {items.map((key, i) => {
-        const isLast = i === count - 1;
-
-        return (
-          <Box key={key} direction="row" gap="2">
-            <Box flex className="min-w-0">
-              {renderItem(i)}
-            </Box>
-
-            <Box
-              direction="row"
-              align="end"
-              gap="2"
-              shrink={false}
-              className="pb-[1px]"
-            >
-              {isLast ? (
-                <>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    size="base"
-                    disabled={atMax}
-                    onClick={handleAdd}
-                    aria-label="Add item"
-                  >
-                    <Icon name="PlusIcon" iconStyle="solid-20" size="sm" aria-hidden />
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="danger"
-                    size="base"
-                    disabled={atMin}
-                    onClick={() => handleDelete(key)}
-                    aria-label="Remove item"
-                  >
-                    <Icon name="TrashIcon" iconStyle="solid-20" size="sm" aria-hidden />
-                  </Button>
-                </>
-              ) : (
-                <Box direction="row" gap="2" className="w-full">
-                  <Button
-                    variant="outlined"
-                    color="danger"
-                    size="base"
-                    disabled={atMin}
-                    onClick={() => handleDelete(key)}
-                    aria-label="Remove item"
-                    className="w-full"
-                  >
-                    <Icon name="TrashIcon" iconStyle="solid-20" size="sm" aria-hidden />
-                  </Button>
-                </Box>
-              )}
-            </Box>
+      {items.map((key, i) => (
+        <Box key={key} direction="row" gap="2">
+          <Box flex className="min-w-0">
+            {renderItem(i)}
           </Box>
-        );
-      })}
+          <Box direction="row" align="end" gap="2" shrink={false} className="pb-[1px]">
+            <Button
+              variant="outlined"
+              color="danger"
+              size="base"
+              disabled={atMin}
+              onClick={() => handleDelete(key)}
+              aria-label="Remove item"
+            >
+              <Icon name="TrashIcon" iconStyle="solid-20" size="sm" aria-hidden />
+            </Button>
+          </Box>
+        </Box>
+      ))}
+
+      <Box direction="row" justify="end">
+        <Button
+          variant="outlined"
+          color="primary"
+          size="base"
+          disabled={atMax}
+          onClick={handleAdd}
+          aria-label="Add item"
+        >
+          <Icon name="PlusIcon" iconStyle="solid-20" size="sm" aria-hidden />
+        </Button>
+      </Box>
     </Box>
   );
 };

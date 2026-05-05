@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { authApi } from '../apis/auth-api.js';
 import type { AuthTokens } from '@inithium/types';
+import { authApi } from '../../apis';
 
 export interface AuthState {
   accessToken: string | null;

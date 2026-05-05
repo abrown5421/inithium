@@ -1,8 +1,8 @@
 export interface TrianglifyOptions {
-  variance: number;
-  cell_size: number; 
-  x_colors: string[];
-  y_colors: string[];
+  variance?: number;
+  cell_size?: number; 
+  x_colors?: string | string[];
+  y_colors?: string | string[];
 }
 
 export interface BannerProps {

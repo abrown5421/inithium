@@ -43,6 +43,7 @@ describe('AppRouter & TransitionLayout Logic', () => {
 
   const notFoundPage = { key: '404', path: '/404' } as PageDefinition;
   const errorPage = { key: 'error', path: '/error' } as PageDefinition;
+  const mockNavbar = <nav data-testid="navbar" />;
 
   const mockTransitionState = (overrides = {}) => {
     (usePageTransition as any).mockReturnValue({
@@ -59,7 +60,7 @@ describe('AppRouter & TransitionLayout Logic', () => {
 
   describe('createAppRouter', () => {
     it('should configure a router with nested children for each page definition plus a wildcard', () => {
-      const router = createAppRouter(mockPages, notFoundPage, errorPage);
+      const router = createAppRouter(mockPages, notFoundPage, errorPage, mockNavbar);
       const transitionLayoutRoute = router.routes[0].children?.[0];
       
       expect(transitionLayoutRoute?.children).toHaveLength(mockPages.length + 1);
@@ -69,7 +70,7 @@ describe('AppRouter & TransitionLayout Logic', () => {
   describe('TransitionLayout Lifecycle', () => {
     it('should render the PageShell corresponding to the activePage state', () => {
       mockTransitionState({ activePage: '/' });
-      const router = createAppRouter(mockPages, notFoundPage, errorPage);
+      const router = createAppRouter(mockPages, notFoundPage, errorPage, mockNavbar);
 
       renderWithContext(<AppRouter router={router} pages={mockPages} />);
       
@@ -79,7 +80,7 @@ describe('AppRouter & TransitionLayout Logic', () => {
 
     it('should fallback to notFoundPage if the activePage does not match any page definition', () => {
       mockTransitionState({ activePage: '/unknown' });
-      const router = createAppRouter(mockPages, notFoundPage, errorPage);
+      const router = createAppRouter(mockPages, notFoundPage, errorPage, mockNavbar);
 
       renderWithContext(<AppRouter router={router} pages={mockPages} />);
 

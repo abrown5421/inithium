@@ -31,7 +31,6 @@ export const PageShell: React.FC<PageShellProps> = ({ page, controller, footer }
       color={page.color}
       animation={animation}
     >
-      {/* Fills exactly the visible viewport below the navbar — footer lives below this */}
       <Box
         display="flex"
         direction="col"
