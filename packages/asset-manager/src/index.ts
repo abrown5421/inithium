@@ -20,3 +20,4 @@ export {
   startTokenGarbageCollector,
 } from './lib/handshake/token-store.js';
 export { createProxyRouter } from './lib/proxy/index.js';
+export { runAssetSeeder } from './lib/seeds/asset.seeder.js'

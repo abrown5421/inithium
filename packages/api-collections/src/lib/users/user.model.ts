@@ -42,7 +42,7 @@ const AddressSchema = new Schema(
   { _id: false },
 );
 
-const UserSchema = new Schema<User>(
+export const UserSchema = new Schema<User>(
   {
     email: {
       type: String,

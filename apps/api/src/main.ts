@@ -10,6 +10,7 @@ import {
   assetsService,
 } from '@inithium/api-collections';
 import { createAssetManager } from '@inithium/asset-manager';
+import { seedIfEmpty } from './seed-guard.js';
 
 interface AppConfig {
   readonly host: string;
@@ -58,6 +59,7 @@ const bootstrap = async (): Promise<void> => {
   app.use(errorMiddleware);
 
   await connectDB(config.mongoUri);
+  await seedIfEmpty();
 
   app.listen(config.port, config.host, () => {
     console.log(`[ ready ] http://${config.host}:${config.port}`);
