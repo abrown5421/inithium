@@ -12,11 +12,17 @@ interface BannerFormProps {
   onSaved?: () => void;
 }
 
-const DEFAULT_OPTIONS: TrianglifyOptions = {
+const DEFAULT_OPTIONS = {
   cell_size: 35,
   variance: 0.55,
-  x_colors: ["#0f5066", "#ffffff"],
-  y_colors: ["#08594c", "#000000"],
+  x_colors: ["#0f5066", "#ffffff"] as string[],
+  y_colors: ["#08594c", "#000000"] as string[],
+};
+
+const normalizeColors = (value?: string | string[]): string[] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") return [value];
+  return [];
 };
 
 export const BannerForm: React.FC<BannerFormProps> = ({
@@ -24,15 +30,24 @@ export const BannerForm: React.FC<BannerFormProps> = ({
   initial,
   onSaved,
 }) => {
-  const opts = initial ?? DEFAULT_OPTIONS;
+  const opts = {
+    ...DEFAULT_OPTIONS,
+    ...initial,
+  };
 
-  const [variance, setVariance] = useState(opts.variance);
-  const [cellSize, setCellSize] = useState(opts.cell_size);
+
+  const [variance, setVariance] = useState<number>(opts.variance);
+  const [cellSize, setCellSize] = useState<number>(opts.cell_size);
+
+  const initialX = normalizeColors(opts.x_colors);
+  const initialY = normalizeColors(opts.y_colors);
+
   const [xColors, setXColors] = useState<string[]>(
-    opts.x_colors.length >= 2 ? opts.x_colors : [...DEFAULT_OPTIONS.x_colors]
+    initialX.length >= 2 ? initialX : DEFAULT_OPTIONS.x_colors
   );
+
   const [yColors, setYColors] = useState<string[]>(
-    opts.y_colors.length >= 2 ? opts.y_colors : [...DEFAULT_OPTIONS.y_colors]
+    initialY.length >= 2 ? initialY : DEFAULT_OPTIONS.y_colors
   );
 
   const [updateMe, { isLoading, isSuccess, isError }] = useUpdateMeMutation();

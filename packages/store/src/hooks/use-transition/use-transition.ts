@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AnimationController, AnimationPhase } from '@inithium/types';
-import { AppDispatch, RootState } from '../store.js';
-import { commitTransition, enterComplete } from '../slices/transition.slice.js';
+import { AppDispatch, RootState } from '../../store.js';
+import { commitTransition, enterComplete } from '../../slices/transition/transition.slice.js';
 
 const ANIMATION_DURATION_MS = 600; 
 

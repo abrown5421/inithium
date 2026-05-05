@@ -1,9 +1,9 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import transitionReducer from './slices/transition.slice.js';
-import authReducer from './slices/auth.slice.js';
+import transitionReducer from './slices/transition/transition.slice.js';
+import authReducer from './slices/auth/auth.slice.js';
 import { authApi } from './apis/auth-api.js';
 import { usersApi } from './apis/users-api.js';
-import alertReducer from "./slices/alert.slice.js"
+import alertReducer from "./slices/alert/alert.slice.js"
 
 const rootReducer = combineReducers({
   transition: transitionReducer,
@@ -22,5 +22,5 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 
-export type { AuthState } from './slices/auth.slice.js';
-export type { TransitionState } from './slices/transition.slice.js';
+export type { AuthState } from './slices/auth/auth.slice.js';
+export type { TransitionState } from './slices/transition/transition.slice.js';

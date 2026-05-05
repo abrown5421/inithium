@@ -7,7 +7,10 @@ export default defineConfig(() => ({
     name: '@inithium/utils',
     watch: false,
     globals: true,
-    environment: 'node',
+    environment: 'jsdom',
+    typecheck: {
+      tsconfig: './tsconfig.spec.json',
+    },
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {

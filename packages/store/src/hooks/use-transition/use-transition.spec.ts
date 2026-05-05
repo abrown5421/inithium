@@ -3,8 +3,8 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { usePageTransition } from './use-transition.js';
 import { useDispatch, useSelector } from 'react-redux';
+import { usePageTransition } from './use-transition.js'
 
 vi.mock('react-redux', () => ({
   useDispatch: vi.fn(),

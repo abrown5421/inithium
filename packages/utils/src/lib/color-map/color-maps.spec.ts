@@ -16,10 +16,8 @@ describe('Color Maps Abstraction', () => {
       const isContrast = color.endsWith('-contrast');
       const baseColor = isContrast ? color.replace(/-contrast$/, '') : color;
 
-      // bg is always the color itself
       expect(tokens.bg).toBe(`bg-${color}`);
 
-      // bgContrast inverts: for base colors it points to contrast, for contrast colors it points back to base
       expect(tokens.bgContrast).toBe(isContrast ? `bg-${baseColor}` : `bg-${color}-contrast`);
 
       expect(tokens.text).toBe(`text-${color}`);

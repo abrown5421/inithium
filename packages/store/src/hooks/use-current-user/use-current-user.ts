@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
-import type { RootState } from '../store.js';
-import { useGetMeQuery } from '../apis/users-api.js';
+import type { RootState } from '../../store.js';
+import { useGetMeQuery } from '../../apis/users-api.js';
 import { User } from '@inithium/types';
 
 export interface UseCurrentUserResult {
