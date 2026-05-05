@@ -17,7 +17,6 @@
     },
     {
       "path": "../types/tsconfig.lib.json"
-    },
-    { "path": "../asset-manager/tsconfig.lib.json" }
+    }
   ]
 }

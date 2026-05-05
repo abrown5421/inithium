@@ -255,9 +255,6 @@ importers:
       '@inithium/types':
         specifier: workspace:*
         version: link:../types
-      bcryptjs:
-        specifier: ^3.0.2
-        version: 3.0.3
       express:
         specifier: ^4.21.2
         version: 4.22.1
