@@ -14,6 +14,11 @@ const USERS = [
   },
 ];
 
+export async function shouldRunUserSeeder(): Promise<boolean> {
+  const existing = await UserModel.findOne({ email: 'admin@inithium.com' });
+  return !existing;
+}
+
 export async function runUserSeeder(): Promise<void> {
   let inserted = 0, skipped = 0;
 
