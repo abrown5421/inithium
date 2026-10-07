@@ -6,13 +6,14 @@ Inithium is a template-and-plugins ecosystem. Every client application starts as
 
 ---
 
-## 1. Ecosystem: the three root directories
+## 1. Ecosystem: the root directories
 
 ```
 inithium/
   core/      Clonable Nx monorepo. The base of every client app. Contains zero plugin code.
   plugins/   Library of installable/ejectable plugins that extend core through slots.
   sandbox/   Tooling that rebuilds a replica of core with every plugin installed, for testing.
+  docs/      Documentation library for the ecosystem. Inithium repo only; never reaches clients.
 ```
 
 ### core/
@@ -31,6 +32,10 @@ inithium/
 - The sandbox is **rebuilt on demand, never committed**. The `sandbox/` folder holds tooling only; generated workspaces go in `sandbox/workspaces/`, which is git-ignored. Because it is always regenerated from `core/` + `plugins/`, it cannot drift from core.
 - The tooling must support adding and ejecting individual plugins so that installation, seeding, unseeding and ejection can each be verified.
 
+### docs/
+- Decision records, guides and reference pages for core and the ecosystem, written so they can later be rendered as the public docs site. See [section 9](#9-documentation-protocol).
+- A standalone npm package (like `sandbox/`), not part of the Nx workspace, so core stays free of docs tooling.
+
 ---
 
 ## 2. Plugin architecture
@@ -44,6 +49,7 @@ plugins/plugin-<name>/
   web/         React slot components + RTK Query endpoints for the end-user site
   cms/         React slot components + RTK Query endpoints for the client portal
   contracts/   Zod schemas + inferred types shared by the layers above
+  docs/        The plugin's documentation (see section 9). Never installed into a client.
 ```
 
 When a plugin is installed into a core clone, it lands as libs. **Never inside an app.**
@@ -197,6 +203,8 @@ export type User = z.infer<typeof userSchema>;
 | Zod schemas | `[entity].schema.ts` | `users.schema.ts` |
 | Types / interfaces | `[entity].types.ts` | `users.types.ts` |
 | Branches | `<type>/<kebab-name>` | `feat/user-collection`, `refactor/user-collection` |
+| Decision records | `NNNN-kebab-title.md` | `0006-serve-each-client-from-one-origin.md` |
+| Docs pages | `kebab-title.md` | `environment-variables.md` |
 
 - **Plurality:** files at the module level use the **plural** entity (`users.model.ts`, `users.types.ts`, `use-users.hook.ts`). A unit that concerns a **single instance** uses the **singular** (`user-avatar.component.tsx`, `user-search-input.component.tsx`).
 - **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `component`, `hook`. When you need a new suffix, add it to this list in the same change.
@@ -211,10 +219,10 @@ Claude implements and verifies that things compile. **The user does all browser 
 1. **Read the prompt.** If it hits a gap or an open decision, ask before writing code.
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
 3. **Implement** following the conventions above.
-4. **Verify.** Everything must lint, type-check and build (see [Commands](#7-commands)). Fix failures before handing off. Never silence a module-boundary error with an `eslint-disable` comment; fix the dependency, or raise it if the rules themselves seem wrong.
-5. **Update CLAUDE.md** if the work uncovered something worth persisting (see [section 9](#9-maintaining-this-file)).
+4. **Verify.** Everything must lint, type-check and build, and the docs check must pass (see [Commands](#7-commands)). Fix failures before handing off. Never silence a module-boundary error with an `eslint-disable` comment; fix the dependency, or raise it if the rules themselves seem wrong.
+5. **Update the docs and CLAUDE.md.** Write or update docs as the [Documentation protocol](#9-documentation-protocol) requires, and update CLAUDE.md if the work uncovered something worth persisting (see [section 10](#10-maintaining-this-file)).
 6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
-7. **Hand off.** Report what changed, the branch and commit, the verification result, any CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
+7. **Hand off.** Report what changed, the branch and commit, the verification result, any docs and CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
 8. **Iterate.** If the user returns with feedback, repeat steps 3–7 on the same branch.
 9. **The user finishes.** Once the user is satisfied, they push the branch, open and merge the PR into `main` in the GitHub UI, then run `git checkout main && git pull`.
 
@@ -248,10 +256,18 @@ npx nx serve cms                          # http://localhost:5174/cms/
 npx nx run-many -t build && node --env-file=.env dist/apps/api/main.js
 ```
 
+Check the docs from inside `docs/` (also part of verification):
+
+```bash
+cd docs
+npm install
+npm run check   # frontmatter, file names, decision sections, cross-references, relative links
+```
+
 **Environment gotchas**
 - VS Code's Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root, which breaks Nx. Override it in the shell: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` (Git Bash, from `core/`), and use `NX_DAEMON=false` if the daemon misbehaves.
 - `querySrv ECONNREFUSED` on startup means Node can't do the SRV DNS lookup that `mongodb+srv://` needs. This happens on Windows with a VPN (e.g. AWS Client VPN), where Node's resolver falls back to `127.0.0.1`. Locally, use Atlas's standard `mongodb://host1,host2,host3/<db>?tls=true&replicaSet=…&authSource=admin` string instead. It's the same cluster with no SRV lookup.
-- `core/.npmrc` sets `legacy-peer-deps=true`. Keep it.
+- `core/.npmrc` sets `legacy-peer-deps=true`. Keep it. (The conflict it works around isn't recorded yet.)
 - Tailwind is v4 via `@tailwindcss/vite` (Nx 23's React generator no longer supports Tailwind). New React apps/libs need it wired manually.
 - Vite resolves `@inithium/*` path aliases natively via `resolve.tsconfigPaths: true`. Nx generators still emit the deprecated `nxViteTsPaths`/`nxCopyAssetsPlugin`. Strip them from anything newly generated, and don't add `vite-tsconfig-paths`.
 - New projects need an `eslint.config.mjs` that spreads the root config (React projects add `nx.configs['flat/react']`). See the existing apps.
@@ -266,10 +282,43 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Slot contracts and registry files** don't exist in core yet.
 - [ ] **Contracts lib** (Zod schemas) doesn't exist yet.
 - [ ] **First Render deploy** hasn't happened yet. The settings in [Accounts & provisioning](#accounts--provisioning) still need confirming.
+- [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
+- [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
 ---
 
-## 9. Maintaining this file
+## 9. Documentation protocol
+
+`docs/` is the running documentation library for the ecosystem. It will become the public docs on the Inithium marketing site, so write for a developer building on Inithium, not as notes to yourself. Docs live in the Inithium repo only: nothing in `docs/` or a plugin's `docs/` is ever copied into core, a client repo or an installed plugin.
+
+### Where docs go
+
+| Folder | Contains |
+| --- | --- |
+| `docs/decisions/` | Decision records: one decision each, with Context, Decision, Alternatives considered and Consequences. |
+| `docs/guides/` | Task-oriented walkthroughs (how to do X, step by step). |
+| `docs/reference/` | Look-up pages: env vars, commands, libs, slots, conventions. |
+| `plugins/plugin-<name>/docs/` | The same three folders for one plugin. Decision ids are `"<name>-NNNN"` and `scope` is `plugin`. |
+
+Start from `docs/templates/`. Frontmatter is validated by the Zod schemas in `docs/tooling/docs.schema.mjs`; ids and dates are quoted strings.
+
+### When to write docs (in the same commit as the change)
+
+- **A decision is made** (by the user, or an open decision is settled): add an `accepted` decision record. Settling an open decision updates its `proposed` record to `accepted`.
+- **A decision changes:** add a new record that `supersedes` the old one, and set the old one to `superseded` with `supersededBy`. Never rewrite the body of an accepted record.
+- **A new open decision comes up:** add a `proposed` record and list it under [Open decisions](#open-decisions).
+- **Developer-facing behaviour changes** (an env var, command, lib, slot, route, convention or generator workaround): update the matching reference page and any guide whose steps changed. A new lib gets a row in `docs/reference/libs.md`.
+- **A rule in CLAUDE.md changes:** update the docs that describe it.
+
+### Rules
+
+- Never invent rationale or alternatives. Ask the user for the why. If it isn't known, write "None recorded." or "Rationale not recorded."
+- CLAUDE.md holds the rules for working in this repo; docs hold the reasoning and the developer-facing explanation. Don't copy whole sections between them; link from docs to the decision that explains a rule.
+- Client-facing CMS documentation is out of scope; it's written per client.
+
+---
+
+## 10. Maintaining this file
 
 CLAUDE.md is the source of truth for the architecture, so keep it current. When a task uncovers something a future session would need, record it **in the same commit as the change that prompted it**.
 
@@ -277,7 +326,7 @@ CLAUDE.md is the source of truth for the architecture, so keep it current. When 
 - Environment gotchas, workarounds, and commands that turned out to be needed.
 - New file-type suffixes, libs, slots or tags created while following existing rules.
 - Ticking off or adding items in [Current state vs. target](#8-current-state-vs-target).
-- Recording a decision the user made in conversation, including moving it out of [Open decisions](#open-decisions).
+- Recording a decision the user made in conversation, including moving it out of [Open decisions](#open-decisions), together with its decision record (see [section 9](#9-documentation-protocol)).
 
 **Ask first:** anything that would change the architecture.
 - New rules, or changes or removals to existing rules, contracts, conventions or the working protocol.
@@ -293,12 +342,12 @@ CLAUDE.md is the source of truth for the architecture, so keep it current. When 
 
 ## Open decisions
 
-These haven't been decided. **Ask before doing work that depends on them.**
+These haven't been decided. **Ask before doing work that depends on them.** Each has a `proposed` record in `docs/decisions/`, which is updated when the decision is made.
 
-- **Slot catalogue:** exactly which slots core exposes, and their contract shapes.
-- **Plugin-to-plugin dependencies:** can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order and boundaries handle it?
-- **Upstream mechanism:** core lives in `core/` inside the Inithium repo next to `plugins/` and `sandbox/`. Client upstream merges must bring in core **only**, never plugin source, but how (separate core repo, subtree split, etc.) is undecided.
-- **Install/eject tooling for client repos:** where it lives and how it's run against a real client repo, as opposed to the sandbox.
-- **Seed tracking:** how unseed identifies exactly what its seed created.
-- **Auth:** approach and where it lives (`jsonwebtoken` is installed, nothing else is decided).
-- **Testing:** no automated tests for now (verification is typecheck + build). Revisit when libs gain real logic.
+- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): exactly which slots core exposes, and their contract shapes.
+- **Plugin-to-plugin dependencies** ([0016](docs/decisions/0016-plugin-to-plugin-dependencies.md)): can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order and boundaries handle it?
+- **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided.
+- **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): where it lives and how it's run against a real client repo, as opposed to the sandbox.
+- **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created.
+- **Auth** ([0020](docs/decisions/0020-authentication.md)): approach and where it lives (`jsonwebtoken` is installed, nothing else is decided).
+- **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
