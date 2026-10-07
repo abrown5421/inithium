@@ -110,7 +110,7 @@ Switching an app between databases or clusters is only ever a change to `MONGODB
 - Root directory: `core`
 - Build command: `npm ci && npx nx run-many -t build`
 - Start command: `node dist/apps/api/main.js`
-- Environment variables: `MONGODB_URI`, `HOST=0.0.0.0`, `NODE_VERSION=22`. Render provides `PORT`.
+- Environment variables: `MONGODB_URI`, `HOST=0.0.0.0`, `NODE_VERSION=22`, `NODE_ENV=production`, `JWT_ACCESS_SECRET` and `SEED_DEV_PASSWORD` (both unique per client), and `SEED_DEV_EMAIL`. Render provides `PORT`.
 
 ---
 
@@ -119,7 +119,7 @@ Switching an app between databases or clusters is only ever a change to `MONGODB
 ### Apps are thin orchestrators
 Apps are entry points that **consume** libs. They contain **no business logic**: no data access, no validation rules, no domain decisions. An app's job is bootstrapping, composition, routing to lib-provided handlers and pages, and its plugin registry.
 
-Core ships three apps and, initially, no libs:
+Core ships three apps (its libs are listed in `docs/reference/libs.md`):
 
 | App | Role |
 | --- | --- |
@@ -158,7 +158,7 @@ Each client deploys as a **single Render web service**: the `api` process serves
     --importPath=@inithium/<scope>-<name> --tags=scope:<scope>,type:<type>,origin:core \
     --buildable=false --unitTestRunner=none --linter=eslint --strict --useProjectJson --no-interactive
   ```
-  (Use `@nx/react:library` for React libs.) Delete the generated placeholder file and README.
+  For React libs, use `@nx/react:library` with `--bundler=none --style=none --component=false` in place of `--buildable=false --strict`. Delete the generated placeholder file, README and (React) `.babelrc`.
 - Every lib is tagged with all three groups below, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries` (rules in `core/eslint.config.mjs`). Apps carry **only** their `scope:` tag (`scope:api|web|cms`); the `type:` and `origin:` rules apply to libs, and apps must stay free to import plugin/client libs through their registries.
 
 | Tag group | Values | Meaning |
@@ -178,6 +178,14 @@ Boundary rules:
 - `MONGODB_URI` must include the database name (`.../<database>?...`). Validation rejects it otherwise, so Mongoose can never fall back to a database called `test`.
 - `@inithium/api-database` owns the Mongoose connection (`connectDatabase` / `disconnectDatabase`). The api connects **before** it starts listening and exits if it can't, and it disconnects on SIGTERM/SIGINT.
 - `nx serve api` loads `core/.env` automatically. A plain `node` run needs `--env-file=.env`. On Render, the variables come from the service settings.
+
+### Auth & permissions
+- **One `users` collection.** Roles, from most to least privileged: `dev`, `owner`, `admin`, `editor`, `user` (the default, for `web` end users, with no CMS access).
+- **`dev` is never assignable** through any API endpoint or CMS screen, by anyone. It is only ever set directly in MongoDB.
+- Roles map to permissions through the matrix in `@inithium/shared-permissions`; permission names live in `@inithium/shared-contracts`. `dev` holds every permission. The matrix grows with features: a new CMS feature adds its permissions, and must ask the user which roles get them.
+- **The API enforces permissions** with `requirePermission()` / `requireAuth` from `@inithium/api-auth`. Frontends use `hasPermission()` only to decide what to show.
+- **Tokens live only in httpOnly cookies.** Frontend code never reads, stores or sends tokens; it calls the API through `@inithium/shared-data-access`, which refreshes the session on a `401`. The current user comes from `GET /api/auth/me`, not from the token.
+- The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### Contracts: Zod is the source of truth
 - Every data shape shared between `api`, `web` and `cms` is defined as a **Zod schema** in a shared contracts lib (`scope:shared`).
@@ -207,7 +215,7 @@ export type User = z.infer<typeof userSchema>;
 | Docs pages | `kebab-title.md` | `environment-variables.md` |
 
 - **Plurality:** files at the module level use the **plural** entity (`users.model.ts`, `users.types.ts`, `use-users.hook.ts`). A unit that concerns a **single instance** uses the **singular** (`user-avatar.component.tsx`, `user-search-input.component.tsx`).
-- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `component`, `hook`. When you need a new suffix, add it to this list in the same change.
+- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `component`, `hook`. When you need a new suffix, add it to this list in the same change.
 - Filenames that tools require (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep the names the tool expects.
 
 ---
@@ -271,6 +279,8 @@ npm run check   # frontmatter, file names, decision sections, cross-references, 
 - Tailwind is v4 via `@tailwindcss/vite` (Nx 23's React generator no longer supports Tailwind). New React apps/libs need it wired manually.
 - Vite resolves `@inithium/*` path aliases natively via `resolve.tsconfigPaths: true`. Nx generators still emit the deprecated `nxViteTsPaths`/`nxCopyAssetsPlugin`. Strip them from anything newly generated, and don't add `vite-tsconfig-paths`.
 - New projects need an `eslint.config.mjs` that spreads the root config (React projects add `nx.configs['flat/react']`). See the existing apps.
+- Tailwind only scans the app's own folder unless told otherwise. Each app's `styles.css` has `@source "../../../libs";` so classes used in libs are generated. Keep it when editing styles.
+- Prefix a required-but-unused parameter with `_` (e.g. `_next` in an Express error handler, which needs all four parameters); ESLint ignores those.
 
 ---
 
@@ -280,8 +290,10 @@ The repo has not caught up with these guidelines yet. Known pending work:
 
 - [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
 - [ ] **Slot contracts and registry files** don't exist in core yet.
-- [ ] **Contracts lib** (Zod schemas) doesn't exist yet.
-- [ ] **First Render deploy** hasn't happened yet. The settings in [Accounts & provisioning](#accounts--provisioning) still need confirming.
+- [ ] **First Render deploy** hasn't happened yet. The settings in [Accounts & provisioning](#accounts--provisioning) still need confirming, including that Express `trust proxy = 1` matches Render's proxy setup.
+- [ ] **First-sign-in password change:** accounts with `passwordChangeRequired: true` (e.g. the seeded dev account) must change their password before doing anything else. Not built yet; blocked on the password policy (0024).
+- [ ] **User management** (creating owner/admin/editor accounts from the CMS) isn't built; blocked on role assignment rules (0025). Until then, other accounts can only be created directly in MongoDB.
+- [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
@@ -349,5 +361,6 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided.
 - **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): where it lives and how it's run against a real client repo, as opposed to the sandbox.
 - **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created.
-- **Auth** ([0020](docs/decisions/0020-authentication.md)): approach and where it lives (`jsonwebtoken` is installed, nothing else is decided).
+- **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
+- **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.

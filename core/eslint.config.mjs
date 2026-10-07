@@ -12,6 +12,8 @@ export default [
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mts', '**/*.mjs'],
     rules: {
+      // Prefix a parameter with _ when its position is required but its value isn't (e.g. Express error handlers).
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@nx/enforce-module-boundaries': [
         'error',
         {

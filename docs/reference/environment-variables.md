@@ -2,9 +2,9 @@
 title: Environment variables
 description: Every environment variable the api reads, its default and how it's validated.
 scope: core
-tags: [environment, config, mongodb]
+tags: [environment, config, mongodb, auth]
 order: 1
-decisions: ["0009", "0010", "0005"]
+decisions: ["0009", "0010", "0005", "0020", "0023"]
 ---
 
 # Environment variables
@@ -16,8 +16,20 @@ Only `@inithium/api-config` reads `process.env`. Everything else calls `loadEnv(
 | `MONGODB_URI` | Yes | | Must start with `mongodb://` or `mongodb+srv://` and include a database name: `.../<database>?...`. |
 | `HOST` | No | `localhost` | Interface the api listens on. Set `0.0.0.0` on Render. |
 | `PORT` | No | `3000` | Coerced to a positive integer. Render provides it. |
+| `NODE_ENV` | No | `development` | `development`, `production` or `test`. Set `production` on Render: auth cookies are only marked `Secure` in production. |
+| `JWT_ACCESS_SECRET` | Yes | | Signs access tokens. At least 32 characters; use a different value for every client. |
+| `JWT_ACCESS_TTL_MINUTES` | No | `15` | Access token and cookie lifetime. |
+| `JWT_REFRESH_TTL_DAYS` | No | `30` | Refresh token and cookie lifetime. |
+| `SEED_DEV_EMAIL` | Yes | | Email of the dev account created on startup when no dev user exists. Trimmed and lowercased. |
+| `SEED_DEV_PASSWORD` | Yes | | That account's temporary password. Use a different one for every client. |
 
 `NODE_VERSION=22` is also set on Render, but only to select the Node runtime; the app doesn't read it.
+
+Generate a `JWT_ACCESS_SECRET` with:
+
+```sh
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+```
 
 ## Where values come from
 

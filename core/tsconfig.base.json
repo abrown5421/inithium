@@ -23,6 +23,24 @@
       ],
       "@inithium/api-database": [
         "./libs/api/database/src/index.ts"
+      ],
+      "@inithium/shared-contracts": [
+        "./libs/shared/contracts/src/index.ts"
+      ],
+      "@inithium/shared-permissions": [
+        "./libs/shared/permissions/src/index.ts"
+      ],
+      "@inithium/api-users": [
+        "./libs/api/users/src/index.ts"
+      ],
+      "@inithium/api-auth": [
+        "./libs/api/auth/src/index.ts"
+      ],
+      "@inithium/shared-data-access": [
+        "./libs/shared/data-access/src/index.ts"
+      ],
+      "@inithium/cms-auth": [
+        "./libs/cms/auth/src/index.ts"
       ]
     }
   },

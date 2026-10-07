@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Libs live outside the app folder, so Tailwind must be told to scan them for classes. */
+@source "../../../libs";

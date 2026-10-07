@@ -48,4 +48,6 @@ Not yet verified on a first deploy.
 | Root directory | `core` |
 | Build command | `npm ci && npx nx run-many -t build` |
 | Start command | `node dist/apps/api/main.js` |
-| Environment | `MONGODB_URI`, `HOST=0.0.0.0`, `NODE_VERSION=22` (Render provides `PORT`) |
+| Environment | `MONGODB_URI`, `HOST=0.0.0.0`, `NODE_VERSION=22`, `NODE_ENV=production`, `JWT_ACCESS_SECRET`, `SEED_DEV_EMAIL`, `SEED_DEV_PASSWORD` (Render provides `PORT`) |
+
+The api sets Express `trust proxy` to `1`, assuming Render puts one proxy in front of it, so that `req.ip` (used by login rate limiting) is the client's address. Confirm this on the first deploy.
