@@ -168,7 +168,7 @@ Boundary rules:
 
 ### Environment & database
 - `core/.env` holds local values and is git-ignored. `core/.env.example` is committed and is the template every client's `.env` (and Render env vars) is built from.
-- Env vars are declared and validated in `@inithium/api-config` (`envSchema`), and the api reads them through `loadEnv()`. Adding a variable means adding it to both `envSchema` and `.env.example`.
+- **Only `@inithium/api-config` reads `process.env`.** Everything else gets values from `loadEnv()`. Env vars are declared and validated in `envSchema`, and adding a variable means adding it to both `envSchema` and `.env.example`.
 - `MONGODB_URI` must include the database name (`.../<database>?...`). Validation rejects it otherwise, so Mongoose can never fall back to a database called `test`.
 - `@inithium/api-database` owns the Mongoose connection (`connectDatabase` / `disconnectDatabase`). The api connects **before** it starts listening and exits if it can't, and it disconnects on SIGTERM/SIGINT.
 - `nx serve api` loads `core/.env` automatically. A plain `node` run needs `--env-file=.env`. On Render, the variables come from the service settings.
@@ -250,6 +250,7 @@ npx nx run-many -t build && node --env-file=.env dist/apps/api/main.js
 
 **Environment gotchas**
 - VS Code's Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root, which breaks Nx. Override it in the shell: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` (Git Bash, from `core/`), and use `NX_DAEMON=false` if the daemon misbehaves.
+- `querySrv ECONNREFUSED` on startup means Node can't do the SRV DNS lookup that `mongodb+srv://` needs. This happens on Windows with a VPN (e.g. AWS Client VPN), where Node's resolver falls back to `127.0.0.1`. Locally, use Atlas's standard `mongodb://host1,host2,host3/<db>?tls=true&replicaSet=…&authSource=admin` string instead. It's the same cluster with no SRV lookup.
 - `core/.npmrc` sets `legacy-peer-deps=true`. Keep it.
 - Tailwind is v4 via `@tailwindcss/vite` (Nx 23's React generator no longer supports Tailwind). New React apps/libs need it wired manually.
 - Vite resolves `@inithium/*` path aliases natively via `resolve.tsconfigPaths: true`. Nx generators still emit the deprecated `nxViteTsPaths`/`nxCopyAssetsPlugin`. Strip them from anything newly generated, and don't add `vite-tsconfig-paths`.
