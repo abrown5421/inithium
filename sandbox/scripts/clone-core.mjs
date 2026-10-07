@@ -1,5 +1,5 @@
 // Usage: node scripts/clone-core.mjs <name> [--force] [--install]
-// Copies templates/core into sandbox/workspaces/<name>, skipping build output and dependencies.
+// Copies core into sandbox/workspaces/<name>, skipping build output and dependencies.
 import { cpSync, existsSync, rmSync } from 'node:fs';
 import { basename, relative, resolve, sep } from 'node:path';
 import { execSync } from 'node:child_process';
@@ -30,7 +30,7 @@ cpSync(coreTemplate, target, {
   },
 });
 
-console.log(`cloned templates/core -> sandbox/workspaces/${basename(target)}`);
+console.log(`cloned core -> sandbox/workspaces/${basename(target)}`);
 
 if (install) {
   execSync('npm install', { cwd: target, stdio: 'inherit' });

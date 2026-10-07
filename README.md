@@ -1,19 +1,19 @@
 # Inithium
 
-Template-and-plugins workspace. Client projects are cloned from a template and receive only the plugins they use.
+Template-and-plugins ecosystem. Client projects are cloned from core and receive only the plugins they use.
 
 | Directory | Purpose |
 | --- | --- |
-| [`templates/core`](templates/core) | Standalone Nx monorepo (`@inithium` scope) with the `api` (Express), `web` (React) and `cms` (React) apps. Contains no plugin code. |
-| [`plugins/`](plugins) | Plugin source library. Each plugin has an `api/` and a `web/` layer that get injected into a cloned template. |
-| [`sandbox/`](sandbox) | Local scratch area for cloning `templates/core` and testing plugin injection. |
+| [`core/`](core) | Standalone Nx monorepo (`@inithium` scope) with the `api` (Express), `web` (React) and `cms` (React) apps. Contains no plugin code. |
+| [`plugins/`](plugins) | Library of installable/ejectable plugins that extend core through slot registries. |
+| [`sandbox/`](sandbox) | Tooling that rebuilds a replica of core with every plugin installed, for browser testing. |
+
+Architecture, conventions and the working protocol are in [CLAUDE.md](CLAUDE.md).
 
 ## Quick start
 
 ```sh
-cd templates/core
+cd core
 npm install
 npx nx serve api      # or: web, cms
 ```
-
-To try plugins against a throwaway clone, see [sandbox/README.md](sandbox/README.md).

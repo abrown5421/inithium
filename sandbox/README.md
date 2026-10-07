@@ -1,6 +1,8 @@
 # Sandbox
 
-Throwaway clones of `templates/core` for testing plugin injection. Clones are written to `sandbox/workspaces/`, which is git-ignored.
+Throwaway clones of `core` for testing plugin injection. Clones are written to `sandbox/workspaces/`, which is git-ignored.
+
+> These scripts predate the current plugin architecture and are due to be rebuilt (see "Current state vs. target" in [CLAUDE.md](../CLAUDE.md#8-current-state-vs-target)).
 
 No dependencies needed; requires Node 22+.
 
