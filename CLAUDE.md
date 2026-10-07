@@ -161,10 +161,11 @@ Claude implements and verifies that things compile. **The user does all browser 
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
 3. **Implement** following the conventions above.
 4. **Verify.** Everything must type-check and build (see [Commands](#7-commands)). Fix failures before handing off.
-5. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
-6. **Hand off.** Report what changed, the branch and commit, the verification result, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
-7. **Iterate.** If the user returns with feedback, repeat steps 3–6 on the same branch.
-8. **The user finishes.** Once the user is satisfied, they push the branch, open and merge the PR into `main` in the GitHub UI, then run `git checkout main && git pull`.
+5. **Update CLAUDE.md** if the work uncovered something worth persisting (see [section 9](#9-maintaining-this-file)).
+6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
+7. **Hand off.** Report what changed, the branch and commit, the verification result, any CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
+8. **Iterate.** If the user returns with feedback, repeat steps 3–7 on the same branch.
+9. **The user finishes.** Once the user is satisfied, they push the branch, open and merge the PR into `main` in the GitHub UI, then run `git checkout main && git pull`.
 
 Claude **never** pushes, opens PRs, merges, or commits to `main`.
 
@@ -213,6 +214,28 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Dev ports:** `web` and `cms` are both configured for port 4200 (preview 4300), so they can't run at the same time.
 - [ ] Generated placeholders (`nx-welcome.tsx`, default `app.tsx`) are still in `web` and `cms`.
 - [ ] Nx generated deprecated Vite plugins (`nxViteTsPaths`, `nxCopyAssetsPlugin`), which will be removed in Nx v24.
+
+---
+
+## 9. Maintaining this file
+
+CLAUDE.md is the source of truth for the architecture, so keep it current. When a task uncovers something a future session would need, record it **in the same commit as the change that prompted it**.
+
+**Update without asking:** facts that have been discovered or decided.
+- Environment gotchas, workarounds, and commands that turned out to be needed.
+- New file-type suffixes, libs, slots or tags created while following existing rules.
+- Ticking off or adding items in [Current state vs. target](#8-current-state-vs-target).
+- Recording a decision the user made in conversation, including moving it out of [Open decisions](#open-decisions).
+
+**Ask first:** anything that would change the architecture.
+- New rules, or changes or removals to existing rules, contracts, conventions or the working protocol.
+- Settling an open decision on your own judgement. Propose it; don't record it.
+- Anything that contradicts what this file currently says.
+
+**How to edit**
+- Put the note in the section it belongs to rather than appending it at the end, and replace stale text instead of adding to it.
+- Keep it concise: rules and facts, not a narrative of the task.
+- Always list CLAUDE.md edits in the hand-off so the user can review them.
 
 ---
 
