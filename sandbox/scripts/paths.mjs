@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 
 export const repoRoot = resolve(here, '../..');
-export const coreTemplate = resolve(repoRoot, 'templates/core');
+export const coreTemplate = resolve(repoRoot, 'core');
 export const pluginsDir = resolve(repoRoot, 'plugins');
 export const workspacesDir = resolve(repoRoot, 'sandbox/workspaces');
 
