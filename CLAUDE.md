@@ -75,6 +75,10 @@ A plugin may depend on core libs and on its own layers.
 - Every plugin ships an **unseed**, run on eject, which removes **only** what that plugin's seed created.
 - Seed/unseed live in the plugin's `api` lib.
 
+### Plugin data
+- **Plugins never add fields to `users`** (or to the core user schema or contract). A plugin keeps per-user data in its own collections, each document carrying a `userId` (e.g. `ecom` owns `addresses`).
+- Plugin data the UI needs comes from the plugin's own endpoints, never from `GET /api/auth/me`.
+
 ### Ejecting
 Ejecting a plugin = unseed → remove its registry entries → delete `libs/plugins/<name>/`. After an eject, the workspace must type-check and build exactly as it did before the plugin was installed.
 
@@ -187,6 +191,14 @@ Boundary rules:
 - **Tokens live only in httpOnly cookies.** Frontend code never reads, stores or sends tokens; it calls the API through `@inithium/shared-data-access`, which refreshes the session on a `401`. The current user comes from `GET /api/auth/me`, not from the token.
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
+### Profiles & assets
+Neither is built yet. When they are:
+- **Profile data** lives in a `profile` subdocument on the user, apart from auth fields. An avatar or banner is either a **generator recipe** (Dicebear for avatars, Trianglify for banners: style/options plus seed, rendered in the browser) or an **asset id**. It falls back to the generated image when there's no image or it fails to load. Never store a rendered placeholder.
+- **Documents store asset ids, never URLs.** Assets are served from `/api/assets/:id`.
+- **Bytes live behind a storage driver.** Core's default driver is MongoDB (not scalable, 2 MB per asset), and the storage plugin adds an object-storage driver (R2) through a slot. Features check the **driver's capabilities**, never which plugin is installed.
+- **Avatar and banner image uploads require a scalable driver.** Without one, only generated avatars and banners are offered. The API enforces this.
+- **Any file type may be uploaded,** but every asset response sends `X-Content-Type-Options: nosniff` and a sandboxing CSP. Types outside the inline-safe list are sent with `Content-Disposition: attachment`.
+
 ### Contracts: Zod is the source of truth
 - Every data shape shared between `api`, `web` and `cms` is defined as a **Zod schema** in a shared contracts lib (`scope:shared`).
 - TypeScript types are **inferred** with `z.infer`, never hand-written in parallel.
@@ -294,6 +306,8 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **First-sign-in password change:** accounts with `passwordChangeRequired: true` (e.g. the seeded dev account) must change their password before doing anything else. Not built yet; blocked on the password policy (0024).
 - [ ] **User management** (creating owner/admin/editor accounts from the CMS) isn't built; blocked on role assignment rules (0025). Until then, other accounts can only be created directly in MongoDB.
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
+- [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
+- [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
@@ -356,11 +370,12 @@ CLAUDE.md is the source of truth for the architecture, so keep it current. When 
 
 These haven't been decided. **Ask before doing work that depends on them.** Each has a `proposed` record in `docs/decisions/`, which is updated when the decision is made.
 
-- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): exactly which slots core exposes, and their contract shapes.
+- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): exactly which slots core exposes (including a "user deleted" hook and a storage driver slot), and their contract shapes.
 - **Plugin-to-plugin dependencies** ([0016](docs/decisions/0016-plugin-to-plugin-dependencies.md)): can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order and boundaries handle it?
 - **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided.
 - **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): where it lives and how it's run against a real client repo, as opposed to the sandbox.
 - **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created.
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
+- **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
