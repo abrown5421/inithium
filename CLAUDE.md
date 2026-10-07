@@ -109,7 +109,7 @@ Nothing about a specific client's site is hardcoded in `web`; it renders whateve
 ### Libs hold the business logic
 - Libs are split **by concern** (e.g. UI/theming, auth, realtime). Each concern is a standalone lib, and apps consume it. When adding logic, find the lib that owns that concern or create a new one; never put it in an app.
 - Import aliases follow `@inithium/<lib-name>`.
-- Every lib is tagged, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries`:
+- Every lib is tagged with all three groups below, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries` (rules in `core/eslint.config.mjs`). Apps carry **only** their `scope:` tag (`scope:api|web|cms`); the `type:` and `origin:` rules apply to libs, and apps must stay free to import plugin/client libs through their registries.
 
 | Tag group | Values | Meaning |
 | --- | --- | --- |
@@ -160,7 +160,7 @@ Claude implements and verifies that things compile. **The user does all browser 
 1. **Read the prompt.** If it hits a gap or an open decision, ask before writing code.
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
 3. **Implement** following the conventions above.
-4. **Verify.** Everything must type-check and build (see [Commands](#7-commands)). Fix failures before handing off.
+4. **Verify.** Everything must lint, type-check and build (see [Commands](#7-commands)). Fix failures before handing off.
 5. **Update CLAUDE.md** if the work uncovered something worth persisting (see [section 9](#9-maintaining-this-file)).
 6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
 7. **Hand off.** Report what changed, the branch and commit, the verification result, any CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
@@ -188,18 +188,18 @@ Run Nx from inside `core/`:
 ```bash
 cd core
 npm install
-npx nx run-many -t typecheck build     # verification (api's esbuild build type-checks)
-npx nx serve api                        # http://localhost:3000
-npx nx serve web                        # http://localhost:4200
-npx nx serve cms                        # see pending note on ports
+npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
+npx nx serve api                          # http://localhost:3000
+npx nx serve web                          # http://localhost:4200
+npx nx serve cms                          # see pending note on ports
 ```
-
-Once ESLint is set up, add `lint` to the verification command.
 
 **Environment gotchas**
 - VS Code's Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root, which breaks Nx. Override it in the shell: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` (Git Bash, from `core/`), and use `NX_DAEMON=false` if the daemon misbehaves.
 - `core/.npmrc` sets `legacy-peer-deps=true`. Keep it.
 - Tailwind is v4 via `@tailwindcss/vite` (Nx 23's React generator no longer supports Tailwind). New React apps/libs need it wired manually.
+- Vite resolves `@inithium/*` path aliases natively via `resolve.tsconfigPaths: true`. Nx generators still emit the deprecated `nxViteTsPaths`/`nxCopyAssetsPlugin`. Strip them from anything newly generated, and don't add `vite-tsconfig-paths`.
+- New projects need an `eslint.config.mjs` that spreads the root config (React projects add `nx.configs['flat/react']`). See the existing apps.
 
 ---
 
@@ -209,11 +209,8 @@ The repo has not caught up with these guidelines yet. Known pending work:
 
 - [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
 - [ ] **Slot contracts and registry files** don't exist in core yet.
-- [ ] **ESLint** isn't installed (apps were generated with `--linter=none`), so module boundaries aren't enforced yet.
 - [ ] **Contracts lib** (Zod schemas) doesn't exist yet.
-- [ ] **Dev ports:** `web` and `cms` are both configured for port 4200 (preview 4300), so they can't run at the same time.
-- [ ] Generated placeholders (`nx-welcome.tsx`, default `app.tsx`) are still in `web` and `cms`.
-- [ ] Nx generated deprecated Vite plugins (`nxViteTsPaths`, `nxCopyAssetsPlugin`), which will be removed in Nx v24.
+- [ ] **Dev ports:** `web` and `cms` are both configured for port 4200 (preview 4300), so they can't run at the same time. This depends on the open CMS-hosting decision.
 
 ---
 
@@ -248,6 +245,7 @@ These haven't been decided. **Ask before doing work that depends on them.**
 - **Upstream mechanism:** core lives in `core/` inside the Inithium repo next to `plugins/` and `sandbox/`. Client upstream merges must bring in core **only**, never plugin source, but how (separate core repo, subtree split, etc.) is undecided.
 - **Install/eject tooling for client repos:** where it lives and how it's run against a real client repo, as opposed to the sandbox.
 - **Seed tracking:** how unseed identifies exactly what its seed created.
+- **CMS hosting on Render:** whether `cms` is served on its own site/subdomain or under `/cms` on the same domain as `web`, and whether the frontends are Render static sites or served by `api`.
 - **Environment & database config:** env var conventions and the MongoDB setup for local dev, the sandbox, and clients.
 - **Auth:** approach and where it lives (`jsonwebtoken` is installed, nothing else is decided).
 - **Testing:** no automated tests for now (verification is typecheck + build). Revisit when libs gain real logic.
