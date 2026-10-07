@@ -1,0 +1,13 @@
+{
+  "name": "cms-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/cms/auth/src",
+  "projectType": "library",
+  "tags": [
+    "scope:cms",
+    "type:feature",
+    "origin:core"
+  ],
+  "// targets": "to see all targets run: nx show project cms-auth --web",
+  "targets": {}
+}
