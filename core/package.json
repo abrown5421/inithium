@@ -5,7 +5,10 @@
   "scripts": {},
   "private": true,
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@nx/esbuild": "23.3.0",
+    "@nx/eslint": "^23.3.0",
+    "@nx/eslint-plugin": "^23.3.0",
     "@nx/js": "23.3.0",
     "@nx/node": "^23.3.0",
     "@nx/react": "^23.3.0",
@@ -21,11 +24,17 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
     "esbuild": "^0.27.0",
+    "eslint": "^9.8.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jiti": "2.4.2",
     "nx": "23.3.0",
     "tailwindcss": "^4.3.3",
     "tslib": "^2.3.0",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
     "vite": "^8.0.0"
   },
   "dependencies": {

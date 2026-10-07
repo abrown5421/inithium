@@ -106,10 +106,25 @@ cms  --(RTK Query)-->  api  -->  MongoDB  <--  api  <--(RTK Query)--  web
 ```
 Nothing about a specific client's site is hardcoded in `web`; it renders whatever configuration the API returns. Neither frontend talks to MongoDB directly.
 
+### Routing & hosting: one origin per client
+Each client deploys as a **single Render web service**: the `api` process serves the API and both built frontends from one domain. Same origin means no CORS and first-party auth cookies (`*.onrender.com` subdomains count as separate sites).
+
+| App | Path | Dev port |
+| --- | --- | --- |
+| `web` | `/` | 5173 |
+| `cms` | `/cms` | 5174 |
+| `api` | `/api` | 3000 |
+
+- **All API routes are mounted under `/api`.** Unknown `/api/*` paths return a JSON 404, never the SPA.
+- **Frontends call the API with relative `/api/...` URLs.** Never hardcode a host. In dev, both Vite servers proxy `/api` to `localhost:3000`, so the same code works locally and in production.
+- `cms` is built with Vite `base: '/cms/'`, and its router `basename` is derived from `import.meta.env.BASE_URL`, so change the base path only in `vite.config.mts`.
+- In production, `api` serves `dist/apps/cms` at `/cms` and `dist/apps/web` at `/`, with SPA fallbacks. It resolves `dist/apps` from the working directory, so start it from `core/` (`node dist/apps/api/main.js`).
+- Dev ports use `strictPort`. If a port is taken, Vite fails instead of silently moving to the next port (and colliding with the other app).
+
 ### Libs hold the business logic
 - Libs are split **by concern** (e.g. UI/theming, auth, realtime). Each concern is a standalone lib, and apps consume it. When adding logic, find the lib that owns that concern or create a new one; never put it in an app.
 - Import aliases follow `@inithium/<lib-name>`.
-- Every lib is tagged, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries`:
+- Every lib is tagged with all three groups below, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries` (rules in `core/eslint.config.mjs`). Apps carry **only** their `scope:` tag (`scope:api|web|cms`); the `type:` and `origin:` rules apply to libs, and apps must stay free to import plugin/client libs through their registries.
 
 | Tag group | Values | Meaning |
 | --- | --- | --- |
@@ -160,7 +175,7 @@ Claude implements and verifies that things compile. **The user does all browser 
 1. **Read the prompt.** If it hits a gap or an open decision, ask before writing code.
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
 3. **Implement** following the conventions above.
-4. **Verify.** Everything must type-check and build (see [Commands](#7-commands)). Fix failures before handing off.
+4. **Verify.** Everything must lint, type-check and build (see [Commands](#7-commands)). Fix failures before handing off.
 5. **Update CLAUDE.md** if the work uncovered something worth persisting (see [section 9](#9-maintaining-this-file)).
 6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
 7. **Hand off.** Report what changed, the branch and commit, the verification result, any CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
@@ -188,18 +203,18 @@ Run Nx from inside `core/`:
 ```bash
 cd core
 npm install
-npx nx run-many -t typecheck build     # verification (api's esbuild build type-checks)
-npx nx serve api                        # http://localhost:3000
-npx nx serve web                        # http://localhost:4200
-npx nx serve cms                        # see pending note on ports
+npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
+npx nx serve api                          # http://localhost:3000/api
+npx nx serve web                          # http://localhost:5173/
+npx nx serve cms                          # http://localhost:5174/cms/
 ```
-
-Once ESLint is set up, add `lint` to the verification command.
 
 **Environment gotchas**
 - VS Code's Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root, which breaks Nx. Override it in the shell: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` (Git Bash, from `core/`), and use `NX_DAEMON=false` if the daemon misbehaves.
 - `core/.npmrc` sets `legacy-peer-deps=true`. Keep it.
 - Tailwind is v4 via `@tailwindcss/vite` (Nx 23's React generator no longer supports Tailwind). New React apps/libs need it wired manually.
+- Vite resolves `@inithium/*` path aliases natively via `resolve.tsconfigPaths: true`. Nx generators still emit the deprecated `nxViteTsPaths`/`nxCopyAssetsPlugin`. Strip them from anything newly generated, and don't add `vite-tsconfig-paths`.
+- New projects need an `eslint.config.mjs` that spreads the root config (React projects add `nx.configs['flat/react']`). See the existing apps.
 
 ---
 
@@ -209,11 +224,8 @@ The repo has not caught up with these guidelines yet. Known pending work:
 
 - [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
 - [ ] **Slot contracts and registry files** don't exist in core yet.
-- [ ] **ESLint** isn't installed (apps were generated with `--linter=none`), so module boundaries aren't enforced yet.
 - [ ] **Contracts lib** (Zod schemas) doesn't exist yet.
-- [ ] **Dev ports:** `web` and `cms` are both configured for port 4200 (preview 4300), so they can't run at the same time.
-- [ ] Generated placeholders (`nx-welcome.tsx`, default `app.tsx`) are still in `web` and `cms`.
-- [ ] Nx generated deprecated Vite plugins (`nxViteTsPaths`, `nxCopyAssetsPlugin`), which will be removed in Nx v24.
+- [ ] **Render deploy config** isn't set up (build/start commands, env vars). The API binds to `localhost` unless `HOST` is set, and Render needs `0.0.0.0`.
 
 ---
 
