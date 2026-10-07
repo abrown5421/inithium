@@ -8,8 +8,9 @@ plugins/plugin-<name>/
   web/         React slot components + RTK Query endpoints (end-user site)
   cms/         React slot components + RTK Query endpoints (client portal)
   contracts/   Zod schemas + inferred types
+  docs/        decisions/, guides/ and reference/ for this plugin (never installed)
 ```
 
-Each layer is an Nx lib. On install, it lands in `core/libs/plugins/<name>/<layer>` and is wired into the apps through their slot registries. Core never imports from this directory.
+Each code layer is an Nx lib. On install, it lands in `core/libs/plugins/<name>/<layer>` and is wired into the apps through their slot registries. Core never imports from this directory.
 
 The full plugin contract (slots, seeding, ejecting) is in [CLAUDE.md](../CLAUDE.md#2-plugin-architecture).
