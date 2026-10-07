@@ -1,0 +1,10 @@
+{
+  "name": "@inithium/sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clone": "node scripts/clone-core.mjs",
+    "inject": "node scripts/inject-plugin.mjs"
+  }
+}
