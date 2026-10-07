@@ -1,9 +1,8 @@
 import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-
-const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+import { loadEnv } from '@inithium/api-config';
+import { connectDatabase, disconnectDatabase } from '@inithium/api-database';
 
 const app = express();
 
@@ -35,6 +34,26 @@ function serveSpa(mountPath: string, dir: string) {
   });
 }
 
-app.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
+async function start() {
+  const env = loadEnv();
+  await connectDatabase(env.MONGODB_URI);
+
+  const server = app.listen(env.PORT, env.HOST, () => {
+    console.log(`[ ready ] http://${env.HOST}:${env.PORT}`);
+  });
+
+  const shutdown = (signal: string) => {
+    console.log(`[ shutdown ] ${signal} received`);
+    server.close(async () => {
+      await disconnectDatabase();
+      process.exit(0);
+    });
+  };
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
+  process.once('SIGINT', () => shutdown('SIGINT'));
+}
+
+start().catch((error: Error) => {
+  console.error(`[ startup failed ] ${error.message}`);
+  process.exit(1);
 });
