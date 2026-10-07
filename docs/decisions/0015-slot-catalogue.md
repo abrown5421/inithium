@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-07"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002"]
+related: ["0002", "0026", "0028"]
 supersedes: []
 ---
 
@@ -20,6 +20,8 @@ Plugins and client libs extend core only through slots: typed extension contract
 Undecided. Open questions:
 
 - Exactly which slots core exposes. Examples raised so far: API route mounts, Mongoose models, web pages and routes, CMS screens, and navigation entries.
+- A **"user deleted" hook**, so plugins can remove a deleted user's data from their own collections ([0026](0026-plugins-keep-user-data-in-their-own-collections.md)) without core knowing which plugins exist.
+- A **storage driver slot**, through which the storage plugin registers an object-storage driver ([0028](0028-store-assets-behind-pluggable-storage-drivers.md)).
 - The contract shape of each slot.
 
 ## Alternatives considered
