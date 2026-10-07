@@ -5,14 +5,19 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
+  base: '/cms/',
   cacheDir: '../../node_modules/.vite/apps/cms',
-  server:{
-    port: 4200,
+  server: {
+    port: 5174,
+    strictPort: true,
     host: 'localhost',
+    proxy: { '/api': 'http://localhost:3000' },
   },
-  preview:{
-    port: 4300,
+  preview: {
+    port: 5174,
+    strictPort: true,
     host: 'localhost',
+    proxy: { '/api': 'http://localhost:3000' },
   },
   resolve: {
     tsconfigPaths: true,

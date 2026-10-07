@@ -106,6 +106,21 @@ cms  --(RTK Query)-->  api  -->  MongoDB  <--  api  <--(RTK Query)--  web
 ```
 Nothing about a specific client's site is hardcoded in `web`; it renders whatever configuration the API returns. Neither frontend talks to MongoDB directly.
 
+### Routing & hosting: one origin per client
+Each client deploys as a **single Render web service**: the `api` process serves the API and both built frontends from one domain. Same origin means no CORS and first-party auth cookies (`*.onrender.com` subdomains count as separate sites).
+
+| App | Path | Dev port |
+| --- | --- | --- |
+| `web` | `/` | 5173 |
+| `cms` | `/cms` | 5174 |
+| `api` | `/api` | 3000 |
+
+- **All API routes are mounted under `/api`.** Unknown `/api/*` paths return a JSON 404, never the SPA.
+- **Frontends call the API with relative `/api/...` URLs.** Never hardcode a host. In dev, both Vite servers proxy `/api` to `localhost:3000`, so the same code works locally and in production.
+- `cms` is built with Vite `base: '/cms/'`, and its router `basename` is derived from `import.meta.env.BASE_URL`, so change the base path only in `vite.config.mts`.
+- In production, `api` serves `dist/apps/cms` at `/cms` and `dist/apps/web` at `/`, with SPA fallbacks. It resolves `dist/apps` from the working directory, so start it from `core/` (`node dist/apps/api/main.js`).
+- Dev ports use `strictPort`. If a port is taken, Vite fails instead of silently moving to the next port (and colliding with the other app).
+
 ### Libs hold the business logic
 - Libs are split **by concern** (e.g. UI/theming, auth, realtime). Each concern is a standalone lib, and apps consume it. When adding logic, find the lib that owns that concern or create a new one; never put it in an app.
 - Import aliases follow `@inithium/<lib-name>`.
@@ -189,9 +204,9 @@ Run Nx from inside `core/`:
 cd core
 npm install
 npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
-npx nx serve api                          # http://localhost:3000
-npx nx serve web                          # http://localhost:4200
-npx nx serve cms                          # see pending note on ports
+npx nx serve api                          # http://localhost:3000/api
+npx nx serve web                          # http://localhost:5173/
+npx nx serve cms                          # http://localhost:5174/cms/
 ```
 
 **Environment gotchas**
@@ -210,7 +225,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
 - [ ] **Slot contracts and registry files** don't exist in core yet.
 - [ ] **Contracts lib** (Zod schemas) doesn't exist yet.
-- [ ] **Dev ports:** `web` and `cms` are both configured for port 4200 (preview 4300), so they can't run at the same time. This depends on the open CMS-hosting decision.
+- [ ] **Render deploy config** isn't set up (build/start commands, env vars). The API binds to `localhost` unless `HOST` is set, and Render needs `0.0.0.0`.
 
 ---
 
@@ -245,7 +260,6 @@ These haven't been decided. **Ask before doing work that depends on them.**
 - **Upstream mechanism:** core lives in `core/` inside the Inithium repo next to `plugins/` and `sandbox/`. Client upstream merges must bring in core **only**, never plugin source, but how (separate core repo, subtree split, etc.) is undecided.
 - **Install/eject tooling for client repos:** where it lives and how it's run against a real client repo, as opposed to the sandbox.
 - **Seed tracking:** how unseed identifies exactly what its seed created.
-- **CMS hosting on Render:** whether `cms` is served on its own site/subdomain or under `/cms` on the same domain as `web`, and whether the frontends are Render static sites or served by `api`.
 - **Environment & database config:** env var conventions and the MongoDB setup for local dev, the sandbox, and clients.
 - **Auth:** approach and where it lives (`jsonwebtoken` is installed, nothing else is decided).
 - **Testing:** no automated tests for now (verification is typecheck + build). Revisit when libs gain real logic.
