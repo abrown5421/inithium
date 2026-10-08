@@ -24,25 +24,48 @@ requires a page for every exported component, composite and layout.
 import { ComponentName } from '@inithium/shared-ui-components';
 ```
 
-## Basic usage
+## Props at a glance
 
-The smallest useful example.
-
-## Props
-
-Every prop the component accepts, grouped. Shared shapes (colour value, sides, size, radius, variants) link to
-[Style props](../style-props.md) rather than being repeated.
+Every prop the component accepts, in one table for scanning. Shared shapes (colour value, sides, size, radius,
+variants) link to [Style props](../style-props.md) rather than being repeated.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `example` | `Variants<Colour>` | none | What it does. |
+| [`example`](#example) | `Variants<Colour>` | none | What it does. |
 
-Group further tables by concern (element, colour, spacing, sizing, borders, layout, typography, animation,
-runtime props, HTML attributes and `ref`).
+## Props
 
-## Styling examples
+One subsection per prop, grouped under `### <Group>` headings (element, colour, spacing, sizing, borders,
+layout, typography, animation, HTML attributes). Each prop gets its type, default and a code snippet covering
+every way it can be written.
 
-Recipes showing the different ways the props combine: states, breakpoints, theme colours, layout.
+#### `example`
+
+What it does. **Type:** `Variants<Colour>`. **Default:** none.
+
+```tsx
+<ComponentName example="primary" />                                   // simplest form
+<ComponentName example={{ color: 'primary', intensity: 200 }} />      // full form
+<ComponentName example={{ base: 'primary', hover: 'secondary' }} />   // with variant keys
+```
+
+## Examples
+
+Showcase what the component can do. Each example is its own block so a docs site can render it as a live
+preview: a `### Example: <title>` heading, one sentence on what it shows, and a self-contained snippet
+(imports included).
+
+### Example: Short title
+
+One sentence on what this shows.
+
+```tsx
+import { ComponentName } from '@inithium/shared-ui-components';
+
+export function ExampleShortTitle() {
+  return <ComponentName />;
+}
+```
 
 ## Accessibility
 

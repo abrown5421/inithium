@@ -22,122 +22,334 @@ Text renders every piece of text: headings, paragraphs, inline runs and form lab
 import { Text } from '@inithium/shared-ui-components';
 ```
 
-## Basic usage
+## Props at a glance
 
-```tsx
-<Text as="h1" fontFamily="display" fontSize={40} textColor="primary">Inithium</Text>
-<Text textColor={{ color: 'surface', intensity: 800 }}>A paragraph of body text.</Text>
-```
+Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are defined on [Style props](../style-props.md). Every prop is optional. A prop you don't pass sets nothing, so the text inherits from its parent.
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| [`as`](#as) | element name | `'p'` | The element to render |
+| [`htmlFor`](#htmlfor) | `string` | none | The input a label belongs to |
+| [`children`](#children) | `ReactNode` | none | The text |
+| [`fontFamily`](#fontfamily) | `Variants<'display' \| 'body'>` | `'body'` | Theme font family |
+| [`fontSize`](#fontsize) | `Variants<number>` | inherited | px |
+| [`fontWeight`](#fontweight) | `Variants<100…900>` | inherited | Weight |
+| [`align`](#align) | `Variants<…>` | inherited | Text alignment |
+| [`lineHeight`](#lineheight) | `Variants<number>` | inherited | Ratio of the font size |
+| [`letterSpacing`](#letterspacing) | `Variants<number>` | inherited | px |
+| [`truncate`](#truncate) | `Variants<number \| false>` | none | Lines before an ellipsis |
+| [`textColor`](#textcolor) | `Variants<Colour>` | inherited | Text colour |
+| [`bgColor`](#bgcolor) | `Variants<Colour>` | none | Background |
+| [`borderColor`](#bordercolor) | `Variants<Colour>` | none | Border colour |
+| [`shadowColor`](#shadowcolor) | `Variants<Colour>` | black | Shadow colour |
+| [`margin`, `padding`](#margin-and-padding) | `Variants<Sides>` | none | Spacing, px |
+| [`width`, `height` and limits](#sizing) | `Variants<Size>` | none | Size |
+| [`borderWidth`, `borderStyle`, `radius`, `shadow`](#borders-and-shadow) | | none | Borders and shadow |
+| [`animation`](#animation) | `Animation` | none | Animations |
+| [`show`, `replay`, `onEntranceEnd`, `onExitEnd`](#runtime-props) | | | Runtime animation control |
+| [HTML attributes and `ref`](#html-attributes-and-ref) | | | `id`, `role`, `aria-*`, events, `ref` |
 
 ## Props
 
-Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are defined on [Style props](../style-props.md). Unless noted, every prop is optional and sets nothing when omitted, so the text inherits from its parent.
-
 ### Element
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `as` | `'h1'`, `'h2'`, `'h3'`, `'h4'`, `'h5'`, `'h6'`, `'p'`, `'span'`, `'label'` | `'p'` | The element to render ([0045](../../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). Use `span` for text inside other text or inside a Container row. |
-| `htmlFor` | `string` | none | With `as="label"`: the `id` of the input it labels. |
-| `children` | `ReactNode` | none | The text. |
+#### `as`
 
-### Typography
-
-| Prop | Type | Description |
-| --- | --- | --- |
-| `fontFamily` | `Variants<'display' \| 'body'>` | The theme's families ([Theme: fonts](../theme.md#fonts)). `body` is the page default. |
-| `fontSize` | `Variants<number>` | px. |
-| `fontWeight` | `Variants<100 \| 200 \| 300 \| 400 \| 500 \| 600 \| 700 \| 800 \| 900>` | The body font covers 300–800; the display font has only 400, and other weights are synthesised. |
-| `align` | `Variants<'left' \| 'center' \| 'right' \| 'justify' \| 'start' \| 'end'>` | Text alignment. |
-| `lineHeight` | `Variants<number>` | A ratio of the font size, e.g. `1.5`. |
-| `letterSpacing` | `Variants<number>` | px; negative allowed. |
-| `truncate` | `Variants<number \| false>` | Lines to show before an ellipsis (`1` = a single line). `false` turns truncation off, e.g. `{ base: 2, md: false }`. |
-
-### Colour
-
-| Prop | Type | Description |
-| --- | --- | --- |
-| `textColor` | `Variants<Colour>` | Text colour. See [Colour value](../style-props.md#colour-value). For body text on surface backgrounds, use `surface` 600–950. |
-| `bgColor` | `Variants<Colour>` | Background behind the text, e.g. a highlight. |
-| `borderColor` | `Variants<Colour>` | Border colour (needs `borderWidth`). |
-| `shadowColor` | `Variants<Colour>` | Shadow colour (needs `shadow`). |
-
-### Spacing, sizing, borders and shadow
-
-| Prop | Type | Description |
-| --- | --- | --- |
-| `margin`, `padding` | `Variants<Sides>` | px. See [Sides](../style-props.md#sides). Headings and paragraphs have no default margins, so add spacing explicitly. |
-| `width`, `height`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight` | `Variants<Size>` | See [Size](../style-props.md#size). `maxWidth` is useful for readable line lengths. |
-| `borderWidth` | `Variants<Sides>` | Border width per side, px. |
-| `borderStyle` | `Variants<BorderStyle>` | See [Border style](../style-props.md#border-style). |
-| `radius` | `Variants<Radius>` | See [Radius](../style-props.md#radius). |
-| `shadow` | `Variants<ShadowSize>` | See [Shadow size](../style-props.md#shadow-size). |
-
-Text has no layout props (`flex`, `grid`, `position`, `overflow`, `hidden`). Wrap it in a Container for those.
-
-### Animation
-
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `animation` | `{ entrance?, exit?, attention? }` | none | See [Animation](../animation.md). |
-| `show` | `boolean` | `true` | `false` plays the exit, then unmounts the Text. Runtime only. |
-| `replay` | any | none | Replays the attention animation when it changes. Runtime only. |
-| `onEntranceEnd`, `onExitEnd` | `() => void` | none | Called when the entrance or exit finishes. Runtime only. |
-
-Text can't stagger its children; use a Container's `stagger`.
-
-### HTML attributes and `ref`
-
-Any other attribute is passed to the element: `id`, `role`, `aria-*`, `data-*`, event handlers and `ref`, which receives the rendered element. There is **no `className` or `style`**.
-
-## Styling examples
-
-**A heading scale that grows on larger screens:**
+The element to render ([0045](../../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'h1'`–`'h6'`, `'p'`, `'span'`, `'label'`. **Default:** `'p'`.
 
 ```tsx
-<Text as="h1" fontFamily="display" fontSize={{ base: 32, md: 48 }} lineHeight={1.1} textColor="primary">Title</Text>
-<Text as="h2" fontSize={{ base: 22, md: 28 }} fontWeight={700} textColor={{ color: 'surface', intensity: 900 }}>Section</Text>
+<Text>A paragraph</Text>                       // <p>
+<Text as="h1">Page title</Text>
+<Text as="span">Inline text</Text>             // inside other text or a flex row
+<Text as="label" htmlFor="email">Email</Text>
 ```
 
-**Readable body copy:**
+#### `htmlFor`
+
+With `as="label"`: the `id` of the input it labels. Clicking the label focuses the input. **Type:** `string`.
 
 ```tsx
-<Text maxWidth={640} lineHeight={1.6} fontSize={18} textColor={{ color: 'surface', intensity: 800 }}>…</Text>
+<Text as="label" htmlFor="email">Email</Text>
+<input id="email" />
 ```
 
-**Inline emphasis inside a paragraph:**
+#### `children`
+
+The text, which can include other components. **Type:** `ReactNode`.
 
 ```tsx
 <Text>
-  Plans start at <Text as="span" fontWeight={700} textColor="accent">$9</Text> a month.
+  Signed in as <Text as="span" fontWeight={700}>Alex</Text> <Icon name="check" size={16} />
 </Text>
 ```
 
-**Clamp a description to two lines on mobile only:**
+### Typography
+
+#### `fontFamily`
+
+One of the theme's two families ([Theme: fonts](../theme.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default.
 
 ```tsx
-<Text truncate={{ base: 2, md: false }}>…</Text>
+<Text fontFamily="display">Brand heading</Text>
+<Text fontFamily="body">Body text</Text>
 ```
 
-**A label for an input:**
+#### `fontSize`
+
+Font size in px. **Type:** `Variants<number>`.
 
 ```tsx
-<Text as="label" htmlFor="email" fontWeight={600}>Email</Text>
-<input id="email" … />
+<Text fontSize={18}>Large body</Text>
+<Text as="h1" fontSize={{ base: 32, md: 48 }}>Grows from 768px</Text>
 ```
 
-**Muted text that brightens on hover (inside a link or button):**
+#### `fontWeight`
+
+**Type:** `Variants<100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900>`. The body font covers 300–800; the display font has only 400, and the browser synthesises other weights.
 
 ```tsx
-<Text as="span" textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'primary', intensity: 600 } }}>More</Text>
+<Text fontWeight={300}>Light</Text>
+<Text fontWeight={700}>Bold</Text>
+<Text fontWeight={{ base: 400, hover: 700 }}>Bolder on hover</Text>
 ```
 
-**A badge:**
+#### `align`
+
+**Type:** `Variants<'left' | 'center' | 'right' | 'justify' | 'start' | 'end'>`.
 
 ```tsx
-<Text as="span" fontSize={12} fontWeight={700} padding={{ x: 8, y: 2 }} radius={{ all: 999 }} bgColor="accent" textColor={{ color: 'accent', intensity: 950 }}>
-  New
-</Text>
+<Text align="center">Centred</Text>
+<Text align={{ base: 'center', md: 'left' }}>Centred on mobile, left from 768px</Text>
+```
+
+#### `lineHeight`
+
+A ratio of the font size. **Type:** `Variants<number>`.
+
+```tsx
+<Text lineHeight={1.6}>Relaxed paragraph</Text>
+<Text as="h1" fontSize={48} lineHeight={1.1}>Tight heading</Text>
+```
+
+#### `letterSpacing`
+
+px; negative allowed. **Type:** `Variants<number>`.
+
+```tsx
+<Text letterSpacing={2}>WIDE CAPS</Text>
+<Text letterSpacing={-0.5}>Slightly tight</Text>
+```
+
+#### `truncate`
+
+The number of lines to show before an ellipsis (`1` is a single line); `false` turns truncation off. **Type:** `Variants<number | false>`.
+
+```tsx
+<Text truncate={1}>One line, then …</Text>
+<Text truncate={3}>Up to three lines, then …</Text>
+<Text truncate={{ base: 2, md: false }}>Two lines on mobile, full text from 768px</Text>
+```
+
+### Colour
+
+All colour props take a [colour value](../style-props.md#colour-value) and [variant keys](../style-props.md#variants).
+
+#### `textColor`
+
+**Type:** `Variants<Colour>`. **Default:** inherited from the parent. For body text on surface backgrounds, use `surface` 600–950.
+
+```tsx
+<Text textColor={{ color: 'surface', intensity: 800 }}>Body text</Text>
+<Text textColor="primary">Primary 500</Text>
+<Text textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'primary', intensity: 600 } }}>Hover me</Text>
+```
+
+#### `bgColor`
+
+A background behind the text, e.g. a highlight or badge. **Type:** `Variants<Colour>`.
+
+```tsx
+<Text as="span" bgColor={{ color: 'accent', intensity: 100 }}>highlighted</Text>
+```
+
+#### `borderColor`
+
+Needs `borderWidth`. **Type:** `Variants<Colour>`.
+
+```tsx
+<Text borderWidth={{ bottom: 2 }} borderColor="primary">Underlined with a border</Text>
+```
+
+#### `shadowColor`
+
+Needs `shadow`. **Type:** `Variants<Colour>`.
+
+```tsx
+<Text as="span" padding={{ x: 8 }} shadow="md" shadowColor={{ color: 'primary', intensity: 500, opacity: 40 }}>Glow</Text>
+```
+
+### Spacing
+
+#### `margin` and `padding`
+
+[Sides](../style-props.md#sides) in px. Headings and paragraphs have no default margins, so add spacing explicitly. `margin` may be negative. **Type:** `Variants<Sides>`.
+
+```tsx
+<Text as="h2" margin={{ bottom: 8 }}>Section</Text>
+<Text margin={{ y: 16 }}>Paragraph with space above and below</Text>
+<Text as="span" padding={{ x: 8, y: 2 }}>Padded inline text</Text>
+```
+
+### Sizing
+
+`width`, `height`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight` take a [size](../style-props.md#size). **Type:** `Variants<Size>`. `maxWidth` keeps line lengths readable.
+
+```tsx
+<Text maxWidth={640}>A paragraph that won't stretch across wide screens.</Text>
+<Text as="span" width={120}>Fixed-width label column</Text>
+```
+
+### Borders and shadow
+
+`borderWidth` ([sides](../style-props.md#sides)), `borderStyle` ([border style](../style-props.md#border-style)), `radius` ([radius](../style-props.md#radius)) and `shadow` ([shadow size](../style-props.md#shadow-size)), each with variant keys.
+
+```tsx
+<Text as="span" padding={{ x: 8, y: 2 }} radius={{ all: 999 }} borderWidth={{ all: 1 }} borderStyle="dashed">Tag</Text>
+<Text padding={{ all: 12 }} radius={{ all: 8 }} shadow="sm" bgColor={{ color: 'surface', intensity: 50 }}>Callout</Text>
+```
+
+### Animation
+
+#### `animation`
+
+See [Animation](../animation.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
+
+```tsx
+<Text as="h1" animation={{ entrance: { name: 'fadeInDown', speed: 'fast' } }}>Welcome</Text>
+<Text animation={{ entrance: { name: 'fadeInUp', when: 'inView' } }}>Appears on scroll</Text>
+<Text animation={{ attention: { name: 'headShake' } }} replay={errorCount}>Check your password</Text>
+```
+
+#### Runtime props
+
+`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animation.md#runtime-props)). Text can't stagger its children; use a Container's `stagger`.
+
+```tsx
+<Text show={saved} animation={{ entrance: { name: 'fadeIn' }, exit: { name: 'fadeOut' } }}>Saved</Text>
+```
+
+### HTML attributes and `ref`
+
+Other attributes (`id`, `role`, `aria-*`, `data-*`, event handlers) go to the element, and `ref` receives it. There is **no `className` or `style`**.
+
+```tsx
+<Text id="status" role="status" aria-live="polite">{message}</Text>
+```
+
+## Examples
+
+### Example: Heading scale
+
+A display-font page title and section headings that grow on larger screens.
+
+```tsx
+import { Container, Text } from '@inithium/shared-ui-components';
+
+export function ExampleHeadings() {
+  return (
+    <Container flex={{ direction: 'column', gap: 8 }}>
+      <Text as="h1" fontFamily="display" fontSize={{ base: 32, md: 48 }} lineHeight={1.1} textColor="primary">Page title</Text>
+      <Text as="h2" fontSize={{ base: 22, md: 28 }} fontWeight={700} textColor={{ color: 'surface', intensity: 900 }}>Section</Text>
+      <Text as="h3" fontSize={18} fontWeight={600} textColor={{ color: 'surface', intensity: 900 }}>Subsection</Text>
+    </Container>
+  );
+}
+```
+
+### Example: Readable body copy
+
+A paragraph with a comfortable line length and line height.
+
+```tsx
+import { Text } from '@inithium/shared-ui-components';
+
+export function ExampleBodyCopy() {
+  return (
+    <Text maxWidth={640} fontSize={18} lineHeight={1.6} textColor={{ color: 'surface', intensity: 800 }}>
+      Long-form text reads best at around 60–75 characters per line, with generous line height.
+    </Text>
+  );
+}
+```
+
+### Example: Inline emphasis and a badge
+
+Spans inside a paragraph for emphasis, plus a pill badge.
+
+```tsx
+import { Text } from '@inithium/shared-ui-components';
+
+export function ExampleInline() {
+  return (
+    <Text textColor={{ color: 'surface', intensity: 900 }}>
+      Plans start at <Text as="span" fontWeight={700} textColor="accent">$9</Text> a month.{' '}
+      <Text as="span" fontSize={12} fontWeight={700} padding={{ x: 8, y: 2 }} radius={{ all: 999 }} bgColor="accent" textColor={{ color: 'accent', intensity: 950 }}>
+        New
+      </Text>
+    </Text>
+  );
+}
+```
+
+### Example: Responsive truncation
+
+A description clamped to two lines on mobile and shown in full from 768px.
+
+```tsx
+import { Text } from '@inithium/shared-ui-components';
+
+export function ExampleTruncate() {
+  return (
+    <Text truncate={{ base: 2, md: false }} textColor={{ color: 'surface', intensity: 800 }}>
+      A long product description that would take several lines on a phone…
+    </Text>
+  );
+}
+```
+
+### Example: Form label
+
+A label linked to its input, so clicking it focuses the input.
+
+```tsx
+import { Container, Text } from '@inithium/shared-ui-components';
+
+export function ExampleLabel() {
+  return (
+    <Container flex={{ direction: 'column', gap: 4 }}>
+      <Text as="label" htmlFor="email" fontWeight={600}>Email</Text>
+      <input id="email" type="email" />
+    </Container>
+  );
+}
+```
+
+### Example: Link-style hover
+
+Muted text that turns primary on hover, for use inside a link.
+
+```tsx
+import { Text } from '@inithium/shared-ui-components';
+
+export function ExampleHoverText() {
+  return (
+    <a href="/pricing">
+      <Text as="span" textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'primary', intensity: 600 } }}>
+        See pricing
+      </Text>
+    </a>
+  );
+}
 ```
 
 ## Accessibility

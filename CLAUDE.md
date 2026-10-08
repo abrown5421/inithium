@@ -381,7 +381,7 @@ Start from `docs/templates/`. Frontmatter is validated by the Zod schemas in `do
 - **A new open decision comes up:** add a `proposed` record and list it under [Open decisions](#open-decisions).
 - **Developer-facing behaviour changes** (an env var, command, lib, slot, route, convention or generator workaround): update the matching reference page and any guide whose steps changed. A new lib gets a row in `docs/reference/libs.md`.
 - **A UI component, composite or layout is added or changed:** write or update its own page, `docs/reference/ui/<layer>s/<kebab-name>.md`, from `docs/templates/component.md` (0049).
-  - List **every** prop it accepts, with type, default and accepted values, plus styling examples and accessibility notes.
+  - Structure it like the template: a **Props at a glance** table; then one subsection per prop with its type, default and a JSX snippet showing every way to write it; then **Examples** as titled `### Example: …` blocks, each self-contained (imports included) so a docs site can render it live; then accessibility notes.
   - Shared shapes live once on `reference/ui/style-props.md`; link to them rather than repeating them.
   - The docs check fails if an exported component has no page, or a page doesn't match its export.
 - **A rule in CLAUDE.md changes:** update the docs that describe it.
