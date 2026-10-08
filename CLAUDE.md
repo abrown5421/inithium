@@ -193,7 +193,7 @@ Boundary rules:
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### UI library & theme
-The theme and the first components (Container, Text, Icon, Button) are built; see the manual's `docs/ui-library/` section (overview, style props, theme, animations, one page per component). Open questions are in 0033.
+The theme and the first components (Container, Text, Icon, Button, Input) are built; see the manual's `docs/ui-library/` section (overview, style props, theme, animations, one page per component). Open questions are in 0033.
 - **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
@@ -205,6 +205,7 @@ The theme and the first components (Container, Text, Icon, Button) are built; se
 - **No `className` on UI components.** If a component can't express something, extend its props.
 - **Icon** (0050): Lucide icons by kebab-case `name`, loaded on demand. `size` in px (default 24), colour inherited from the text unless `textColor` is set, decorative unless given a `label`.
 - **Button** (0054): `variant` (`filled` default, `outlined`, `ghost`, `link`) styled from one `color` (default `primary`), with `bgColor`/`textColor`/`borderColor` overriding per variant key; text on the colour is its 100 step, which must stay un-mirrored in dark mode. Fixed 32px height, 6px radius, 2px border, body font 14px/500; `link` is inline and doesn't navigate. `leadingIcon`/`trailingIcon`, `type="button"` by default.
+- **Input** (0055): a native `<input>` with its own floating label, helper text and error; no accessibility library. `variant` `outlined` (default) / `filled` / `standard` (MUI-style); neutral border at rest, `color` on focus; `error` is always `red-500` and hides itself once the user edits. 32px field to match Button; filled/standard labels float above it. `startAdornment`/`endAdornment` (any element, `InputAdornment` for icons and icon buttons), built-in password toggle, default width `full`. Its fixed CSS (`input.styles.ts`) is published by `<UiProvider />` before the style-prop sheet, so style props win; new component stylesheets follow the same pattern.
 - **Docs app** (0053): `npx nx serve docs` → http://localhost:5175 renders the manual with live examples. A component's examples are files, `core/apps/docs/src/examples/ui-library/<component>/<name>.example.tsx`, each default-exporting one component, embedded in its page with a fenced `example` block. (The old `/ui` gallery is gone.)
 - **Animation** (0048; built in `useAnimation`, used by every component): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
   - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
@@ -272,7 +273,7 @@ export type User = z.infer<typeof userSchema>;
 | Docs pages | `kebab-title.md` | `environment-variables.md` |
 
 - **Plurality:** files at the module level use the **plural** entity (`users.model.ts`, `users.types.ts`, `use-users.hook.ts`). A unit that concerns a **single instance** uses the **singular** (`user-avatar.component.tsx`, `user-search-input.component.tsx`).
-- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`. When you need a new suffix, add it to this list in the same change.
+- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`. When you need a new suffix, add it to this list in the same change.
 - Filenames that tools require (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep the names the tool expects.
 
 ---
@@ -354,7 +355,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
-- [ ] **UI library:** theme, Container, Text, Icon and Button are built. Remaining: the other components (divider, spinner, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
+- [ ] **UI library:** theme, Container, Text, Icon, Button and Input are built. Remaining: the other components (divider, spinner, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.

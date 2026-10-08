@@ -6,6 +6,7 @@ import {
   type ColorValue,
   type ContainerStyleProps,
   type IconStyleProps,
+  type InputStyleProps,
   type SharedStyleProps,
   type SolidColorValue,
   type TextStyleProps,
@@ -341,6 +342,43 @@ export function resolveButtonStyles(props: ButtonStyleProps) {
   builder.set('font-weight', 'base', '500');
 
   return { ...builder.build(), accent: color(value) };
+}
+
+// --- Input ---
+
+/** Fixed input metrics: the field matches the button's 32px, with 12px side padding (none for standard). */
+const INPUT_HEIGHT = 32;
+const INPUT_PADDING_X = 12;
+const INPUT_ERROR_COLOR = 'var(--color-red-500)';
+
+/**
+ * Resolves an Input (decision 0055): the outer element takes margin and width (default full), the field takes
+ * the fixed height and padding. The colours are CSS variables read by the input stylesheet: a neutral border
+ * at rest, darker on hover, and the accent on focus. An error turns all three red.
+ */
+export function resolveInputStyles(props: InputStyleProps, error: boolean) {
+  const { variant = 'outlined', color: value = 'primary' } = props;
+
+  const root = new StyleBuilder();
+  applyShared(root, {
+    margin: props.margin,
+    width: props.width ?? 'full',
+    minWidth: props.minWidth,
+    maxWidth: props.maxWidth,
+  });
+  const field = new StyleBuilder();
+  applyShared(field, {
+    height: INPUT_HEIGHT,
+    padding: props.padding ?? (variant === 'standard' ? undefined : { x: INPUT_PADDING_X }),
+  });
+
+  const { className, style } = root.build();
+  const colors = {
+    '--ui-input-accent': error ? INPUT_ERROR_COLOR : color(value),
+    '--ui-input-border': error ? INPUT_ERROR_COLOR : 'var(--color-surface-500)',
+    '--ui-input-border-hover': error ? INPUT_ERROR_COLOR : 'var(--color-surface-700)',
+  };
+  return { root: { className, style: { ...style, ...colors } as CSSProperties }, field: field.build() };
 }
 
 export function resolveContainerStyles(props: ContainerStyleProps) {

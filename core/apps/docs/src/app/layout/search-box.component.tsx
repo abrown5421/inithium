@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Icon, Text } from '@inithium/shared-ui-components';
+import { Container, Input, InputAdornment, Text } from '@inithium/shared-ui-components';
 import { searchManual } from '../manual/manual.service';
 
 /** Searches page titles, headings and text across the manual. */
@@ -11,34 +11,24 @@ export function SearchBox() {
 
   return (
     <Container position={{ type: 'relative' }} width={{ base: 'full', md: 420 }}>
-      <Container
-        flex={{ align: 'center', gap: 8 }}
-        padding={{ x: 12, y: 6 }}
-        radius={{ all: 8 }}
-        bgColor={{ color: 'surface', intensity: 100 }}
-        borderWidth={{ all: 1 }}
-        borderColor={{ color: 'surface', intensity: 500, opacity: 40 }}
-        textColor={{ color: 'surface', intensity: 600 }}
-      >
-        <Icon name="search" size={16} />
-        <input
-          className="docs-search-input"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') setQuery('');
-          }}
-          placeholder="Search the manual"
-          aria-label="Search the manual"
-        />
-      </Container>
+      <Input
+        type="search"
+        value={query}
+        onValueChange={setQuery}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setQuery('');
+        }}
+        placeholder="Search the manual"
+        aria-label="Search the manual"
+        startAdornment={<InputAdornment icon="search" />}
+        endAdornment={open && <InputAdornment icon="x" label="Clear search" onClick={() => setQuery('')} />}
+      />
 
       {open && (
         <Container
           as="ul"
           role="listbox"
-          position={{ type: 'absolute', top: 44, left: 0, right: 0, z: 30 }}
+          position={{ type: 'absolute', top: 40, left: 0, right: 0, z: 30 }}
           maxHeight={420}
           overflow={{ y: 'auto' }}
           padding={{ all: 6 }}

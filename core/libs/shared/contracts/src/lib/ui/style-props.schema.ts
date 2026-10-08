@@ -3,6 +3,7 @@ import { borderStyleSchema, borderWidthSchema, radiusSchema, shadowSizeSchema } 
 import { buttonVariantSchema } from './button.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { containerElementSchema, textElementSchema } from './elements.schema';
+import { inputVariantSchema } from './input.schema';
 import { flexItemSchema, flexSchema, gridItemSchema, gridSchema, overflowSchema, positionSchema } from './layout.schema';
 import { sizeValueSchema } from './sizing.schema';
 import { marginSchema, paddingSchema } from './spacing.schema';
@@ -66,6 +67,20 @@ export const buttonStylePropsSchema = sharedStylePropsSchema
     /** How the colour is applied. Default 'filled'. */
     variant: buttonVariantSchema.optional(),
     /** The colour the variant styles the button with. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
+/**
+ * Input's style props (decision 0055): a variant and the colour its border and focus use, spacing and width.
+ * Height, radius, font and the resting colours are fixed by the input.
+ */
+export const inputStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true, width: true, minWidth: true, maxWidth: true })
+  .extend({
+    /** How the field is drawn. Default 'outlined'. */
+    variant: inputVariantSchema.optional(),
+    /** The colour of the focused border and the floated label. Default 'primary' (500). */
     color: solidColorValueSchema.optional(),
   })
   .strict();

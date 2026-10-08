@@ -3,7 +3,7 @@ title: Text
 description: All text content (headings, paragraphs, inline text and labels) with typography, colour, spacing and animation props.
 scope: core
 tags: [ui, component, typography]
-order: 4
+order: 6
 decisions: ["0042", "0044", "0045", "0046", "0048"]
 component:
   name: Text
@@ -66,11 +66,11 @@ The element to render ([0045](../../decisions/0045-constrained-as-prop-for-seman
 
 #### `htmlFor`
 
-With `as="label"`: the `id` of the input it labels. Clicking the label focuses the input. **Type:** `string`.
+With `as="label"`: the `id` of the field it labels. Clicking the label focuses the field. An [Input](input.md) usually brings its own floating `label`; use `htmlFor` for a fixed label above it instead, pointing at the Input's `id`. **Type:** `string`.
 
 ```tsx
 <Text as="label" htmlFor="email">Email</Text>
-<input id="email" />
+<Input id="email" type="email" />
 ```
 
 #### `children`
@@ -282,7 +282,7 @@ ui-library/text/responsive-truncation
 
 ### Example: Form label
 
-A label linked to its input, so clicking it focuses the input.
+A fixed label above an [Input](input.md), linked by `htmlFor`, so clicking it focuses the field.
 
 ```example
 ui-library/text/form-label
@@ -299,7 +299,7 @@ ui-library/text/link-style-hover
 ## Accessibility
 
 - Use heading levels in order (one `h1` per page, then `h2`, `h3` …). Screen readers navigate by them, and search engines read them. Choose the level for structure, and the size with `fontSize`.
-- Every form input needs a label: `as="label"` with `htmlFor` matching the input's `id`.
+- Every form field needs a label. [Input](input.md) has its own `label` prop; for anything else, use `as="label"` with `htmlFor` matching the field's `id`.
 - On surface backgrounds (50–400), any surface text step from 600 to 950 meets WCAG AA contrast. Text on brand colours isn't guaranteed, so check it.
 
 ## Notes
