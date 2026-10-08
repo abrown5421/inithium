@@ -45,8 +45,9 @@ Run each in its own terminal:
 
 ```sh
 npx nx serve api   # http://localhost:3000/api
-npx nx serve web   # http://localhost:5173/ (UI gallery: /ui)
+npx nx serve web   # http://localhost:5173/
 npx nx serve cms   # http://localhost:5174/cms/
+npx nx serve docs  # http://localhost:5175/ (this manual)
 ```
 
 The api logs `[ db ] connected to "<database>"`, then `[ seed ] created dev user <email>` (first startup only), then `[ ready ] http://localhost:3000`. If it can't connect or the environment is invalid, it logs `[ startup failed ]` and exits.

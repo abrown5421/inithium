@@ -12,6 +12,8 @@ Inithium is a template-and-plugins ecosystem. Every client application starts as
 
 | Page | Covers |
 | --- | --- |
-| [Local setup](local-setup.md) | Install, configure the environment and run all three apps |
+| [Local setup](local-setup.md) | Install, configure the environment and run the apps |
+
+Read this manual in the docs app (`npx nx serve docs`, then http://localhost:5175): a sidebar of sections, search, and live examples with their code.
 
 More pages (the working protocol and how the repo is organised) are being written as part of the manual backfill.

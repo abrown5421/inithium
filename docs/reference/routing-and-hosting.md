@@ -16,6 +16,7 @@ Each client deploys as one Render web service. The `api` process serves the API 
 | `web` | `/` | 5173 |
 | `cms` | `/cms` | 5174 |
 | `api` | `/api` | 3000 |
+| `docs` | `/` (its own server) | 5175, development only: the manual viewer, never deployed with a client |
 
 ## API routes
 

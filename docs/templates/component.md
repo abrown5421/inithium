@@ -51,20 +51,17 @@ What it does. **Type:** `Variants<Colour>`. **Default:** none.
 
 ## Examples
 
-Showcase what the component can do. Each example is its own block so a docs site can render it as a live
-preview: a `### Example: <title>` heading, one sentence on what it shows, and a self-contained snippet
-(imports included).
+Showcase what the component can do. Each example is a `### Example: <title>` heading, one sentence on what it
+shows, and an embedded example file, which the docs app renders live above its source. The file is
+core/apps/docs/src/examples/ui-library/<component>/<kebab-title>.example.tsx and default-exports one
+self-contained component (imports included, no required props, nothing full-screen on load).
 
 ### Example: Short title
 
 One sentence on what this shows.
 
-```tsx
-import { ComponentName } from '@inithium/shared-ui-components';
-
-export function ExampleShortTitle() {
-  return <ComponentName />;
-}
+```example
+ui-library/component-name/short-title
 ```
 
 ## Accessibility

@@ -15,7 +15,7 @@ docs/
   tooling/           The frontmatter schemas and the checker
 ```
 
-The manual is viewed in the docs app (`core/apps/docs`), which builds its sidebar from these folders and each page's `title` and `order` (decisions [0052](decisions/0052-keep-a-self-documenting-developer-manual.md) and [0053](decisions/0053-view-the-manual-in-a-docs-app.md)).
+The manual is viewed in the docs app (`core/apps/docs`; run `npx nx serve docs` in `core/`, then open http://localhost:5175), which builds its sidebar from these folders and each page's `title` and `order` (decisions [0052](decisions/0052-keep-a-self-documenting-developer-manual.md) and [0053](decisions/0053-view-the-manual-in-a-docs-app.md)).
 
 Plugin documentation is colocated with each plugin, in `plugins/plugin-<name>/docs/`, using the same layout. Plugin decision ids are namespaced: `"<plugin>-0001"`.
 

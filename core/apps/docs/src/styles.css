@@ -1,0 +1,70 @@
+/* theme(static) emits every Tailwind palette variable (e.g. --color-emerald-200), which colour style props read at runtime. */
+@import "tailwindcss" theme(static);
+@import "../../../libs/shared/ui-theme/src/styles/theme.css";
+/* Entrance, exit and attention animations (decision 0048). */
+@import "animate.css";
+
+/* Libs live outside the app folder, so Tailwind must be told to scan them for classes. */
+@source "../../../libs";
+
+/*
+ * Viewer-only elements (decision 0053): code blocks, tables, inline code and the search input. Everything else in
+ * the app is UI library components.
+ */
+.docs-code pre,
+.docs-code-plain {
+  margin: 0;
+  padding: 16px 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+.docs-code pre {
+  background: transparent !important;
+}
+.docs-code-plain {
+  color: var(--color-surface-200);
+}
+
+.docs-inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--color-surface-200);
+  color: var(--color-quaternary-800);
+}
+
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.docs-table th,
+.docs-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 12px;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-surface-500) 30%, transparent);
+}
+.docs-table th {
+  background: var(--color-surface-200);
+  color: var(--color-surface-950);
+  font-weight: 700;
+}
+.docs-table td {
+  color: var(--color-surface-800);
+}
+.docs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.docs-search-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  outline: none;
+  color: var(--color-surface-900);
+}

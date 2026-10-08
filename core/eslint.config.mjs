@@ -24,6 +24,8 @@ export default [
             { sourceTag: 'scope:api', onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'] },
             { sourceTag: 'scope:web', onlyDependOnLibsWithTags: ['scope:web', 'scope:shared'] },
             { sourceTag: 'scope:cms', onlyDependOnLibsWithTags: ['scope:cms', 'scope:shared'] },
+            // apps/docs, the manual viewer (decision 0053), uses shared libs only
+            { sourceTag: 'scope:docs', onlyDependOnLibsWithTags: ['scope:docs', 'scope:shared'] },
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:shared'] },
 
             // type: layering

@@ -59,6 +59,32 @@ Two families ([0046](../../decisions/0046-theme-fonts-display-and-body.md)):
 - Both defaults use the SIL Open Font License.
 - Clients will be able to replace either font by uploading their own once assets exist.
 
+## Examples
+
+### Example: Every scale
+
+All six tokens with their 11 generated steps.
+
+```example
+ui-library/theme/scales
+```
+
+### Example: Surface roles
+
+Every text step (600–950) on every background step (50–400): all readable.
+
+```example
+ui-library/theme/surface-roles
+```
+
+### Example: Fonts
+
+The display family, and the body family at each weight it covers.
+
+```example
+ui-library/theme/fonts
+```
+
 ## API
 
 From `@inithium/shared-ui-theme`:

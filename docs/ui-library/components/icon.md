@@ -191,80 +191,40 @@ Other attributes (`id`, `title`, `data-*`, event handlers) go to the `<span>`, a
 
 An icon that inherits its colour from the text and centres on the line.
 
-```tsx
-import { Icon, Text } from '@inithium/shared-ui-components';
-
-export function ExampleInlineIcon() {
-  return (
-    <Text textColor="primary">
-      <Icon name="info" size={18} margin={{ right: 6 }} />
-      Your changes are saved automatically.
-    </Text>
-  );
-}
+```example
+ui-library/icon/icon-beside-text
 ```
 
 ### Example: Status chips
 
 Coloured circular and square chips built from Icon's own style props.
 
-```tsx
-import { Container, Icon } from '@inithium/shared-ui-components';
-
-export function ExampleStatusChips() {
-  return (
-    <Container flex={{ gap: 12 }}>
-      <Icon name="check" size={20} padding={{ all: 8 }} radius={{ all: 999 }} bgColor={{ color: 'emerald', intensity: 100 }} textColor={{ color: 'emerald', intensity: 700 }} />
-      <Icon name="triangle-alert" size={20} padding={{ all: 8 }} radius={{ all: 8 }} bgColor={{ color: 'amber', intensity: 100 }} textColor={{ color: 'amber', intensity: 700 }} />
-      <Icon name="x" size={20} padding={{ all: 8 }} radius={{ all: 8 }} borderWidth={{ all: 1 }} borderColor="rose" textColor="rose" />
-    </Container>
-  );
-}
+```example
+ui-library/icon/status-chips
 ```
 
 ### Example: Feature list
 
 A list whose items each start with a check icon.
 
-```tsx
-import { Container, Icon, Text } from '@inithium/shared-ui-components';
-
-export function ExampleFeatureList() {
-  return (
-    <Container as="ul" flex={{ direction: 'column', gap: 8 }}>
-      {['Unlimited pages', 'Custom domain', 'Email support'].map((feature) => (
-        <Container as="li" key={feature} flex={{ align: 'center', gap: 8 }}>
-          <Icon name="circle-check" size={20} textColor="secondary" />
-          <Text as="span">{feature}</Text>
-        </Container>
-      ))}
-    </Container>
-  );
-}
+```example
+ui-library/icon/feature-list
 ```
 
 ### Example: Labelled status indicator
 
 An icon that carries meaning on its own, so it gets a label.
 
-```tsx
-import { Icon } from '@inithium/shared-ui-components';
-
-export function ExampleUnread({ unread }: { unread: boolean }) {
-  return unread ? <Icon name="mail" label="Unread messages" textColor="accent" /> : null;
-}
+```example
+ui-library/icon/labelled-status-indicator
 ```
 
 ### Example: Notification bell that rings on new messages
 
 The attention animation replays whenever the count changes.
 
-```tsx
-import { Icon } from '@inithium/shared-ui-components';
-
-export function ExampleBell({ count }: { count: number }) {
-  return <Icon name="bell" label={`${count} notifications`} animation={{ attention: { name: 'swing' } }} replay={count} />;
-}
+```example
+ui-library/icon/notification-bell-that-rings-on-new-messages
 ```
 
 ## Accessibility
