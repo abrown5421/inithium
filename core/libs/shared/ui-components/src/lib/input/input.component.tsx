@@ -1,5 +1,5 @@
 import {
-  useEffect,
+  useCallback,
   useId,
   useImperativeHandle,
   useLayoutEffect,
@@ -19,6 +19,7 @@ import {
   type InputType,
 } from '@inithium/shared-contracts';
 import { useAnimation, type AnimationRuntimeProps } from '../animation/use-animation.hook';
+import { useDismissibleError } from '../form-field/use-dismissible-error.hook';
 import type { IconName } from '../icon/icon.component';
 import { splitStyleProps } from '../style-props/split-style-props.service';
 import { resolveInputStyles } from '../style-props/style-props.service';
@@ -90,17 +91,11 @@ export function Input(props: InputProps) {
   const start = useRef<HTMLSpanElement>(null);
   const [revealed, setRevealed] = useState(false);
 
-  // An error is hidden once the user edits the field, and shown again when `error` changes or the form submits.
-  const [dismissed, setDismissed] = useState(false);
-  const [previousError, setPreviousError] = useState(error);
-  if (error !== previousError) {
-    setPreviousError(error);
-    setDismissed(false);
-  }
-  const showError = Boolean(error) && !dismissed;
-
   const motion = useAnimation({ animation, show, replay, onEntranceEnd, onExitEnd });
   const { mounted, attach, getElement } = motion;
+  const getForm = useCallback(() => control.current?.form, []);
+  const fieldError = useDismissibleError(error, getForm, mounted);
+  const showError = fieldError.shown;
   useImperativeHandle(ref, () => control.current as HTMLInputElement);
 
   const hasStart = Boolean(startAdornment ?? leadingIcon);
@@ -116,14 +111,6 @@ export function Input(props: InputProps) {
     return () => observer.disconnect();
   }, [mounted, hasStart, getElement]);
 
-  useEffect(() => {
-    const form = control.current?.form;
-    if (!mounted || !form) return;
-    const reset = () => setDismissed(false);
-    form.addEventListener('submit', reset);
-    return () => form.removeEventListener('submit', reset);
-  }, [mounted]);
-
   if (!mounted) return null;
 
   const variant = styleProps.variant ?? 'outlined';
@@ -131,7 +118,7 @@ export function Input(props: InputProps) {
   const isPassword = type === 'password';
   const leading = startAdornment ?? (leadingIcon && <InputAdornment icon={leadingIcon} />);
   const trailing = endAdornment ?? (trailingIcon && <InputAdornment icon={trailingIcon} />);
-  const helper = showError && typeof error === 'string' ? error : helperText;
+  const helper = fieldError.message ?? helperText;
   const describedBy = [ariaDescribedBy, helper ? helperId : undefined].filter(Boolean).join(' ') || undefined;
   const labelContent = label && (
     <>
@@ -141,7 +128,7 @@ export function Input(props: InputProps) {
   );
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (showError) setDismissed(true);
+    if (showError) fieldError.dismiss();
     onChange?.(event);
     onValueChange?.(event.target.value);
   };

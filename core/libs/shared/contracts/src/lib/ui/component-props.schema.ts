@@ -2,7 +2,14 @@ import { z } from 'zod';
 import { animationSchema } from './animation.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
-import { buttonStylePropsSchema, containerStylePropsSchema, iconStylePropsSchema, inputStylePropsSchema, textStylePropsSchema } from './style-props.schema';
+import {
+  buttonStylePropsSchema,
+  checkboxStylePropsSchema,
+  containerStylePropsSchema,
+  iconStylePropsSchema,
+  inputStylePropsSchema,
+  textStylePropsSchema,
+} from './style-props.schema';
 
 // Everything about a component that can be stored (e.g. in a page section): its style props plus its
 // animation. Runtime-only props (show, replay, callbacks, children) are not part of these schemas.
@@ -39,6 +46,17 @@ export const inputPropsSchema = inputStylePropsSchema
     leadingIcon: iconNameSchema.optional(),
     /** A decorative Lucide icon after the text. */
     trailingIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const checkboxPropsSchema = checkboxStylePropsSchema
+  .extend({
+    /** Text beside the box; clicking it toggles the box. */
+    label: z.string().min(1).optional(),
+    /** A line of guidance under the label. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
     animation: animationSchema.optional(),
   })
   .strict();

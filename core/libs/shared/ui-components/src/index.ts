@@ -1,5 +1,6 @@
 export * from './lib/animation/use-animation.hook';
 export * from './lib/button/button.component';
+export * from './lib/checkbox/checkbox.component';
 export * from './lib/container/container.component';
 export * from './lib/icon/icon.component';
 export * from './lib/input/input.component';

@@ -3,7 +3,7 @@ title: InputAdornment
 description: An icon inside an Input, decorative or a small labelled button such as clear, copy or show password.
 scope: core
 tags: [ui, component, forms, icons]
-order: 5
+order: 6
 decisions: ["0050", "0055"]
 component:
   name: InputAdornment
