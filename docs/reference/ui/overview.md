@@ -4,7 +4,7 @@ description: How the UI library is organised, how to set it up in an app, and wh
 scope: core
 tags: [ui, setup, components]
 order: 1
-decisions: ["0030", "0037", "0038", "0039", "0047", "0049"]
+decisions: ["0030", "0037", "0038", "0039", "0047", "0049", "0051"]
 ---
 
 # UI library
@@ -18,7 +18,7 @@ The library has four layers. Each builds only on the layers above it, and lint e
 | Layer | Lib | What it holds | Built so far |
 | --- | --- | --- | --- |
 | Theme | `@inithium/shared-ui-theme` | Colour tokens, scale generation, fonts | [Theme](theme.md) |
-| Components | `@inithium/shared-ui-components` | Single-purpose building blocks (atoms) | [Container](components/container.md), [Text](components/text.md) |
+| Components | `@inithium/shared-ui-components` | Single-purpose building blocks (atoms) | [Container](components/container.md), [Icon](components/icon.md), [Text](components/text.md) |
 | Composites | `@inithium/shared-ui-composites` | Components combined into molecules (modal, tabs, …) | Not created yet |
 | Layouts | `@inithium/shared-ui-layouts` | Page-level structures (organisms) | Not created yet |
 
@@ -35,6 +35,10 @@ The prop schemas and types live in `@inithium/shared-contracts` ([0039](../../de
 | `composites/`, `layouts/` | One page per composite and layout, as they're built |
 
 Every component, composite and layout has its own page ([0049](../../decisions/0049-document-every-ui-component-on-its-own-page.md)).
+
+## UI gallery
+
+In development, `web` serves a gallery at **http://localhost:5173/ui**, with a page per part of the library (theme, animation and each component) selected from a sidebar ([0051](../../decisions/0051-browser-test-ui-in-a-development-gallery.md)). It's left out of production builds. Every new component adds a gallery page next to its docs page; the pages are in `apps/web/src/app/ui-gallery/`.
 
 ## Setting up an app
 

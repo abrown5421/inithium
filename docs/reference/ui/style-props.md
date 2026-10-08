@@ -154,4 +154,4 @@ From `@inithium/shared-contracts`:
 | `radiusSchema` | | Radius |
 | `withVariants(schema)` | `Variants<T>` | Wraps any of these in variant keys |
 | `sharedStylePropsSchema` | `SharedStyleProps` | The shared props above (without `animation`) |
-| `containerPropsSchema`, `textPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container) |
+| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon) |

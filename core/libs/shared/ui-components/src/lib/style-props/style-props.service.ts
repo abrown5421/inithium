@@ -3,6 +3,7 @@ import {
   variantKeys,
   type ColorValue,
   type ContainerStyleProps,
+  type IconStyleProps,
   type SharedStyleProps,
   type TextStyleProps,
   type VariantKey,
@@ -271,6 +272,21 @@ export function resolveContainerStyles(props: ContainerStyleProps) {
   const builder = new StyleBuilder();
   applyShared(builder, props);
   applyContainer(builder, props);
+  return builder.build();
+}
+
+/** Default icon size, matching Lucide's. */
+export const DEFAULT_ICON_SIZE = 24;
+
+export function resolveIconStyles(props: IconStyleProps) {
+  const builder = new StyleBuilder();
+  applyShared(builder, props);
+  // size sets width and height together, after the shared props, so it wins over them.
+  const size = props.size ?? (props.width === undefined && props.height === undefined ? DEFAULT_ICON_SIZE : undefined);
+  builder.each(size, (key, value) => {
+    builder.set('w', key, px(value));
+    builder.set('h', key, px(value));
+  });
   return builder.build();
 }
 
