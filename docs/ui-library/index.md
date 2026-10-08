@@ -81,7 +81,7 @@ import { UiProvider } from '@inithium/shared-ui-components';
 | `theme` | `ThemeConfig` | `defaultTheme` | The client's theme: each brand token's 500 and surface's 100, as hex. See [Theme](theme/index.md). |
 | `children` | `ReactNode` | none | The app. |
 
-It renders two `<style>` elements: the theme's colour variables (`--color-<token>-<step>`), and the stylesheet every style prop relies on.
+It renders two `<style>` elements: the theme's colour variables (`--color-<token>-<step>`), and one stylesheet holding the fixed CSS of components that need it (currently [Input](components/input.md)'s) followed by the rules every style prop relies on.
 
 ## How style props work
 

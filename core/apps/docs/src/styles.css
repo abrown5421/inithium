@@ -60,11 +60,3 @@
 .docs-table tr:last-child td {
   border-bottom: none;
 }
-
-.docs-search-input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  outline: none;
-  color: var(--color-surface-900);
-}

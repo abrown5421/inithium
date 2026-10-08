@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
 import { iconNameSchema } from './icon.schema';
-import { buttonStylePropsSchema, containerStylePropsSchema, iconStylePropsSchema, textStylePropsSchema } from './style-props.schema';
+import { inputTypeSchema } from './input.schema';
+import { buttonStylePropsSchema, containerStylePropsSchema, iconStylePropsSchema, inputStylePropsSchema, textStylePropsSchema } from './style-props.schema';
 
 // Everything about a component that can be stored (e.g. in a page section): its style props plus its
 // animation. Runtime-only props (show, replay, callbacks, children) are not part of these schemas.
@@ -19,6 +20,24 @@ export const buttonPropsSchema = buttonStylePropsSchema
     /** A Lucide icon shown before the content. */
     leadingIcon: iconNameSchema.optional(),
     /** A Lucide icon shown after the content. */
+    trailingIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const inputPropsSchema = inputStylePropsSchema
+  .extend({
+    type: inputTypeSchema.optional(),
+    /** Sits in the field and floats above it on focus or once there's a value. */
+    label: z.string().min(1).optional(),
+    /** Shown while the field is empty and focused (or always, without a label). */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    /** A decorative Lucide icon before the text. */
+    leadingIcon: iconNameSchema.optional(),
+    /** A decorative Lucide icon after the text. */
     trailingIcon: iconNameSchema.optional(),
     animation: animationSchema.optional(),
   })

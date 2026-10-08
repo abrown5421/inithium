@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { loginRequestSchema } from '@inithium/shared-contracts';
 import { getApiErrorMessage, useGetCurrentUserQuery, useLoginMutation, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
+import { Button, Input } from '@inithium/shared-ui-components';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -49,27 +50,14 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} noValidate className="w-full max-w-sm space-y-4 rounded-lg bg-white p-8 shadow">
         <h1 className="text-xl font-semibold">Sign in to the CMS</h1>
 
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">Email</span>
-          <input
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
-          />
-        </label>
-
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">Password</span>
-          <input
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
-          />
-        </label>
+        <Input label="Email" type="email" autoComplete="email" value={email} onValueChange={setEmail} />
+        <Input
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onValueChange={setPassword}
+        />
 
         {error && (
           <p role="alert" className="text-sm text-red-600">
@@ -77,13 +65,9 @@ export function LoginPage() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full rounded bg-gray-900 px-3 py-2 font-medium text-white disabled:opacity-50"
-        >
+        <Button type="submit" disabled={isLoading} width="full">
           {isLoading ? 'Signing in…' : 'Sign in'}
-        </button>
+        </Button>
       </form>
     </main>
   );

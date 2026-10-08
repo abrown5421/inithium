@@ -4,6 +4,7 @@ import type {
   buttonStylePropsSchema,
   containerStylePropsSchema,
   iconStylePropsSchema,
+  inputStylePropsSchema,
   sharedStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -15,4 +16,5 @@ export type SharedStyleProps = z.infer<typeof sharedStylePropsSchema>;
 export type ButtonStyleProps = z.infer<typeof buttonStylePropsSchema>;
 export type ContainerStyleProps = z.infer<typeof containerStylePropsSchema>;
 export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
+export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;
 export type IconStyleProps = z.infer<typeof iconStylePropsSchema>;
