@@ -31,7 +31,7 @@ Undecided. These are being worked through in order; each will be recorded as an 
 
 **Colour**
 
-- Text on brand colours in dark mode. A brand 500 background stays the same in dark mode, but surface or brand text on it flips, so contrast can change between modes. Should mode-fixed text use Tailwind's fixed colours (e.g. `neutral-50`), or is another pattern needed? Can be decided when dark mode is built.
+- Text on brand colours in dark mode. A brand 500 background stays the same in dark mode, but surface or brand text on it flips, so contrast can change between modes. Should mode-fixed text use Tailwind's fixed colours (e.g. `neutral-50`), or is another pattern needed? Can be decided when dark mode is built. (Settled for buttons by [0054](0054-style-buttons-by-variant-from-one-colour.md): their text stays `[color]-100` in both modes.)
 
 **Other families and components** (needed by later component batches, not by `feat/ui-foundation`)
 

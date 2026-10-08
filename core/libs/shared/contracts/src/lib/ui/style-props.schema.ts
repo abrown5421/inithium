@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { borderStyleSchema, borderWidthSchema, radiusSchema, shadowSizeSchema } from './borders.schema';
-import { colorValueSchema } from './colors.schema';
+import { buttonVariantSchema } from './button.schema';
+import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { containerElementSchema, textElementSchema } from './elements.schema';
 import { flexItemSchema, flexSchema, gridItemSchema, gridSchema, overflowSchema, positionSchema } from './layout.schema';
 import { sizeValueSchema } from './sizing.schema';
@@ -52,6 +53,20 @@ export const iconStylePropsSchema = sharedStylePropsSchema
     size: withVariants(z.number().positive()).optional(),
     /** Line thickness of the icon's strokes, in the icon's 24-unit grid. Default 2. */
     strokeWidth: z.number().positive().optional(),
+  })
+  .strict();
+
+/**
+ * Button's style props (decision 0054): a variant and one colour that it styles from, optional colour overrides,
+ * spacing and width. Height, radius, border width and font are fixed by the button.
+ */
+export const buttonStylePropsSchema = sharedStylePropsSchema
+  .pick({ bgColor: true, textColor: true, borderColor: true, margin: true, padding: true, width: true, minWidth: true, maxWidth: true })
+  .extend({
+    /** How the colour is applied. Default 'filled'. */
+    variant: buttonVariantSchema.optional(),
+    /** The colour the variant styles the button with. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
   })
   .strict();
 

@@ -3,7 +3,7 @@ title: Icon
 description: A Lucide icon by name, sized in pixels, coloured by the surrounding text, decorative unless labelled.
 scope: core
 tags: [ui, component, icons]
-order: 2
+order: 3
 decisions: ["0042", "0048", "0050"]
 component:
   name: Icon
@@ -231,7 +231,7 @@ ui-library/icon/notification-bell-that-rings-on-new-messages
 
 - **Decorative by default:** the icon is `aria-hidden`. That's right when text next to it already says the same thing, e.g. a "Delete" button with a trash icon.
 - **Give it a `label` when it carries meaning on its own,** e.g. an icon-only status indicator. It's then announced as an image.
-- An icon-only *button* will be labelled by the Button component, not by Icon.
+- In a [Button](button.md), use `leadingIcon` or `trailingIcon`; an icon-only button is labelled with the button's `aria-label`, not by Icon.
 - Don't rely on colour alone to convey meaning; pair a coloured icon with text or a label.
 
 ## Notes

@@ -122,7 +122,7 @@ Tailwind's shadows: `'none'`, `'2xs'`, `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `
 
 ## Shared props
 
-Every component accepts these. Component pages list them alongside their own props.
+Every component accepts these, except where its page says otherwise: [Button](components/button.md) takes only the colours, spacing and widths, since the rest is fixed. Component pages list them alongside their own props.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -149,9 +149,10 @@ From `@inithium/shared-contracts`:
 | Schema | Type | Shape |
 | --- | --- | --- |
 | `colorValueSchema` | `ColorValue` | Colour value |
+| `solidColorValueSchema` | `SolidColorValue` | Colour value other than `'transparent'` |
 | `marginSchema`, `paddingSchema`, `borderWidthSchema` | | Sides |
 | `sizeValueSchema` | | Size |
 | `radiusSchema` | | Radius |
 | `withVariants(schema)` | `Variants<T>` | Wraps any of these in variant keys |
 | `sharedStylePropsSchema` | `SharedStyleProps` | The shared props above (without `animation`) |
-| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon) |
+| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema`, `buttonPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps`, `ButtonSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon; `variant`, `color` and the icons for Button) |

@@ -1,10 +1,13 @@
 import type { CSSProperties } from 'react';
 import {
   variantKeys,
+  type ButtonStyleProps,
+  type ButtonVariant,
   type ColorValue,
   type ContainerStyleProps,
   type IconStyleProps,
   type SharedStyleProps,
+  type SolidColorValue,
   type TextStyleProps,
   type VariantKey,
   type Variants,
@@ -266,6 +269,78 @@ function applyText(builder: StyleBuilder, props: TextStyleProps): void {
         : ['-webkit-box', 'hidden', 'vertical', String(value)],
     ),
   );
+}
+
+// --- Button ---
+
+type ColorMap = { [K in VariantKey]?: string };
+
+/** The colour's 100 step, without opacity: the light text filled and outlined buttons put on the colour. */
+function lightOf(value: SolidColorValue): string {
+  return `var(--color-${typeof value === 'string' ? value : value.color}-100)`;
+}
+
+/** Each variant's colours (decision 0054). */
+function variantColors(variant: ButtonVariant, value: SolidColorValue): Record<'bg' | 'text' | 'border-color', ColorMap> {
+  const main = color(value);
+  const light = lightOf(value);
+  switch (variant) {
+    case 'filled':
+      return { bg: { base: main, hover: 'transparent' }, text: { base: light, hover: main }, 'border-color': { base: main } };
+    case 'outlined':
+      return { bg: { base: 'transparent', hover: main }, text: { base: main, hover: light }, 'border-color': { base: main } };
+    case 'ghost':
+      return {
+        bg: { base: 'transparent', hover: 'var(--color-surface-200)' },
+        text: { base: main },
+        'border-color': { base: 'transparent' },
+      };
+    case 'link':
+      return { bg: { base: 'transparent' }, text: { base: main }, 'border-color': { base: 'transparent' } };
+  }
+}
+
+/** Fixed button metrics: 32px tall, 12px side padding, 6px radius, 2px border. Links sit inline instead. */
+const BUTTON_HEIGHT = 32;
+const BUTTON_PADDING_X = 12;
+const BUTTON_RADIUS = 6;
+const BUTTON_BORDER = 2;
+
+/**
+ * Resolves a Button. The variant's colours come first and the caller's bgColor, textColor and borderColor
+ * override them per variant key; each colour holds its base value while disabled unless told otherwise.
+ * `accent` is the button's colour, for its focus outline.
+ */
+export function resolveButtonStyles(props: ButtonStyleProps) {
+  const { variant = 'filled', color: value = 'primary' } = props;
+  const isLink = variant === 'link';
+  const builder = new StyleBuilder();
+
+  applyShared(builder, {
+    margin: props.margin,
+    padding: props.padding ?? (isLink ? undefined : { x: BUTTON_PADDING_X }),
+    width: props.width,
+    minWidth: props.minWidth,
+    maxWidth: props.maxWidth,
+    height: isLink ? undefined : BUTTON_HEIGHT,
+    radius: isLink ? undefined : { all: BUTTON_RADIUS },
+    borderWidth: { all: isLink ? 0 : BUTTON_BORDER },
+  });
+
+  const defaults = variantColors(variant, value);
+  const overrides = { bg: props.bgColor, text: props.textColor, 'border-color': props.borderColor };
+  for (const property of ['bg', 'text', 'border-color'] as const) {
+    const merged: ColorMap = { ...defaults[property] };
+    for (const [key, override] of entries(overrides[property])) merged[key] = color(override);
+    merged.disabled ??= merged.base;
+    for (const key of variantKeys) builder.set(property, key, merged[key]);
+  }
+
+  builder.set('font', 'base', 'var(--font-body)');
+  builder.set('font-size', 'base', px(14));
+  builder.set('font-weight', 'base', '500');
+
+  return { ...builder.build(), accent: color(value) };
 }
 
 export function resolveContainerStyles(props: ContainerStyleProps) {
