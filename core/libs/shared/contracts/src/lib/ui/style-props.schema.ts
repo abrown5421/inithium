@@ -5,6 +5,7 @@ import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { containerElementSchema, textElementSchema } from './elements.schema';
 import { inputVariantSchema } from './input.schema';
 import { flexItemSchema, flexSchema, gridItemSchema, gridSchema, overflowSchema, positionSchema } from './layout.schema';
+import { loaderVariantSchema } from './loader.schema';
 import { sizeValueSchema } from './sizing.schema';
 import { marginSchema, paddingSchema } from './spacing.schema';
 import { fontFamilySchema, fontWeightSchema, textAlignSchema, truncateSchema } from './typography.schema';
@@ -91,6 +92,19 @@ export const checkboxStylePropsSchema = sharedStylePropsSchema
   .extend({
     /** The outline, the checked fill and the focus outline. Default 'primary' (500). */
     color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
+/** Loader's style props (decision 0058): which animation, its colour and size, spacing, and width for progress. */
+export const loaderStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true, width: true })
+  .extend({
+    /** Which animation plays. Default 'spinner'. */
+    variant: loaderVariantSchema.optional(),
+    /** The moving part; tracks use it at 20% opacity. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+    /** Width and height in px, for every variant but progress. Default 24. */
+    size: z.number().positive().optional(),
   })
   .strict();
 

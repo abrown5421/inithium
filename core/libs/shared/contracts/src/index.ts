@@ -13,6 +13,7 @@ export * from './lib/ui/elements.schema';
 export * from './lib/ui/icon.schema';
 export * from './lib/ui/input.schema';
 export * from './lib/ui/layout.schema';
+export * from './lib/ui/loader.schema';
 export * from './lib/ui/sizing.schema';
 export * from './lib/ui/spacing.schema';
 export * from './lib/ui/style-props.schema';

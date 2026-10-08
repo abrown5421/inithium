@@ -11,10 +11,13 @@ const styleKeys = new Set(Object.keys(buttonStylePropsSchema.shape) as (keyof Bu
 /** Icon size inside a button, in px. */
 const BUTTON_ICON_SIZE = 16;
 
+/** A Loader spinner (decision 0058) in the button's text colour, the size of an icon. */
+const spinnerStyle = { '--ui-loader-color': 'currentColor', '--ui-loader-size': `${BUTTON_ICON_SIZE}px` } as CSSProperties;
+
 // Fixed behaviour the style props don't express: layout, cursor, transition, the focus outline in the button's
 // colour, the disabled look, and the link variant's hover underline.
 const baseClasses =
-  'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap leading-none cursor-pointer transition-all ' +
+  'relative inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap leading-none cursor-pointer transition-all ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 outline-(--ui-button-accent) ' +
   'disabled:cursor-not-allowed disabled:opacity-50';
 const linkClasses = 'enabled:hover:underline underline-offset-2';
@@ -26,13 +29,15 @@ export type ButtonProps = Omit<ButtonSerializableProps, 'leadingIcon' | 'trailin
     leadingIcon?: IconName;
     /** A Lucide icon shown after the content. */
     trailingIcon?: IconName;
+    /** Shows a spinner and disables the button, keeping its width. */
+    loading?: boolean;
     children?: ReactNode;
     ref?: Ref<HTMLButtonElement>;
   };
 
 /**
  * A button (decision 0054): a variant (filled, outlined, ghost or link) styled from one colour, with optional
- * colour overrides, leading and trailing icons, spacing, width and animation. Renders a <button type="button">
+ * colour overrides, leading and trailing icons, a loading state, spacing, width and animation. Renders a <button type="button">
  * unless `type` says otherwise.
  */
 export function Button(props: ButtonProps) {
@@ -41,6 +46,8 @@ export function Button(props: ButtonProps) {
     children,
     leadingIcon,
     trailingIcon,
+    loading = false,
+    disabled,
     type = 'button',
     animation,
     show,
@@ -59,6 +66,10 @@ export function Button(props: ButtonProps) {
   if (!mounted) return null;
 
   const { className, style, accent } = resolveButtonStyles(styleProps);
+  // While loading, a spinner replaces the leading icon; without one, it covers the hidden content, so the
+  // button keeps its width either way.
+  const spinner = <span className="ui-loader-spinner" style={spinnerStyle} aria-hidden="true" />;
+  const coverContent = loading && !leadingIcon;
   const handleAnimationEnd = (event: AnimationEvent<HTMLButtonElement>) => {
     motion.handleAnimationEnd(event);
     onAnimationEnd?.(event);
@@ -71,11 +82,16 @@ export function Button(props: ButtonProps) {
       className={[baseClasses, styleProps.variant === 'link' && linkClasses, className, motion.className].filter(Boolean).join(' ')}
       style={{ ...style, '--ui-button-accent': accent, ...motion.style } as CSSProperties}
       onAnimationEnd={handleAnimationEnd}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...attributes}
     >
-      {leadingIcon && <Icon name={leadingIcon} size={BUTTON_ICON_SIZE} />}
-      <StaggerChildren>{children}</StaggerChildren>
-      {trailingIcon && <Icon name={trailingIcon} size={BUTTON_ICON_SIZE} />}
+      <span className="contents" style={coverContent ? { visibility: 'hidden' } : undefined}>
+        {leadingIcon && (loading ? spinner : <Icon name={leadingIcon} size={BUTTON_ICON_SIZE} />)}
+        <StaggerChildren>{children}</StaggerChildren>
+        {trailingIcon && <Icon name={trailingIcon} size={BUTTON_ICON_SIZE} />}
+      </span>
+      {coverContent && <span className="absolute inset-0 flex items-center justify-center">{spinner}</span>}
     </button>
   );
 }

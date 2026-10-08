@@ -5,5 +5,6 @@ export * from './lib/container/container.component';
 export * from './lib/icon/icon.component';
 export * from './lib/input/input.component';
 export * from './lib/input/input-adornment.component';
+export * from './lib/loader/loader.component';
 export * from './lib/text/text.component';
 export * from './lib/ui-provider/ui-provider.component';

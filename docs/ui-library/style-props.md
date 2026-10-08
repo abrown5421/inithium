@@ -122,7 +122,7 @@ Tailwind's shadows: `'none'`, `'2xs'`, `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `
 
 ## Shared props
 
-Every component accepts these, except where its page says otherwise: [Button](components/button.md) takes only the colours, spacing and widths, [Input](components/input.md) only the spacing and widths, and [Checkbox](components/checkbox.md) only the spacing, since the rest is fixed. Component pages list them alongside their own props.
+Every component accepts these, except where its page says otherwise: [Button](components/button.md) takes only the colours, spacing and widths, [Input](components/input.md) only the spacing and widths, [Checkbox](components/checkbox.md) only the spacing, and [Loader](components/loader.md) the spacing and width, since the rest is fixed. Component pages list them alongside their own props.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -155,4 +155,4 @@ From `@inithium/shared-contracts`:
 | `radiusSchema` | | Radius |
 | `withVariants(schema)` | `Variants<T>` | Wraps any of these in variant keys |
 | `sharedStylePropsSchema` | `SharedStyleProps` | The shared props above (without `animation`) |
-| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema`, `buttonPropsSchema`, `inputPropsSchema`, `checkboxPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps`, `ButtonSerializableProps`, `InputSerializableProps`, `CheckboxSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon; `variant`, `color` and the icons for Button; `variant`, `color`, `type`, `label`, `placeholder`, `helperText`, `required` and the icons for Input; `color`, `label`, `helperText` and `required` for Checkbox) |
+| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema`, `buttonPropsSchema`, `inputPropsSchema`, `checkboxPropsSchema`, `loaderPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps`, `ButtonSerializableProps`, `InputSerializableProps`, `CheckboxSerializableProps`, `LoaderSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon; `variant`, `color` and the icons for Button; `variant`, `color`, `type`, `label`, `placeholder`, `helperText`, `required` and the icons for Input; `color`, `label`, `helperText` and `required` for Checkbox; `variant`, `color`, `size` and `label` for Loader) |

@@ -6,6 +6,7 @@ import type {
   containerStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
+  loaderStylePropsSchema,
   sharedStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -19,4 +20,5 @@ export type CheckboxStyleProps = z.infer<typeof checkboxStylePropsSchema>;
 export type ContainerStyleProps = z.infer<typeof containerStylePropsSchema>;
 export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
 export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;
+export type LoaderStyleProps = z.infer<typeof loaderStylePropsSchema>;
 export type IconStyleProps = z.infer<typeof iconStylePropsSchema>;
