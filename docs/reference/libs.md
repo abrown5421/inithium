@@ -53,7 +53,7 @@ The Zod schemas shared by the api and both frontends, with inferred types: `role
 
 ### `@inithium/shared-ui-theme` and `@inithium/shared-ui-components`
 
-The first two layers of the UI library. See [UI library](ui-library.md).
+The first two layers of the UI library. See the [UI library](ui/overview.md) section, with a page per component.
 
 ### `@inithium/shared-permissions`
 

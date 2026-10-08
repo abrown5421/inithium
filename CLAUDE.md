@@ -192,7 +192,7 @@ Boundary rules:
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### UI library & theme
-The theme and the first components (Container, Text) are built; see `docs/reference/ui-library.md`. Open questions are in 0033.
+The theme and the first components (Container, Text) are built; see the `docs/reference/ui/` section (overview, theme, style props, animation, one page per component). Open questions are in 0033.
 - **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
@@ -352,6 +352,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **UI library:** theme, Container and Text are built. Remaining: the other components (button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
+- [ ] **Docs sections:** only the UI reference is sectioned (`docs/reference/ui/`). The other reference pages are still flat and should be organised into sections (0049).
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
 ---
@@ -377,6 +378,10 @@ Start from `docs/templates/`. Frontmatter is validated by the Zod schemas in `do
 - **A decision changes:** add a new record that `supersedes` the old one, and set the old one to `superseded` with `supersededBy`. Never rewrite the body of an accepted record.
 - **A new open decision comes up:** add a `proposed` record and list it under [Open decisions](#open-decisions).
 - **Developer-facing behaviour changes** (an env var, command, lib, slot, route, convention or generator workaround): update the matching reference page and any guide whose steps changed. A new lib gets a row in `docs/reference/libs.md`.
+- **A UI component, composite or layout is added or changed:** write or update its own page, `docs/reference/ui/<layer>s/<kebab-name>.md`, from `docs/templates/component.md` (0049).
+  - List **every** prop it accepts, with type, default and accepted values, plus styling examples and accessibility notes.
+  - Shared shapes live once on `reference/ui/style-props.md`; link to them rather than repeating them.
+  - The docs check fails if an exported component has no page, or a page doesn't match its export.
 - **A rule in CLAUDE.md changes:** update the docs that describe it.
 
 ### Rules
