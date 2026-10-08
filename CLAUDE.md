@@ -209,6 +209,20 @@ Not built yet; the design is in progress (open questions in 0033). Decided so fa
 
   There is no `white`, `black`, `current` or `inherit`; use the surface extremes instead. Colour props exist only for background, text, border, ring, outline and shadow. CMS colour controls offer theme tokens only.
 - **Scales** are generated in even OKLCH steps. The client's colour is exactly 500 for brand tokens and exactly 100 for surface.
+- **Measurements are pixel numbers,** never Tailwind spacing steps.
+  - Spacing: `margin` / `padding` take `{ all, x, y, top, right, bottom, left }`; specific keys override general ones; negative margins and offsets are allowed.
+  - Border width takes the same side keys.
+  - Radius takes those keys plus the four corners.
+  - Gap, offsets, font size and letter spacing are pixels.
+  - Line height is a ratio.
+  - Shadow size uses Tailwind's names (`2xs`–`2xl`).
+- **Sizing** (`width`, `height`, `min*`, `max*`): px, `'full'`, `'screen'`, `'n/d'` fractions, `'auto'`, `'fit'`.
+- **Container** layout is grouped object props: `flex`, `grid`, `position`, `overflow`.
+- **Text** has size, weight, align, line height, letter spacing, truncation, and font family `display` / `body`.
+- **`as`** comes from fixed lists only:
+  - Text: `h1`–`h6`, `p`, `span`, `label`;
+  - Container: `div`, `section`, `article`, `header`, `footer`, `nav`, `main`, `aside`, `ul`, `ol`, `li`.
+- **The theme holds colours and two fonts** (`display`, `body`). Core ships default font files, and a client can replace them via CMS upload (stored as assets). Radius and shadows are not theme tokens.
 
 ### Profiles & assets
 Neither is built yet. When they are:
@@ -398,5 +412,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): the remaining prop families (spacing, sizing, layout, border, typography, effects, animation), the `as` prop, the accessibility approach, presets, what else the theme holds, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): animation and other effects, the accessibility approach for interactive components, size/variant presets, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
