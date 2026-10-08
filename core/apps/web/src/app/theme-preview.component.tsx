@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { themeColors } from '@inithium/shared-contracts';
 import { Container, Text } from '@inithium/shared-ui-components';
+import { AnimationPreview } from './animation-preview.component';
 
-// Placeholder home page until the page framework exists: shows the theme and the Container/Text props.
+// Placeholder home page until the page framework exists: shows the theme, the Container/Text props and animation.
 
 const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 
@@ -173,6 +174,10 @@ export function ThemePreview() {
               Truncated to one line: width is full on mobile and half from md, so this long sentence is cut off with an ellipsis instead of wrapping onto a second line.
             </Text>
           </Container>
+        </Section>
+
+        <Section title="Animation">
+          <AnimationPreview />
         </Section>
       </Container>
     </Container>

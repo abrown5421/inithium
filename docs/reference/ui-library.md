@@ -1,10 +1,10 @@
 ---
 title: UI library
-description: The theme, the shared style props, and the Container and Text components.
+description: The theme, the shared style props, animation, and the Container and Text components.
 scope: core
 tags: [ui, theme, components, props]
 order: 7
-decisions: ["0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047"]
+decisions: ["0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047", "0048"]
 ---
 
 # UI library
@@ -25,11 +25,13 @@ Each app's `src/styles.css`:
 ```css
 @import "tailwindcss" theme(static);
 @import "../../../libs/shared/ui-theme/src/styles/theme.css";
+@import "animate.css";
 @source "../../../libs";
 ```
 
 - `theme(static)` makes Tailwind emit every palette variable (`--color-emerald-200`, …). Colour props read them at runtime, so without it Tailwind colours resolve to nothing.
 - `theme.css` declares the fonts.
+- `animate.css` provides the animations used by the `animation` prop.
 - `@source` lets Tailwind see classes used in libs.
 
 Wrap the app root in `<UiProvider>`, which publishes the theme's colour variables and the style-prop stylesheet:
@@ -132,6 +134,62 @@ Renders a `p` unless `as` is one of `h1`–`h6`, `span`, `label`. With `as="labe
 
 Other props (`id`, `role`, `aria-*`, event handlers, `tabIndex`, `ref`, …) pass through to the element.
 
+## Animation
+
+Every component takes an `animation` object plus runtime props ([0048](../decisions/0048-animate-components-with-animate-css-through-an-animation-prop.md)). Animations come from [animate.css](https://animate.style/).
+
+```tsx
+<Container
+  animation={{
+    entrance:  { name: 'fadeInUp', speed: 'fast', delay: 150, when: 'mount' },
+    exit:      { name: 'fadeOutDown', speed: 'faster' },
+    attention: { name: 'shakeX', speed: 'fast', repeat: 1 },
+  }}
+  show={isOpen}
+  replay={errorCount}
+  onEntranceEnd={() => …}
+  onExitEnd={() => …}
+/>
+```
+
+| Field | Values |
+| --- | --- |
+| `entrance.name` / `exit.name` / `attention.name` | An animate.css animation of that kind. Each slot only accepts its own kind (e.g. `fadeInUp` for entrance, `hinge` for exit, `pulse` for attention). |
+| `speed` | `'faster'` (500ms), `'fast'` (800ms), `'slow'` (2s), `'slower'` (3s), or ms. Default 1s. |
+| `delay` | `'1s'`–`'5s'`, or ms. |
+| `attention.repeat` | `1`, `2`, `3` or `'infinite'`. Default 1. |
+| `entrance.when` | `'mount'` (default) or `'inView'`: enters the first time 20% of the element is visible. Until then it's `visibility: hidden`. |
+
+**Runtime props** (not stored; not part of the schemas):
+
+| Prop | Behaviour |
+| --- | --- |
+| `show` | Default `true`. `true` mounts the element and plays its entrance, including on first render. `false` plays the exit, then unmounts it. A change during a running entrance or exit waits for it to finish, then follows the latest value. |
+| `replay` | Plays the attention animation again whenever the value changes, e.g. a counter. |
+| `onEntranceEnd`, `onExitEnd` | Called when the entrance or exit finishes. `onExitEnd` is also called when there is no exit animation. |
+| `stagger` (Container) | Adds index × ms to each direct child element's entrance delay. Exits aren't staggered. Stored with the Container. |
+
+**Behaviour details:**
+
+- An attention animation plays after the entrance (or on mount without one). A running attention animation, even an infinite one, doesn't delay an exit.
+- If `animationend` never arrives, e.g. the element is `display: none` via `hidden`, the animation is treated as finished shortly after it should have ended. Sequences like a page transition therefore always complete.
+- `animationend` events from child elements are ignored.
+- Stagger only reaches direct children; every Container and Text resets it for its own children.
+- With `prefers-reduced-motion`, animate.css shortens animations to 1ms and hides finished exits. End callbacks still fire.
+
+**A page-transition sequence:**
+
+```tsx
+<Container
+  key={page}
+  show={!leaving}
+  animation={{ entrance: { name: 'fadeInRight', speed: 400 }, exit: { name: 'fadeOutLeft', speed: 250 } }}
+  onExitEnd={() => { setPage(next); setLeaving(false); }}
+/>
+```
+
+The serializable shapes are `animationSchema` and, for whole components, `containerPropsSchema` / `textPropsSchema` (style props + animation, + stagger for Container) in `@inithium/shared-contracts`. The lifecycle lives in `useAnimation` (`libs/shared/ui-components/src/lib/animation/`).
+
 ## How it works
 
 The style-prop engine is in `libs/shared/ui-components/src/lib/style-props/` ([0047](../decisions/0047-generate-the-style-prop-stylesheet-from-a-property-table.md)):
@@ -144,5 +202,5 @@ The style-prop engine is in `libs/shared/ui-components/src/lib/style-props/` ([0
 
 ## Not supported yet
 
-- Ring and outline colours (they need width and style props first), animation, and the remaining components, composites and layouts.
+- Ring and outline colours (they need width and style props first), CSS transitions, and the remaining components, composites and layouts.
 - Automatic horizontal centring (`margin: auto`), because margins are pixel numbers. Centre with the parent's `flex` instead.
