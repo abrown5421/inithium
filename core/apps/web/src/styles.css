@@ -1,6 +1,8 @@
 /* theme(static) emits every Tailwind palette variable (e.g. --color-emerald-200), which colour style props read at runtime. */
 @import "tailwindcss" theme(static);
 @import "../../../libs/shared/ui-theme/src/styles/theme.css";
+/* Entrance, exit and attention animations (decision 0048). */
+@import "animate.css";
 
 /* Libs live outside the app folder, so Tailwind must be told to scan them for classes. */
 @source "../../../libs";
