@@ -4,7 +4,7 @@ description: Naming, project tags and module-boundary rules for core, plugin and
 scope: ecosystem
 tags: [conventions, naming, nx, eslint]
 order: 4
-decisions: ["0012", "0007", "0031", "0032"]
+decisions: ["0012", "0007", "0031", "0032", "0038"]
 ---
 
 # Conventions
@@ -44,13 +44,14 @@ The UI library isn't built yet, but these rules already apply to anything design
 
 ## Tags and module boundaries
 
-Every lib has one tag from each group. Apps carry only their `scope:` tag. `@nx/enforce-module-boundaries` enforces the rules in `core/eslint.config.mjs`.
+Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also have a `ui:` tag. Apps carry only their `scope:` tag. `@nx/enforce-module-boundaries` enforces the rules in `core/eslint.config.mjs`.
 
 | Group | Values | Meaning |
 | --- | --- | --- |
 | `scope:` | `api`, `web`, `cms`, `shared` | Which app(s) may consume it. `shared` is usable by all. |
 | `type:` | `feature`, `data-access`, `ui`, `util` | Its role in the layering. |
 | `origin:` | `core`, `plugin`, `client` | Where it came from. |
+| `ui:` | `theme`, `component`, `composite`, `layout` | UI libs only: the UI layer ([0038](../decisions/0038-split-the-ui-library-into-four-libs-with-layer-tags.md)). |
 
 | A project tagged | May depend only on |
 | --- | --- |
@@ -61,5 +62,8 @@ Every lib has one tag from each group. Apps carry only their `scope:` tag. `@nx/
 | `type:ui` | `ui`, `util` |
 | `type:util` | `util` |
 | `origin:core` | Never `origin:plugin` or `origin:client` |
+| `ui:theme` | No other `ui:` lib |
+| `ui:component` | `ui:theme` (not composites or layouts) |
+| `ui:composite` | `ui:component`, `ui:theme` (not layouts) |
 
 Only app registry files import plugin or client libs. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.

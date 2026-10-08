@@ -1,0 +1,14 @@
+{
+  "name": "shared-ui-theme",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui-theme/src",
+  "projectType": "library",
+  "tags": [
+    "scope:shared",
+    "type:ui",
+    "origin:core",
+    "ui:theme"
+  ],
+  "// targets": "to see all targets run: nx show project shared-ui-theme --web",
+  "targets": {}
+}
