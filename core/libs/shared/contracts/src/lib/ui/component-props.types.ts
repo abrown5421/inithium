@@ -5,6 +5,7 @@ import type {
   containerPropsSchema,
   iconPropsSchema,
   inputPropsSchema,
+  loaderPropsSchema,
   textPropsSchema,
 } from './component-props.schema';
 
@@ -16,6 +17,9 @@ export type InputSerializableProps = z.infer<typeof inputPropsSchema>;
 
 /** A Checkbox's storable props: colour, label, helper text, required, spacing and animation. */
 export type CheckboxSerializableProps = z.infer<typeof checkboxPropsSchema>;
+
+/** A Loader's storable props: variant, colour, size, label, spacing, width and animation. */
+export type LoaderSerializableProps = z.infer<typeof loaderPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

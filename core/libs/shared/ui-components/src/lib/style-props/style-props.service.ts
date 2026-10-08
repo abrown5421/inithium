@@ -8,6 +8,7 @@ import {
   type ContainerStyleProps,
   type IconStyleProps,
   type InputStyleProps,
+  type LoaderStyleProps,
   type SharedStyleProps,
   type SolidColorValue,
   type TextStyleProps,
@@ -397,6 +398,31 @@ export function resolveCheckboxStyles(props: CheckboxStyleProps, error: boolean)
   const { className, style } = builder.build();
   const colors = { '--ui-checkbox-accent': color(value), '--ui-checkbox-on-accent': lightOf(value) };
   return { className, style: { ...style, ...colors } as CSSProperties };
+}
+
+// --- Loader ---
+
+/** Default loader size, matching Icon's. */
+export const DEFAULT_LOADER_SIZE = 24;
+
+/**
+ * Resolves a Loader (decision 0058): margin and padding, width for the progress bar (default full), and the
+ * colour and size as variables read by the loader stylesheet.
+ */
+export function resolveLoaderStyles(props: LoaderStyleProps) {
+  const isProgress = props.variant === 'progress';
+  const builder = new StyleBuilder();
+  applyShared(builder, {
+    margin: props.margin,
+    padding: props.padding,
+    width: isProgress ? (props.width ?? 'full') : undefined,
+  });
+  const { className, style } = builder.build();
+  const vars = {
+    '--ui-loader-color': color(props.color ?? 'primary'),
+    '--ui-loader-size': px(props.size ?? DEFAULT_LOADER_SIZE),
+  };
+  return { className, style: { ...style, ...vars } as CSSProperties };
 }
 
 export function resolveContainerStyles(props: ContainerStyleProps) {

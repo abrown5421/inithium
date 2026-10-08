@@ -8,6 +8,7 @@ import {
   containerStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
+  loaderStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
 
@@ -57,6 +58,14 @@ export const checkboxPropsSchema = checkboxStylePropsSchema
     /** A line of guidance under the label. */
     helperText: z.string().optional(),
     required: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const loaderPropsSchema = loaderStylePropsSchema
+  .extend({
+    /** What's loading, announced to screen readers. Default 'Loading'. */
+    label: z.string().min(1).optional(),
     animation: animationSchema.optional(),
   })
   .strict();

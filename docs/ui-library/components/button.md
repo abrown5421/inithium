@@ -4,7 +4,7 @@ description: A button in one of four variants (filled, outlined, ghost, link) st
 scope: core
 tags: [ui, component, forms]
 order: 1
-decisions: ["0036", "0042", "0048", "0050", "0054"]
+decisions: ["0036", "0042", "0048", "0050", "0054", "0058"]
 component:
   name: Button
   layer: component
@@ -38,6 +38,7 @@ Type names such as `Colour`, `Sides`, `Size` and `Variants<T>` are defined on [S
 | [`width`, `minWidth`, `maxWidth`](#width-minwidth-and-maxwidth) | `Variants<Size>` | fits its content | Width |
 | [`animation`](#animation) | `Animation` | none | Animations |
 | [`show`, `replay`, `onEntranceEnd`, `onExitEnd`](#runtime-props) | | | Runtime animation control |
+| [`loading`](#loading) | `boolean` | `false` | Spinner, disabled, same width |
 | [`type`, `disabled`, other HTML attributes and `ref`](#html-attributes-and-ref) | | `type="button"` | `onClick`, `aria-label`, `ref` |
 
 ## Props
@@ -109,6 +110,18 @@ Each overrides one of the variant's colours, key by key: a plain value replaces 
 
 // A tinted ghost hover.
 <Button variant="ghost" color="emerald" bgColor={{ hover: { color: 'emerald', intensity: 100 } }}>Tinted</Button>
+```
+
+### State
+
+#### `loading`
+
+Shows a 16px [Loader](loader.md) spinner in the button's text colour, disables the button and marks it busy (`aria-busy`) for screen readers. The spinner replaces the leading icon; without one, it covers the content, which is hidden but keeps its space, so the button never changes width. **Type:** `boolean`. **Default:** `false`.
+
+```tsx
+<Button loading={saving} onClick={save}>Save changes</Button>              // spinner over the hidden text
+<Button leadingIcon="send" loading={sending}>Send</Button>                // spinner in place of the icon
+<Button type="submit" loading={isLoading}>Sign in</Button>
 ```
 
 ### Spacing
@@ -207,6 +220,14 @@ Every variant disabled until the [Checkbox](checkbox.md) is ticked.
 ui-library/button/disabled
 ```
 
+### Example: Loading
+
+Click any button: it shows a spinner for two seconds without changing width.
+
+```example
+ui-library/button/loading
+```
+
 ### Example: Colour overrides
 
 Changing single colours of a variant with `bgColor`, `textColor` and `borderColor`.
@@ -229,6 +250,7 @@ ui-library/button/animated-save
 - **Focus:** keyboard focus shows a 2px outline in the button's `color`, offset by 2px. Mouse clicks don't show it.
 - **Icon-only buttons need a name:** give them an `aria-label`. Leading and trailing icons are decorative, so the label isn't repeated.
 - **Disabled:** the native `disabled` attribute, so the button can't be focused or clicked. It's drawn at 50% opacity with a not-allowed cursor, and hover doesn't change it.
+- **Loading:** the button is disabled and has `aria-busy`, and its label stays its accessible name, so screen readers still hear what it does.
 - **Contrast is the caller's responsibility** for light colours: `filled` puts `[color]-100` text on `[color]`, which is readable on the 500 step and darker. For a light `color`, set a dark `textColor`.
 
 ## Notes
@@ -237,5 +259,5 @@ ui-library/button/animated-save
 - **Dark mode:** `[color]-100` text is meant to stay light in both modes. Dark mode isn't built yet; when it is, this text must not mirror ([0054](../../decisions/0054-style-buttons-by-variant-from-one-colour.md)).
 - **Disabled holds the resting colours.** Each colour's `disabled` key defaults to its `base`. Set a `disabled` key in an override to change it.
 - **No navigation:** `link` only looks like a link. Navigating will need its own decision, because the UI library doesn't know about the router.
-- **Not yet:** sizes, a loading state, and button groups.
+- **Not yet:** sizes and button groups.
 - **Schemas:** `buttonPropsSchema` (type `ButtonSerializableProps`) and `buttonStylePropsSchema` in `@inithium/shared-contracts`. Button content (`children`) isn't part of the stored props.
