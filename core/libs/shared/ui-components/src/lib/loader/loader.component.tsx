@@ -78,24 +78,21 @@ function LoaderGraphic({ variant, progress }: { variant: LoaderVariant; progress
     case 'spinner':
       return <span className="ui-loader-spinner" aria-hidden="true" />;
     case 'dots':
-      return (
-        <span className="ui-loader-dots" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-      );
+      return <Pieces className="ui-loader-dots" count={3} />;
     case 'bars':
-      return (
-        <span className="ui-loader-bars" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <span />
-        </span>
-      );
+      return <Pieces className="ui-loader-bars" count={4} />;
     case 'pulse':
       return <span className="ui-loader-pulse" aria-hidden="true" />;
+    case 'ring':
+      return <span className="ui-loader-ring" aria-hidden="true" />;
+    case 'orbit':
+      return <span className="ui-loader-orbit" aria-hidden="true" />;
+    case 'wave':
+      return <Pieces className="ui-loader-wave" count={4} />;
+    case 'grid':
+      return <Pieces className="ui-loader-grid" count={9} />;
+    case 'segments':
+      return <Pieces className="ui-loader-segments" count={8} />;
     case 'progress':
       return (
         <span className="ui-loader-progress" data-indeterminate={progress === undefined ? '' : undefined} aria-hidden="true">
@@ -103,4 +100,15 @@ function LoaderGraphic({ variant, progress }: { variant: LoaderVariant; progress
         </span>
       );
   }
+}
+
+/** A variant drawn from identical pieces (dots, bars, squares…), which the stylesheet animates in sequence. */
+function Pieces({ className, count }: { className: string; count: number }) {
+  return (
+    <span className={className} aria-hidden="true">
+      {Array.from({ length: count }, (_, index) => (
+        <span key={index} />
+      ))}
+    </span>
+  );
 }

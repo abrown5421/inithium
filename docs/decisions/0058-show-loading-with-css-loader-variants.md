@@ -1,6 +1,6 @@
 ---
 id: "0058"
-title: Show loading with a CSS Loader in five variants, and a loading state on Button
+title: Show loading with a CSS Loader in ten variants, and a loading state on Button
 status: accepted
 date: "2026-10-08"
 scope: core
@@ -9,7 +9,7 @@ related: ["0042", "0048", "0050", "0054"]
 supersedes: []
 ---
 
-# 0058. Show loading with a CSS Loader in five variants, and a loading state on Button
+# 0058. Show loading with a CSS Loader in ten variants, and a loading state on Button
 
 ## Context
 
@@ -17,8 +17,8 @@ Pages, panels and buttons need to show that work is in progress. Button's decisi
 
 ## Decision
 
-- **Loader** has five variants: `spinner` (default), `dots`, `bars`, `pulse` and `progress`. They're CSS keyframes in a fixed stylesheet published by `<UiProvider />`.
-- **Colour:** one `color` (default `primary`) for the moving part; the spinner's ring and the progress track use it at 20% opacity.
+- **Loader** has ten variants: `spinner` (default), `dots`, `bars`, `pulse`, `progress`, `ring`, `orbit`, `wave`, `grid` and `segments`. They're CSS keyframes in a fixed stylesheet published by `<UiProvider />`.
+- **Colour:** one `color` (default `primary`) for the moving part; the spinner's ring, the orbit's track and the progress track use it at 20% opacity.
 - **Size:** `size` in px, default 24, like Icon ([0050](0050-render-icons-from-lucide-by-name.md)). `progress` is a 4px bar whose `width` defaults to `full`.
 - **Progress:** `value` (0–100) fills the bar and makes it a `role="progressbar"`; without it, a segment slides.
 - **Speeds are fixed** per variant.

@@ -1,6 +1,6 @@
 ---
 title: Loader
-description: A loading indicator (spinner, dots, bars, pulse or a progress bar) in one colour, announced to screen readers.
+description: A loading indicator in ten variants, from a spinner to a progress bar, in one colour and announced to screen readers.
 scope: core
 tags: [ui, component, feedback]
 order: 7
@@ -14,7 +14,7 @@ component:
 
 # Loader
 
-Loader shows that something is happening ([0058](../../decisions/0058-show-loading-with-css-loader-variants.md)). It plays one of five animations in a single `color`. Four are square and sized in pixels, like an [Icon](icon.md); `progress` is a thin bar that slides while the amount is unknown, or fills to a `value` when it is known. Screen readers hear "Loading", or your `label`.
+Loader shows that something is happening ([0058](../../decisions/0058-show-loading-with-css-loader-variants.md)). It plays one of ten animations in a single `color`. Nine are square and sized in pixels, like an [Icon](icon.md); `progress` is a thin bar that slides while the amount is unknown, or fills to a `value` when it is known. Screen readers hear "Loading", or your `label`.
 
 For a button that's busy, use [Button's `loading`](button.md#loading) instead; it uses the same spinner.
 
@@ -30,7 +30,7 @@ Type names such as `Colour`, `Sides`, `Size` and `Variants<T>` are defined on [S
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| [`variant`](#variant) | `'spinner' \| 'dots' \| 'bars' \| 'pulse' \| 'progress'` | `'spinner'` | Which animation plays |
+| [`variant`](#variant) | `'spinner' \| 'dots' \| 'bars' \| 'pulse' \| 'progress' \| 'ring' \| 'orbit' \| 'wave' \| 'grid' \| 'segments'` | `'spinner'` | Which animation plays |
 | [`color`](#color) | `Colour` (not `'transparent'`) | `'primary'` | The moving part |
 | [`size`](#size) | `number` | `24` | Width and height, px |
 | [`value`](#value) | `number` (0–100) | none | Progress, for `progress` |
@@ -47,7 +47,7 @@ Type names such as `Colour`, `Sides`, `Size` and `Variants<T>` are defined on [S
 
 #### `variant`
 
-Which animation plays. **Type:** `'spinner' | 'dots' | 'bars' | 'pulse' | 'progress'`. **Default:** `'spinner'`.
+Which animation plays. **Type:** `'spinner' | 'dots' | 'bars' | 'pulse' | 'progress' | 'ring' | 'orbit' | 'wave' | 'grid' | 'segments'`. **Default:** `'spinner'`.
 
 | Variant | Looks like |
 | --- | --- |
@@ -56,6 +56,11 @@ Which animation plays. **Type:** `'spinner' | 'dots' | 'bars' | 'pulse' | 'progr
 | `bars` | Four bars rising and falling, like an equaliser |
 | `pulse` | Rings spreading out from the centre and fading |
 | `progress` | A 4px bar: a sliding segment, or filled to `value` |
+| `ring` | Two arcs, an outer and an inner one, turning in opposite directions |
+| `orbit` | A dot circling a faint track |
+| `wave` | Four dots rising and falling in a wave |
+| `grid` | A 3×3 grid of squares fading in a diagonal sweep |
+| `segments` | Eight short strokes around a circle fading in turn, like the iOS spinner |
 
 ```tsx
 <Loader />                      // spinner
@@ -63,11 +68,16 @@ Which animation plays. **Type:** `'spinner' | 'dots' | 'bars' | 'pulse' | 'progr
 <Loader variant="bars" />
 <Loader variant="pulse" />
 <Loader variant="progress" />
+<Loader variant="ring" />
+<Loader variant="orbit" />
+<Loader variant="wave" />
+<Loader variant="grid" />
+<Loader variant="segments" />
 ```
 
 #### `color`
 
-The moving part. The spinner's ring and the progress track use the same colour at 20% opacity. **Type:** [`Colour`](../style-props.md#colour-value), except `'transparent'`. **Default:** `'primary'`.
+The moving part. The spinner's ring, the orbit's track and the progress track use the same colour at 20% opacity. **Type:** [`Colour`](../style-props.md#colour-value), except `'transparent'`. **Default:** `'primary'`.
 
 ```tsx
 <Loader color="secondary" />
@@ -77,7 +87,7 @@ The moving part. The spinner's ring and the progress track use the same colour a
 
 #### `size`
 
-Width and height in px. The spinner's ring, the dots and the bars scale with it. `progress` ignores it. **Type:** `number`. **Default:** `24`.
+Width and height in px. Every part (rings, dots, bars, squares, strokes) scales with it. `progress` ignores it. **Type:** `number`. **Default:** `24`.
 
 ```tsx
 <Loader size={16} />     // inline with text
@@ -149,7 +159,7 @@ Other attributes go to the outer `<span>`, and `ref` receives it. There is no `c
 
 ### Example: Variants
 
-All five variants at their default size and colour.
+All ten variants at their default size and colour.
 
 ```example
 ui-library/loader/variants
@@ -197,7 +207,7 @@ ui-library/loader/inline-with-text
 
 ## Notes
 
-- **Speeds are fixed:** 0.8s per turn for the spinner, 1s for dots and bars, 1.2s for pulse and the sliding bar.
+- **Speeds are fixed:** 0.8s for the spinner and segments, 1s for dots, bars, orbit and wave, 1.2s for pulse, ring, grid and the sliding bar.
 - **Inline:** Loader is an inline element and centres on a line of text; `progress` is a block that fills its container.
 - **Pure CSS:** the animations are CSS keyframes published by `<UiProvider />`; there's no extra dependency.
 - **Not yet:** a delay before showing (to avoid a flash on fast loads) and a full-page overlay. Both can be built from `show` and a [Container](container.md).

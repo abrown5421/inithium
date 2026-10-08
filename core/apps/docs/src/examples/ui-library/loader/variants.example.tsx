@@ -1,6 +1,6 @@
 import { Container, Loader, Text } from '@inithium/shared-ui-components';
 
-const variants = ['spinner', 'dots', 'bars', 'pulse'] as const;
+const variants = ['spinner', 'dots', 'bars', 'pulse', 'ring', 'orbit', 'wave', 'grid', 'segments'] as const;
 
 export default function ExampleLoaderVariants() {
   return (
