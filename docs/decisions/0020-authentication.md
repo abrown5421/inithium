@@ -36,4 +36,4 @@ The CMS needs authentication before any CMS feature can be built. JWT was the pr
 - No CORS configuration and no allowed-origin env vars: everything is same-origin.
 - A role change (e.g. flipping a user to `dev` in Atlas) takes effect at the next refresh, within 15 minutes, because the role is read from the access token.
 - Every client needs its own `JWT_ACCESS_SECRET`.
-- See [Authentication](../reference/authentication.md) for the endpoints, cookies and frontend usage.
+- See [Authentication](../backend/authentication.md) for the endpoints, cookies and frontend usage.

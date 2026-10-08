@@ -3,7 +3,7 @@ title: Routing and hosting
 description: How api, web and cms share one origin in production and in development.
 scope: core
 tags: [hosting, routing, render, vite]
-order: 2
+order: 4
 decisions: ["0006", "0005"]
 ---
 

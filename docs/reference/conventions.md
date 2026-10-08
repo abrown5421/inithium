@@ -3,7 +3,7 @@ title: Conventions
 description: Naming, project tags and module-boundary rules for core, plugin and client code.
 scope: ecosystem
 tags: [conventions, naming, nx, eslint]
-order: 4
+order: 2
 decisions: ["0012", "0007", "0031", "0032", "0038"]
 ---
 

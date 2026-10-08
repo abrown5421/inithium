@@ -62,7 +62,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 
 #### `as`
 
-The element to render ([0045](../../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'div'`, `'section'`, `'article'`, `'header'`, `'footer'`, `'nav'`, `'main'`, `'aside'`, `'ul'`, `'ol'`, `'li'`. **Default:** `'div'`.
+The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'div'`, `'section'`, `'article'`, `'header'`, `'footer'`, `'nav'`, `'main'`, `'aside'`, `'ul'`, `'ol'`, `'li'`. **Default:** `'div'`.
 
 ```tsx
 <Container>…</Container>                 // <div>
@@ -225,7 +225,7 @@ Tailwind's shadow sizes. **Type:** `Variants<'none' | '2xs' | 'xs' | 'sm' | 'md'
 
 ### Layout
 
-Layout props are objects whose **fields** each take a value or a [variant object](../style-props.md#variants), e.g. `flex={{ direction: { base: 'column', md: 'row' } }}` ([0043](../../../decisions/0043-group-container-layout-props-into-objects.md)).
+Layout props are objects whose **fields** each take a value or a [variant object](../style-props.md#variants), e.g. `flex={{ direction: { base: 'column', md: 'row' } }}` ([0043](../../decisions/0043-group-container-layout-props-into-objects.md)).
 
 #### `flex`
 
@@ -347,7 +347,7 @@ Hides the Container with `display: none`; it stays mounted. To remove it from th
 
 ### Animation
 
-See [Animation](../animation.md) for every animation name and the full lifecycle.
+See [Animation](../animations/index.md) for every animation name and the full lifecycle.
 
 #### `animation`
 

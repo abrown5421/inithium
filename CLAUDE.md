@@ -13,7 +13,7 @@ inithium/
   core/      Clonable Nx monorepo. The base of every client app. Contains zero plugin code.
   plugins/   Library of installable/ejectable plugins that extend core through slots.
   sandbox/   Tooling that rebuilds a replica of core with every plugin installed, for testing.
-  docs/      Documentation library for the ecosystem. Inithium repo only; never reaches clients.
+  docs/      The developer manual and decision records. Inithium repo only; never reaches clients.
 ```
 
 ### core/
@@ -33,8 +33,8 @@ inithium/
 - The tooling must support adding and ejecting individual plugins so that installation, seeding, unseeding and ejection can each be verified.
 
 ### docs/
-- Decision records, guides and reference pages for core and the ecosystem, written so they can later be rendered as the public docs site. See [section 9](#9-documentation-protocol).
-- A standalone npm package (like `sandbox/`), not part of the Nx workspace, so core stays free of docs tooling.
+- The **developer manual**: a front-to-back guide to using Inithium, one folder per section, kept current with every change. Plus the decision records. See [section 9](#9-documentation-protocol).
+- Its tooling (schemas and `npm run check`) is a standalone npm package, like `sandbox/`. The manual is *viewed* in `core/apps/docs`, which is stripped from client clones.
 
 ---
 
@@ -49,7 +49,7 @@ plugins/plugin-<name>/
   web/         React slot components + RTK Query endpoints for the end-user site
   cms/         React slot components + RTK Query endpoints for the client portal
   contracts/   Zod schemas + inferred types shared by the layers above
-  docs/        The plugin's documentation (see section 9). Never installed into a client.
+  docs/        The plugin's manual pages and decisions (see section 9). Never installed into a client.
 ```
 
 When a plugin is installed into a core clone, it lands as libs. **Never inside an app.**
@@ -123,7 +123,7 @@ Switching an app between databases or clusters is only ever a change to `MONGODB
 ### Apps are thin orchestrators
 Apps are entry points that **consume** libs. They contain **no business logic**: no data access, no validation rules, no domain decisions. An app's job is bootstrapping, composition, routing to lib-provided handlers and pages, and its plugin registry.
 
-Core ships three apps (its libs are listed in `docs/reference/libs.md`):
+Core ships three apps (its libs are listed in `docs/reference/libs.md`); a fourth, `apps/docs` (the manual viewer, 0053), is planned and never reaches clients:
 
 | App | Role |
 | --- | --- |
@@ -192,7 +192,7 @@ Boundary rules:
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### UI library & theme
-The theme and the first components (Container, Text) are built; see the `docs/reference/ui/` section (overview, theme, style props, animation, one page per component). Open questions are in 0033.
+The theme and the first components (Container, Text) are built; see the manual's `docs/ui-library/` section (overview, style props, theme, animations, one page per component). Open questions are in 0033.
 - **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
@@ -203,7 +203,7 @@ The theme and the first components (Container, Text) are built; see the `docs/re
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
 - **Icon** (0050): Lucide icons by kebab-case `name`, loaded on demand. `size` in px (default 24), colour inherited from the text unless `textColor` is set, decorative unless given a `label`.
-- **UI gallery** (0051): `web` serves a development-only gallery at `/ui` (`apps/web/src/app/ui-gallery/`). Every new component, composite and layout adds a gallery page in the same change as its docs page.
+- **UI gallery** (0051, superseded by 0053): `web` still serves a development-only gallery at `/ui` until the docs app replaces it. Until then, a new component adds a gallery page; afterwards, it adds example files under `core/apps/docs/src/examples/`.
 - **Animation** (0048; built in `useAnimation`, used by every component): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
   - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
   - Changes to `show` mid-animation wait for the running animation to finish.
@@ -283,9 +283,9 @@ Claude implements and verifies that things compile. **The user does all browser 
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
 3. **Implement** following the conventions above.
 4. **Verify.** Everything must lint, type-check and build, and the docs check must pass (see [Commands](#7-commands)). Fix failures before handing off. Never silence a module-boundary error with an `eslint-disable` comment; fix the dependency, or raise it if the rules themselves seem wrong.
-5. **Update the docs and CLAUDE.md.** Write or update docs as the [Documentation protocol](#9-documentation-protocol) requires, and update CLAUDE.md if the work uncovered something worth persisting (see [section 10](#10-maintaining-this-file)).
+5. **Document it.** Update the manual for everything the change touched, as the [Documentation protocol](#9-documentation-protocol) requires. This isn't optional and isn't deferred: a change without its docs isn't done. Update CLAUDE.md too if the work uncovered something worth persisting (see [section 10](#10-maintaining-this-file)).
 6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
-7. **Hand off.** Report what changed, the branch and commit, the verification result, any docs and CLAUDE.md edits, and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
+7. **Hand off.** Report what changed, the branch and commit, the verification result, **which manual pages were added or updated** (and any CLAUDE.md edits), and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
 8. **Iterate.** If the user returns with feedback, repeat steps 3–7 on the same branch.
 9. **The user finishes.** Once the user is satisfied, they push the branch, open and merge the PR into `main` in the GitHub UI, then run `git checkout main && git pull`.
 
@@ -324,7 +324,7 @@ Check the docs from inside `docs/` (also part of verification):
 ```bash
 cd docs
 npm install
-npm run check   # frontmatter, file names, decision sections, cross-references, relative links
+npm run check   # frontmatter, section structure, decision sections and cross-references, links, component coverage
 ```
 
 **Environment gotchas**
@@ -353,43 +353,83 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **UI library:** theme, Container, Text and Icon are built. Remaining: the other components (divider, spinner, button, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
-- [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
-- [ ] **Docs sections:** only the UI reference is sectioned (`docs/reference/ui/`). The other reference pages are still flat and should be organised into sections (0049).
+- [ ] **Docs app** (0053, phase 2: `feat/docs-app`): build `core/apps/docs` (sidebar, Markdown rendered with UI components, live examples with code, highlighting/copy/expand, search, prev/next and VS Code edit links), move the `/ui` gallery demos into example files, and retire the gallery.
+- [ ] **Manual backfill** (0052, phase 3: `docs/manual-backfill`): write the missing Getting started, Architecture and Backend pages from what's already decided or built.
+- [ ] **Docs enforcement** (0052, phase 4: `chore/docs-enforcement`): extend the docs check to every lib, every env var in `envSchema`, and every embedded example file.
+- [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
 ---
 
 ## 9. Documentation protocol
 
-`docs/` is the running documentation library for the ecosystem. It will become the public docs on the Inithium marketing site, so write for a developer building on Inithium, not as notes to yourself. Docs live in the Inithium repo only: nothing in `docs/` or a plugin's `docs/` is ever copied into core, a client repo or an installed plugin.
+Inithium documents itself as it's built. `docs/` is a **front-to-back developer manual** for using Inithium, viewed in the docs app (`core/apps/docs`, 0053) with a sidebar, rendered pages and live examples. Write it for a developer using Inithium, not as notes to yourself. Nothing in `docs/` or a plugin's `docs/` ever reaches client repos or installed plugins (0052).
 
-### Where docs go
+**The rule: a change is not done until the manual describes it.** Docs are written in the same commit as the change and listed in the hand-off. There is no "document it later".
+
+### How the manual is organised
 
 | Folder | Contains |
 | --- | --- |
-| `docs/decisions/` | Decision records: one decision each, with Context, Decision, Alternatives considered and Consequences. |
-| `docs/guides/` | Task-oriented walkthroughs (how to do X, step by step). |
-| `docs/reference/` | Look-up pages: env vars, commands, libs, slots, conventions. |
-| `plugins/plugin-<name>/docs/` | The same three folders for one plugin. Decision ids are `"<name>-NNNN"` and `scope` is `plugin`. |
+| `docs/getting-started/` | What Inithium is, local setup, how work is done |
+| `docs/architecture/` | Core, plugins, sandbox, client repos, provisioning |
+| `docs/backend/` | The api and its libs: environment, database, auth, users, assets |
+| `docs/ui-library/` | Overview, Style props, then `theme/`, `animations/`, `components/`, `composites/`, `layouts/` |
+| `docs/plugins/` | How plugins work; each plugin's own manual lives in `plugins/plugin-<name>/docs/` |
+| `docs/reference/` | Look-up pages: commands, conventions, libs, routing and hosting |
+| `docs/decisions/` | Decision records (not shown in the docs app): Context, Decision, Alternatives considered, Consequences |
 
-Start from `docs/templates/`. Frontmatter is validated by the Zod schemas in `docs/tooling/docs.schema.mjs`; ids and dates are quoted strings.
+- Folders are sidebar sections and sub-folders are sub-sections. **Every section folder has an `index.md`** (its sidebar label and landing page).
+- **Every page has a frontmatter `order`**, unique among its siblings.
+- **New pages start from `docs/templates/`** (`page.md`, `component.md`, `decision.md`). Frontmatter is validated by `docs/tooling/docs.schema.mjs`; ids and dates are quoted strings.
+- Plugin docs use the same layout; decision ids are `"<name>-NNNN"` and `scope` is `plugin`.
 
-### When to write docs (in the same commit as the change)
+### What to update, for every change
 
-- **A decision is made** (by the user, or an open decision is settled): add an `accepted` decision record. Settling an open decision updates its `proposed` record to `accepted`.
-- **A decision changes:** add a new record that `supersedes` the old one, and set the old one to `superseded` with `supersededBy`. Never rewrite the body of an accepted record.
-- **A new open decision comes up:** add a `proposed` record and list it under [Open decisions](#open-decisions).
-- **Developer-facing behaviour changes** (an env var, command, lib, slot, route, convention or generator workaround): update the matching reference page and any guide whose steps changed. A new lib gets a row in `docs/reference/libs.md`.
-- **A UI component, composite or layout is added or changed:** write or update its own page, `docs/reference/ui/<layer>s/<kebab-name>.md`, from `docs/templates/component.md` (0049).
-  - Structure it like the template: a **Props at a glance** table; then one subsection per prop with its type, default and a JSX snippet showing every way to write it; then **Examples** as titled `### Example: …` blocks, each self-contained (imports included) so a docs site can render it live; then accessibility notes.
-  - Shared shapes live once on `reference/ui/style-props.md`; link to them rather than repeating them.
-  - The docs check fails if an exported component has no page, or a page doesn't match its export.
-- **A rule in CLAUDE.md changes:** update the docs that describe it.
+| The change… | Update in the same commit |
+| --- | --- |
+| Adds or changes a UI component, composite or layout | Its page, `docs/ui-library/<layer>s/<kebab-name>.md`, from `templates/component.md`; its examples (see below); the layer's `index.md` table; `style-props.md` if a shared shape changed |
+| Adds or changes a style prop, theme token or animation behaviour | `ui-library/style-props.md`, `ui-library/theme/` or `ui-library/animations/`, and every component page that lists it |
+| Adds or changes a lib | Its row and section in `reference/libs.md`, and the manual page for its area (e.g. `backend/`) |
+| Adds or changes an env var | `backend/environment-variables.md` (and `core/.env.example`) |
+| Adds or changes an API route, model or backend behaviour | The page for that area in `backend/` (create one if none fits) |
+| Adds or changes a command, port, URL or route | `reference/commands.md`, `reference/routing-and-hosting.md`, and `getting-started/` if setup changed |
+| Adds or changes a convention, tag or boundary rule | `reference/conventions.md` |
+| Changes how core, plugins, sandbox or client repos work | `architecture/` |
+| Makes a decision | An `accepted` record in `decisions/`. Settling an open decision updates its `proposed` record. |
+| Changes a decision | A new record that `supersedes` the old one; set the old one `superseded` with `supersededBy`. Never rewrite an accepted record's body. Repoint pages that cited the old one. |
+| Raises an open question | A `proposed` record, listed under [Open decisions](#open-decisions) |
+| Changes a rule in CLAUDE.md | The manual pages that describe it |
+
+If nothing fits, add a page to the section it belongs to; if no section fits, raise it.
+
+### Component pages and examples
+
+- **Structure** (from `templates/component.md`): Import; **Props at a glance** (every prop in one table, linked); **Props** (one subsection per prop with type, default and a JSX snippet showing every way to write it); **Examples**; **Accessibility**; **Notes**.
+- **Shared shapes** (colour value, sides, size, radius, variants) are defined once on `ui-library/style-props.md` and linked, never repeated.
+- **Examples:** each one is a titled `### Example: …` block with a one-line purpose and self-contained code (imports included).
+  - Once the docs app exists, every example is a real file, `core/apps/docs/src/examples/<section>/<name>.example.tsx` (linted and type-checked), and the page embeds it by path so the app renders it live with its source.
+  - Per-prop snippets stay as ordinary code blocks.
+- **Enforcement:** the docs check fails if an exported component has no page, or a page doesn't match its export.
+
+### What the docs check enforces
+
+- **Structure:**
+  - frontmatter;
+  - kebab-case file names;
+  - an `index.md` in every section;
+  - a unique `order` among siblings;
+  - no pages at the root.
+- **Decisions:** required sections in order, valid cross-references, and supersession recorded on both sides.
+- **Links:** every relative link resolves.
+- **Coverage:** a page for every exported UI component, at the right path.
+- **Coming in phase 4:** every lib, every `envSchema` variable, and every embedded example.
 
 ### Rules
 
 - Never invent rationale or alternatives. Ask the user for the why. If it isn't known, write "None recorded." or "Rationale not recorded."
-- CLAUDE.md holds the rules for working in this repo; docs hold the reasoning and the developer-facing explanation. Don't copy whole sections between them; link from docs to the decision that explains a rule.
+- Backfilled pages describe only what is already decided or built.
+- CLAUDE.md holds the rules for working in this repo; the manual holds the developer-facing explanation; decision records hold the reasoning. Don't copy whole sections between them; link to the decision that explains a rule.
 - Client-facing CMS documentation is out of scope; it's written per client.
 
 ---

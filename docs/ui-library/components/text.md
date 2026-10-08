@@ -3,7 +3,7 @@ title: Text
 description: All text content (headings, paragraphs, inline text and labels) with typography, colour, spacing and animation props.
 scope: core
 tags: [ui, component, typography]
-order: 2
+order: 3
 decisions: ["0042", "0044", "0045", "0046", "0048"]
 component:
   name: Text
@@ -55,7 +55,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 
 #### `as`
 
-The element to render ([0045](../../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'h1'`–`'h6'`, `'p'`, `'span'`, `'label'`. **Default:** `'p'`.
+The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'h1'`–`'h6'`, `'p'`, `'span'`, `'label'`. **Default:** `'p'`.
 
 ```tsx
 <Text>A paragraph</Text>                       // <p>
@@ -87,7 +87,7 @@ The text, which can include other components. **Type:** `ReactNode`.
 
 #### `fontFamily`
 
-One of the theme's two families ([Theme: fonts](../theme.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default.
+One of the theme's two families ([Theme: fonts](../theme/index.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default.
 
 ```tsx
 <Text fontFamily="display">Brand heading</Text>
@@ -222,7 +222,7 @@ Needs `shadow`. **Type:** `Variants<Colour>`.
 
 #### `animation`
 
-See [Animation](../animation.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
+See [Animation](../animations/index.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
 
 ```tsx
 <Text as="h1" animation={{ entrance: { name: 'fadeInDown', speed: 'fast' } }}>Welcome</Text>
@@ -232,7 +232,7 @@ See [Animation](../animation.md) for every animation name. **Type:** `{ entrance
 
 #### Runtime props
 
-`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animation.md#runtime-props)). Text can't stagger its children; use a Container's `stagger`.
+`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animations/index.md#runtime-props)). Text can't stagger its children; use a Container's `stagger`.
 
 ```tsx
 <Text show={saved} animation={{ entrance: { name: 'fadeIn' }, exit: { name: 'fadeOut' } }}>Saved</Text>

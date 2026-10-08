@@ -3,7 +3,7 @@ title: Style props
 description: The prop shapes every UI component shares, defined once and referenced by each component page.
 scope: core
 tags: [ui, props, colour, spacing, sizing]
-order: 3
+order: 1
 decisions: ["0034", "0035", "0036", "0040", "0042"]
 ---
 
@@ -11,11 +11,11 @@ decisions: ["0034", "0035", "0036", "0040", "0042"]
 
 Components are styled only through typed props. This page defines the shapes those props take; each component page lists which props it accepts and links back here.
 
-All style props are plain, serializable data, defined as Zod schemas in `@inithium/shared-contracts` ([0035](../../decisions/0035-define-style-props-as-serializable-zod-schemas.md)). Anything you can write in code can also be stored, e.g. in a page section.
+All style props are plain, serializable data, defined as Zod schemas in `@inithium/shared-contracts` ([0035](../decisions/0035-define-style-props-as-serializable-zod-schemas.md)). Anything you can write in code can also be stored, e.g. in a page section.
 
 ## Variants
 
-Every style prop takes either **a single value** or **a variant object** mapping variant keys to values ([0036](../../decisions/0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)). In type tables this is written `Variants<T>`.
+Every style prop takes either **a single value** or **a variant object** mapping variant keys to values ([0036](../decisions/0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)). In type tables this is written `Variants<T>`.
 
 ```tsx
 bgColor="primary"                                    // single value
@@ -48,7 +48,7 @@ bgColor={{
 
 ### Colour value
 
-A theme token or Tailwind colour ([0040](../../decisions/0040-colour-prop-values-and-properties.md)). Written `Colour` in type tables.
+A theme token or Tailwind colour ([0040](../decisions/0040-colour-prop-values-and-properties.md)). Written `Colour` in type tables.
 
 | Form | Example | Result |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ A theme token or Tailwind colour ([0040](../../decisions/0040-colour-prop-values
 
 ### Sides
 
-Pixel values per side ([0042](../../decisions/0042-size-and-space-in-pixel-numbers.md)). Written `Sides` in type tables. Used by `margin`, `padding`, `borderWidth` and Container's `position` offsets.
+Pixel values per side ([0042](../decisions/0042-size-and-space-in-pixel-numbers.md)). Written `Sides` in type tables. Used by `margin`, `padding`, `borderWidth` and Container's `position` offsets.
 
 ```tsx
 padding={{ all: 16 }}                 // every side
@@ -138,7 +138,7 @@ Every component accepts these. Component pages list them alongside their own pro
 | `borderStyle` | `Variants<BorderStyle>` | Border style |
 | `radius` | `Variants<Radius>` | Corner radius |
 | `shadow` | `Variants<ShadowSize>` | Shadow size |
-| `animation` | `Animation` | Entrance, exit and attention animations. See [Animation](animation.md). |
+| `animation` | `Animation` | Entrance, exit and attention animations. See [Animation](animations/index.md). |
 
 A prop you don't pass sets nothing, so the element keeps its default or inherited style.
 

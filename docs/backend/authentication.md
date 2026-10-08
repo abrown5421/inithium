@@ -3,7 +3,7 @@ title: Authentication
 description: Auth endpoints, cookies, roles and permissions, and how frontends and API routes use them.
 scope: core
 tags: [auth, security, roles, permissions]
-order: 6
+order: 2
 decisions: ["0020", "0022", "0023"]
 ---
 

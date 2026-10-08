@@ -26,7 +26,7 @@ Six tokens, each on an 11-step scale (50, 100, 200 … 900, 950), generated in O
 
 - The client's colour is exactly the 500 (brand tokens) or 100 (surface) step.
 - Every step is published as a CSS variable, `--color-<token>-<step>` (e.g. `--color-primary-200`).
-- Colour props use them through a [colour value](style-props.md#colour-value), e.g. `{ color: 'primary', intensity: 200 }`.
+- Colour props use them through a [colour value](../style-props.md#colour-value), e.g. `{ color: 'primary', intensity: 200 }`.
 - There are no status tokens (success, warning …). Use these six or Tailwind's colours.
 
 ## Surface roles
@@ -54,7 +54,7 @@ Two families ([0046](../../decisions/0046-theme-fonts-display-and-body.md)):
 | `display` | Branding, logo-style headings | Bruno Ace SC | 400 only | `--font-display` |
 | `body` | Everything else (the page default) | Merriweather Sans | 300–800 (variable) | `--font-body` |
 
-- Select a family with Text's [`fontFamily`](components/text.md) prop.
+- Select a family with Text's [`fontFamily`](../components/text.md) prop.
 - A heavier weight on `display` is synthesised by the browser.
 - Both defaults use the SIL Open Font License.
 - Clients will be able to replace either font by uploading their own once assets exist.

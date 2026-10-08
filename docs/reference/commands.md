@@ -3,8 +3,8 @@ title: Commands
 description: Commands for running, verifying and building core, plus known environment workarounds.
 scope: core
 tags: [nx, commands, tooling]
-order: 5
-decisions: ["0013", "0014"]
+order: 1
+decisions: ["0013", "0052"]
 ---
 
 # Commands
@@ -47,5 +47,5 @@ Nx 23 generators produce some outdated output. After generating a project:
 | --- | --- |
 | Nx can't find the workspace when run from VS Code | Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root. In Git Bash, from `core/`: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` |
 | The Nx daemon misbehaves | Run with `NX_DAEMON=false` |
-| `querySrv ECONNREFUSED` at startup | Use a standard `mongodb://` connection string locally. See [Environment variables](environment-variables.md#connection-strings). |
+| `querySrv ECONNREFUSED` at startup | Use a standard `mongodb://` connection string locally. See [Environment variables](../backend/environment-variables.md#connection-strings). |
 | Vite exits because a port is in use | Ports are fixed with `strictPort`. Stop whatever is using 5173 or 5174. |
