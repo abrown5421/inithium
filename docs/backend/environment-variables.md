@@ -3,7 +3,7 @@ title: Environment variables
 description: Every environment variable the api reads, its default and how it's validated.
 scope: core
 tags: [environment, config, mongodb, auth]
-order: 1
+order: 2
 decisions: ["0009", "0010", "0005", "0020", "0023"]
 ---
 
