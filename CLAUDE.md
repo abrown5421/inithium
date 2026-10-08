@@ -191,6 +191,13 @@ Boundary rules:
 - **Tokens live only in httpOnly cookies.** Frontend code never reads, stores or sends tokens; it calls the API through `@inithium/shared-data-access`, which refreshes the session on a `401`. The current user comes from `GET /api/auth/me`, not from the token.
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
+### UI library & theme
+Not built yet; the design is in progress (open questions in 0033). Decided so far:
+- **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
+- **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
+- **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
+- **Dark mode mirrors every scale** (50↔950 … 500 stays). Any UI (core, plugins, generated pages) must use token roles rather than fixed light-mode colours, so it flips without dark-mode-specific code.
+
 ### Profiles & assets
 Neither is built yet. When they are:
 - **Profile data** lives in a `profile` subdocument on the user, apart from auth fields. An avatar or banner is either a **generator recipe** (Dicebear for avatars, Trianglify for banners: style/options plus seed, rendered in the browser) or an **asset id**. It falls back to the generated image when there's no image or it fails to load. Never store a rendered placeholder.
@@ -308,6 +315,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
+- [ ] **UI library** (theme, components, composites, layouts) isn't built; its design is being settled (0030–0033).
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
@@ -378,4 +386,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): the shared prop system (how props become styles, serializable Zod props, states, breakpoints, `className`), one lib or four, colour prop details, the remaining prop families, the accessibility approach, presets, and what else the theme holds.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.

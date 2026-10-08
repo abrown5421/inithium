@@ -4,7 +4,7 @@ description: Naming, project tags and module-boundary rules for core, plugin and
 scope: ecosystem
 tags: [conventions, naming, nx, eslint]
 order: 4
-decisions: ["0012", "0007"]
+decisions: ["0012", "0007", "0031", "0032"]
 ---
 
 # Conventions
@@ -25,6 +25,22 @@ decisions: ["0012", "0007"]
 - **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `component`, `hook`. A new suffix is added to this list in the same change that first uses it.
 - **Unused parameters:** prefix a parameter with `_` when its position is required but its value isn't (e.g. `_req`, or `_next` in an Express error handler, which Express only recognises by its four parameters). ESLint ignores `_`-prefixed parameters.
 - Files whose names a tool requires (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep those names.
+
+## Theme colours
+
+The UI library isn't built yet, but these rules already apply to anything designed for it: core screens, plugin UIs and generated pages. See [0031](../decisions/0031-theme-colour-tokens-and-scales.md) and [0032](../decisions/0032-dark-mode-mirrors-the-theme-scales.md).
+
+- **Tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale.
+- **Surface roles:**
+
+  | Steps | Use for |
+  | --- | --- |
+  | 50–400 | Backgrounds |
+  | 500 | Borders and dividers |
+  | 600–950 | Text |
+
+  Any text step is readable on any background step, so pick by look, not by contrast checking.
+- **Dark mode mirrors every scale** (50↔950, 100↔900, 200↔800, 300↔700, 400↔600, 500 stays). Follow the roles above and UI flips correctly with no extra work. Don't use fixed colours (e.g. Tailwind `white` or `gray-900`) for anything that should follow the mode.
 
 ## Tags and module boundaries
 
