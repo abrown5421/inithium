@@ -355,7 +355,6 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **UI library:** theme, Container, Text and Icon are built. Remaining: the other components (divider, spinner, button, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
-- [ ] **Manual backfill** (0052, phase 3: `docs/manual-backfill`): write the missing Getting started, Architecture and Backend pages from what's already decided or built.
 - [ ] **Docs enforcement** (0052, phase 4: `chore/docs-enforcement`): extend the docs check to every lib, every env var in `envSchema`, and every embedded example file.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
