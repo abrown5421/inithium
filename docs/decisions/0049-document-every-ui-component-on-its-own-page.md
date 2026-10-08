@@ -1,12 +1,13 @@
 ---
 id: "0049"
 title: Document every UI component, composite and layout on its own reference page, enforced by the docs check
-status: accepted
+status: superseded
 date: "2026-10-08"
 scope: core
 tags: [docs, ui, components]
 related: ["0014", "0030", "0035"]
 supersedes: []
+supersededBy: "0052"
 ---
 
 # 0049. Document every UI component, composite and layout on its own reference page, enforced by the docs check

@@ -28,7 +28,7 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 
 ### `@inithium/api-config`
 
-The only code that reads `process.env`. `loadEnv()` validates the environment once against `envSchema`, caches the result and returns it typed as `Env`. It throws a readable error listing every invalid variable. See [Environment variables](environment-variables.md).
+The only code that reads `process.env`. `loadEnv()` validates the environment once against `envSchema`, caches the result and returns it typed as `Env`. It throws a readable error listing every invalid variable. See [Environment variables](../backend/environment-variables.md).
 
 ### `@inithium/api-database`
 
@@ -45,7 +45,7 @@ The `users` collection. `UserModel` stores `email` (unique, lowercased), `passwo
 
 ### `@inithium/api-auth`
 
-Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` middleware, `getAuth()` for reading the signed-in user inside a protected route, and `seedDevUser()`, which the api calls after connecting. Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](authentication.md).
+Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` middleware, `getAuth()` for reading the signed-in user inside a protected route, and `seedDevUser()`, which the api calls after connecting. Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](../backend/authentication.md).
 
 ### `@inithium/shared-contracts`
 
@@ -53,7 +53,7 @@ The Zod schemas shared by the api and both frontends, with inferred types: `role
 
 ### `@inithium/shared-ui-theme` and `@inithium/shared-ui-components`
 
-The first two layers of the UI library. See the [UI library](ui/overview.md) section, with a page per component.
+The first two layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
 
 ### `@inithium/shared-permissions`
 

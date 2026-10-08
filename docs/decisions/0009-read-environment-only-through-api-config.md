@@ -28,4 +28,4 @@ None recorded. The database-name rule is preventive; no data had been lost to th
 ## Consequences
 
 - A misconfigured environment fails at startup with a readable list of problems.
-- See [Environment variables](../reference/environment-variables.md) for the current variables.
+- See [Environment variables](../backend/environment-variables.md) for the current variables.

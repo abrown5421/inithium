@@ -1,12 +1,13 @@
 ---
 id: "0051"
 title: Browser-test the UI library in a development-only gallery at /ui
-status: accepted
+status: superseded
 date: "2026-10-08"
 scope: core
 tags: [ui, components, testing, local-development]
 related: ["0030", "0049"]
 supersedes: []
+supersededBy: "0053"
 ---
 
 # 0051. Browser-test the UI library in a development-only gallery at /ui

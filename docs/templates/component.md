@@ -15,7 +15,7 @@ component:
 # ComponentName
 
 What it is, what it's for, and when to reach for something else instead. Save this file as
-reference/ui/<layer>s/<kebab-name>.md (e.g. reference/ui/components/date-picker.md); the docs check
+ui-library/<layer>s/<kebab-name>.md (e.g. ui-library/components/date-picker.md); the docs check
 requires a page for every exported component, composite and layout.
 
 ## Import

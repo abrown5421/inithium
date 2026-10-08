@@ -3,7 +3,7 @@ title: Icon
 description: A Lucide icon by name, sized in pixels, coloured by the surrounding text, decorative unless labelled.
 scope: core
 tags: [ui, component, icons]
-order: 3
+order: 2
 decisions: ["0042", "0048", "0050"]
 component:
   name: Icon
@@ -14,7 +14,7 @@ component:
 
 # Icon
 
-Icon renders any of [Lucide's icons](https://lucide.dev/icons) by name ([0050](../../../decisions/0050-render-icons-from-lucide-by-name.md)). It takes the colour of the text around it, is sized in pixels, and is hidden from screen readers unless you give it a `label`. Like every component, it also accepts the shared style props and the animation prop, so it can be a chip, a badge or an animated indicator.
+Icon renders any of [Lucide's icons](https://lucide.dev/icons) by name ([0050](../../decisions/0050-render-icons-from-lucide-by-name.md)). It takes the colour of the text around it, is sized in pixels, and is hidden from screen readers unless you give it a `label`. Like every component, it also accepts the shared style props and the animation prop, so it can be a chip, a badge or an animated indicator.
 
 ## Import
 
@@ -161,7 +161,7 @@ Needs `shadow`. **Type:** `Variants<Colour>`.
 
 #### `animation`
 
-See [Animation](../animation.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
+See [Animation](../animations/index.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
 
 ```tsx
 <Icon name="rocket" animation={{ entrance: { name: 'zoomIn', speed: 'fast' } }} />
@@ -171,7 +171,7 @@ See [Animation](../animation.md) for every animation name. **Type:** `{ entrance
 
 #### Runtime props
 
-`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animation.md#runtime-props)).
+`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animations/index.md#runtime-props)).
 
 ```tsx
 <Icon name="check" textColor="emerald" show={saved} animation={{ entrance: { name: 'bounceIn' }, exit: { name: 'fadeOut' } }} />

@@ -37,7 +37,7 @@ Then fill in:
 - `JWT_ACCESS_SECRET`: generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`.
 - `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD`: the dev account the api creates on first startup. This is the account you sign in to the CMS with.
 
-See [Environment variables](../reference/environment-variables.md).
+See [Environment variables](../backend/environment-variables.md).
 
 ## 3. Start the apps
 
@@ -51,7 +51,7 @@ npx nx serve cms   # http://localhost:5174/cms/
 
 The api logs `[ db ] connected to "<database>"`, then `[ seed ] created dev user <email>` (first startup only), then `[ ready ] http://localhost:3000`. If it can't connect or the environment is invalid, it logs `[ startup failed ]` and exits.
 
-Open http://localhost:5174/cms/. You'll be sent to the sign-in page; sign in with `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD`. See [Authentication](../reference/authentication.md).
+Open http://localhost:5174/cms/. You'll be sent to the sign-in page; sign in with `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD`. See [Authentication](../backend/authentication.md).
 
 The Vite dev servers proxy `/api` to port 3000, so both frontends reach the API with relative URLs, the same way they will in production. See [Routing and hosting](../reference/routing-and-hosting.md).
 

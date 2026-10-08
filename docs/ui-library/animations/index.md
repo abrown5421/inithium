@@ -1,13 +1,13 @@
 ---
-title: Animation
+title: Animations
 description: The animation prop, the show/replay runtime props, stagger, and every available animation.
 scope: core
 tags: [ui, animation, props]
-order: 4
+order: 3
 decisions: ["0048"]
 ---
 
-# Animation
+# Animations
 
 Every component takes an `animation` object describing its entrance, exit and attention animations, plus runtime props that control when they play ([0048](../../decisions/0048-animate-components-with-animate-css-through-an-animation-prop.md)). Animations come from [animate.css](https://animate.style/) 4.1.1.
 

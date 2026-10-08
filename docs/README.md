@@ -4,14 +4,20 @@ The documentation library for the Inithium ecosystem: core, plugins and the tool
 
 ```
 docs/
-  decisions/   Decision records: why the ecosystem works the way it does (NNNN-kebab-title.md)
-  guides/      Task-oriented walkthroughs: how to do something step by step
-  reference/   Look-up pages: env vars, commands, libs, conventions
-  templates/   Starting points for new files (not validated): decision, page, component
-  tooling/     The frontmatter schemas and the checker
+  getting-started/   ┐
+  architecture/      │
+  backend/           │ the manual: one folder per section, sub-folders are sub-sections,
+  ui-library/        │ every folder has an index.md (its sidebar label and landing page)
+  plugins/           │
+  reference/         ┘
+  decisions/         Decision records: why the ecosystem works the way it does (NNNN-kebab-title.md)
+  templates/         Starting points for new files (not validated): decision, page, component
+  tooling/           The frontmatter schemas and the checker
 ```
 
-Plugin documentation is colocated with each plugin, in `plugins/plugin-<name>/docs/`, using the same `decisions/`, `guides/` and `reference/` layout. Plugin decision ids are namespaced: `"<plugin>-0001"`.
+The manual is viewed in the docs app (`core/apps/docs`), which builds its sidebar from these folders and each page's `title` and `order` (decisions [0052](decisions/0052-keep-a-self-documenting-developer-manual.md) and [0053](decisions/0053-view-the-manual-in-a-docs-app.md)).
+
+Plugin documentation is colocated with each plugin, in `plugins/plugin-<name>/docs/`, using the same layout. Plugin decision ids are namespaced: `"<plugin>-0001"`.
 
 ## Writing docs
 

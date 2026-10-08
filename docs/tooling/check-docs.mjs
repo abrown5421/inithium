@@ -1,9 +1,9 @@
-// Validates the documentation library: frontmatter, file names, required sections,
-// cross-references between decisions, and relative links.
+// Validates the documentation library: frontmatter, file names, the manual's section structure, decision
+// record sections and cross-references, relative links, and that every UI component has a page.
 // Usage (from docs/): npm run check
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { decisionSchema, decisionSections, pageSchema } from './docs.schema.mjs';
@@ -15,7 +15,10 @@ const pluginsDir = join(repoRoot, 'plugins');
 const errors = [];
 const fail = (file, message) => errors.push(`${relative(repoRoot, file).replaceAll('\\', '/')}: ${message}`);
 
-/** Each root holds decisions/, guides/ and reference/. Plugin roots are plugins/plugin-<name>/docs/. */
+/**
+ * Each root holds decisions/ plus the manual's section folders (decision 0052). Plugin roots are
+ * plugins/plugin-<name>/docs/ with the same layout.
+ */
 function findRoots() {
   const roots = [{ dir: docsDir, plugin: null }];
   if (existsSync(pluginsDir)) {
@@ -76,17 +79,17 @@ let fileCount = 0;
 for (const root of findRoots()) {
   const idPrefix = root.plugin ? `${root.plugin}-` : '';
   const allowedScopes = root.plugin ? ['plugin'] : ['ecosystem', 'core'];
-  const kinds = { decisions: 'decision', guides: 'page', reference: 'page' };
 
   for (const file of listMarkdown(root.dir)) {
     const rel = relative(root.dir, file).replaceAll('\\', '/');
     const [folder] = rel.split('/');
-    if (rel === 'README.md' || folder === 'templates' || folder === 'node_modules') continue;
+    if (rel === 'README.md' || ['templates', 'tooling', 'node_modules'].includes(folder)) continue;
 
     fileCount++;
-    const kind = kinds[folder];
-    if (!kind) {
-      fail(file, 'docs must live in decisions/, guides/ or reference/');
+    // decisions/ holds decision records; every other folder is a section of the manual.
+    const kind = folder === 'decisions' ? 'decision' : 'page';
+    if (kind === 'page' && !rel.includes('/')) {
+      fail(file, 'manual pages must live in a section folder (e.g. backend/), not at the root');
       continue;
     }
 
@@ -122,8 +125,33 @@ for (const root of findRoots()) {
       const data = validate(file, pageSchema, doc.data);
       if (!data) continue;
       if (!allowedScopes.includes(data.scope)) fail(file, `scope must be one of: ${allowedScopes.join(', ')}`);
-      pages.push({ file, data });
+      pages.push({ file, data, rel });
     }
+  }
+}
+
+// The manual's structure: every section folder has an index.md (its sidebar label and landing page), and every
+// page has an order that is unique among its siblings, so the sidebar is deterministic.
+const sectionDirs = new Set(pages.map(({ file }) => dirname(file)));
+for (const dir of sectionDirs) {
+  if (!existsSync(join(dir, 'index.md'))) fail(join(dir, 'index.md'), 'every section folder needs an index.md');
+}
+const siblings = new Map();
+for (const page of pages) {
+  if (page.data.order === undefined) fail(page.file, 'frontmatter order is required: the position in the sidebar');
+  // A section's index.md sits among its parent folder's pages.
+  const isIndex = page.file.endsWith(`${sep}index.md`);
+  const parent = isIndex ? dirname(dirname(page.file)) : dirname(page.file);
+  if (!siblings.has(parent)) siblings.set(parent, []);
+  siblings.get(parent).push(page);
+}
+for (const group of siblings.values()) {
+  const seen = new Map();
+  for (const page of group) {
+    if (page.data.order === undefined) continue;
+    const other = seen.get(page.data.order);
+    if (other) fail(page.file, `order ${page.data.order} is also used by ${relative(repoRoot, other.file).replaceAll(sep, '/')}`);
+    else seen.set(page.data.order, page);
   }
 }
 
@@ -174,8 +202,8 @@ const componentPages = new Map();
 for (const { file, data } of pages) {
   if (!data.component) continue;
   const { name, layer } = data.component;
-  const expected = join(docsDir, 'reference', 'ui', `${layer}s`, `${kebab(name)}.md`);
-  if (resolve(file) !== expected) fail(file, `a ${layer} page must be reference/ui/${layer}s/${kebab(name)}.md`);
+  const expected = join(docsDir, 'ui-library', `${layer}s`, `${kebab(name)}.md`);
+  if (resolve(file) !== expected) fail(file, `a ${layer} page must be ui-library/${layer}s/${kebab(name)}.md`);
   if (componentPages.has(name)) fail(file, `duplicate page for component "${name}"`);
   componentPages.set(name, { file, data });
 }
@@ -183,7 +211,7 @@ const exported = exportedUi();
 for (const item of exported) {
   const page = componentPages.get(item.name);
   if (!page) {
-    fail(item.index, `exports ${item.layer} "${item.name}" but docs/reference/ui/${item.layer}s/${kebab(item.name)}.md doesn't exist (see docs/templates/component.md)`);
+    fail(item.index, `exports ${item.layer} "${item.name}" but docs/ui-library/${item.layer}s/${kebab(item.name)}.md doesn't exist (see docs/templates/component.md)`);
     continue;
   }
   if (page.data.component.layer !== item.layer) fail(page.file, `component.layer must be "${item.layer}"`);

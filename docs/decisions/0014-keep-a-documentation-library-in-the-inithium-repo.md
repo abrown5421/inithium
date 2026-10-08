@@ -1,12 +1,13 @@
 ---
 id: "0014"
 title: Keep a running documentation library in the Inithium repo
-status: accepted
+status: superseded
 date: "2026-10-07"
 scope: ecosystem
 tags: [documentation, process]
 related: ["0001"]
 supersedes: []
+supersededBy: "0052"
 ---
 
 # 0014. Keep a running documentation library in the Inithium repo
