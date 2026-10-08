@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { animationSchema } from './animation.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
+import { switchLabelPlacementSchema } from './switch.schema';
 import {
   buttonStylePropsSchema,
   checkboxStylePropsSchema,
@@ -9,6 +10,7 @@ import {
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
+  switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
 
@@ -66,6 +68,23 @@ export const loaderPropsSchema = loaderStylePropsSchema
   .extend({
     /** What's loading, announced to screen readers. Default 'Loading'. */
     label: z.string().min(1).optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const switchPropsSchema = switchStylePropsSchema
+  .extend({
+    /** Text beside the switch; clicking it toggles the switch. */
+    label: z.string().min(1).optional(),
+    /** Which side the label sits on. Default 'end' (after the switch). */
+    labelPlacement: switchLabelPlacementSchema.optional(),
+    /** A line of guidance under the label. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    /** A Lucide icon on the thumb while on. */
+    checkedIcon: iconNameSchema.optional(),
+    /** A Lucide icon on the thumb while off. */
+    uncheckedIcon: iconNameSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();
