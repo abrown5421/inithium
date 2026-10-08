@@ -46,7 +46,13 @@ npm run check
 ```
 
 - **Lint** includes the module-boundary rules. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.
-- **The docs check** validates the manual's structure, links and decision records. It fails if a UI component has no page.
+- **The docs check** validates the manual's structure, links and decision records, and fails when the docs fall behind the code:
+  - a UI component without a page;
+  - a core lib missing from [Core libs](../reference/libs.md);
+  - an env var missing from [Environment variables](../backend/environment-variables.md) or `core/.env.example`;
+  - an embedded example that doesn't exist, or an example file that isn't embedded anywhere.
+
+  It also fails when the docs describe a lib or env var that no longer exists.
 
 ## Documenting your change
 

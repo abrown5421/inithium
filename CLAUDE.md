@@ -326,7 +326,7 @@ Check the docs from inside `docs/` (also part of verification):
 ```bash
 cd docs
 npm install
-npm run check   # frontmatter, section structure, decision sections and cross-references, links, component coverage
+npm run check   # structure, frontmatter, decisions, links, and coverage of components, libs, env vars and examples
 ```
 
 **Environment gotchas**
@@ -355,7 +355,6 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **UI library:** theme, Container, Text and Icon are built. Remaining: the other components (divider, spinner, button, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
-- [ ] **Docs enforcement** (0052, phase 4: `chore/docs-enforcement`): extend the docs check to every lib, every env var in `envSchema`, and every embedded example file.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
@@ -428,8 +427,11 @@ If nothing fits, add a page to the section it belongs to; if no section fits, ra
   - no pages at the root.
 - **Decisions:** required sections in order, valid cross-references, and supersession recorded on both sides.
 - **Links:** every relative link resolves.
-- **Coverage:** a page for every exported UI component, at the right path.
-- **Coming in phase 4:** every lib, every `envSchema` variable, and every embedded example.
+- **Coverage:**
+  - a page for every exported UI component, composite and layout, at the right path;
+  - every core lib listed in `reference/libs.md`, and no lib listed that doesn't exist;
+  - every `envSchema` variable in the `backend/environment-variables.md` table and in `core/.env.example`, and no variable documented that isn't in the schema;
+  - every embedded `example` file exists and default-exports its component, and every example file is embedded somewhere.
 
 ### Rules
 

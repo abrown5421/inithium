@@ -33,6 +33,8 @@ npm install
 npm run check
 ```
 
+It validates the manual's structure, frontmatter, links and decision records. It also checks coverage: every UI component has a page, every core lib and env var is documented, and every live example exists and is embedded. See [Working on Inithium](../getting-started/working-on-inithium.md#verifying).
+
 ## After running a generator
 
 Nx 23 generators produce some outdated output. After generating a project:
