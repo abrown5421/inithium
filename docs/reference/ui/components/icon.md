@@ -22,106 +22,255 @@ Icon renders any of [Lucide's icons](https://lucide.dev/icons) by name ([0050](.
 import { Icon, type IconName } from '@inithium/shared-ui-components';
 ```
 
-## Basic usage
+## Props at a glance
 
-```tsx
-<Icon name="search" />
-<Icon name="trash-2" size={20} textColor="rose" label="Delete" />
-```
+Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are defined on [Style props](../style-props.md). Only `name` is required.
 
-Renders a `<span>` sized to the icon, containing Lucide's `<svg>`.
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| [`name`](#name) | `IconName` | **required** | Lucide icon name |
+| [`size`](#size) | `Variants<number>` | `24` | Width and height, px |
+| [`strokeWidth`](#strokewidth) | `number` | `2` | Line thickness |
+| [`label`](#label) | `string` | none | Announce to screen readers |
+| [`textColor`](#textcolor) | `Variants<Colour>` | inherited | Icon colour |
+| [`bgColor`](#bgcolor) | `Variants<Colour>` | none | Background |
+| [`borderColor`](#bordercolor) | `Variants<Colour>` | none | Border colour |
+| [`shadowColor`](#shadowcolor) | `Variants<Colour>` | black | Shadow colour |
+| [`margin`, `padding`](#margin-and-padding) | `Variants<Sides>` | none | Spacing, px |
+| [`width`, `height` and limits](#width-height-and-limits) | `Variants<Size>` | from `size` | Prefer `size` |
+| [`borderWidth`, `borderStyle`, `radius`, `shadow`](#borders-and-shadow) | | none | Borders and shadow |
+| [`animation`](#animation) | `Animation` | none | Animations |
+| [`show`, `replay`, `onEntranceEnd`, `onExitEnd`](#runtime-props) | | | Runtime animation control |
+| [HTML attributes and `ref`](#html-attributes-and-ref) | | | `id`, `title`, events, `ref` |
 
 ## Props
 
-Type names such as `Colour`, `Sides`, `Radius` and `Variants<T>` are defined on [Style props](../style-props.md). Unless noted, every prop is optional.
-
 ### Icon
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `name` | `IconName` | **required** | A Lucide icon name in kebab-case, e.g. `'arrow-right'`, `'circle-check'`. Browse them at [lucide.dev/icons](https://lucide.dev/icons). TypeScript only accepts real names. |
-| `size` | `Variants<number>` | `24` | Width and height in px, e.g. `{ base: 20, md: 32 }`. |
-| `strokeWidth` | `number` | `2` | Line thickness, in Lucide's 24-unit grid (so it scales with `size`). |
-| `label` | `string` | none | Announces the icon to screen readers as an image with this text. Without it, the icon is decorative and hidden from them. |
+#### `name`
+
+A Lucide icon name in kebab-case. Browse them at [lucide.dev/icons](https://lucide.dev/icons). TypeScript only accepts real names. **Type:** `IconName`. **Required.**
+
+```tsx
+<Icon name="search" />
+<Icon name="arrow-right" />
+<Icon name="circle-check" />
+
+// From stored data (e.g. chosen in the CMS):
+const stored: string = section.icon;
+<Icon name={stored as IconName} />
+```
+
+#### `size`
+
+Width and height together, in px. **Type:** `Variants<number>`. **Default:** `24`.
+
+```tsx
+<Icon name="star" size={16} />
+<Icon name="star" size={48} />
+<Icon name="star" size={{ base: 20, md: 32 }} />     // 32px from 768px
+```
+
+#### `strokeWidth`
+
+Line thickness in Lucide's 24-unit grid, so it scales with `size`. **Type:** `number`. **Default:** `2`.
+
+```tsx
+<Icon name="circle-check" size={48} strokeWidth={1} />    // thin
+<Icon name="circle-check" strokeWidth={3} />              // bold
+```
+
+#### `label`
+
+Makes the icon announce itself to screen readers as an image with this text. Without it, the icon is decorative and hidden from them. **Type:** `string`.
+
+```tsx
+<Icon name="mail" label="Unread messages" />    // announced
+<Icon name="mail" />                            // decorative (aria-hidden)
+```
 
 ### Colour
 
-| Prop | Type | Description |
-| --- | --- | --- |
-| `textColor` | `Variants<Colour>` | The icon's colour. **Default: inherited** from the surrounding text. See [Colour value](../style-props.md#colour-value). |
-| `bgColor` | `Variants<Colour>` | A background behind the icon (for chips and badges). |
-| `borderColor` | `Variants<Colour>` | Border colour (needs `borderWidth`). |
-| `shadowColor` | `Variants<Colour>` | Shadow colour (needs `shadow`). |
+All colour props take a [colour value](../style-props.md#colour-value) and [variant keys](../style-props.md#variants).
 
-### Spacing, sizing, borders and shadow
+#### `textColor`
 
-| Prop | Type | Description |
-| --- | --- | --- |
-| `margin`, `padding` | `Variants<Sides>` | px. Padding adds space around the icon inside its background. See [Sides](../style-props.md#sides). |
-| `width`, `height`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight` | `Variants<Size>` | Prefer `size`. If you set `size`, it overrides `width` and `height`; if you set only `width` or `height`, the default size isn't applied. |
-| `borderWidth` | `Variants<Sides>` | Border width per side, px. |
-| `borderStyle` | `Variants<BorderStyle>` | See [Border style](../style-props.md#border-style). |
-| `radius` | `Variants<Radius>` | e.g. `{ all: 999 }` for a circular chip. |
-| `shadow` | `Variants<ShadowSize>` | See [Shadow size](../style-props.md#shadow-size). |
+The icon's colour. **Type:** `Variants<Colour>`. **Default:** inherited from the surrounding text.
+
+```tsx
+<Text textColor="primary"><Icon name="info" /> primary, inherited</Text>
+<Icon name="heart" textColor="rose" />
+<Icon name="heart" textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'rose', intensity: 500 } }} />
+```
+
+#### `bgColor`
+
+A background behind the icon, usually with `padding` and `radius`. **Type:** `Variants<Colour>`.
+
+```tsx
+<Icon name="check" padding={{ all: 8 }} radius={{ all: 999 }} bgColor={{ color: 'emerald', intensity: 100 }} />
+```
+
+#### `borderColor`
+
+Needs `borderWidth`. **Type:** `Variants<Colour>`.
+
+```tsx
+<Icon name="x" padding={{ all: 6 }} radius={{ all: 8 }} borderWidth={{ all: 1 }} borderColor="rose" />
+```
+
+#### `shadowColor`
+
+Needs `shadow`. **Type:** `Variants<Colour>`.
+
+```tsx
+<Icon name="sparkles" padding={{ all: 8 }} radius={{ all: 999 }} shadow="lg" shadowColor={{ color: 'accent', intensity: 500, opacity: 50 }} />
+```
+
+### Spacing
+
+#### `margin` and `padding`
+
+[Sides](../style-props.md#sides) in px. Padding adds space around the icon inside its background; the icon itself stays at `size`. **Type:** `Variants<Sides>`.
+
+```tsx
+<Icon name="info" margin={{ right: 6 }} />
+<Icon name="bell" size={20} padding={{ all: 10 }} bgColor={{ color: 'surface', intensity: 200 }} radius={{ all: 999 }} />
+```
+
+### Sizing
+
+#### `width`, `height` and limits
+
+`width`, `height`, `minWidth`, `maxWidth`, `minHeight`, `maxHeight` take a [size](../style-props.md#size). **Prefer `size`.** If you set `size`, it overrides `width` and `height`; if you set only `width` or `height`, the default 24px isn't applied. **Type:** `Variants<Size>`.
+
+```tsx
+<Icon name="image" width={64} height={40} />    // non-square box; the icon fits inside it
+```
+
+### Borders and shadow
+
+`borderWidth` ([sides](../style-props.md#sides)), `borderStyle` ([border style](../style-props.md#border-style)), `radius` ([radius](../style-props.md#radius)) and `shadow` ([shadow size](../style-props.md#shadow-size)), each with variant keys.
+
+```tsx
+<Icon name="plus" padding={{ all: 8 }} radius={{ all: 8 }} borderWidth={{ all: 1 }} borderStyle="dashed" />
+<Icon name="star" padding={{ all: 8 }} radius={{ all: 999 }} shadow={{ base: 'sm', hover: 'lg' }} />
+```
 
 ### Animation
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `animation` | `{ entrance?, exit?, attention? }` | none | See [Animation](../animation.md). |
-| `show` | `boolean` | `true` | `false` plays the exit, then unmounts the icon. Runtime only. |
-| `replay` | any | none | Replays the attention animation when it changes. Runtime only. |
-| `onEntranceEnd`, `onExitEnd` | `() => void` | none | Called when the entrance or exit finishes. Runtime only. |
+#### `animation`
+
+See [Animation](../animation.md) for every animation name. **Type:** `{ entrance?, exit?, attention? }`.
+
+```tsx
+<Icon name="rocket" animation={{ entrance: { name: 'zoomIn', speed: 'fast' } }} />
+<Icon name="heart" animation={{ attention: { name: 'heartBeat', repeat: 'infinite' } }} />
+<Icon name="bell" animation={{ attention: { name: 'swing' } }} replay={notificationCount} />
+```
+
+#### Runtime props
+
+`show`, `replay`, `onEntranceEnd` and `onExitEnd` work as on every component ([Animation: runtime props](../animation.md#runtime-props)).
+
+```tsx
+<Icon name="check" textColor="emerald" show={saved} animation={{ entrance: { name: 'bounceIn' }, exit: { name: 'fadeOut' } }} />
+```
 
 ### HTML attributes and `ref`
 
 Other attributes (`id`, `title`, `data-*`, event handlers) go to the `<span>`, and `ref` receives it. There is no `className`, `style` or `children`.
 
-## Styling examples
-
-**Inherit the text colour** (the default):
-
 ```tsx
-<Text textColor="primary">
-  <Icon name="info" size={18} /> Primary text, primary icon
-</Text>
+<Icon name="circle-help" title="Help" data-testid="help-icon" onClick={openHelp} />
 ```
 
-**Change colour on hover:**
+## Examples
+
+### Example: Icon beside text
+
+An icon that inherits its colour from the text and centres on the line.
 
 ```tsx
-<Icon name="heart" textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'rose', intensity: 500 } }} />
+import { Icon, Text } from '@inithium/shared-ui-components';
+
+export function ExampleInlineIcon() {
+  return (
+    <Text textColor="primary">
+      <Icon name="info" size={18} margin={{ right: 6 }} />
+      Your changes are saved automatically.
+    </Text>
+  );
+}
 ```
 
-**A status chip:**
+### Example: Status chips
+
+Coloured circular and square chips built from Icon's own style props.
 
 ```tsx
-<Icon name="check" size={20} padding={{ all: 8 }} radius={{ all: 999 }}
-  bgColor={{ color: 'emerald', intensity: 100 }} textColor={{ color: 'emerald', intensity: 700 }} />
+import { Container, Icon } from '@inithium/shared-ui-components';
+
+export function ExampleStatusChips() {
+  return (
+    <Container flex={{ gap: 12 }}>
+      <Icon name="check" size={20} padding={{ all: 8 }} radius={{ all: 999 }} bgColor={{ color: 'emerald', intensity: 100 }} textColor={{ color: 'emerald', intensity: 700 }} />
+      <Icon name="triangle-alert" size={20} padding={{ all: 8 }} radius={{ all: 8 }} bgColor={{ color: 'amber', intensity: 100 }} textColor={{ color: 'amber', intensity: 700 }} />
+      <Icon name="x" size={20} padding={{ all: 8 }} radius={{ all: 8 }} borderWidth={{ all: 1 }} borderColor="rose" textColor="rose" />
+    </Container>
+  );
+}
 ```
 
-**Responsive size:**
+### Example: Feature list
+
+A list whose items each start with a check icon.
 
 ```tsx
-<Icon name="star" size={{ base: 20, md: 40 }} />
+import { Container, Icon, Text } from '@inithium/shared-ui-components';
+
+export function ExampleFeatureList() {
+  return (
+    <Container as="ul" flex={{ direction: 'column', gap: 8 }}>
+      {['Unlimited pages', 'Custom domain', 'Email support'].map((feature) => (
+        <Container as="li" key={feature} flex={{ align: 'center', gap: 8 }}>
+          <Icon name="circle-check" size={20} textColor="secondary" />
+          <Text as="span">{feature}</Text>
+        </Container>
+      ))}
+    </Container>
+  );
+}
 ```
 
-**A thin, large icon:**
+### Example: Labelled status indicator
+
+An icon that carries meaning on its own, so it gets a label.
 
 ```tsx
-<Icon name="circle-check" size={48} strokeWidth={1} />
+import { Icon } from '@inithium/shared-ui-components';
+
+export function ExampleUnread({ unread }: { unread: boolean }) {
+  return unread ? <Icon name="mail" label="Unread messages" textColor="accent" /> : null;
+}
 ```
 
-**A beating heart:**
+### Example: Notification bell that rings on new messages
+
+The attention animation replays whenever the count changes.
 
 ```tsx
-<Icon name="heart" textColor="rose" animation={{ attention: { name: 'heartBeat', repeat: 'infinite' } }} />
+import { Icon } from '@inithium/shared-ui-components';
+
+export function ExampleBell({ count }: { count: number }) {
+  return <Icon name="bell" label={`${count} notifications`} animation={{ attention: { name: 'swing' } }} replay={count} />;
+}
 ```
 
 ## Accessibility
 
 - **Decorative by default:** the icon is `aria-hidden`. That's right when text next to it already says the same thing, e.g. a "Delete" button with a trash icon.
-- **Give it a `label` when it carries meaning on its own,** e.g. an icon-only status indicator: `<Icon name="mail" label="Unread messages" />`. It's then announced as an image.
+- **Give it a `label` when it carries meaning on its own,** e.g. an icon-only status indicator. It's then announced as an image.
 - An icon-only *button* will be labelled by the Button component, not by Icon.
 - Don't rely on colour alone to convey meaning; pair a coloured icon with text or a label.
 
