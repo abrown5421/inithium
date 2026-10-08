@@ -221,6 +221,76 @@ for (const [name, { file }] of componentPages) {
   if (!exported.some((item) => item.name === name)) fail(file, `documents "${name}", which no UI lib exports`);
 }
 
+// Coverage (decision 0052): every core lib, env var and live example is documented, and the docs describe
+// nothing that no longer exists.
+const coreDir = join(repoRoot, 'core');
+const readText = (path) => (existsSync(path) ? readFileSync(path, 'utf8').replace(/\r\n/g, '\n') : null);
+const manualPages = pages.filter((page) => !page.file.includes(`${sep}plugins${sep}plugin-`));
+const pageText = (relPath) => readText(join(docsDir, relPath));
+
+// Libs: every core lib's import path appears in reference/libs.md, and every lib listed there exists.
+const libsPage = pageText('reference/libs.md');
+const tsconfig = readText(join(coreDir, 'tsconfig.base.json'));
+if (libsPage && tsconfig) {
+  const paths = JSON.parse(tsconfig).compilerOptions?.paths ?? {};
+  // Installed plugins and client code are documented by the plugin and the client, not by core.
+  const coreLibs = Object.entries(paths)
+    .filter(([, [target]]) => !/libs\/(plugins|client)\//.test(target))
+    .map(([alias]) => alias);
+  const libsFile = join(docsDir, 'reference', 'libs.md');
+  for (const alias of coreLibs) {
+    if (!libsPage.includes(`\`${alias}\``)) fail(libsFile, `lib ${alias} isn't documented (add it to the table and give it a section)`);
+  }
+  for (const [, alias] of libsPage.matchAll(/^\| `(@inithium\/[a-z0-9-]+)` \|/gm)) {
+    if (!coreLibs.includes(alias)) fail(libsFile, `lists ${alias}, which isn't a core lib (check core/tsconfig.base.json)`);
+  }
+}
+
+// Env vars: every key in envSchema is in the environment variables table and in core/.env.example; the table
+// lists nothing else.
+const envPage = pageText('backend/environment-variables.md');
+const envSchemaSource = readText(join(coreDir, 'libs', 'api', 'config', 'src', 'lib', 'env.schema.ts'));
+const envExample = readText(join(coreDir, '.env.example'));
+if (envPage && envSchemaSource) {
+  const envFile = join(docsDir, 'backend', 'environment-variables.md');
+  const schemaKeys = [...envSchemaSource.matchAll(/^ {2}([A-Z][A-Z0-9_]*):/gm)].map((m) => m[1]);
+  const documented = [...envPage.matchAll(/^\| `([A-Z][A-Z0-9_]*)` \|/gm)].map((m) => m[1]);
+  for (const key of schemaKeys) {
+    if (!documented.includes(key)) fail(envFile, `env var ${key} is in envSchema but not in the table`);
+    if (envExample && !new RegExp(`^#?\\s*${key}=`, 'm').test(envExample)) {
+      fail(join(coreDir, '.env.example'), `env var ${key} is in envSchema but not in .env.example`);
+    }
+  }
+  for (const key of documented) {
+    if (!schemaKeys.includes(key)) fail(envFile, `documents ${key}, which isn't in envSchema`);
+  }
+}
+
+// Examples: every embedded example file exists and default-exports a component; every example file is embedded.
+const examplesDir = join(coreDir, 'apps', 'docs', 'src', 'examples');
+if (existsSync(examplesDir)) {
+  const embedded = new Set();
+  for (const { file } of manualPages) {
+    // Drop blocks fenced with 4+ backticks first: an ```example inside one is shown as text, not embedded.
+    const body = (readText(file) ?? '').replace(/^(`{4,})[^\n]*\n[\s\S]*?^\1$/gm, '');
+    for (const [, key] of body.matchAll(/^```example\n([^\n`]+)\n```$/gm)) {
+      const name = key.trim();
+      embedded.add(name);
+      const source = readText(join(examplesDir, `${name}.example.tsx`));
+      if (source === null) fail(file, `embeds example "${name}", but core/apps/docs/src/examples/${name}.example.tsx doesn't exist`);
+      else if (!/^export default function /m.test(source)) fail(join(examplesDir, `${name}.example.tsx`), 'an example must default-export its component');
+    }
+  }
+  const listExamples = (dir) =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory() ? listExamples(join(dir, entry.name)) : entry.name.endsWith('.example.tsx') ? [join(dir, entry.name)] : [],
+    );
+  for (const path of listExamples(examplesDir)) {
+    const name = relative(examplesDir, path).replaceAll(sep, '/').replace(/\.example\.tsx$/, '');
+    if (!embedded.has(name)) fail(path, `example "${name}" isn't embedded in any manual page`);
+  }
+}
+
 if (errors.length) {
   console.error(`docs check failed with ${errors.length} error(s):\n${errors.map((e) => `  - ${e}`).join('\n')}`);
   process.exit(1);

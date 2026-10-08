@@ -37,4 +37,12 @@ npm install
 npm run check
 ```
 
-The checker validates frontmatter, file names, the required sections of decision records, references between decisions, and relative links.
+The checker validates frontmatter, file names, the manual's section structure, the required sections of decision records, references between decisions, and relative links.
+
+It also checks coverage against `core/`:
+- every UI component has a page;
+- every core lib is in `reference/libs.md`;
+- every `envSchema` variable is in `backend/environment-variables.md` and `core/.env.example`;
+- every embedded example file exists, and every example file is embedded.
+
+It also fails when the docs describe something that no longer exists.
