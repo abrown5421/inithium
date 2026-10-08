@@ -5,7 +5,7 @@ status: accepted
 date: "2026-10-07"
 scope: core
 tags: [ui, theme, colour, accessibility]
-related: ["0011", "0030", "0032"]
+related: ["0030", "0032", "0034", "0037"]
 supersedes: []
 ---
 

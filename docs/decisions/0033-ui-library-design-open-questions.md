@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-07"
 scope: core
 tags: [ui, components, props, design-system]
-related: ["0008", "0011", "0030", "0031", "0032"]
+related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038"]
 supersedes: []
 ---
 
@@ -21,14 +21,11 @@ Tailwind v4 only generates classes it finds written out in full in the source, s
 
 Undecided. These are being worked through in order; each will be recorded as an accepted decision when settled.
 
+**Settled so far:** styles via static classes and CSS variables ([0034](0034-resolve-style-props-to-static-classes-and-css-variables.md)); serializable Zod schemas ([0035](0035-define-style-props-as-serializable-zod-schemas.md)); flat state and breakpoint keys ([0036](0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)); no `className` ([0037](0037-style-components-only-through-typed-props.md)); four libs with `ui:` layer tags ([0038](0038-split-the-ui-library-into-four-libs-with-layer-tags.md)).
+
 **Prop system**
 
-- How props become styles: fixed classes plus CSS variables set inline (e.g. the class `bg-(--ui-bg)` with `--ui-bg: var(--color-emerald-200)`), lookup maps, or safelisting.
-- Whether style props are serializable JSON defined as Zod schemas, so that page sections stored in MongoDB can be validated and the CMS can build editing controls from the schemas.
-- How hover, focus, active and disabled states are expressed.
-- Whether props accept responsive (breakpoint) values.
-- Whether components accept a `className` escape hatch. [0011](0011-use-tailwind-v4-for-styling-and-theming.md) currently says they accept Tailwind classes at the call site.
-- One Nx lib or four (theme, components, composites, layouts), and whether the layering is enforced with a new tag group.
+- Where the style prop schemas live, so the API can validate stored page sections without importing React (e.g. in `@inithium/shared-contracts`, in `@inithium/shared-ui-theme` kept free of React, or in a separate schema lib). Related: whether lint should stop `scope:api` code importing React libs, since the UI libs are `scope:shared`.
 
 **Colour props**
 
@@ -53,4 +50,4 @@ None recorded yet.
 
 ## Consequences
 
-The UI foundation (`feat/ui-foundation`) can't be built until the prop system questions are settled.
+The UI foundation (`feat/ui-foundation`) can't be built until the schema location and the colour prop details are settled.

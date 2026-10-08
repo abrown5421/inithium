@@ -1,12 +1,13 @@
 ---
 id: "0011"
 title: Use Tailwind CSS v4 for styling and theming
-status: accepted
+status: superseded
 date: "2026-10-07"
 scope: core
 tags: [styling, theming, tailwind, frontend]
 related: ["0013"]
 supersedes: []
+supersededBy: "0037"
 ---
 
 # 0011. Use Tailwind CSS v4 for styling and theming

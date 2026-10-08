@@ -197,6 +197,10 @@ Not built yet; the design is in progress (open questions in 0033). Decided so fa
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
 - **Dark mode mirrors every scale** (50↔950 … 500 stays). Any UI (core, plugins, generated pages) must use token roles rather than fixed light-mode colours, so it flips without dark-mode-specific code.
+- **Four libs:** `@inithium/shared-ui-theme`, `-ui-components`, `-ui-composites` and `-ui-layouts` (in `libs/shared/`). A new `ui:` tag group (`ui:theme` → `ui:component` → `ui:composite` → `ui:layout`) lets each layer depend only on the layers above it. Add the tags and lint rules when the libs are created.
+- **Style props** (colour, spacing and so on) are **serializable Zod schemas** with inferred types. They resolve to **fixed classes reading CSS variables** set inline (e.g. `bg-(--ui-bg)` + `--ui-bg: var(--color-emerald-200)`), never to classes built at runtime.
+- A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
+- **No `className` on UI components.** If a component can't express something, extend its props.
 
 ### Profiles & assets
 Neither is built yet. When they are:
@@ -386,5 +390,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): the shared prop system (how props become styles, serializable Zod props, states, breakpoints, `className`), one lib or four, colour prop details, the remaining prop families, the accessibility approach, presets, and what else the theme holds.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): where the style prop schemas live, colour prop details, the remaining prop families, the accessibility approach, presets, and what else the theme holds.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
