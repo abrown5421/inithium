@@ -202,7 +202,9 @@ The theme and the first components (Container, Text) are built; see the `docs/re
 - **Apps** wrap their root in `<UiProvider>` and their `styles.css` imports `tailwindcss` **with `theme(static)`** (colour props read Tailwind palette variables at runtime, so they must all be emitted) then `libs/shared/ui-theme/src/styles/theme.css` (fonts), then `animate.css`.
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
-- **Animation** (0048; built in `useAnimation`, used by Container and Text): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
+- **Icon** (0050): Lucide icons by kebab-case `name`, loaded on demand. `size` in px (default 24), colour inherited from the text unless `textColor` is set, decorative unless given a `label`.
+- **UI gallery** (0051): `web` serves a development-only gallery at `/ui` (`apps/web/src/app/ui-gallery/`). Every new component, composite and layout adds a gallery page in the same change as its docs page.
+- **Animation** (0048; built in `useAnimation`, used by every component): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
   - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
   - Changes to `show` mid-animation wait for the running animation to finish.
   - Parents can `stagger={ms}` their direct children's entrances.
@@ -310,7 +312,7 @@ cd core
 npm install
 npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
 npx nx serve api                          # http://localhost:3000/api
-npx nx serve web                          # http://localhost:5173/
+npx nx serve web                          # http://localhost:5173/ (dev-only UI gallery: /ui)
 npx nx serve cms                          # http://localhost:5174/cms/
 
 # production-style: api serves everything on :3000
@@ -349,7 +351,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
-- [ ] **UI library:** theme, Container and Text are built. Remaining: the other components (button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
+- [ ] **UI library:** theme, Container, Text and Icon are built. Remaining: the other components (divider, spinner, button, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **Docs sections:** only the UI reference is sectioned (`docs/reference/ui/`). The other reference pages are still flat and should be organised into sections (0049).

@@ -45,6 +45,16 @@ export const containerStylePropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** Icon's style props: the shared ones plus size (width and height together) and stroke width. */
+export const iconStylePropsSchema = sharedStylePropsSchema
+  .extend({
+    /** Width and height in px. Default 24. */
+    size: withVariants(z.number().positive()).optional(),
+    /** Line thickness of the icon's strokes, in the icon's 24-unit grid. Default 2. */
+    strokeWidth: z.number().positive().optional(),
+  })
+  .strict();
+
 export const textStylePropsSchema = sharedStylePropsSchema
   .extend({
     as: textElementSchema.optional(),

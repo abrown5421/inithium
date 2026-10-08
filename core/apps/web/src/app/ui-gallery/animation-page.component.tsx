@@ -1,7 +1,8 @@
 import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Container, Text } from '@inithium/shared-ui-components';
+import { GalleryPage } from './gallery-section.component';
 
-// Part of the placeholder home page: exercises the animation prop (decision 0048).
+// Gallery page for the animation prop (decision 0048).
 
 /** A clickable Container for the demo; a real Button component comes with the form controls. */
 function DemoButton({ label, onPress }: { label: string; onPress: () => void }) {
@@ -50,7 +51,7 @@ function Demo({ title, children }: { title: string; children: ReactNode }) {
 
 const card = { padding: { all: 16 }, radius: { all: 8 }, bgColor: { color: 'secondary', intensity: 100 } } as const;
 
-export function AnimationPreview() {
+export function AnimationPage() {
   // show + callbacks
   const [show, setShow] = useState(true);
   const [events, setEvents] = useState<string[]>([]);
@@ -65,7 +66,8 @@ export function AnimationPreview() {
   const [staggerRun, setStaggerRun] = useState(0);
 
   return (
-    <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }}>
+    <GalleryPage title="Animation" intro="Entrance, exit and attention animations, the show/replay runtime props, stagger and scroll-triggered entrances.">
+    <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }} padding={{ top: 16 }}>
       <Demo title="show: entrance and exit">
         <DemoButton label={show ? 'Hide' : 'Show'} onPress={() => setShow((current) => !current)} />
         <Container minHeight={72}>
@@ -148,5 +150,6 @@ export function AnimationPreview() {
         </Demo>
       </Container>
     </Container>
+    </GalleryPage>
   );
 }
