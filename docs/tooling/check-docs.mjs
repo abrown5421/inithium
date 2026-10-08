@@ -147,6 +147,52 @@ for (const { file, data } of pages) {
   for (const id of data.decisions) if (!decisions.has(id)) fail(file, `references unknown decision "${id}"`);
 }
 
+// Every component, composite and layout the UI libs export must have exactly one reference page, and every
+// component page must describe something that is actually exported.
+const uiLibs = { component: 'ui-components', composite: 'ui-composites', layout: 'ui-layouts' };
+const kebab = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+
+function exportedUi() {
+  const found = [];
+  for (const [layer, lib] of Object.entries(uiLibs)) {
+    const libDir = join(repoRoot, 'core', 'libs', 'shared', lib, 'src');
+    const index = join(libDir, 'index.ts');
+    if (!existsSync(index)) continue;
+    for (const [, path] of readFileSync(index, 'utf8').matchAll(/export \* from '\.\/(lib\/[^']+\.component)'/g)) {
+      const source = join(libDir, `${path}.tsx`);
+      if (!existsSync(source)) continue;
+      for (const [, name] of readFileSync(source, 'utf8').matchAll(/^export function ([A-Z][A-Za-z0-9]*)\(/gm)) {
+        // Providers are app-level infrastructure, documented on the UI overview page.
+        if (!name.endsWith('Provider')) found.push({ name, layer, import: `@inithium/shared-${lib}`, index });
+      }
+    }
+  }
+  return found;
+}
+
+const componentPages = new Map();
+for (const { file, data } of pages) {
+  if (!data.component) continue;
+  const { name, layer } = data.component;
+  const expected = join(docsDir, 'reference', 'ui', `${layer}s`, `${kebab(name)}.md`);
+  if (resolve(file) !== expected) fail(file, `a ${layer} page must be reference/ui/${layer}s/${kebab(name)}.md`);
+  if (componentPages.has(name)) fail(file, `duplicate page for component "${name}"`);
+  componentPages.set(name, { file, data });
+}
+const exported = exportedUi();
+for (const item of exported) {
+  const page = componentPages.get(item.name);
+  if (!page) {
+    fail(item.index, `exports ${item.layer} "${item.name}" but docs/reference/ui/${item.layer}s/${kebab(item.name)}.md doesn't exist (see docs/templates/component.md)`);
+    continue;
+  }
+  if (page.data.component.layer !== item.layer) fail(page.file, `component.layer must be "${item.layer}"`);
+  if (page.data.component.import !== item.import) fail(page.file, `component.import must be "${item.import}"`);
+}
+for (const [name, { file }] of componentPages) {
+  if (!exported.some((item) => item.name === name)) fail(file, `documents "${name}", which no UI lib exports`);
+}
+
 if (errors.length) {
   console.error(`docs check failed with ${errors.length} error(s):\n${errors.map((e) => `  - ${e}`).join('\n')}`);
   process.exit(1);

@@ -35,6 +35,19 @@ export const decisionSchema = z
     path: ['supersededBy'],
   });
 
+// UI building blocks that each get their own reference page (reference/ui/<layer>s/<kebab-name>.md).
+export const uiLayers = ['component', 'composite', 'layout'];
+
+/** Identifies the UI component a page documents, so a docs UI can index components without parsing prose. */
+export const componentMetaSchema = z
+  .object({
+    name: z.string().regex(/^[A-Z][A-Za-z0-9]*$/, { error: 'must be the exported PascalCase name, e.g. "Container"' }),
+    layer: z.enum(uiLayers),
+    import: z.string().regex(/^@inithium\/[a-z0-9-]+$/, { error: 'must be the import path, e.g. "@inithium/shared-ui-components"' }),
+    element: z.string().min(1).optional(),
+  })
+  .strict();
+
 // Guides (task-oriented) and reference (look-up) pages share one shape.
 export const pageSchema = z
   .object({
@@ -44,6 +57,7 @@ export const pageSchema = z
     tags,
     order: z.number().int().nonnegative().optional(),
     decisions: z.array(decisionIdSchema).default([]),
+    component: componentMetaSchema.optional(),
   })
   .strict();
 

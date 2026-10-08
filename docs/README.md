@@ -7,7 +7,7 @@ docs/
   decisions/   Decision records: why the ecosystem works the way it does (NNNN-kebab-title.md)
   guides/      Task-oriented walkthroughs: how to do something step by step
   reference/   Look-up pages: env vars, commands, libs, conventions
-  templates/   Starting points for new files (not validated)
+  templates/   Starting points for new files (not validated): decision, page, component
   tooling/     The frontmatter schemas and the checker
 ```
 
