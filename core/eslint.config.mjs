@@ -37,6 +37,11 @@ export default [
 
             // origin: core never depends on plugin or client code
             { sourceTag: 'origin:core', notDependOnLibsWithTags: ['origin:plugin', 'origin:client'] },
+
+            // ui: each UI layer builds only on the layers above it (decision 0038)
+            { sourceTag: 'ui:theme', notDependOnLibsWithTags: ['ui:component', 'ui:composite', 'ui:layout'] },
+            { sourceTag: 'ui:component', notDependOnLibsWithTags: ['ui:composite', 'ui:layout'] },
+            { sourceTag: 'ui:composite', notDependOnLibsWithTags: ['ui:layout'] },
           ],
         },
       ],

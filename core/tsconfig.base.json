@@ -41,6 +41,12 @@
       ],
       "@inithium/cms-auth": [
         "./libs/cms/auth/src/index.ts"
+      ],
+      "@inithium/shared-ui-theme": [
+        "./libs/shared/ui-theme/src/index.ts"
+      ],
+      "@inithium/shared-ui-components": [
+        "./libs/shared/ui-components/src/index.ts"
       ]
     }
   },

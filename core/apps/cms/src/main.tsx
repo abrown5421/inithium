@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { createAppStore } from '@inithium/shared-data-access';
+import { UiProvider } from '@inithium/shared-ui-components';
 import { App } from './app/app.component';
 
 const store = createAppStore();
@@ -14,9 +15,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-        <App/>
-      </BrowserRouter>
+      <UiProvider>
+        <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          <App/>
+        </BrowserRouter>
+      </UiProvider>
     </Provider>
   </StrictMode>
 );

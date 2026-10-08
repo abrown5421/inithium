@@ -192,13 +192,14 @@ Boundary rules:
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### UI library & theme
-Not built yet; the design is in progress (open questions in 0033). Decided so far:
+The theme and the first components (Container, Text) are built; see `docs/reference/ui-library.md`. Open questions are in 0033.
 - **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
 - **Dark mode mirrors every scale** (50↔950 … 500 stays). Any UI (core, plugins, generated pages) must use token roles rather than fixed light-mode colours, so it flips without dark-mode-specific code.
-- **Four libs:** `@inithium/shared-ui-theme`, `-ui-components`, `-ui-composites` and `-ui-layouts` (in `libs/shared/`). A new `ui:` tag group (`ui:theme` → `ui:component` → `ui:composite` → `ui:layout`) lets each layer depend only on the layers above it. Add the tags and lint rules when the libs are created.
-- **Style props** (colour, spacing and so on) are **serializable Zod schemas** with inferred types. They resolve to **fixed classes reading CSS variables** set inline (e.g. `bg-(--ui-bg)` + `--ui-bg: var(--color-emerald-200)`), never to classes built at runtime.
+- **Four libs:** `@inithium/shared-ui-theme`, `-ui-components`, `-ui-composites` and `-ui-layouts` (in `libs/shared/`). A new `ui:` tag group (`ui:theme` → `ui:component` → `ui:composite` → `ui:layout`) lets each layer depend only on the layers above it; the lint rules are in `core/eslint.config.mjs`. Only theme and components exist so far: create the composites and layouts libs (with their `ui:` tags) when their first member is built.
+- **Style props** (colour, spacing and so on) are **serializable Zod schemas** with inferred types. They resolve to **fixed classes reading CSS variables** set inline (e.g. `class="ui-bg"` + `--ui-bg: var(--color-emerald-200)`). One property table (`style-properties.config.ts`) drives both the resolver and the generated stylesheet that `<UiProvider />` injects (0047). To add a style property: add its schema in `shared-contracts`, add a table entry, and resolve it in `style-props.service.ts`.
+- **Apps** wrap their root in `<UiProvider>` and their `styles.css` imports `tailwindcss` **with `theme(static)`** (colour props read Tailwind palette variables at runtime, so they must all be emitted) and then `libs/shared/ui-theme/src/styles/theme.css` (fonts).
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
 - **Style prop schemas live in `@inithium/shared-contracts`,** so the API and plugins can validate them without React.
@@ -341,7 +342,8 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
-- [ ] **UI library** (theme, components, composites, layouts) isn't built; its design is being settled (0030–0033).
+- [ ] **UI library:** theme, Container and Text are built. Remaining: the other components (button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
+- [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
@@ -412,5 +414,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): animation and other effects, the accessibility approach for interactive components, size/variant presets, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): animation and other effects, the accessibility approach for interactive components, size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), whether feature libs and apps must build UI only from the library, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.

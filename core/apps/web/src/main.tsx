@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
+import { UiProvider } from '@inithium/shared-ui-components';
 import { App } from './app/app.component';
 
 const root = ReactDOM.createRoot(
@@ -9,8 +10,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <BrowserRouter>
-      <App/>
-    </BrowserRouter>
+    <UiProvider>
+      <BrowserRouter>
+        <App/>
+      </BrowserRouter>
+    </UiProvider>
   </StrictMode>
 );

@@ -19,7 +19,9 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()` |
 | `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, user queries, `createUser()` |
 | `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
-| `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions |
+| `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, theme, UI style props |
+| `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, scale generation, `ThemeStyles`, theme fonts CSS |
+| `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Container`, `Text`, `UiProvider` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
 | `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks, `createAppStore()`, `getApiErrorMessage()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard`, `CurrentUserMenu` |
@@ -48,6 +50,10 @@ Authentication for the API: the `/api/auth` routes, the `requireAuth` / `require
 ### `@inithium/shared-contracts`
 
 The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `authResponseSchema` / `AuthResponse`, and `permissions` / `permissionSchema` / `Permission`.
+
+### `@inithium/shared-ui-theme` and `@inithium/shared-ui-components`
+
+The first two layers of the UI library. See [UI library](ui-library.md).
 
 ### `@inithium/shared-permissions`
 
