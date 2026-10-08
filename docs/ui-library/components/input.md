@@ -87,7 +87,7 @@ How the field is drawn. All three are 32px tall, with a neutral border or underl
 <Input variant="standard" label="Standard" />
 ```
 
-With a label, `filled` and `standard` reserve 20px above the field for the floated label, so align a row containing them by its bottom edge (see [Form row with a button](#example-form-row-with-a-button)).
+With a label, `filled` and `standard` reserve 20px above the field for the floated label; `outlined` doesn't, since its label floats into the border. So when a row mixes them with outlined inputs or buttons, align it by its bottom edge: `flex={{ align: 'end' }}` or `grid={{ align: 'end' }}` on the row's Container (see [Form row with a button](#example-form-row-with-a-button)).
 
 #### `color`
 
