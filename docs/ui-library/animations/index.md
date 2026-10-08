@@ -64,54 +64,46 @@ Container also takes **`stagger`** (a number of ms, stored with it). It adds ind
 - **Children:** `animationend` events from child elements are ignored.
 - **Reduced motion:** with `prefers-reduced-motion`, animate.css shortens animations to 1ms and hides finished exits. Callbacks still fire.
 
-## Recipes
+## Examples
 
-**Toggle with an entrance and an exit:**
+### Example: Entrance and exit with show
 
-```tsx
-<Container
-  show={open}
-  animation={{ entrance: { name: 'fadeInUp', speed: 'fast' }, exit: { name: 'fadeOutDown', speed: 'faster' } }}
-/>
+Toggle `show`: the card fades up in, fades down out and unmounts; the callbacks are logged.
+
+```example
+ui-library/animations/entrance-and-exit
 ```
 
-**Sequence two views** (the page-shell pattern): the current one exits completely, then the next enters.
+### Example: Sequence two views
 
-```tsx
-<Container
-  key={page}
-  show={!leaving}
-  animation={{ entrance: { name: 'fadeInRight', speed: 400 }, exit: { name: 'fadeOutLeft', speed: 250 } }}
-  onExitEnd={() => { setPage(next); setLeaving(false); }}
-/>
+The page-shell pattern: the current view exits completely, then the next one enters.
+
+```example
+ui-library/animations/sequence-two-views
 ```
 
-**Shake on each validation error:**
+### Example: Attention with replay
 
-```tsx
-<Container animation={{ attention: { name: 'shakeX', speed: 'fast' } }} replay={errorCount} />
+Shake again on demand with `replay`, beside an infinitely pulsing badge.
+
+```example
+ui-library/animations/attention-and-replay
 ```
 
-**A pulsing badge:**
+### Example: Stagger
 
-```tsx
-<Container animation={{ attention: { name: 'pulse', repeat: 'infinite', speed: 'slow' } }} />
+A parent's `stagger` cascades its children's entrances.
+
+```example
+ui-library/animations/stagger
 ```
 
-**Cascade a list in:**
+### Example: Reveal on scroll
 
-```tsx
-<Container grid={{ columns: 3, gap: 8 }} stagger={120}>
-  {items.map((item) => (
-    <Container key={item.id} animation={{ entrance: { name: 'zoomIn', speed: 'fast' } }}>…</Container>
-  ))}
-</Container>
-```
+`when: 'inView'` enters each card the first time it scrolls into view.
 
-**Reveal on scroll:**
-
-```tsx
-<Container animation={{ entrance: { name: 'fadeInUp', when: 'inView' } }} />
+```example
+ui-library/animations/reveal-on-scroll
 ```
 
 ## Available animations

@@ -123,13 +123,14 @@ Switching an app between databases or clusters is only ever a change to `MONGODB
 ### Apps are thin orchestrators
 Apps are entry points that **consume** libs. They contain **no business logic**: no data access, no validation rules, no domain decisions. An app's job is bootstrapping, composition, routing to lib-provided handlers and pages, and its plugin registry.
 
-Core ships three apps (its libs are listed in `docs/reference/libs.md`); a fourth, `apps/docs` (the manual viewer, 0053), is planned and never reaches clients:
+Core ships three client-facing apps (its libs are listed in `docs/reference/libs.md`), plus `apps/docs`, the development-only manual viewer (0053), which never reaches clients:
 
 | App | Role |
 | --- | --- |
 | `api` | Express server. The **single source of truth** and the **only** thing that talks to MongoDB. |
 | `web` | The end-user site. Scaffolded at runtime from the settings and pages configured in the CMS. |
 | `cms` | The client portal, where clients change the `web` site's settings and pages. |
+| `docs` | The developer manual viewer (dev only, port 5175). Reads `docs/` from the Inithium repo; stripped from client clones. |
 
 ### Data flow
 ```
@@ -167,7 +168,7 @@ Each client deploys as a **single Render web service**: the `api` process serves
 
 | Tag group | Values | Meaning |
 | --- | --- | --- |
-| `scope:` | `api`, `web`, `cms`, `shared` | Which app(s) may consume it. `shared` = usable by all (e.g. contracts). |
+| `scope:` | `api`, `web`, `cms`, `docs`, `shared` | Which app(s) may consume it. `shared` = usable by all (e.g. contracts). `docs` is the manual viewer, which uses shared libs only. |
 | `type:` | `feature`, `data-access`, `ui`, `util` | Its role in the layering. |
 | `origin:` | `core`, `plugin`, `client` | Where it came from. |
 
@@ -203,7 +204,7 @@ The theme and the first components (Container, Text) are built; see the manual's
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
 - **Icon** (0050): Lucide icons by kebab-case `name`, loaded on demand. `size` in px (default 24), colour inherited from the text unless `textColor` is set, decorative unless given a `label`.
-- **UI gallery** (0051, superseded by 0053): `web` still serves a development-only gallery at `/ui` until the docs app replaces it. Until then, a new component adds a gallery page; afterwards, it adds example files under `core/apps/docs/src/examples/`.
+- **Docs app** (0053): `npx nx serve docs` → http://localhost:5175 renders the manual with live examples. A component's examples are files, `core/apps/docs/src/examples/ui-library/<component>/<name>.example.tsx`, each default-exporting one component, embedded in its page with a fenced `example` block. (The old `/ui` gallery is gone.)
 - **Animation** (0048; built in `useAnimation`, used by every component): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
   - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
   - Changes to `show` mid-animation wait for the running animation to finish.
@@ -312,7 +313,8 @@ cd core
 npm install
 npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
 npx nx serve api                          # http://localhost:3000/api
-npx nx serve web                          # http://localhost:5173/ (dev-only UI gallery: /ui)
+npx nx serve web                          # http://localhost:5173/
+npx nx serve docs                         # http://localhost:5175/ (developer manual, dev only)
 npx nx serve cms                          # http://localhost:5174/cms/
 
 # production-style: api serves everything on :3000
@@ -353,7 +355,6 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **UI library:** theme, Container, Text and Icon are built. Remaining: the other components (divider, spinner, button, input, select, checkbox, radio, switch, slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
-- [ ] **Docs app** (0053, phase 2: `feat/docs-app`): build `core/apps/docs` (sidebar, Markdown rendered with UI components, live examples with code, highlighting/copy/expand, search, prev/next and VS Code edit links), move the `/ui` gallery demos into example files, and retire the gallery.
 - [ ] **Manual backfill** (0052, phase 3: `docs/manual-backfill`): write the missing Getting started, Architecture and Backend pages from what's already decided or built.
 - [ ] **Docs enforcement** (0052, phase 4: `chore/docs-enforcement`): extend the docs check to every lib, every env var in `envSchema`, and every embedded example file.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
@@ -408,7 +409,13 @@ If nothing fits, add a page to the section it belongs to; if no section fits, ra
 - **Structure** (from `templates/component.md`): Import; **Props at a glance** (every prop in one table, linked); **Props** (one subsection per prop with type, default and a JSX snippet showing every way to write it); **Examples**; **Accessibility**; **Notes**.
 - **Shared shapes** (colour value, sides, size, radius, variants) are defined once on `ui-library/style-props.md` and linked, never repeated.
 - **Examples:** each one is a titled `### Example: …` block with a one-line purpose and self-contained code (imports included).
-  - Once the docs app exists, every example is a real file, `core/apps/docs/src/examples/<section>/<name>.example.tsx` (linted and type-checked), and the page embeds it by path so the app renders it live with its source.
+  - Every example is a real file, `core/apps/docs/src/examples/<section>/<name>.example.tsx`, which default-exports one self-contained component (linted, type-checked and built). The page embeds it with a fenced block, and the docs app renders it live above its exact source:
+
+    ```example
+    ui-library/<component>/<name>
+    ```
+
+  - Examples must work on their own: no required props, and no full-screen effects on load (e.g. an overlay starts closed).
   - Per-prop snippets stay as ordinary code blocks.
 - **Enforcement:** the docs check fails if an exported component has no page, or a page doesn't match its export.
 
@@ -468,5 +475,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): other effects (transitions, opacity, transforms), the accessibility approach for interactive components, size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), whether feature libs and apps must build UI only from the library, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): other effects (transitions, opacity, transforms), an inline Container (`as="span"`), the accessibility approach for interactive components, size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), whether feature libs and apps must build UI only from the library, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.

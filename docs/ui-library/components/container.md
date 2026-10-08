@@ -430,102 +430,40 @@ const ref = useRef<HTMLElement>(null);
 
 A card that lifts and tints on hover, with a visible ring when focused by keyboard.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleCard() {
-  return (
-    <Container
-      tabIndex={0}
-      padding={{ all: 16 }}
-      radius={{ all: 12 }}
-      bgColor={{ base: { color: 'surface', intensity: 50 }, hover: { color: 'primary', intensity: 100 } }}
-      borderWidth={{ all: 2 }}
-      borderColor={{ base: { color: 'surface', intensity: 500, opacity: 40 }, focus: { color: 'accent', intensity: 500 } }}
-      shadow={{ base: 'sm', hover: 'lg' }}
-    >
-      <Text textColor={{ color: 'surface', intensity: 900 }}>Card</Text>
-    </Container>
-  );
-}
+```example
+ui-library/container/card-with-hover-and-focus-states
 ```
 
 ### Example: Stack on mobile, row from md
 
 Children stack vertically on phones and sit in a centred row from 768px.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleResponsiveRow() {
-  return (
-    <Container flex={{ direction: { base: 'column', md: 'row' }, align: 'center', gap: { base: 8, md: 24 } }}>
-      <Text>First</Text>
-      <Text>Second</Text>
-      <Text>Third</Text>
-    </Container>
-  );
-}
+```example
+ui-library/container/stack-on-mobile-row-from-md
 ```
 
 ### Example: Centred page column
 
 A full-height page whose content is centred and capped at 1120px. Margins are pixel numbers, so centring uses the parent's flex.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExamplePageColumn() {
-  return (
-    <Container as="main" minHeight="screen" flex={{ direction: 'column', align: 'center' }} bgColor={{ color: 'surface', intensity: 100 }}>
-      <Container width="full" maxWidth={1120} padding={{ base: { x: 16, y: 32 }, md: { x: 32, y: 48 } }}>
-        <Text>Page content</Text>
-      </Container>
-    </Container>
-  );
-}
+```example
+ui-library/container/centred-page-column
 ```
 
 ### Example: Responsive grid with a wide item
 
 One column on mobile and three from 768px, with the first item spanning two.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleGrid() {
-  return (
-    <Container grid={{ columns: { base: 1, md: 3 }, gap: 16 }}>
-      <Container gridItem={{ colSpan: { base: 1, md: 2 } }} bgColor="secondary" padding={{ all: 16 }} radius={{ all: 8 }}>
-        <Text textColor={{ color: 'secondary', intensity: 50 }}>Wide</Text>
-      </Container>
-      <Container bgColor="tertiary" padding={{ all: 16 }} radius={{ all: 8 }}>
-        <Text textColor={{ color: 'tertiary', intensity: 50 }}>Narrow</Text>
-      </Container>
-    </Container>
-  );
-}
+```example
+ui-library/container/responsive-grid-with-a-wide-item
 ```
 
 ### Example: Viewport-height layout with a scrolling content area
 
 A navbar on top and content that fills the rest of the viewport and scrolls on its own.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleAppShell() {
-  return (
-    <Container height="screen" flex={{ direction: 'column' }}>
-      <Container as="nav" height={64} padding={{ x: 16 }} flex={{ align: 'center' }} borderWidth={{ bottom: 1 }}>
-        <Text>Navbar</Text>
-      </Container>
-      <Container as="main" flexItem={{ grow: 1 }} minHeight={0} overflow={{ y: 'auto' }} padding={{ all: 16 }}>
-        <Text>Long content scrolls here.</Text>
-      </Container>
-    </Container>
-  );
-}
+```example
+ui-library/container/viewport-height-layout-with-a-scrolling-content-area
 ```
 
 `minHeight={0}` lets the content area shrink below its content's height so that it scrolls instead of growing.
@@ -534,64 +472,24 @@ export function ExampleAppShell() {
 
 A header that stays at the top while the page scrolls.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleStickyHeader() {
-  return (
-    <Container as="header" position={{ type: 'sticky', top: 0, z: 10 }} padding={{ x: 16, y: 12 }} bgColor={{ color: 'surface', intensity: 50 }} shadow="sm">
-      <Text fontWeight={700}>Site name</Text>
-    </Container>
-  );
-}
+```example
+ui-library/container/sticky-header
 ```
 
 ### Example: Overlay with a fading panel
 
 A translucent full-screen overlay and a panel that animates in and out with `show`.
 
-```tsx
-import { useState } from 'react';
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleOverlay() {
-  const [open, setOpen] = useState(true);
-  return (
-    <Container
-      show={open}
-      position={{ type: 'fixed', all: 0, z: 50 }}
-      flex={{ align: 'center', justify: 'center' }}
-      bgColor={{ color: 'quaternary', intensity: 950, opacity: 60 }}
-      animation={{ entrance: { name: 'fadeIn', speed: 'faster' }, exit: { name: 'fadeOut', speed: 'faster' } }}
-      onClick={() => setOpen(false)}
-    >
-      <Container padding={{ all: 24 }} radius={{ all: 12 }} bgColor={{ color: 'surface', intensity: 50 }} animation={{ entrance: { name: 'zoomIn', speed: 'fast' } }}>
-        <Text>Click anywhere to close</Text>
-      </Container>
-    </Container>
-  );
-}
+```example
+ui-library/container/overlay-with-a-fading-panel
 ```
 
 ### Example: Cascading cards on scroll
 
 Cards that zoom in one after another the first time the grid scrolls into view.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleCascade() {
-  return (
-    <Container grid={{ columns: 3, gap: 8 }} stagger={120}>
-      {[1, 2, 3, 4, 5, 6].map((n) => (
-        <Container key={n} padding={{ all: 16 }} radius={{ all: 8 }} bgColor={{ color: 'secondary', intensity: 100 }}
-          animation={{ entrance: { name: 'zoomIn', speed: 'fast', when: 'inView' } }}>
-          <Text align="center">{n}</Text>
-        </Container>
-      ))}
-    </Container>
-  );
-}
+```example
+ui-library/container/cascading-cards-on-scroll
 ```
 
 ## Accessibility

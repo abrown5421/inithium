@@ -16,8 +16,9 @@ Run Nx from inside `core/`.
 | `npm install` | Install dependencies. `core/.npmrc` sets `legacy-peer-deps=true`. |
 | `npx nx run-many -t lint typecheck build` | Verify everything. The api's esbuild build also type-checks. |
 | `npx nx serve api` | API at `http://localhost:3000/api`, loading `core/.env` |
-| `npx nx serve web` | End-user site at `http://localhost:5173/`; in development, the UI gallery is at `http://localhost:5173/ui` |
+| `npx nx serve web` | End-user site at `http://localhost:5173/` |
 | `npx nx serve cms` | Client portal at `http://localhost:5174/cms/` |
+| `npx nx serve docs` | This manual, with live examples, at `http://localhost:5175/` (development only) |
 
 Production-style run, with the api serving everything on port 3000:
 
@@ -48,4 +49,4 @@ Nx 23 generators produce some outdated output. After generating a project:
 | Nx can't find the workspace when run from VS Code | Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root. In Git Bash, from `core/`: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` |
 | The Nx daemon misbehaves | Run with `NX_DAEMON=false` |
 | `querySrv ECONNREFUSED` at startup | Use a standard `mongodb://` connection string locally. See [Environment variables](../backend/environment-variables.md#connection-strings). |
-| Vite exits because a port is in use | Ports are fixed with `strictPort`. Stop whatever is using 5173 or 5174. |
+| Vite exits because a port is in use | Ports are fixed with `strictPort`. Stop whatever is using 5173, 5174 or 5175. |

@@ -252,104 +252,48 @@ Other attributes (`id`, `role`, `aria-*`, `data-*`, event handlers) go to the el
 
 A display-font page title and section headings that grow on larger screens.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleHeadings() {
-  return (
-    <Container flex={{ direction: 'column', gap: 8 }}>
-      <Text as="h1" fontFamily="display" fontSize={{ base: 32, md: 48 }} lineHeight={1.1} textColor="primary">Page title</Text>
-      <Text as="h2" fontSize={{ base: 22, md: 28 }} fontWeight={700} textColor={{ color: 'surface', intensity: 900 }}>Section</Text>
-      <Text as="h3" fontSize={18} fontWeight={600} textColor={{ color: 'surface', intensity: 900 }}>Subsection</Text>
-    </Container>
-  );
-}
+```example
+ui-library/text/heading-scale
 ```
 
 ### Example: Readable body copy
 
 A paragraph with a comfortable line length and line height.
 
-```tsx
-import { Text } from '@inithium/shared-ui-components';
-
-export function ExampleBodyCopy() {
-  return (
-    <Text maxWidth={640} fontSize={18} lineHeight={1.6} textColor={{ color: 'surface', intensity: 800 }}>
-      Long-form text reads best at around 60–75 characters per line, with generous line height.
-    </Text>
-  );
-}
+```example
+ui-library/text/readable-body-copy
 ```
 
 ### Example: Inline emphasis and a badge
 
 Spans inside a paragraph for emphasis, plus a pill badge.
 
-```tsx
-import { Text } from '@inithium/shared-ui-components';
-
-export function ExampleInline() {
-  return (
-    <Text textColor={{ color: 'surface', intensity: 900 }}>
-      Plans start at <Text as="span" fontWeight={700} textColor="accent">$9</Text> a month.{' '}
-      <Text as="span" fontSize={12} fontWeight={700} padding={{ x: 8, y: 2 }} radius={{ all: 999 }} bgColor="accent" textColor={{ color: 'accent', intensity: 950 }}>
-        New
-      </Text>
-    </Text>
-  );
-}
+```example
+ui-library/text/inline-emphasis-and-a-badge
 ```
 
 ### Example: Responsive truncation
 
 A description clamped to two lines on mobile and shown in full from 768px.
 
-```tsx
-import { Text } from '@inithium/shared-ui-components';
-
-export function ExampleTruncate() {
-  return (
-    <Text truncate={{ base: 2, md: false }} textColor={{ color: 'surface', intensity: 800 }}>
-      A long product description that would take several lines on a phone…
-    </Text>
-  );
-}
+```example
+ui-library/text/responsive-truncation
 ```
 
 ### Example: Form label
 
 A label linked to its input, so clicking it focuses the input.
 
-```tsx
-import { Container, Text } from '@inithium/shared-ui-components';
-
-export function ExampleLabel() {
-  return (
-    <Container flex={{ direction: 'column', gap: 4 }}>
-      <Text as="label" htmlFor="email" fontWeight={600}>Email</Text>
-      <input id="email" type="email" />
-    </Container>
-  );
-}
+```example
+ui-library/text/form-label
 ```
 
 ### Example: Link-style hover
 
 Muted text that turns primary on hover, for use inside a link.
 
-```tsx
-import { Text } from '@inithium/shared-ui-components';
-
-export function ExampleHoverText() {
-  return (
-    <a href="/pricing">
-      <Text as="span" textColor={{ base: { color: 'surface', intensity: 600 }, hover: { color: 'primary', intensity: 600 } }}>
-        See pricing
-      </Text>
-    </a>
-  );
-}
+```example
+ui-library/text/link-style-hover
 ```
 
 ## Accessibility

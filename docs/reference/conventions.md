@@ -48,7 +48,7 @@ Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also
 
 | Group | Values | Meaning |
 | --- | --- | --- |
-| `scope:` | `api`, `web`, `cms`, `shared` | Which app(s) may consume it. `shared` is usable by all. |
+| `scope:` | `api`, `web`, `cms`, `docs`, `shared` | Which app(s) may consume it. `shared` is usable by all; `docs` is the manual viewer. |
 | `type:` | `feature`, `data-access`, `ui`, `util` | Its role in the layering. |
 | `origin:` | `core`, `plugin`, `client` | Where it came from. |
 | `ui:` | `theme`, `component`, `composite`, `layout` | UI libs only: the UI layer ([0038](../decisions/0038-split-the-ui-library-into-four-libs-with-layer-tags.md)). |
@@ -56,6 +56,7 @@ Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also
 | A project tagged | May depend only on |
 | --- | --- |
 | `scope:api` / `scope:web` / `scope:cms` | Its own scope and `scope:shared` |
+| `scope:docs` | `scope:docs`, `scope:shared` |
 | `scope:shared` | `scope:shared` |
 | `type:feature` | Any type |
 | `type:data-access` | `data-access`, `util` |

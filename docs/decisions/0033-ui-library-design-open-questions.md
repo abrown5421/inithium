@@ -38,6 +38,7 @@ Undecided. These are being worked through in order; each will be recorded as an 
 - Other effects: CSS transitions (e.g. a hover colour fade), whole-element opacity and transforms. Entrance, exit and attention animations are settled in 0048.
 - Whether accessible behaviour (select, checkbox, radio, switch, slider, tooltip, modal, drawer, tabs) is hand-built or comes from an unstyled library (Radix or React Aria).
 - Size and variant presets (`size`, `variant`).
+- An inline Container: `as` has no `span`, so a styled inline wrapper (e.g. inside a link) has to be a block element. Found while building the docs app.
 - Ring and outline width and style props. Ring and outline colours ([0040](0040-colour-prop-values-and-properties.md)) aren't implemented until these exist.
 
 ## Alternatives considered

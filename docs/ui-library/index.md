@@ -36,9 +36,15 @@ The prop schemas and types live in `@inithium/shared-contracts` ([0039](../decis
 
 Every component, composite and layout has its own page ([0052](../decisions/0052-keep-a-self-documenting-developer-manual.md)).
 
-## UI gallery
+## Live examples
 
-In development, `web` serves a gallery at **http://localhost:5173/ui** with a page per part of the library; it's left out of production builds. It is being replaced by the docs app, which shows this manual with live examples and their code ([0053](../decisions/0053-view-the-manual-in-a-docs-app.md)); once that exists, components add example files instead of gallery pages.
+In the docs app (`npx nx serve docs`, http://localhost:5175), every example on these pages renders live above its exact source ([0053](../decisions/0053-view-the-manual-in-a-docs-app.md)). Examples are files in `core/apps/docs/src/examples/`, each default-exporting one component, embedded in a page with a fenced `example` block:
+
+````markdown
+```example
+ui-library/<component>/<name>
+```
+````
 
 ## Setting up an app
 

@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 import { Container, Text } from '@inithium/shared-ui-components';
-import { UiGallery } from './ui-gallery/ui-gallery.component';
 
 function Home() {
   return (
@@ -10,7 +9,7 @@ function Home() {
       </Text>
       {import.meta.env.DEV && (
         <Text textColor={{ color: 'surface', intensity: 700 }}>
-          Development: the UI gallery is at <a href="/ui">/ui</a>.
+          Development: the developer manual runs at <a href="http://localhost:5175">localhost:5175</a> (npx nx serve docs).
         </Text>
       )}
     </Container>
@@ -20,8 +19,6 @@ function Home() {
 export function App() {
   return (
     <Routes>
-      {/* The UI gallery is development-only; production builds leave it out. */}
-      {import.meta.env.DEV && <Route path="/ui/*" element={<UiGallery />} />}
       <Route path="*" element={<Home />} />
     </Routes>
   );
