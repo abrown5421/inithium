@@ -217,7 +217,7 @@ ui-library/button/colour-overrides
 
 ### Example: Animated save
 
-An entrance animation, and an attention animation replayed on every click.
+Edit shows a Save button that fades in, and hides it with a fade out (`show` with entrance and exit). Each click on Save replays an attention animation. Entrances play when a button mounts, not on click.
 
 ```example
 ui-library/button/animated-save
