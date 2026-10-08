@@ -201,7 +201,7 @@ ui-library/button/full-width-form-actions
 
 ### Example: Disabled
 
-Every variant disabled until the box is ticked.
+Every variant disabled until the [Checkbox](checkbox.md) is ticked.
 
 ```example
 ui-library/button/disabled

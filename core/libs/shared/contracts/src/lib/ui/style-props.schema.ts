@@ -85,6 +85,15 @@ export const inputStylePropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** Checkbox's style props (decision 0057): the colour of its outline and fill, and spacing. The box is fixed. */
+export const checkboxStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** The outline, the checked fill and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
 export const textStylePropsSchema = sharedStylePropsSchema
   .extend({
     as: textElementSchema.optional(),

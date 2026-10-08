@@ -3,7 +3,7 @@ title: Container
 description: The general-purpose box for layout (flex, grid, position, overflow), spacing, sizing, colour, borders and animation.
 scope: core
 tags: [ui, component, layout]
-order: 2
+order: 3
 decisions: ["0042", "0043", "0045", "0048"]
 component:
   name: Container

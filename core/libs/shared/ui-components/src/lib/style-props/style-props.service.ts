@@ -3,6 +3,7 @@ import {
   variantKeys,
   type ButtonStyleProps,
   type ButtonVariant,
+  type CheckboxStyleProps,
   type ColorValue,
   type ContainerStyleProps,
   type IconStyleProps,
@@ -349,7 +350,8 @@ export function resolveButtonStyles(props: ButtonStyleProps) {
 /** Fixed input metrics: the field matches the button's 32px, with 12px side padding (none for standard). */
 const INPUT_HEIGHT = 32;
 const INPUT_PADDING_X = 12;
-const INPUT_ERROR_COLOR = 'var(--color-red-500)';
+/** The fixed error colour of form fields (decisions 0055 and 0057). */
+const FIELD_ERROR_COLOR = 'red' as const;
 
 /**
  * Resolves an Input (decision 0055): the outer element takes margin and width (default full), the field takes
@@ -374,11 +376,27 @@ export function resolveInputStyles(props: InputStyleProps, error: boolean) {
 
   const { className, style } = root.build();
   const colors = {
-    '--ui-input-accent': error ? INPUT_ERROR_COLOR : color(value),
-    '--ui-input-border': error ? INPUT_ERROR_COLOR : 'var(--color-surface-500)',
-    '--ui-input-border-hover': error ? INPUT_ERROR_COLOR : 'var(--color-surface-700)',
+    '--ui-input-accent': color(error ? FIELD_ERROR_COLOR : value),
+    '--ui-input-border': error ? color(FIELD_ERROR_COLOR) : 'var(--color-surface-500)',
+    '--ui-input-border-hover': error ? color(FIELD_ERROR_COLOR) : 'var(--color-surface-700)',
   };
   return { root: { className, style: { ...style, ...colors } as CSSProperties }, field: field.build() };
+}
+
+// --- Checkbox ---
+
+/**
+ * Resolves a Checkbox (decision 0057): margin and padding on the outer element, and the colours as variables
+ * read by the checkbox stylesheet: the outline, fill and focus outline, and the light check drawn on the fill.
+ * An error turns them red.
+ */
+export function resolveCheckboxStyles(props: CheckboxStyleProps, error: boolean) {
+  const value = error ? FIELD_ERROR_COLOR : (props.color ?? 'primary');
+  const builder = new StyleBuilder();
+  applyShared(builder, { margin: props.margin, padding: props.padding });
+  const { className, style } = builder.build();
+  const colors = { '--ui-checkbox-accent': color(value), '--ui-checkbox-on-accent': lightOf(value) };
+  return { className, style: { ...style, ...colors } as CSSProperties };
 }
 
 export function resolveContainerStyles(props: ContainerStyleProps) {

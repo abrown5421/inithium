@@ -13,10 +13,11 @@ Components are the atoms of the UI library: single-purpose elements that share t
 | Component | Use it for |
 | --- | --- |
 | [Button](button.md) | Actions: filled, outlined, ghost and link variants, with icons |
+| [Checkbox](checkbox.md) | Yes/no choices, with an indeterminate state for "select all" |
 | [Container](container.md) | Boxes and layout: flex, grid, position, overflow |
 | [Icon](icon.md) | Lucide icons by name |
 | [Input](input.md) | Single-line text fields: outlined, filled and standard, with a floating label |
 | [InputAdornment](input-adornment.md) | Icons and small buttons inside an Input |
 | [Text](text.md) | Headings, paragraphs, inline text and labels |
 
-Still to come: divider, spinner, select, checkbox, radio, switch, slider and tooltip.
+Still to come: divider, spinner, select, radio, switch, slider and tooltip.
