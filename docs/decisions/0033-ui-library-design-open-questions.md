@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-07"
 scope: core
 tags: [ui, components, props, design-system]
-related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038"]
+related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041"]
 supersedes: []
 ---
 
@@ -21,19 +21,15 @@ Tailwind v4 only generates classes it finds written out in full in the source, s
 
 Undecided. These are being worked through in order; each will be recorded as an accepted decision when settled.
 
-**Settled so far:** styles via static classes and CSS variables ([0034](0034-resolve-style-props-to-static-classes-and-css-variables.md)); serializable Zod schemas ([0035](0035-define-style-props-as-serializable-zod-schemas.md)); flat state and breakpoint keys ([0036](0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)); no `className` ([0037](0037-style-components-only-through-typed-props.md)); four libs with `ui:` layer tags ([0038](0038-split-the-ui-library-into-four-libs-with-layer-tags.md)).
+**Settled so far:** styles via static classes and CSS variables ([0034](0034-resolve-style-props-to-static-classes-and-css-variables.md)); serializable Zod schemas ([0035](0035-define-style-props-as-serializable-zod-schemas.md)); flat state and breakpoint keys ([0036](0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)); no `className` ([0037](0037-style-components-only-through-typed-props.md)); four libs with `ui:` layer tags ([0038](0038-split-the-ui-library-into-four-libs-with-layer-tags.md)); schemas in `shared-contracts` ([0039](0039-keep-style-prop-schemas-in-shared-contracts.md)); colour prop values and properties ([0040](0040-colour-prop-values-and-properties.md)); OKLCH scale generation ([0041](0041-generate-theme-scales-in-oklch.md)).
 
 **Prop system**
 
-- Where the style prop schemas live, so the API can validate stored page sections without importing React (e.g. in `@inithium/shared-contracts`, in `@inithium/shared-ui-theme` kept free of React, or in a separate schema lib). Related: whether lint should stop `scope:api` code importing React libs, since the UI libs are `scope:shared`.
+- Whether lint should stop `scope:api` code importing the React UI libs, which are `scope:shared`.
 
-**Colour props**
+**Colour**
 
-- Opacity in the colour object; colours without an intensity (`white`, `black`, `transparent`, `current`, `inherit`); shorthand forms.
-- An automatic readable text colour for a given background.
-- Whether CMS users are limited to theme tokens or can pick from Tailwind's full palette.
-- Which properties take a colour object (background, text, border, ring, outline, divider, placeholder, caret, accent, fill, stroke, shadow, gradient stops, decoration).
-- How scales are generated: the colour space and lightness curve.
+- Text on brand colours in dark mode. A brand 500 background stays the same in dark mode, but surface or brand text on it flips, so contrast can change between modes. Should mode-fixed text use Tailwind's fixed colours (e.g. `neutral-50`), or is another pattern needed? Can be decided when dark mode is built.
 
 **Other families and components**
 
@@ -50,4 +46,4 @@ None recorded yet.
 
 ## Consequences
 
-The UI foundation (`feat/ui-foundation`) can't be built until the schema location and the colour prop details are settled.
+The UI foundation (`feat/ui-foundation`) can't be built until the remaining prop families it ships with (at least spacing, plus anything Container and Text need) are settled.

@@ -201,6 +201,14 @@ Not built yet; the design is in progress (open questions in 0033). Decided so fa
 - **Style props** (colour, spacing and so on) are **serializable Zod schemas** with inferred types. They resolve to **fixed classes reading CSS variables** set inline (e.g. `bg-(--ui-bg)` + `--ui-bg: var(--color-emerald-200)`), never to classes built at runtime.
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
+- **Style prop schemas live in `@inithium/shared-contracts`,** so the API and plugins can validate them without React.
+- **Colour values:**
+  - `{ color, intensity, opacity? }` (a theme token or Tailwind colour; intensity 50–950; opacity 0–100);
+  - a shorthand name (`'primary'`, `'emerald'`), meaning 500;
+  - `'transparent'`.
+
+  There is no `white`, `black`, `current` or `inherit`; use the surface extremes instead. Colour props exist only for background, text, border, ring, outline and shadow. CMS colour controls offer theme tokens only.
+- **Scales** are generated in even OKLCH steps. The client's colour is exactly 500 for brand tokens and exactly 100 for surface.
 
 ### Profiles & assets
 Neither is built yet. When they are:
@@ -390,5 +398,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): where the style prop schemas live, colour prop details, the remaining prop families, the accessibility approach, presets, and what else the theme holds.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): the remaining prop families (spacing, sizing, layout, border, typography, effects, animation), the `as` prop, the accessibility approach, presets, what else the theme holds, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
