@@ -3,7 +3,7 @@ title: Container
 description: The general-purpose box for layout (flex, grid, position, overflow), spacing, sizing, colour, borders and animation.
 scope: core
 tags: [ui, component, layout]
-order: 1
+order: 2
 decisions: ["0042", "0043", "0045", "0048"]
 component:
   name: Container
@@ -495,7 +495,7 @@ ui-library/container/cascading-cards-on-scroll
 ## Accessibility
 
 - Choose `as` for meaning: landmarks (`main`, `nav`, `header`, `footer`, `aside`) help screen-reader users move around, and `ul`/`ol` with `li` children announce lists.
-- A clickable Container isn't a button. Give it `role="button"` and `tabIndex={0}`, and handle Enter and Space in `onKeyDown`. A Button component will replace this pattern.
+- A clickable Container isn't a button. Give it `role="button"` and `tabIndex={0}`, and handle Enter and Space in `onKeyDown`. Prefer [Button](button.md), which does all of this.
 - `hidden` hides content visually and from assistive technology. `show={false}` removes it from the page entirely, after its exit animation.
 
 ## Notes

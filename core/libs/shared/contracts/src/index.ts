@@ -5,6 +5,7 @@ export * from './lib/permissions/permissions.types';
 export * from './lib/ui/animation.schema';
 export * from './lib/ui/animation.types';
 export * from './lib/ui/borders.schema';
+export * from './lib/ui/button.schema';
 export * from './lib/ui/colors.schema';
 export * from './lib/ui/component-props.schema';
 export * from './lib/ui/component-props.types';

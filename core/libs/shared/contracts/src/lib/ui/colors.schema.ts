@@ -15,12 +15,8 @@ export const themeColorSchema = z.enum(themeColors);
 export const colorNameSchema = z.enum([...themeColors, ...tailwindColors]);
 export const intensitySchema = z.literal(intensities);
 
-/**
- * A colour: `{ color, intensity, opacity? }`, a colour name meaning intensity 500, or 'transparent'.
- * Opacity is a percentage (0–100).
- */
-export const colorValueSchema = z.union([
-  z.literal('transparent'),
+/** A colour other than 'transparent': `{ color, intensity, opacity? }` or a colour name meaning intensity 500. */
+export const solidColorValueSchema = z.union([
   colorNameSchema,
   z
     .object({
@@ -30,3 +26,9 @@ export const colorValueSchema = z.union([
     })
     .strict(),
 ]);
+
+/**
+ * A colour: `{ color, intensity, opacity? }`, a colour name meaning intensity 500, or 'transparent'.
+ * Opacity is a percentage (0–100).
+ */
+export const colorValueSchema = z.union([z.literal('transparent'), solidColorValueSchema]);
