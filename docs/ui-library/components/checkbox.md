@@ -14,7 +14,7 @@ component:
 
 # Checkbox
 
-Checkbox is a yes/no choice with its own label, helper text and error message ([0057](../../decisions/0057-style-checkboxes-from-one-colour-on-radix.md)). Its behaviour comes from [Radix](https://www.radix-ui.com/primitives/docs/components/checkbox) ([0056](../../decisions/0056-use-radix-primitives-for-interactive-widgets.md)): keyboard support, screen-reader states, and form submission. One `color` draws the outline when unchecked and the fill when checked. The box is 18px, centred in a 32px row, so a checkbox lines up with an [Input](input.md) or a [Button](button.md).
+Checkbox is a yes/no choice, usually submitted with a form (for settings that apply straight away, use a [Switch](switch.md)), with its own label, helper text and error message ([0057](../../decisions/0057-style-checkboxes-from-one-colour-on-radix.md)). Its behaviour comes from [Radix](https://www.radix-ui.com/primitives/docs/components/checkbox) ([0056](../../decisions/0056-use-radix-primitives-for-interactive-widgets.md)): keyboard support, screen-reader states, and form submission. One `color` draws the outline when unchecked and the fill when checked. The box is 18px, centred in a 32px row, so a checkbox lines up with an [Input](input.md) or a [Button](button.md).
 
 It also has an **indeterminate** state, for a "select all" box when only some items are selected.
 

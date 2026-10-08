@@ -11,6 +11,7 @@ import {
   type LoaderStyleProps,
   type SharedStyleProps,
   type SolidColorValue,
+  type SwitchStyleProps,
   type TextStyleProps,
   type VariantKey,
   type Variants,
@@ -397,6 +398,22 @@ export function resolveCheckboxStyles(props: CheckboxStyleProps, error: boolean)
   applyShared(builder, { margin: props.margin, padding: props.padding });
   const { className, style } = builder.build();
   const colors = { '--ui-checkbox-accent': color(value), '--ui-checkbox-on-accent': lightOf(value) };
+  return { className, style: { ...style, ...colors } as CSSProperties };
+}
+
+// --- Switch ---
+
+/**
+ * Resolves a Switch (decision 0059): margin and padding on the outer element, and the colours as variables read
+ * by the switch stylesheet: the track when on, focus and the thumb's icon (accent), and the thumb when on (the
+ * accent's 100 step). An error turns the accent red.
+ */
+export function resolveSwitchStyles(props: SwitchStyleProps, error: boolean) {
+  const value = error ? FIELD_ERROR_COLOR : (props.color ?? 'primary');
+  const builder = new StyleBuilder();
+  applyShared(builder, { margin: props.margin, padding: props.padding });
+  const { className, style } = builder.build();
+  const colors = { '--ui-switch-accent': color(value), '--ui-switch-on-accent': lightOf(value) };
   return { className, style: { ...style, ...colors } as CSSProperties };
 }
 

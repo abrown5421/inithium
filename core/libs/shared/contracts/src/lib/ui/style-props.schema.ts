@@ -108,6 +108,15 @@ export const loaderStylePropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** Switch's style props (decision 0059): the colour of its track when on, and spacing. The track is fixed. */
+export const switchStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** The track when on, the icon on the thumb when on, and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
 export const textStylePropsSchema = sharedStylePropsSchema
   .extend({
     as: textElementSchema.optional(),
