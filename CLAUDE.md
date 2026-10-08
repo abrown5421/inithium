@@ -202,6 +202,12 @@ The theme and the first components (Container, Text) are built; see `docs/refere
 - **Apps** wrap their root in `<UiProvider>` and their `styles.css` imports `tailwindcss` **with `theme(static)`** (colour props read Tailwind palette variables at runtime, so they must all be emitted) and then `libs/shared/ui-theme/src/styles/theme.css` (fonts).
 - A style prop takes a value or a flat variant object: `base`, breakpoints (`sm`–`2xl`), states (`hover`, `focus` meaning `:focus-visible`, `active`, `disabled`), or `'breakpoint:state'`.
 - **No `className` on UI components.** If a component can't express something, extend its props.
+- **Animation** (0048, not built yet): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
+  - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
+  - Changes to `show` mid-animation wait for the running animation to finish.
+  - Parents can `stagger={ms}` their children's entrances.
+  - `animation` is not a style prop: it takes no variant keys.
+  - animate.css's reduced-motion handling is kept.
 - **Style prop schemas live in `@inithium/shared-contracts`,** so the API and plugins can validate them without React.
 - **Colour values:**
   - `{ color, intensity, opacity? }` (a theme token or Tailwind colour; intensity 50–950; opacity 0–100);
@@ -343,6 +349,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
 - [ ] **UI library:** theme, Container and Text are built. Remaining: the other components (button, input, select, checkbox, radio, switch, slider, icon, divider, spinner, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
+- [ ] **Animation** (0048) isn't built: the animation prop, `show` lifecycle, attention/replay, in-view entrances and stagger, plus adding the `animate.css` dependency.
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Docs site** doesn't exist yet. Docs are Markdown only; the generator will be chosen when the marketing site is built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.
@@ -414,5 +421,5 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Password policy** ([0024](docs/decisions/0024-password-policy.md)): minimum length/complexity, breached-password checks, and whether they apply to `SEED_DEV_PASSWORD`.
 - **Role assignment rules** ([0025](docs/decisions/0025-role-assignment-rules.md)): who may create or change `owner`, `admin` and `editor` accounts, and whether a client can have several owners.
 - **Plugin upload storage requirements** ([0029](docs/decisions/0029-storage-requirements-for-plugin-uploads.md)): whether plugin uploads (e.g. blog post or product images) require a scalable storage driver, and who decides.
-- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): animation and other effects, the accessibility approach for interactive components, size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), whether feature libs and apps must build UI only from the library, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
+- **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): other effects (transitions, opacity, transforms), the accessibility approach for interactive components, size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), whether feature libs and apps must build UI only from the library, text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
 - **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.
