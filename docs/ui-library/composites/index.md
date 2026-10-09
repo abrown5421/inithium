@@ -19,6 +19,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
+| [Pagination](pagination.md) | Paging through long lists |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
-Still to come: pagination.
+Every composite planned for the first version is built. Layouts come next.
