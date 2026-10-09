@@ -8,6 +8,7 @@ import type {
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
+  radioGroupStylePropsSchema,
   sharedStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
@@ -25,4 +26,5 @@ export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
 export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;
 export type LoaderStyleProps = z.infer<typeof loaderStylePropsSchema>;
 export type DividerStyleProps = z.infer<typeof dividerStylePropsSchema>;
+export type RadioGroupStyleProps = z.infer<typeof radioGroupStylePropsSchema>;
 export type IconStyleProps = z.infer<typeof iconStylePropsSchema>;

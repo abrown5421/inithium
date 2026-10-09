@@ -20,7 +20,8 @@ Components are the atoms of the UI library: single-purpose elements that share t
 | [Input](input.md) | Single-line text fields: outlined, filled and standard, with a floating label |
 | [InputAdornment](input-adornment.md) | Icons and small buttons inside an Input |
 | [Loader](loader.md) | Loading indicators in ten variants, from a spinner to a progress bar |
+| [RadioGroup](radio-group.md) | One choice from a few options, as rows or cards |
 | [Switch](switch.md) | On/off settings, with optional icons on the thumb |
 | [Text](text.md) | Headings, paragraphs, inline text and labels |
 
-Still to come: select, radio, slider and tooltip.
+Still to come: select, slider and tooltip.

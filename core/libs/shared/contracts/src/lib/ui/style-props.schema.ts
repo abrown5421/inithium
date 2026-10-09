@@ -7,6 +7,7 @@ import { containerElementSchema, textElementSchema } from './elements.schema';
 import { inputVariantSchema } from './input.schema';
 import { flexItemSchema, flexSchema, gridItemSchema, gridSchema, overflowSchema, positionSchema } from './layout.schema';
 import { loaderVariantSchema } from './loader.schema';
+import { radioGroupOrientationSchema, radioGroupVariantSchema } from './radio-group.schema';
 import { sizeValueSchema } from './sizing.schema';
 import { marginSchema, paddingSchema } from './spacing.schema';
 import { fontFamilySchema, fontWeightSchema, textAlignSchema, truncateSchema } from './typography.schema';
@@ -130,6 +131,19 @@ export const dividerStylePropsSchema = sharedStylePropsSchema
     thickness: z.number().positive().optional(),
     /** Default 'solid'. */
     lineStyle: dividerLineStyleSchema.optional(),
+  })
+  .strict();
+
+/** RadioGroup's style props (decision 0061): variant, orientation, the colour of its controls, and spacing. */
+export const radioGroupStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** Plain rows or bordered cards. Default 'plain'. */
+    variant: radioGroupVariantSchema.optional(),
+    /** Default 'vertical'. */
+    orientation: radioGroupOrientationSchema.optional(),
+    /** The radio outlines, the selected dot, a selected card's border and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
   })
   .strict();
 

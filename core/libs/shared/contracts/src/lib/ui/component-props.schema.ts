@@ -3,6 +3,7 @@ import { animationSchema } from './animation.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
+import { radioOptionSchema } from './radio-group.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
 import {
   buttonStylePropsSchema,
@@ -12,6 +13,7 @@ import {
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
+  radioGroupStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -99,6 +101,18 @@ export const dividerPropsSchema = dividerStylePropsSchema
     labelAlign: dividerLabelAlignSchema.optional(),
     /** Hides the divider from screen readers, when it's purely visual. */
     decorative: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const radioGroupPropsSchema = radioGroupStylePropsSchema
+  .extend({
+    options: z.array(radioOptionSchema).min(1),
+    /** The group's name, shown above the options. */
+    label: z.string().min(1).optional(),
+    /** A line of guidance under the options. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
     animation: animationSchema.optional(),
   })
   .strict();
