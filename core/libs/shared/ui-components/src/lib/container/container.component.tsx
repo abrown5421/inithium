@@ -1,4 +1,4 @@
-import { useImperativeHandle, type AnimationEvent, type ElementType, type HTMLAttributes, type ReactNode, type Ref } from 'react';
+import { useImperativeHandle, type AnimationEvent, type CSSProperties, type ElementType, type HTMLAttributes, type ReactNode, type Ref } from 'react';
 import {
   containerStylePropsSchema,
   type ContainerSerializableProps,
@@ -24,7 +24,13 @@ export type ContainerProps = ContainerSerializableProps &
  */
 export function Container(props: ContainerProps) {
   const [styleProps, rest] = splitStyleProps(props, styleKeys);
-  const { children, animation, stagger, show, replay, onEntranceEnd, onExitEnd, ref, onAnimationEnd, ...attributes } = rest;
+  const { children, animation, stagger, show, replay, onEntranceEnd, onExitEnd, ref, onAnimationEnd, ...forwarded } = rest;
+  // Radix's asChild (used by composites) passes its own style and className to the child; merge them rather
+  // than letting them replace the style props.
+  const { style: slotStyle, className: slotClassName, ...attributes } = forwarded as typeof forwarded & {
+    style?: CSSProperties;
+    className?: string;
+  };
 
   const motion = useAnimation({ animation, show, replay, onEntranceEnd, onExitEnd });
   const { mounted, attach, getElement } = motion;
@@ -43,8 +49,8 @@ export function Container(props: ContainerProps) {
   return (
     <Element
       ref={attach}
-      className={[className, motion.className].filter(Boolean).join(' ') || undefined}
-      style={{ ...style, ...motion.style }}
+      className={[className, motion.className, slotClassName].filter(Boolean).join(' ') || undefined}
+      style={{ ...style, ...motion.style, ...slotStyle }}
       onAnimationEnd={handleAnimationEnd}
       {...attributes}
     >

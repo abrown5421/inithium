@@ -7,6 +7,7 @@ import type {
   iconPropsSchema,
   inputPropsSchema,
   loaderPropsSchema,
+  modalPropsSchema,
   radioGroupPropsSchema,
   selectPropsSchema,
   sliderPropsSchema,
@@ -44,6 +45,9 @@ export type SliderSerializableProps = z.infer<typeof sliderPropsSchema>;
 
 /** A Tooltip's storable props: content, side, align, colour, delay and arrow. */
 export type TooltipSerializableProps = z.infer<typeof tooltipPropsSchema>;
+
+/** A Modal's storable props: title, description, closing behaviour, overlay colour, animation and panel style props. */
+export type ModalSerializableProps = z.infer<typeof modalPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

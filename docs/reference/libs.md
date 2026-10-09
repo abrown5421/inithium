@@ -22,8 +22,9 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, theme, UI style props, animation |
 | `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, scale generation, `ThemeStyles`, theme fonts CSS |
 | `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation` |
+| `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Modal` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks, `createAppStore()`, `getApiErrorMessage()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard`, `CurrentUserMenu` |
 
 ### `@inithium/api-config`
@@ -51,9 +52,9 @@ Authentication for the API: the `/api/auth` routes, the `requireAuth` / `require
 
 The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `authResponseSchema` / `AuthResponse`, and `permissions` / `permissionSchema` / `Permission`.
 
-### `@inithium/shared-ui-theme` and `@inithium/shared-ui-components`
+### `@inithium/shared-ui-theme`, `@inithium/shared-ui-components` and `@inithium/shared-ui-composites`
 
-The first two layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
+The first three layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
 
 ### `@inithium/shared-permissions`
 
@@ -61,7 +62,7 @@ The permission matrix (`rolePermissions`) and `hasPermission(role, permission)`.
 
 ### `@inithium/shared-data-access`
 
-The frontends' RTK Query layer. `baseApi` calls `/api` and, on a `401`, refreshes the session once and retries. Features add endpoints with `baseApi.injectEndpoints()`. Also exports the auth endpoints (`useGetCurrentUserQuery`, `useLoginMutation`, `useLogoutMutation`), `createAppStore()` for an app's root `<Provider>`, and `getApiErrorMessage()`.
+The frontends' RTK Query layer. `baseApi` calls `/api` and, on a `401`, refreshes the session once and retries. Features add endpoints with `baseApi.injectEndpoints()`. Also exports the auth endpoints (`useGetCurrentUserQuery`, `useLoginMutation`, `useLogoutMutation`), `createAppStore()` for an app's root `<Provider>`, `getApiErrorMessage()`, and the global modal state: the `modals` slice (`openModal(id)`, `closeModal(id?)`, `selectOpenModalId`) and `useModal(id)` ([Modal](../ui-library/composites/modal.md)).
 
 ### `@inithium/cms-auth`
 

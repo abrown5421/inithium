@@ -47,6 +47,9 @@
       ],
       "@inithium/shared-ui-components": [
         "./libs/shared/ui-components/src/index.ts"
+      ],
+      "@inithium/shared-ui-composites": [
+        "./libs/shared/ui-composites/src/index.ts"
       ]
     }
   },
