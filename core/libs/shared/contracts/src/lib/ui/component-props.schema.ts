@@ -8,6 +8,7 @@ import { radioOptionSchema } from './radio-group.schema';
 import { selectOptionsSchema } from './select.schema';
 import { sliderMarksSchema, sliderValueLabelSchema } from './slider.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
+import { tabItemSchema } from './tabs.schema';
 import { tooltipAlignSchema, tooltipSideSchema } from './tooltip.schema';
 import {
   buttonStylePropsSchema,
@@ -18,6 +19,7 @@ import {
   inputStylePropsSchema,
   loaderStylePropsSchema,
   radioGroupStylePropsSchema,
+  sharedStylePropsSchema,
   sliderStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
@@ -203,6 +205,19 @@ export const modalPropsSchema = containerStylePropsSchema
     /** The overlay behind the panel. Default neutral 950 at 60%, dark in both modes. */
     overlayColor: colorValueSchema.optional(),
     /** The panel's entrance and exit. Default fadeInUp and fadeOutDown. */
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** Tabs' storable props (decision 0068): the tabs (without their content), colour, fill, spacing and animation. */
+export const tabsPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    tabs: z.array(tabItemSchema).min(1),
+    /** The active tab's underline and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+    /** Stretches the tabs to share the bar's width equally. Default false. */
+    fill: z.boolean().optional(),
     animation: animationSchema.optional(),
   })
   .strict();
