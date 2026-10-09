@@ -18,6 +18,7 @@ export * from './lib/ui/loader.schema';
 export * from './lib/ui/radio-group.schema';
 export * from './lib/ui/select.schema';
 export * from './lib/ui/sizing.schema';
+export * from './lib/ui/slider.schema';
 export * from './lib/ui/spacing.schema';
 export * from './lib/ui/switch.schema';
 export * from './lib/ui/style-props.schema';

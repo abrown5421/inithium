@@ -5,6 +5,7 @@ import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
 import { radioOptionSchema } from './radio-group.schema';
 import { selectOptionsSchema } from './select.schema';
+import { sliderMarksSchema, sliderValueLabelSchema } from './slider.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
 import {
   buttonStylePropsSchema,
@@ -15,6 +16,7 @@ import {
   inputStylePropsSchema,
   loaderStylePropsSchema,
   radioGroupStylePropsSchema,
+  sliderStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -131,6 +133,29 @@ export const selectPropsSchema = inputStylePropsSchema
     required: z.boolean().optional(),
     /** A decorative Lucide icon before the value. */
     leadingIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const sliderPropsSchema = sliderStylePropsSchema
+  .extend({
+    /** Default 0. */
+    min: z.number().optional(),
+    /** Default 100. */
+    max: z.number().optional(),
+    /** Default 1. */
+    step: z.number().positive().optional(),
+    /** For a range: how many steps apart the two thumbs must stay. Default 0. */
+    minStepsBetweenThumbs: z.number().min(0).optional(),
+    marks: sliderMarksSchema.optional(),
+    /** When the value shows above the thumb. Default 'auto' (while hovered, focused or dragged). */
+    valueLabel: sliderValueLabelSchema.optional(),
+    /** The slider's name, shown above it with the current value. */
+    label: z.string().min(1).optional(),
+    /** A line of guidance under the slider. */
+    helperText: z.string().optional(),
+    /** Marks the label with an asterisk. A slider always has a value. */
+    required: z.boolean().optional(),
     animation: animationSchema.optional(),
   })
   .strict();

@@ -147,6 +147,15 @@ export const radioGroupStylePropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** Slider's style props (decision 0063): the colour of its fill and thumbs, spacing and width. The track is fixed. */
+export const sliderStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true, width: true, minWidth: true, maxWidth: true })
+  .extend({
+    /** The filled part of the track, the thumbs and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
 export const textStylePropsSchema = sharedStylePropsSchema
   .extend({
     as: textElementSchema.optional(),

@@ -7,16 +7,17 @@ import { inputStyleSheet } from '../input/input.styles';
 import { loaderStyleSheet } from '../loader/loader.styles';
 import { radioGroupStyleSheet } from '../radio-group/radio-group.styles';
 import { selectStyleSheet } from '../select/select.styles';
+import { sliderStyleSheet } from '../slider/slider.styles';
 import { buildStyleSheet } from '../style-props/style-sheet.service';
 import { switchStyleSheet } from '../switch/switch.styles';
 
 // The stylesheets never change at runtime, so they're built once. Component stylesheets come first, so style
 // props (e.g. padding) win over them.
-const styleSheet = checkboxStyleSheet + dividerStyleSheet + inputStyleSheet + loaderStyleSheet + radioGroupStyleSheet + selectStyleSheet + switchStyleSheet + buildStyleSheet();
+const styleSheet = checkboxStyleSheet + dividerStyleSheet + inputStyleSheet + loaderStyleSheet + radioGroupStyleSheet + selectStyleSheet + sliderStyleSheet + switchStyleSheet + buildStyleSheet();
 
 /**
  * Wrap each app's root in this. It publishes the theme's colour scales, the stylesheet every style prop relies
- * on, and the fixed component stylesheets (Checkbox's, Divider's, Input's, Loader's, RadioGroup's, Select's and Switch's).
+ * on, and the fixed component stylesheets (Checkbox's, Divider's, Input's, Loader's, RadioGroup's, Select's, Slider's and Switch's).
  */
 export function UiProvider({ theme, children }: { theme?: ThemeConfig; children: ReactNode }) {
   return (

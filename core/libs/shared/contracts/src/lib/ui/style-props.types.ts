@@ -10,6 +10,7 @@ import type {
   loaderStylePropsSchema,
   radioGroupStylePropsSchema,
   sharedStylePropsSchema,
+  sliderStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -21,6 +22,7 @@ export type SharedStyleProps = z.infer<typeof sharedStylePropsSchema>;
 export type ButtonStyleProps = z.infer<typeof buttonStylePropsSchema>;
 export type CheckboxStyleProps = z.infer<typeof checkboxStylePropsSchema>;
 export type ContainerStyleProps = z.infer<typeof containerStylePropsSchema>;
+export type SliderStyleProps = z.infer<typeof sliderStylePropsSchema>;
 export type SwitchStyleProps = z.infer<typeof switchStylePropsSchema>;
 export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
 export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;

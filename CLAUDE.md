@@ -193,7 +193,7 @@ Boundary rules:
 - The API seeds a `dev` account from `SEED_DEV_EMAIL` / `SEED_DEV_PASSWORD` on startup when no dev user exists, and never modifies an existing account.
 
 ### UI library & theme
-The theme and the first components (Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup, Select) are built; see the manual's `docs/ui-library/` section (overview, style props, theme, animations, one page per component). Open questions are in 0033.
+The theme and the first components (Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup, Select, Slider) are built; see the manual's `docs/ui-library/` section (overview, style props, theme, animations, one page per component). Open questions are in 0033.
 - **Four layers**, each building only on those above it: **theme** (branding source of truth) → **components** (atoms: container, text, button, input, select, checkbox, radio, switch, slider, icon, divider, loader, tooltip) → **composites** (molecules, e.g. modal, alert, drawer, tabs) → **layouts** (organisms, e.g. collection view).
 - **Six colour tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale. No status tokens. Clients set the 500 of each brand token and the 100 of surface; the rest is generated.
 - **Surface roles:** 50–400 backgrounds, 500 borders and dividers, 600–950 text. The generator guarantees every text step meets WCAG AA on every background step.
@@ -214,6 +214,7 @@ The theme and the first components (Container, Text, Icon, Button, Input, Checkb
 - **RadioGroup** (0061): one data-driven component (Radix radio group): `options` `{ value, label, helperText?, disabled?, icon? }` are storable; `variant` `plain` (default) or `card` (bordered, tinted when selected, shows icons); `orientation` vertical (default) or horizontal; radios styled like Checkbox; group label, helper text, required, disabled and dismissible `error`.
 - **Select** (0062): Radix select drawn as an Input field (shares Input's classes, stylesheet and style props; sets `data-active`/`data-filled` on `.ui-input` so the label floats and the field shows focus while the list is open); options `{ value, label, icon?, disabled? }`, optionally grouped `{ label, options }`; the list opens below at the field's width, max 280px. No clearing, search or multi-select.
 - **Popups** (0062): render in a portal at the end of the page at z-index 50, so overflow never clips them. Follow this for every popup (Tooltip next).
+- **Slider** (0063): Radix slider; a number value gives one thumb, `[low, high]` a range (callbacks return the same shape); `min`/`max`/`step`, `minStepsBetweenThumbs`, `marks` (`true` or `{ value, label? }[]`), `valueLabel` `auto`/`always`/`off`, `formatValue` (runtime only); label row shows the value; `onValueCommit` when a change ends; horizontal only.
 - **Docs app** (0053): `npx nx serve docs` → http://localhost:5175 renders the manual with live examples. A component's examples are files, `core/apps/docs/src/examples/ui-library/<component>/<name>.example.tsx`, each default-exporting one component, embedded in its page with a fenced `example` block. (The old `/ui` gallery is gone.)
 - **Animation** (0048; built in `useAnimation`, used by every component): every component takes `animation={{ entrance, exit, attention }}`, using animate.css names, a speed (`faster`/`fast`/`slow`/`slower` or ms), a delay (`1s`–`5s` or ms), `repeat` for attention, and `when: 'mount' | 'inView'` for entrance.
   - **Runtime props**, outside the stored schema: `show` (default true; `false` plays the exit and then **unmounts**), `replay`, `onEntranceEnd` and `onExitEnd`.
@@ -363,7 +364,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0027).
-- [ ] **UI library:** theme, Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup and Select are built. Remaining: the other components (slider, tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
+- [ ] **UI library:** theme, Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup, Select and Slider are built. Remaining: the other components (tooltip), composites and layouts. Ring/outline colours wait on width/style props (0033).
 - [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
 - [ ] **`core/README.md`** is still the Nx-generated boilerplate.

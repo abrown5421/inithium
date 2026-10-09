@@ -22,7 +22,8 @@ Components are the atoms of the UI library: single-purpose elements that share t
 | [Loader](loader.md) | Loading indicators in ten variants, from a spinner to a progress bar |
 | [RadioGroup](radio-group.md) | One choice from a few options, as rows or cards |
 | [Select](select.md) | One choice from a list, in an Input-style field |
+| [Slider](slider.md) | A number or a range from a scale |
 | [Switch](switch.md) | On/off settings, with optional icons on the thumb |
 | [Text](text.md) | Headings, paragraphs, inline text and labels |
 
-Still to come: slider and tooltip.
+Still to come: tooltip.

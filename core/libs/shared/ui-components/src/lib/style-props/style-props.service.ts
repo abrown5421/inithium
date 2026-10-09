@@ -12,6 +12,7 @@ import {
   type LoaderStyleProps,
   type RadioGroupStyleProps,
   type SharedStyleProps,
+  type SliderStyleProps,
   type SolidColorValue,
   type SwitchStyleProps,
   type TextStyleProps,
@@ -417,6 +418,26 @@ export function resolveRadioGroupStyles(props: RadioGroupStyleProps, error: bool
   const { className, style } = builder.build();
   const accent = color(error ? FIELD_ERROR_COLOR : (props.color ?? 'primary'));
   return { className, style: { ...style, '--ui-radio-accent': accent } as CSSProperties };
+}
+
+// --- Slider ---
+
+/**
+ * Resolves a Slider (decision 0063): margin, padding and width (default full) on the outer element, and the
+ * accent as a variable read by the slider stylesheet. An error turns it red.
+ */
+export function resolveSliderStyles(props: SliderStyleProps, error: boolean) {
+  const builder = new StyleBuilder();
+  applyShared(builder, {
+    margin: props.margin,
+    padding: props.padding,
+    width: props.width ?? 'full',
+    minWidth: props.minWidth,
+    maxWidth: props.maxWidth,
+  });
+  const { className, style } = builder.build();
+  const accent = color(error ? FIELD_ERROR_COLOR : (props.color ?? 'primary'));
+  return { className, style: { ...style, '--ui-slider-accent': accent } as CSSProperties };
 }
 
 // --- Switch ---

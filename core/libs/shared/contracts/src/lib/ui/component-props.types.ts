@@ -9,6 +9,7 @@ import type {
   loaderPropsSchema,
   radioGroupPropsSchema,
   selectPropsSchema,
+  sliderPropsSchema,
   switchPropsSchema,
   textPropsSchema,
 } from './component-props.schema';
@@ -36,6 +37,9 @@ export type RadioGroupSerializableProps = z.infer<typeof radioGroupPropsSchema>;
 
 /** A Select's storable props: options, variant, colour, label, placeholder, helper text, required, icon, spacing, width and animation. */
 export type SelectSerializableProps = z.infer<typeof selectPropsSchema>;
+
+/** A Slider's storable props: range, step, marks, value label, label, helper text, colour, spacing, width and animation. */
+export type SliderSerializableProps = z.infer<typeof sliderPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;
