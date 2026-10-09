@@ -313,6 +313,24 @@ export const breadcrumbsPropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** A Pagination's storable props (decision 0073): its colour, how many neighbours show, options and spacing. */
+export const paginationPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** The current page and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+    /** How many pages show each side of the current one. Default 1. */
+    siblingCount: z.number().int().min(0).optional(),
+    /** Adds first-page and last-page buttons. Default false. */
+    showFirstLast: z.boolean().optional(),
+    /** Shows 'Page 5 of 20' between the arrows instead of page numbers. Default false. */
+    compact: z.boolean().optional(),
+    /** Page sizes offered in a 'Rows per page' select, e.g. [10, 25, 50]. */
+    pageSizeOptions: z.array(z.number().int().positive()).min(1).optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
 export const textPropsSchema = textStylePropsSchema.extend({ animation: animationSchema.optional() }).strict();
 
 export const iconPropsSchema = iconStylePropsSchema
