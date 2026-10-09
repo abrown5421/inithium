@@ -3,7 +3,7 @@ title: Drawer
 description: A panel that slides in from a screen edge over the page, with a pinned header and footer around a scrolling body, openable from anywhere through Redux.
 scope: core
 tags: [ui, composite, overlays]
-order: 5
+order: 6
 decisions: ["0048", "0056", "0065", "0071"]
 component:
   name: Drawer
