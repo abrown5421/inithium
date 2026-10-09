@@ -18,7 +18,7 @@ RadioGroup lets the user choose exactly one of a few options ([0061](../../decis
 
 Radios look like [Checkbox](checkbox.md)es made round: an 18px control outlined in `color`, with a `color` dot when selected. The group has a label, helper text and errors like Checkbox's.
 
-For more than about seven options, a select will suit better (not built yet). For a single yes/no, use a Checkbox or a [Switch](switch.md).
+For more than about seven options, a [Select](select.md) will suit better. For a single yes/no, use a Checkbox or a [Switch](switch.md).
 
 ## Import
 

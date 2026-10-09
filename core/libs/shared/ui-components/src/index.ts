@@ -8,6 +8,8 @@ export * from './lib/input/input.component';
 export * from './lib/input/input-adornment.component';
 export * from './lib/loader/loader.component';
 export * from './lib/radio-group/radio-group.component';
+export * from './lib/select/select.component';
+export * from './lib/slider/slider.component';
 export * from './lib/switch/switch.component';
 export * from './lib/text/text.component';
 export * from './lib/ui-provider/ui-provider.component';

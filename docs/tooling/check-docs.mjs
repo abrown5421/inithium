@@ -189,7 +189,8 @@ function exportedUi() {
     for (const [, path] of readFileSync(index, 'utf8').matchAll(/export \* from '\.\/(lib\/[^']+\.component)'/g)) {
       const source = join(libDir, `${path}.tsx`);
       if (!existsSync(source)) continue;
-      for (const [, name] of readFileSync(source, 'utf8').matchAll(/^export function ([A-Z][A-Za-z0-9]*)\(/gm)) {
+      // A component's name is followed by its parameters, or by type parameters if it's generic.
+      for (const [, name] of readFileSync(source, 'utf8').matchAll(/^export function ([A-Z][A-Za-z0-9]*)[<(]/gm)) {
         // Providers are app-level infrastructure, documented on the UI overview page.
         if (!name.endsWith('Provider')) found.push({ name, layer, import: `@inithium/shared-${lib}`, index });
       }

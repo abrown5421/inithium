@@ -4,6 +4,8 @@ import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
 import { radioOptionSchema } from './radio-group.schema';
+import { selectOptionsSchema } from './select.schema';
+import { sliderMarksSchema, sliderValueLabelSchema } from './slider.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
 import {
   buttonStylePropsSchema,
@@ -14,6 +16,7 @@ import {
   inputStylePropsSchema,
   loaderStylePropsSchema,
   radioGroupStylePropsSchema,
+  sliderStylePropsSchema,
   switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
@@ -112,6 +115,46 @@ export const radioGroupPropsSchema = radioGroupStylePropsSchema
     label: z.string().min(1).optional(),
     /** A line of guidance under the options. */
     helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A Select's field shares Input's style props: variant, colour, spacing and width (decision 0062). */
+export const selectPropsSchema = inputStylePropsSchema
+  .extend({
+    options: selectOptionsSchema,
+    /** Sits in the field and floats above it on focus, while open, or once there's a value. */
+    label: z.string().min(1).optional(),
+    /** Shown while nothing is chosen and the label has floated (or always, without a label). */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    /** A decorative Lucide icon before the value. */
+    leadingIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const sliderPropsSchema = sliderStylePropsSchema
+  .extend({
+    /** Default 0. */
+    min: z.number().optional(),
+    /** Default 100. */
+    max: z.number().optional(),
+    /** Default 1. */
+    step: z.number().positive().optional(),
+    /** For a range: how many steps apart the two thumbs must stay. Default 0. */
+    minStepsBetweenThumbs: z.number().min(0).optional(),
+    marks: sliderMarksSchema.optional(),
+    /** When the value shows above the thumb. Default 'auto' (while hovered, focused or dragged). */
+    valueLabel: sliderValueLabelSchema.optional(),
+    /** The slider's name, shown above it with the current value. */
+    label: z.string().min(1).optional(),
+    /** A line of guidance under the slider. */
+    helperText: z.string().optional(),
+    /** Marks the label with an asterisk. A slider always has a value. */
     required: z.boolean().optional(),
     animation: animationSchema.optional(),
   })

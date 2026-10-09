@@ -3,7 +3,7 @@ title: Text
 description: All text content (headings, paragraphs, inline text and labels) with typography, colour, spacing and animation props.
 scope: core
 tags: [ui, component, typography]
-order: 11
+order: 13
 decisions: ["0042", "0044", "0045", "0046", "0048"]
 component:
   name: Text
