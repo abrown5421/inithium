@@ -12,6 +12,8 @@ Composites combine components into larger pieces, for example a modal built from
 
 | Composite | Use it for |
 | --- | --- |
+| [Alert](alert.md) | Success, failure, warning and info messages, inline |
+| [AlertStack](alert-stack.md) | Alerts in a screen corner, raised from anywhere through Redux |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
 
-Still to come: alert, drawer, pagination, breadcrumbs, tabs, an auto-incrementing list and a colour picker.
+Still to come: drawer, pagination, breadcrumbs, tabs, an auto-incrementing list and a colour picker.

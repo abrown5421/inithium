@@ -22,9 +22,9 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, theme, UI style props, animation |
 | `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, scale generation, `ThemeStyles`, theme fonts CSS |
 | `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation` |
-| `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Modal` |
+| `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `Modal` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard`, `CurrentUserMenu` |
 
 ### `@inithium/api-config`
@@ -62,7 +62,7 @@ The permission matrix (`rolePermissions`) and `hasPermission(role, permission)`.
 
 ### `@inithium/shared-data-access`
 
-The frontends' RTK Query layer. `baseApi` calls `/api` and, on a `401`, refreshes the session once and retries. Features add endpoints with `baseApi.injectEndpoints()`. Also exports the auth endpoints (`useGetCurrentUserQuery`, `useLoginMutation`, `useLogoutMutation`), `createAppStore()` for an app's root `<Provider>`, `getApiErrorMessage()`, and the global modal state: the `modals` slice (`openModal(id)`, `closeModal(id?)`, `selectOpenModalId`) and `useModal(id)` ([Modal](../ui-library/composites/modal.md)).
+The frontends' RTK Query layer. `baseApi` calls `/api` and, on a `401`, refreshes the session once and retries. Features add endpoints with `baseApi.injectEndpoints()`. Also exports the auth endpoints (`useGetCurrentUserQuery`, `useLoginMutation`, `useLogoutMutation`), `createAppStore()` for an app's root `<Provider>`, `getApiErrorMessage()`, and the global modal state: the `modals` slice (`openModal(id)`, `closeModal(id?)`, `selectOpenModalId`) and `useModal(id)` ([Modal](../ui-library/composites/modal.md)); and the global alert queue: the `alerts` slice (`showAlert(content)`, `dismissAlert(id)`, `removeAlert(id)`, `selectAlerts`) and `useAlerts()` ([AlertStack](../ui-library/composites/alert-stack.md)).
 
 ### `@inithium/cms-auth`
 

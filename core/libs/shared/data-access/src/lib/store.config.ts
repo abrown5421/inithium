@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { alertsSlice } from './alerts.slice';
 import { baseApi } from './base.api';
 import { modalsSlice } from './modals.slice';
 
@@ -8,6 +9,7 @@ export function createAppStore() {
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer,
       [modalsSlice.name]: modalsSlice.reducer,
+      [alertsSlice.name]: alertsSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(baseApi.middleware),
   });
