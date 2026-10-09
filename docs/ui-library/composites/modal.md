@@ -3,7 +3,7 @@ title: Modal
 description: A dialog over the page, with a dark overlay and a centred panel that animates in and out, holding any content and openable from anywhere through Redux.
 scope: core
 tags: [ui, composite, overlays]
-order: 1
+order: 3
 decisions: ["0048", "0056", "0062", "0065"]
 component:
   name: Modal

@@ -2,6 +2,7 @@ export * from './lib/auth/auth.schema';
 export * from './lib/auth/auth.types';
 export * from './lib/permissions/permissions.schema';
 export * from './lib/permissions/permissions.types';
+export * from './lib/ui/alert.schema';
 export * from './lib/ui/animation.schema';
 export * from './lib/ui/animation.types';
 export * from './lib/ui/borders.schema';
