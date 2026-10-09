@@ -3,6 +3,7 @@ import type {
   buttonPropsSchema,
   checkboxPropsSchema,
   containerPropsSchema,
+  dividerPropsSchema,
   iconPropsSchema,
   inputPropsSchema,
   loaderPropsSchema,
@@ -24,6 +25,9 @@ export type LoaderSerializableProps = z.infer<typeof loaderPropsSchema>;
 
 /** A Switch's storable props: colour, label and its placement, helper text, required, thumb icons, spacing and animation. */
 export type SwitchSerializableProps = z.infer<typeof switchPropsSchema>;
+
+/** A Divider's storable props: orientation, line colour, thickness and style, label, spacing and animation. */
+export type DividerSerializableProps = z.infer<typeof dividerPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

@@ -3,7 +3,7 @@ title: Icon
 description: A Lucide icon by name, sized in pixels, coloured by the surrounding text, decorative unless labelled.
 scope: core
 tags: [ui, component, icons]
-order: 4
+order: 5
 decisions: ["0042", "0048", "0050"]
 component:
   name: Icon

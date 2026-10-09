@@ -4,6 +4,7 @@ import type {
   buttonStylePropsSchema,
   checkboxStylePropsSchema,
   containerStylePropsSchema,
+  dividerStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
@@ -23,4 +24,5 @@ export type SwitchStyleProps = z.infer<typeof switchStylePropsSchema>;
 export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
 export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;
 export type LoaderStyleProps = z.infer<typeof loaderStylePropsSchema>;
+export type DividerStyleProps = z.infer<typeof dividerStylePropsSchema>;
 export type IconStyleProps = z.infer<typeof iconStylePropsSchema>;

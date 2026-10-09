@@ -3,7 +3,7 @@ title: Loader
 description: A loading indicator in ten variants, from a spinner to a progress bar, in one colour and announced to screen readers.
 scope: core
 tags: [ui, component, feedback]
-order: 7
+order: 8
 decisions: ["0042", "0048", "0054", "0058"]
 component:
   name: Loader

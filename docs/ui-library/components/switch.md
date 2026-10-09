@@ -3,7 +3,7 @@ title: Switch
 description: An accessible on/off switch with optional thumb icons, a label on either side, helper text and errors, styled from one colour.
 scope: core
 tags: [ui, component, forms]
-order: 8
+order: 9
 decisions: ["0048", "0050", "0056", "0057", "0059"]
 component:
   name: Switch

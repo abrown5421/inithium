@@ -6,6 +6,7 @@ import {
   type CheckboxStyleProps,
   type ColorValue,
   type ContainerStyleProps,
+  type DividerStyleProps,
   type IconStyleProps,
   type InputStyleProps,
   type LoaderStyleProps,
@@ -415,6 +416,29 @@ export function resolveSwitchStyles(props: SwitchStyleProps, error: boolean) {
   const { className, style } = builder.build();
   const colors = { '--ui-switch-accent': color(value), '--ui-switch-on-accent': lightOf(value) };
   return { className, style: { ...style, ...colors } as CSSProperties };
+}
+
+// --- Divider ---
+
+/** A divider's default line: the theme's border role, softened. */
+const DIVIDER_COLOR: ColorValue = { color: 'surface', intensity: 500, opacity: 40 };
+
+/**
+ * Resolves a Divider (decision 0060): margin on the outer element, padding around the label, and the line as
+ * variables read by the divider stylesheet.
+ */
+export function resolveDividerStyles(props: DividerStyleProps) {
+  const root = new StyleBuilder();
+  applyShared(root, { margin: props.margin });
+  const label = new StyleBuilder();
+  applyShared(label, { padding: props.padding });
+  const { className, style } = root.build();
+  const line = {
+    '--ui-divider-color': color(props.color ?? DIVIDER_COLOR),
+    '--ui-divider-thickness': px(props.thickness ?? 1),
+    '--ui-divider-style': props.lineStyle ?? 'solid',
+  };
+  return { root: { className, style: { ...style, ...line } as CSSProperties }, label: label.build() };
 }
 
 // --- Loader ---

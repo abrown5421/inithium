@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { borderStyleSchema, borderWidthSchema, radiusSchema, shadowSizeSchema } from './borders.schema';
 import { buttonVariantSchema } from './button.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
+import { dividerLineStyleSchema, dividerOrientationSchema } from './divider.schema';
 import { containerElementSchema, textElementSchema } from './elements.schema';
 import { inputVariantSchema } from './input.schema';
 import { flexItemSchema, flexSchema, gridItemSchema, gridSchema, overflowSchema, positionSchema } from './layout.schema';
@@ -114,6 +115,21 @@ export const switchStylePropsSchema = sharedStylePropsSchema
   .extend({
     /** The track when on, the icon on the thumb when on, and the focus outline. Default 'primary' (500). */
     color: solidColorValueSchema.optional(),
+  })
+  .strict();
+
+/** Divider's style props (decision 0060): orientation, the line's colour, thickness and style, and spacing. */
+export const dividerStylePropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** Which way the line runs. Default 'horizontal'. */
+    orientation: dividerOrientationSchema.optional(),
+    /** The line's colour. Default surface 500 at 40% opacity. */
+    color: colorValueSchema.optional(),
+    /** The line's thickness in px. Default 1. */
+    thickness: z.number().positive().optional(),
+    /** Default 'solid'. */
+    lineStyle: dividerLineStyleSchema.optional(),
   })
   .strict();
 
