@@ -1,15 +1,21 @@
-import { Button, Container, Divider, Text } from '@inithium/shared-ui-components';
+import { Button, Container, Divider, Text, Tooltip } from '@inithium/shared-ui-components';
+
+const tool = (icon: 'bold' | 'italic' | 'align-left' | 'align-center', label: string) => (
+  <Tooltip content={label} side="bottom">
+    <Button variant="ghost" leadingIcon={icon} aria-label={label} padding={{ x: 6 }} />
+  </Tooltip>
+);
 
 export default function ExampleDividerVertical() {
   return (
     <Container flex={{ direction: 'column', gap: 20 }}>
       {/* Between buttons in a toolbar: stretches to the row's height. */}
       <Container flex={{ align: 'center', gap: 4 }}>
-        <Button variant="ghost" leadingIcon="bold" aria-label="Bold" padding={{ x: 6 }} />
-        <Button variant="ghost" leadingIcon="italic" aria-label="Italic" padding={{ x: 6 }} />
+        {tool('bold', 'Bold')}
+        {tool('italic', 'Italic')}
         <Divider orientation="vertical" margin={{ x: 4 }} decorative />
-        <Button variant="ghost" leadingIcon="align-left" aria-label="Align left" padding={{ x: 6 }} />
-        <Button variant="ghost" leadingIcon="align-center" aria-label="Align centre" padding={{ x: 6 }} />
+        {tool('align-left', 'Align left')}
+        {tool('align-center', 'Align centre')}
       </Container>
       {/* Inline in text: 1em tall. */}
       <Text fontSize={14}>

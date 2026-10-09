@@ -25,5 +25,6 @@ Components are the atoms of the UI library: single-purpose elements that share t
 | [Slider](slider.md) | A number or a range from a scale |
 | [Switch](switch.md) | On/off settings, with optional icons on the thumb |
 | [Text](text.md) | Headings, paragraphs, inline text and labels |
+| [Tooltip](tooltip.md) | Short descriptions on hover and focus |
 
-Still to come: tooltip.
+Every component planned for the first version is built. Composites and layouts come next.

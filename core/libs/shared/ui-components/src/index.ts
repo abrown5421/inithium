@@ -12,4 +12,5 @@ export * from './lib/select/select.component';
 export * from './lib/slider/slider.component';
 export * from './lib/switch/switch.component';
 export * from './lib/text/text.component';
+export * from './lib/tooltip/tooltip.component';
 export * from './lib/ui-provider/ui-provider.component';

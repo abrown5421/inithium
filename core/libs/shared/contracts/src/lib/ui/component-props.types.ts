@@ -12,6 +12,7 @@ import type {
   sliderPropsSchema,
   switchPropsSchema,
   textPropsSchema,
+  tooltipPropsSchema,
 } from './component-props.schema';
 
 /** A Button's storable props: variant, colours, spacing, width, icons and animation. */
@@ -40,6 +41,9 @@ export type SelectSerializableProps = z.infer<typeof selectPropsSchema>;
 
 /** A Slider's storable props: range, step, marks, value label, label, helper text, colour, spacing, width and animation. */
 export type SliderSerializableProps = z.infer<typeof sliderPropsSchema>;
+
+/** A Tooltip's storable props: content, side, align, colour, delay and arrow. */
+export type TooltipSerializableProps = z.infer<typeof tooltipPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;
