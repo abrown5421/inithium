@@ -232,7 +232,7 @@ The theme and the first components (Container, Text, Icon, Button, Input, Checkb
   - a shorthand name (`'primary'`, `'emerald'`), meaning 500;
   - `'transparent'`.
 
-  There is no `white`, `black`, `current` or `inherit`; use the surface extremes instead. Colour props exist only for background, text, border, ring, outline and shadow. CMS colour controls offer theme tokens only.
+  There is no `white`, `black`, `current` or `inherit`; use the surface extremes instead. Colour props exist only for background, text, border, ring, outline and shadow. CMS colour controls (e.g. the page editor's colour picker) may offer theme tokens and Tailwind colours; the theme's own colours are set as hex codes in theme settings, never picked (0067). Theme colours are stored as references, so choices follow a re-brand.
 - **Scales** are generated in even OKLCH steps. The client's colour is exactly 500 for brand tokens and exactly 100 for surface.
 - **Measurements are pixel numbers,** never Tailwind spacing steps.
   - Spacing: `margin` / `padding` take `{ all, x, y, top, right, bottom, left }`; specific keys override general ones; negative margins and offsets are allowed.

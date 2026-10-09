@@ -4,7 +4,7 @@ description: The prop shapes every UI component shares, defined once and referen
 scope: core
 tags: [ui, props, colour, spacing, sizing]
 order: 1
-decisions: ["0034", "0035", "0036", "0040", "0042"]
+decisions: ["0034", "0035", "0036", "0067", "0042"]
 ---
 
 # Style props
@@ -48,7 +48,7 @@ bgColor={{
 
 ### Colour value
 
-A theme token or Tailwind colour ([0040](../decisions/0040-colour-prop-values-and-properties.md)). Written `Colour` in type tables.
+A theme token or Tailwind colour ([0067](../decisions/0067-colour-values-with-the-full-palette-in-cms-controls.md)). Written `Colour` in type tables.
 
 | Form | Example | Result |
 | --- | --- | --- |
