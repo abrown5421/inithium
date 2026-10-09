@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
-import { solidColorValueSchema } from './colors.schema';
+import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
@@ -180,6 +180,30 @@ export const tooltipPropsSchema = z
     delay: z.number().min(0).optional(),
     /** Whether a small arrow points at the element. Default true. */
     arrow: z.boolean().optional(),
+  })
+  .strict();
+
+/**
+ * A Modal's storable props (decision 0065): its title and description, how it closes, the overlay colour, the
+ * panel's animation, and the panel's Container style props. Its content (children) isn't stored here.
+ */
+export const modalPropsSchema = containerStylePropsSchema
+  .omit({ as: true })
+  .extend({
+    /** The modal's heading; also its name for screen readers. */
+    title: z.string().min(1),
+    /** A line under the title, read with it by screen readers. */
+    description: z.string().optional(),
+    /** Keeps the title for screen readers only. Default false. */
+    hideTitle: z.boolean().optional(),
+    /** Whether the overlay click and Escape close it. Default true. */
+    dismissible: z.boolean().optional(),
+    /** Whether an ✕ button shows in the top-right corner. Default true. */
+    closeButton: z.boolean().optional(),
+    /** The overlay behind the panel. Default neutral 950 at 60%, dark in both modes. */
+    overlayColor: colorValueSchema.optional(),
+    /** The panel's entrance and exit. Default fadeInUp and fadeOutDown. */
+    animation: animationSchema.optional(),
   })
   .strict();
 
