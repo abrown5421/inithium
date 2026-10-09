@@ -27,6 +27,8 @@ export const alertContentSchema = z
     color: solidColorValueSchema.optional(),
     /** A Lucide icon before the text. */
     icon: iconNameSchema.optional(),
+    /** A round picture before the text instead of the icon, e.g. a sender's avatar. */
+    image: z.object({ src: z.string().min(1), alt: z.string().optional() }).strict().optional(),
     /** A link shown under the message. */
     action: alertActionSchema.optional(),
     /** How long before it closes by itself, in ms; null keeps it until dismissed. Default 5000. */

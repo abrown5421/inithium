@@ -14,7 +14,7 @@ component:
 
 # Alert
 
-Alert tells the user something: that a save worked or failed, that storage is nearly full, that a friend request arrived ([0066](../../decisions/0066-show-alerts-from-a-global-queue-in-a-screen-corner.md)). It's a card with an optional icon and title, the message, an optional link, and an ✕, all in one colour: text, border and icon in the colour's 600 step on its 100 step.
+Alert tells the user something: that a save worked or failed, that storage is nearly full, that a friend request arrived ([0066](../../decisions/0066-show-alerts-from-a-global-queue-in-a-screen-corner.md)). It's a card with an optional icon (or picture, or any element) and title, the message, an optional link, and an ✕, all in one colour: text, border and icon in the colour's 600 step on its 100 step.
 
 Use Alert directly to put a message **inline** on a page, e.g. above a form. To show alerts **in a corner of the screen** that close by themselves, raised from anywhere in the app, use an [AlertStack](alert-stack.md) with the global alert queue.
 
@@ -36,6 +36,8 @@ import { Alert } from '@inithium/shared-ui-composites';
 | [`title`](#message-and-title) | `ReactNode` | none | A bold line above it |
 | [`color`](#color) | `Colour` (not `'transparent'`) | `'primary'` | The alert's colour |
 | [`icon`](#icon) | `IconName` | none | Lucide icon before the text |
+| [`image`](#image) | `{ src, alt? }` | none | Round picture instead of the icon |
+| [`leading`](#leading) | `ReactNode` | none | Any element instead of the icon |
 | [`action`](#action) | `{ label, href?, onClick? }` | none | A link under the message |
 | [`onDismiss`](#ondismiss) | `() => void` | none | Shows an ✕ that calls it |
 | [`role`](#role) | `'status' \| 'alert'` | none | Announce an inline alert |
@@ -67,6 +69,22 @@ A [Lucide icon](../components/icon.md#name) at 20px before the text, in the aler
 
 ```tsx
 <Alert color="amber" icon="triangle-alert" message="Storage almost full." />
+```
+
+#### `image`
+
+A round 32px picture in place of the icon, e.g. the sender's avatar on a friend request. It's plain data, so it works in alerts raised through Redux. `alt` defaults to empty, since the message usually names the person. **Type:** `{ src: string; alt?: string }`.
+
+```tsx
+<Alert image={{ src: user.avatarUrl, alt: user.name }} title="New friend request" message={`${user.name} wants to connect.`} />
+```
+
+#### `leading`
+
+Any element in place of the icon or image: a Loader, a badge, and, once it exists, an Avatar component. It's centred on the first line of text, like the icon and the ✕. For inline alerts in code; alerts raised through Redux use `icon` or `image`. **Type:** `ReactNode`.
+
+```tsx
+<Alert leading={<Loader size={18} />} message="Uploading 3 files…" />
 ```
 
 #### `action`
@@ -115,6 +133,14 @@ An inline alert with an action and an ✕ that animates it out.
 ui-library/alert/inline-dismissible
 ```
 
+### Example: Custom leading
+
+An avatar image, a Loader and a count badge in the icon's place, each centred on the first line with the ✕.
+
+```example
+ui-library/alert/custom-leading
+```
+
 ### Example: Colours
 
 Any colour works.
@@ -132,5 +158,5 @@ ui-library/alert/colours
 
 ## Notes
 
-- **Fixed metrics:** at most 360px wide (the width of its container below that), 12px padding, a 2px border, an 8px radius, a large shadow, 14px text and a 20px icon.
+- **Fixed metrics:** at most 360px wide (the width of its container below that), 12px padding, a 2px border, an 8px radius, a large shadow, 14px text on a 20px line, a 20px icon or 32px image. The icon, image or leading element and the ✕ are centred on the first line.
 - **Schema:** an alert's content is `alertContentSchema` (type `AlertContent`) in `@inithium/shared-contracts`.

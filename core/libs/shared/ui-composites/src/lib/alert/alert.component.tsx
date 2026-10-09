@@ -2,6 +2,12 @@ import type { ReactNode } from 'react';
 import type { Animation, SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Text, type AnimationRuntimeProps, type ContainerProps, type IconName } from '@inithium/shared-ui-components';
 
+/** Text size and line height, px. The leading slot and the ✕ centre on the first line. */
+const FONT_SIZE = 14;
+const LINE = 20;
+/** Size of an image in the leading slot, e.g. a sender's avatar, px. */
+const IMAGE_SIZE = 32;
+
 /** The colour's name at a given step, e.g. emerald → emerald-600. */
 const shade = (value: SolidColorValue, intensity: 100 | 600): SolidColorValue => ({
   color: typeof value === 'string' ? value : value.color,
@@ -17,6 +23,10 @@ export type AlertProps = AnimationRuntimeProps & {
   color?: SolidColorValue;
   /** A Lucide icon before the text. */
   icon?: IconName;
+  /** A round picture before the text instead of the icon, e.g. a sender's avatar. */
+  image?: { src: string; alt?: string };
+  /** Anything before the text instead of the icon or image, e.g. an Avatar component. */
+  leading?: ReactNode;
   /** A link-style button under the message. With only an href, it navigates there. */
   action?: { label: string; href?: string; onClick?: () => void };
   /** Shows an ✕ that calls this. Without it there's no ✕. */
@@ -36,6 +46,8 @@ export function Alert({
   title,
   color = 'primary',
   icon,
+  image,
+  leading,
   action,
   onDismiss,
   animation,
@@ -51,6 +63,19 @@ export function Alert({
     if (action?.onClick) action.onClick();
     else if (action?.href) window.location.assign(action.href);
   };
+  const lead =
+    leading ??
+    (image ? (
+      <img
+        src={image.src}
+        alt={image.alt ?? ''}
+        width={IMAGE_SIZE}
+        height={IMAGE_SIZE}
+        style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+      />
+    ) : (
+      icon && <Icon name={icon} size={20} />
+    ));
 
   return (
     <Container
@@ -72,14 +97,19 @@ export function Alert({
       onEntranceEnd={onEntranceEnd}
       onExitEnd={onExitEnd}
     >
-      {icon && <Icon name={icon} size={20} margin={{ top: 2 }} />}
+      {/* A first-line-tall row, so whatever leads is centred on the first line (taller things overflow evenly). */}
+      {lead && (
+        <Container height={LINE} flex={{ align: 'center', justify: 'center' }} flexItem={{ shrink: 0 }}>
+          {lead}
+        </Container>
+      )}
       <Container flex={{ direction: 'column', gap: 2 }} flexItem={{ grow: 1 }} minWidth={0}>
         {title && (
-          <Text as="span" fontSize={14} fontWeight={700}>
+          <Text as="span" fontSize={FONT_SIZE} lineHeight={LINE / FONT_SIZE} fontWeight={700}>
             {title}
           </Text>
         )}
-        <Text as="span" fontSize={14}>
+        <Text as="span" fontSize={FONT_SIZE} lineHeight={LINE / FONT_SIZE}>
           {message}
         </Text>
         {action && (
@@ -91,7 +121,9 @@ export function Alert({
         )}
       </Container>
       {onDismiss && (
-        <Button variant="ghost" color={strong} leadingIcon="x" aria-label="Dismiss" padding={{ x: 6 }} margin={{ top: -4 }} onClick={onDismiss} />
+        <Container height={LINE} flex={{ align: 'center' }} flexItem={{ shrink: 0 }}>
+          <Button variant="ghost" color={strong} leadingIcon="x" aria-label="Dismiss" padding={{ x: 6 }} onClick={onDismiss} />
+        </Container>
       )}
     </Container>
   );

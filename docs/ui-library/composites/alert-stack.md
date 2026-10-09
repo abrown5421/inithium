@@ -53,7 +53,7 @@ import { showAlert, dismissAlert, useAlerts } from '@inithium/shared-data-access
    socket.on('friend-request', (request) => {
      store.dispatch(
        showAlert({
-         icon: 'user-plus',
+         image: { src: request.fromAvatarUrl, alt: request.from },
          title: 'New friend request',
          message: `${request.from} wants to connect.`,
          action: { label: 'View requests', href: '/friends' },
@@ -65,7 +65,7 @@ import { showAlert, dismissAlert, useAlerts } from '@inithium/shared-data-access
 
 `show()` returns the new alert's id; `dispatch(dismissAlert(id))` (or `useAlerts().dismiss(id)`) closes it early. At most 5 alerts show at once: a 6th closes the oldest.
 
-**An alert's content is plain data,** so it can travel through Redux and be stored: `message`, and optionally `title`, `color`, `icon`, `action` (`{ label, href }`), `duration`, `urgent` and `animation`, as described on [Alert](alert.md) and below.
+**An alert's content is plain data,** so it can travel through Redux and be stored: `message`, and optionally `title`, `color`, `icon` or `image` (`{ src, alt? }`, e.g. a sender's avatar), `action` (`{ label, href }`), `duration`, `urgent` and `animation`, as described on [Alert](alert.md) and below.
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -117,7 +117,7 @@ ui-library/alert-stack/show-alerts
 
 ### Example: Real time, with an action
 
-A simulated friend request arrives after a moment and stays until dismissed; "View requests" navigates with the router.
+A simulated friend request, with the sender's avatar, arrives after a moment and stays until dismissed; "View requests" navigates with the router.
 
 ```example
 ui-library/alert-stack/real-time-with-an-action
