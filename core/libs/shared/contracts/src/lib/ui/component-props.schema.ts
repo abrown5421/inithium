@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
+import { colorPickerPaletteSchema } from './color-picker.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
@@ -218,6 +219,22 @@ export const tabsPropsSchema = sharedStylePropsSchema
     color: solidColorValueSchema.optional(),
     /** Stretches the tabs to share the bar's width equally. Default false. */
     fill: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A ColorPicker's storable props (decision 0069): its field (Input's style props), label, placeholder, palette. */
+export const colorPickerPropsSchema = inputStylePropsSchema
+  .extend({
+    /** Sits in the field and floats above it once a colour is chosen or the panel is open. */
+    label: z.string().min(1).optional(),
+    /** Shown while no colour is chosen. */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    /** 'all' (default): theme tokens and Tailwind colours, in two tabs. 'theme': theme tokens only. */
+    palette: colorPickerPaletteSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();

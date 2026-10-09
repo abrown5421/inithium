@@ -2,6 +2,7 @@ import type { z } from 'zod';
 import type {
   buttonPropsSchema,
   checkboxPropsSchema,
+  colorPickerPropsSchema,
   containerPropsSchema,
   dividerPropsSchema,
   iconPropsSchema,
@@ -52,6 +53,9 @@ export type ModalSerializableProps = z.infer<typeof modalPropsSchema>;
 
 /** Tabs' storable props: the tabs (value, label, icon, disabled), colour, fill, spacing and animation. */
 export type TabsSerializableProps = z.infer<typeof tabsPropsSchema>;
+
+/** A ColorPicker's storable props: field style props, label, placeholder, helper text, required, palette and animation. */
+export type ColorPickerSerializableProps = z.infer<typeof colorPickerPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;
