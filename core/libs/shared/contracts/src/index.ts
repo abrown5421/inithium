@@ -25,6 +25,7 @@ export * from './lib/ui/style-props.schema';
 export * from './lib/ui/style-props.types';
 export * from './lib/ui/theme.schema';
 export * from './lib/ui/theme.types';
+export * from './lib/ui/tooltip.schema';
 export * from './lib/ui/typography.schema';
 export * from './lib/ui/variants.schema';
 export * from './lib/users/users.schema';

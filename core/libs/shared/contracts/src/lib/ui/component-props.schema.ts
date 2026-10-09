@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
+import { solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
@@ -7,6 +8,7 @@ import { radioOptionSchema } from './radio-group.schema';
 import { selectOptionsSchema } from './select.schema';
 import { sliderMarksSchema, sliderValueLabelSchema } from './slider.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
+import { tooltipAlignSchema, tooltipSideSchema } from './tooltip.schema';
 import {
   buttonStylePropsSchema,
   checkboxStylePropsSchema,
@@ -157,6 +159,27 @@ export const sliderPropsSchema = sliderStylePropsSchema
     /** Marks the label with an asterisk. A slider always has a value. */
     required: z.boolean().optional(),
     animation: animationSchema.optional(),
+  })
+  .strict();
+
+/**
+ * A Tooltip's storable props (decision 0064). It wraps an element rather than rendering one, so it has no style
+ * props or animation of its own.
+ */
+export const tooltipPropsSchema = z
+  .object({
+    /** The text shown. */
+    content: z.string().min(1),
+    /** Default 'top'. */
+    side: tooltipSideSchema.optional(),
+    /** Default 'center'. */
+    align: tooltipAlignSchema.optional(),
+    /** The bubble's colour; its text is the colour's 100 step. Default surface 900. */
+    color: solidColorValueSchema.optional(),
+    /** How long to hover before it opens, in ms. Default 500. */
+    delay: z.number().min(0).optional(),
+    /** Whether a small arrow points at the element. Default true. */
+    arrow: z.boolean().optional(),
   })
   .strict();
 

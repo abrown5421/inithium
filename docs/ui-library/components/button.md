@@ -85,7 +85,7 @@ A [Lucide icon name](icon.md#name) shown before or after the content, at 16px in
 <Button trailingIcon="arrow-right">Continue</Button>
 <Button leadingIcon="download" trailingIcon="chevron-down">Export</Button>
 
-// Icon-only: label it for screen readers, and even out the padding.
+// Icon-only: label it for screen readers, even out the padding, and add a Tooltip for sighted users.
 <Button variant="ghost" leadingIcon="settings" aria-label="Settings" padding={{ x: 6 }} />
 ```
 

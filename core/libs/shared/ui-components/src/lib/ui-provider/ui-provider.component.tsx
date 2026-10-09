@@ -10,21 +10,34 @@ import { selectStyleSheet } from '../select/select.styles';
 import { sliderStyleSheet } from '../slider/slider.styles';
 import { buildStyleSheet } from '../style-props/style-sheet.service';
 import { switchStyleSheet } from '../switch/switch.styles';
+import { TooltipProvider } from '../tooltip/tooltip.component';
+import { tooltipStyleSheet } from '../tooltip/tooltip.styles';
 
 // The stylesheets never change at runtime, so they're built once. Component stylesheets come first, so style
 // props (e.g. padding) win over them.
-const styleSheet = checkboxStyleSheet + dividerStyleSheet + inputStyleSheet + loaderStyleSheet + radioGroupStyleSheet + selectStyleSheet + sliderStyleSheet + switchStyleSheet + buildStyleSheet();
+const componentStyleSheets = [
+  checkboxStyleSheet,
+  dividerStyleSheet,
+  inputStyleSheet,
+  loaderStyleSheet,
+  radioGroupStyleSheet,
+  selectStyleSheet,
+  sliderStyleSheet,
+  switchStyleSheet,
+  tooltipStyleSheet,
+];
+const styleSheet = componentStyleSheets.join('') + buildStyleSheet();
 
 /**
- * Wrap each app's root in this. It publishes the theme's colour scales, the stylesheet every style prop relies
- * on, and the fixed component stylesheets (Checkbox's, Divider's, Input's, Loader's, RadioGroup's, Select's, Slider's and Switch's).
+ * Wrap each app's root in this. It publishes the theme's colour scales, the fixed component stylesheets and the
+ * stylesheet every style prop relies on, and shares tooltip timing.
  */
 export function UiProvider({ theme, children }: { theme?: ThemeConfig; children: ReactNode }) {
   return (
     <>
       <ThemeStyles theme={theme} />
       <style>{styleSheet}</style>
-      {children}
+      <TooltipProvider>{children}</TooltipProvider>
     </>
   );
 }

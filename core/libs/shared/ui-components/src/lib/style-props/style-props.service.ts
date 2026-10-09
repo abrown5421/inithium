@@ -479,6 +479,16 @@ export function resolveDividerStyles(props: DividerStyleProps) {
   return { root: { className, style: { ...style, ...line } as CSSProperties }, label: label.build() };
 }
 
+// --- Tooltip ---
+
+/** A tooltip's default bubble: the darkest surface. */
+const TOOLTIP_COLOR: SolidColorValue = { color: 'surface', intensity: 900 };
+
+/** Resolves a Tooltip's colours (decision 0064): the bubble and arrow, and its text in the colour's 100 step. */
+export function resolveTooltipStyles(value: SolidColorValue = TOOLTIP_COLOR) {
+  return { '--ui-tooltip-bg': color(value), '--ui-tooltip-fg': lightOf(value) } as CSSProperties;
+}
+
 // --- Loader ---
 
 /** Default loader size, matching Icon's. */
