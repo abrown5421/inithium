@@ -15,9 +15,10 @@ Composites combine components into larger pieces, for example a modal built from
 | [Alert](alert.md) | Success, failure, warning and info messages, inline |
 | [AlertStack](alert-stack.md) | Alerts in a screen corner, raised from anywhere through Redux |
 | [AutoIncrementingList](auto-incrementing-list.md) | Lists the user grows and shrinks one row at a time, around any content |
+| [Breadcrumbs](breadcrumbs.md) | The path from the top of a site to the current page |
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
-Still to come: pagination and breadcrumbs.
+Still to come: pagination.

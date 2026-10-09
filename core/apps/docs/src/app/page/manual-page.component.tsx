@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Container, Icon, Text } from '@inithium/shared-ui-components';
+import { Breadcrumbs } from '@inithium/shared-ui-composites';
 import { readingOrder, sectionTrail, vscodeLink, type ManualPage } from '../manual/manual.service';
 import { markdownComponents } from './markdown-elements.component';
 
@@ -36,6 +37,7 @@ function NeighbourLink({ page, direction }: { page: ManualPage; direction: 'prev
 /** One manual page: breadcrumb, Markdown body, edit link and previous/next navigation. */
 export function ManualPageView({ page }: { page: ManualPage }) {
   const { hash } = useLocation();
+  const navigate = useNavigate();
   const components = useMemo(() => markdownComponents(page), [page]);
   const position = readingOrder.indexOf(page);
   const previous = readingOrder[position - 1];
@@ -52,18 +54,10 @@ export function ManualPageView({ page }: { page: ManualPage }) {
   return (
     <Container as="article" flex={{ direction: 'column' }}>
       <Container flex={{ align: 'center', justify: 'between', wrap: 'wrap', gap: 8 }} margin={{ bottom: 16 }}>
-        <Container as="nav" aria-label="Breadcrumb" flex={{ align: 'center', gap: 6, wrap: 'wrap' }}>
-          {trail.map((section) => (
-            <Container key={section.slug} flex={{ align: 'center', gap: 6 }}>
-              <Link to={`/${section.slug}`}>
-                <Text as="span" fontSize={13} textColor={{ base: muted, hover: { color: 'primary', intensity: 700 } }}>
-                  {section.title}
-                </Text>
-              </Link>
-              <Icon name="chevron-right" size={12} textColor={muted} />
-            </Container>
-          ))}
-        </Container>
+        <Breadcrumbs
+          items={[...trail.map((section) => ({ label: section.title, href: `/${section.slug}` })), { label: page.title }]}
+          onNavigate={(href) => navigate(href)}
+        />
         <a href={vscodeLink(page.file)} title="Open this page in VS Code">
           <Container flex={{ align: 'center', gap: 6 }} textColor={{ base: muted, hover: { color: 'primary', intensity: 700 } }}>
             <Icon name="square-pen" size={14} />

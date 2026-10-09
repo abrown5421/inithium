@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
 import { autoIncrementingListAlignSchema } from './auto-incrementing-list.schema';
+import { breadcrumbItemSchema } from './breadcrumbs.schema';
 import { colorPickerPaletteSchema } from './color-picker.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
@@ -292,6 +293,22 @@ export const drawerPropsSchema = containerStylePropsSchema
     /** The overlay behind the panel. Default neutral 950 at 60%. */
     overlayColor: colorValueSchema.optional(),
     /** The panel's entrance and exit. Default: slides in from and out to its side. */
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A Breadcrumbs' storable props (decision 0072): its trail, separator, collapsing, colour and spacing. */
+export const breadcrumbsPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** From the top level down; the last is the current page. */
+    items: z.array(breadcrumbItemSchema).min(1),
+    /** A Lucide icon name (default 'chevron-right') or text such as '/'. */
+    separator: z.string().min(1).optional(),
+    /** Collapses longer trails to the first step, '…' and the last steps, this many in all. */
+    maxItems: z.number().int().min(2).optional(),
+    /** Links on hover and the focus outline. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();
