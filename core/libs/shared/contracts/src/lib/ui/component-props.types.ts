@@ -12,6 +12,7 @@ import type {
   selectPropsSchema,
   sliderPropsSchema,
   switchPropsSchema,
+  tabsPropsSchema,
   textPropsSchema,
   tooltipPropsSchema,
 } from './component-props.schema';
@@ -48,6 +49,9 @@ export type TooltipSerializableProps = z.infer<typeof tooltipPropsSchema>;
 
 /** A Modal's storable props: title, description, closing behaviour, overlay colour, animation and panel style props. */
 export type ModalSerializableProps = z.infer<typeof modalPropsSchema>;
+
+/** Tabs' storable props: the tabs (value, label, icon, disabled), colour, fill, spacing and animation. */
+export type TabsSerializableProps = z.infer<typeof tabsPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

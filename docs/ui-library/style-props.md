@@ -4,7 +4,7 @@ description: The prop shapes every UI component shares, defined once and referen
 scope: core
 tags: [ui, props, colour, spacing, sizing]
 order: 1
-decisions: ["0034", "0035", "0036", "0040", "0042"]
+decisions: ["0034", "0035", "0036", "0067", "0042"]
 ---
 
 # Style props
@@ -48,7 +48,7 @@ bgColor={{
 
 ### Colour value
 
-A theme token or Tailwind colour ([0040](../decisions/0040-colour-prop-values-and-properties.md)). Written `Colour` in type tables.
+A theme token or Tailwind colour ([0067](../decisions/0067-colour-values-with-the-full-palette-in-cms-controls.md)). Written `Colour` in type tables.
 
 | Form | Example | Result |
 | --- | --- | --- |
@@ -155,4 +155,4 @@ From `@inithium/shared-contracts`:
 | `radiusSchema` | | Radius |
 | `withVariants(schema)` | `Variants<T>` | Wraps any of these in variant keys |
 | `sharedStylePropsSchema` | `SharedStyleProps` | The shared props above (without `animation`) |
-| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema`, `buttonPropsSchema`, `inputPropsSchema`, `checkboxPropsSchema`, `loaderPropsSchema`, `switchPropsSchema`, `dividerPropsSchema`, `radioGroupPropsSchema`, `selectPropsSchema`, `sliderPropsSchema`, `tooltipPropsSchema`, `modalPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps`, `ButtonSerializableProps`, `InputSerializableProps`, `CheckboxSerializableProps`, `LoaderSerializableProps`, `SwitchSerializableProps`, `DividerSerializableProps`, `RadioGroupSerializableProps`, `SelectSerializableProps`, `SliderSerializableProps`, `TooltipSerializableProps`, `ModalSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon; `variant`, `color` and the icons for Button; `variant`, `color`, `type`, `label`, `placeholder`, `helperText`, `required` and the icons for Input; `color`, `label`, `helperText` and `required` for Checkbox; `variant`, `color`, `size` and `label` for Loader; `color`, `label`, `labelPlacement`, `helperText`, `required` and the thumb icons for Switch; `orientation`, `color`, `thickness`, `lineStyle`, `label`, `labelAlign` and `decorative` for Divider; `options`, `variant`, `orientation`, `color`, `label`, `helperText` and `required` for RadioGroup; Input's field props plus `options` for Select; `min`, `max`, `step`, `marks`, `valueLabel`, `color`, `label`, `helperText` and `required` for Slider; `content`, `side`, `align`, `color`, `delay` and `arrow` for Tooltip, which has no style props; Container's style props plus `title`, `description`, `hideTitle`, `dismissible`, `closeButton`, `overlayColor` and `animation` for Modal) |
+| `containerPropsSchema`, `textPropsSchema`, `iconPropsSchema`, `buttonPropsSchema`, `inputPropsSchema`, `checkboxPropsSchema`, `loaderPropsSchema`, `switchPropsSchema`, `dividerPropsSchema`, `radioGroupPropsSchema`, `selectPropsSchema`, `sliderPropsSchema`, `tooltipPropsSchema`, `modalPropsSchema`, `tabsPropsSchema` | `ContainerSerializableProps`, `TextSerializableProps`, `IconSerializableProps`, `ButtonSerializableProps`, `InputSerializableProps`, `CheckboxSerializableProps`, `LoaderSerializableProps`, `SwitchSerializableProps`, `DividerSerializableProps`, `RadioGroupSerializableProps`, `SelectSerializableProps`, `SliderSerializableProps`, `TooltipSerializableProps`, `ModalSerializableProps`, `TabsSerializableProps` | Everything a component can store: style props plus `animation` (plus `stagger` for Container; `name`, `label`, `size` and `strokeWidth` for Icon; `variant`, `color` and the icons for Button; `variant`, `color`, `type`, `label`, `placeholder`, `helperText`, `required` and the icons for Input; `color`, `label`, `helperText` and `required` for Checkbox; `variant`, `color`, `size` and `label` for Loader; `color`, `label`, `labelPlacement`, `helperText`, `required` and the thumb icons for Switch; `orientation`, `color`, `thickness`, `lineStyle`, `label`, `labelAlign` and `decorative` for Divider; `options`, `variant`, `orientation`, `color`, `label`, `helperText` and `required` for RadioGroup; Input's field props plus `options` for Select; `min`, `max`, `step`, `marks`, `valueLabel`, `color`, `label`, `helperText` and `required` for Slider; `content`, `side`, `align`, `color`, `delay` and `arrow` for Tooltip, which has no style props; Container's style props plus `title`, `description`, `hideTitle`, `dismissible`, `closeButton`, `overlayColor` and `animation` for Modal; `tabs` (without content), `color`, `fill`, spacing and animation for Tabs) |

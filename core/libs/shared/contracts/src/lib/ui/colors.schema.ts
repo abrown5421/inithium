@@ -3,7 +3,7 @@ import { z } from 'zod';
 /** The six theme tokens (decision 0031). */
 export const themeColors = ['primary', 'secondary', 'tertiary', 'quaternary', 'accent', 'surface'] as const;
 
-/** Tailwind v4's palette colours, available in code only (decision 0040). */
+/** Tailwind v4's palette colours, available in code and in CMS colour controls (decision 0067). */
 export const tailwindColors = [
   'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet',
   'purple', 'fuchsia', 'pink', 'rose', 'slate', 'gray', 'zinc', 'neutral', 'stone', 'mauve', 'olive', 'mist', 'taupe',

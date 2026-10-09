@@ -10,6 +10,7 @@ export * from './lib/loader/loader.component';
 export * from './lib/radio-group/radio-group.component';
 export * from './lib/select/select.component';
 export * from './lib/slider/slider.component';
+export { toCssColor } from './lib/style-props/style-props.service';
 export * from './lib/switch/switch.component';
 export * from './lib/text/text.component';
 export * from './lib/tooltip/tooltip.component';

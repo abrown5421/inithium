@@ -82,6 +82,14 @@ function color(value: ColorValue): string {
   return value.opacity === undefined ? base : `color-mix(in oklab, ${base} ${value.opacity}%, transparent)`;
 }
 
+/**
+ * A colour value as CSS, e.g. var(--color-emerald-500), for parts that style props can't reach, such as a
+ * composite's own stylesheet or a colour swatch (decision 0068).
+ */
+export function toCssColor(value: ColorValue): string {
+  return color(value);
+}
+
 function size(value: Size, axis: 'width' | 'height'): string {
   if (typeof value === 'number') return px(value);
   if (value === 'full') return '100%';

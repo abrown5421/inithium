@@ -1,12 +1,13 @@
 ---
 id: "0040"
 title: Colour props take an object, a colour-name shorthand or transparent, on six properties
-status: accepted
-date: "2026-10-07"
+status: superseded
+date: "2026-10-09"
 scope: core
 tags: [ui, props, colour, theme]
 related: ["0031", "0032", "0034", "0035", "0036"]
 supersedes: []
+supersededBy: "0067"
 ---
 
 # 0040. Colour props take an object, a colour-name shorthand or transparent, on six properties
