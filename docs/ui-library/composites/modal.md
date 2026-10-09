@@ -3,7 +3,7 @@ title: Modal
 description: A dialog over the page, with a dark overlay and a centred panel that animates in and out, holding any content and openable from anywhere through Redux.
 scope: core
 tags: [ui, composite, overlays]
-order: 5
+order: 6
 decisions: ["0048", "0056", "0062", "0065"]
 component:
   name: Modal
@@ -227,7 +227,7 @@ ui-library/modal/long-content
 ## Notes
 
 - **Layering:** modals sit at z-index 40 and popups at 50, so a [Select](../components/select.md)'s list or a [Tooltip](../components/tooltip.md) inside a modal appears above it ([0065](../../decisions/0065-open-modals-by-id-from-global-state.md)). Both render at the end of the page.
-- **One at a time:** opening a modal while another is open replaces it. Stacked modals aren't supported yet.
+- **One at a time:** opening a modal while another is open replaces it. [Drawers](drawer.md) share the same state, so this includes them. Stacked modals aren't supported yet.
 - **Unmounting:** the modal leaves the page after the panel's exit animation ends; until then, focus stays inside it.
 - **Focus** returns to whatever was focused when the modal opened, even when it was opened through Redux, and clicks on the overlay never move focus out of the modal.
 - **Long content:** the ✕ scrolls with the panel's content. In long modals, keep a close or done button at the end too.

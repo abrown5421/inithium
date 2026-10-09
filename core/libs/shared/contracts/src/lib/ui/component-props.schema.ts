@@ -4,6 +4,7 @@ import { autoIncrementingListAlignSchema } from './auto-incrementing-list.schema
 import { colorPickerPaletteSchema } from './color-picker.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
+import { drawerSideSchema } from './drawer.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
 import { radioOptionSchema } from './radio-group.schema';
@@ -263,6 +264,34 @@ export const autoIncrementingListPropsSchema = sharedStylePropsSchema
     itemLabel: z.string().min(1).optional(),
     /** Lines the buttons up with the bottom of each row (default) or its middle. */
     align: autoIncrementingListAlignSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/**
+ * A Drawer's storable props (decision 0071): its title and description, side and size, how it closes, the overlay,
+ * the panel's animation, and the panel's Container style props. Its content and footer aren't stored here.
+ */
+export const drawerPropsSchema = containerStylePropsSchema
+  .omit({ as: true })
+  .extend({
+    /** The drawer's heading; also its name for screen readers. */
+    title: z.string().min(1),
+    /** A line under the title, read with it by screen readers. */
+    description: z.string().optional(),
+    /** Keeps the title for screen readers only. Default false. */
+    hideTitle: z.boolean().optional(),
+    /** The edge it slides in from. Default 'right'. */
+    side: drawerSideSchema.optional(),
+    /** Width (left, right; default 400) or height (top, bottom; default: fits its content) in px. */
+    size: z.number().positive().optional(),
+    /** Whether the overlay click and Escape close it. Default true. */
+    dismissible: z.boolean().optional(),
+    /** Whether an ✕ button shows in the header. Default true. */
+    closeButton: z.boolean().optional(),
+    /** The overlay behind the panel. Default neutral 950 at 60%. */
+    overlayColor: colorValueSchema.optional(),
+    /** The panel's entrance and exit. Default: slides in from and out to its side. */
     animation: animationSchema.optional(),
   })
   .strict();

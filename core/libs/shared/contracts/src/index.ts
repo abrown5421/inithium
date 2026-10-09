@@ -13,6 +13,7 @@ export * from './lib/ui/colors.schema';
 export * from './lib/ui/component-props.schema';
 export * from './lib/ui/component-props.types';
 export * from './lib/ui/divider.schema';
+export * from './lib/ui/drawer.schema';
 export * from './lib/ui/elements.schema';
 export * from './lib/ui/icon.schema';
 export * from './lib/ui/input.schema';
