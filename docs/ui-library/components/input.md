@@ -16,7 +16,7 @@ component:
 
 Input is a complete single-line form field: an `<input>` with its label, helper text, error message and adornments, in one of three variants modelled on MUI's text field ([0055](../../decisions/0055-build-input-as-a-native-field-with-a-floating-label.md)). The label rests inside the field like a placeholder and floats up when the field is focused or has a value. The field is 32px tall, the same as a [Button](button.md), so they line up in a row.
 
-Use it for text, email, passwords, search, phone numbers, URLs and numbers. Multiline text will be its own component.
+Use it for text, email, passwords, search, phone numbers, URLs and numbers. Multiline text will be its own component; to choose from a list, use a [Select](select.md), which shares Input's field.
 
 ## Import
 

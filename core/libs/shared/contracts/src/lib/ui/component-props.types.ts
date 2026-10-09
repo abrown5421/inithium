@@ -8,6 +8,7 @@ import type {
   inputPropsSchema,
   loaderPropsSchema,
   radioGroupPropsSchema,
+  selectPropsSchema,
   switchPropsSchema,
   textPropsSchema,
 } from './component-props.schema';
@@ -32,6 +33,9 @@ export type DividerSerializableProps = z.infer<typeof dividerPropsSchema>;
 
 /** A RadioGroup's storable props: options, label, helper text, required, variant, orientation, colour, spacing and animation. */
 export type RadioGroupSerializableProps = z.infer<typeof radioGroupPropsSchema>;
+
+/** A Select's storable props: options, variant, colour, label, placeholder, helper text, required, icon, spacing, width and animation. */
+export type SelectSerializableProps = z.infer<typeof selectPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

@@ -360,7 +360,8 @@ const FIELD_ERROR_COLOR = 'red' as const;
 /**
  * Resolves an Input (decision 0055): the outer element takes margin and width (default full), the field takes
  * the fixed height and padding. The colours are CSS variables read by the input stylesheet: a neutral border
- * at rest, darker on hover, and the accent on focus. An error turns all three red.
+ * at rest, darker on hover, and the accent on focus. An error turns all three red. `accent` is also returned for
+ * parts outside the field, such as a Select's list.
  */
 export function resolveInputStyles(props: InputStyleProps, error: boolean) {
   const { variant = 'outlined', color: value = 'primary' } = props;
@@ -379,12 +380,13 @@ export function resolveInputStyles(props: InputStyleProps, error: boolean) {
   });
 
   const { className, style } = root.build();
+  const accent = color(error ? FIELD_ERROR_COLOR : value);
   const colors = {
-    '--ui-input-accent': color(error ? FIELD_ERROR_COLOR : value),
+    '--ui-input-accent': accent,
     '--ui-input-border': error ? color(FIELD_ERROR_COLOR) : 'var(--color-surface-500)',
     '--ui-input-border-hover': error ? color(FIELD_ERROR_COLOR) : 'var(--color-surface-700)',
   };
-  return { root: { className, style: { ...style, ...colors } as CSSProperties }, field: field.build() };
+  return { root: { className, style: { ...style, ...colors } as CSSProperties }, field: field.build(), accent };
 }
 
 // --- Checkbox ---

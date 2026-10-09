@@ -2,7 +2,6 @@ import {
   useCallback,
   useId,
   useImperativeHandle,
-  useLayoutEffect,
   useRef,
   useState,
   type AnimationEvent,
@@ -20,6 +19,7 @@ import {
 } from '@inithium/shared-contracts';
 import { useAnimation, type AnimationRuntimeProps } from '../animation/use-animation.hook';
 import { useDismissibleError } from '../form-field/use-dismissible-error.hook';
+import { useTextStart } from '../form-field/use-text-start.hook';
 import type { IconName } from '../icon/icon.component';
 import { splitStyleProps } from '../style-props/split-style-props.service';
 import { resolveInputStyles } from '../style-props/style-props.service';
@@ -98,18 +98,7 @@ export function Input(props: InputProps) {
   const showError = fieldError.shown;
   useImperativeHandle(ref, () => control.current as HTMLInputElement);
 
-  const hasStart = Boolean(startAdornment ?? leadingIcon);
-  // Publish where the text starts, so a resting label sits after a start adornment.
-  useLayoutEffect(() => {
-    const root = getElement();
-    const input = control.current;
-    if (!mounted || !root || !input) return;
-    const update = () => root.style.setProperty('--ui-input-text-x', `${input.offsetLeft}px`);
-    update();
-    const observer = new ResizeObserver(update);
-    if (start.current) observer.observe(start.current);
-    return () => observer.disconnect();
-  }, [mounted, hasStart, getElement]);
+  useTextStart(getElement, control, start, mounted, Boolean(startAdornment ?? leadingIcon));
 
   if (!mounted) return null;
 

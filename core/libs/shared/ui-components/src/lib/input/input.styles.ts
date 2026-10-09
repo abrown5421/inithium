@@ -10,12 +10,17 @@ const floated = [
   '.ui-input:has(.ui-input-control:not(:placeholder-shown))',
   '.ui-input:has(.ui-input-control:autofill)',
   '.ui-input:has(.ui-input-control:-webkit-autofill)',
+  // Set by fields that aren't text inputs, e.g. Select (decision 0062): data-active while focused or open,
+  // data-filled while there's a value.
+  '.ui-input[data-active]',
+  '.ui-input[data-filled]',
 ];
 const whenFloated = (rules: (root: string) => string) => floated.map(rules).join('');
 
 const enabled = '.ui-input:not([data-disabled])';
-// As specific as the hover rules and written after them, so focus wins while the pointer is over the field.
-const focused = `${enabled}:has(.ui-input-control:focus)`;
+// Focused: the text input has focus, or the field says it's active. As specific as the hover rules and written
+// after them, so focus wins while the pointer is over the field.
+const focused = `${enabled}:is([data-active],:has(.ui-input-control:focus))`;
 const underlined = '.ui-input:not([data-variant=outlined])';
 
 const autofill = '{-webkit-text-fill-color:currentColor;transition:background-color 100000s 0s,color 100000s 0s}';

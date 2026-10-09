@@ -4,6 +4,7 @@ import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
 import { radioOptionSchema } from './radio-group.schema';
+import { selectOptionsSchema } from './select.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
 import {
   buttonStylePropsSchema,
@@ -113,6 +114,23 @@ export const radioGroupPropsSchema = radioGroupStylePropsSchema
     /** A line of guidance under the options. */
     helperText: z.string().optional(),
     required: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A Select's field shares Input's style props: variant, colour, spacing and width (decision 0062). */
+export const selectPropsSchema = inputStylePropsSchema
+  .extend({
+    options: selectOptionsSchema,
+    /** Sits in the field and floats above it on focus, while open, or once there's a value. */
+    label: z.string().min(1).optional(),
+    /** Shown while nothing is chosen and the label has floated (or always, without a label). */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    /** A decorative Lucide icon before the value. */
+    leadingIcon: iconNameSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();
