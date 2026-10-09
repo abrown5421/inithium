@@ -3,7 +3,7 @@ title: ColorPicker
 description: A field for choosing a colour, theme or Tailwind, at any intensity, from swatches and a slider in a panel below it.
 scope: core
 tags: [ui, composite, forms, colour]
-order: 3
+order: 4
 decisions: ["0055", "0056", "0067", "0068", "0069"]
 component:
   name: ColorPicker
