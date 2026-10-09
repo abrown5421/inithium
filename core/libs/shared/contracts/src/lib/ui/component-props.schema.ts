@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
+import { dividerLabelAlignSchema } from './divider.schema';
 import { iconNameSchema } from './icon.schema';
 import { inputTypeSchema } from './input.schema';
 import { switchLabelPlacementSchema } from './switch.schema';
@@ -7,6 +8,7 @@ import {
   buttonStylePropsSchema,
   checkboxStylePropsSchema,
   containerStylePropsSchema,
+  dividerStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
@@ -85,6 +87,18 @@ export const switchPropsSchema = switchStylePropsSchema
     checkedIcon: iconNameSchema.optional(),
     /** A Lucide icon on the thumb while off. */
     uncheckedIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+export const dividerPropsSchema = dividerStylePropsSchema
+  .extend({
+    /** Text in the line, e.g. 'or'. */
+    label: z.string().min(1).optional(),
+    /** Where the label sits along the line. Default 'center'. */
+    labelAlign: dividerLabelAlignSchema.optional(),
+    /** Hides the divider from screen readers, when it's purely visual. */
+    decorative: z.boolean().optional(),
     animation: animationSchema.optional(),
   })
   .strict();

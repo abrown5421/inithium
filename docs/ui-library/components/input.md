@@ -3,7 +3,7 @@ title: Input
 description: A single-line text field in outlined, filled or standard style, with a floating label, helper text, errors, adornments and a password toggle.
 scope: core
 tags: [ui, component, forms]
-order: 5
+order: 6
 decisions: ["0036", "0042", "0048", "0050", "0054", "0055"]
 component:
   name: Input

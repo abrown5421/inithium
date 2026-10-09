@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { ThemeConfig } from '@inithium/shared-contracts';
 import { ThemeStyles } from '@inithium/shared-ui-theme';
 import { checkboxStyleSheet } from '../checkbox/checkbox.styles';
+import { dividerStyleSheet } from '../divider/divider.styles';
 import { inputStyleSheet } from '../input/input.styles';
 import { loaderStyleSheet } from '../loader/loader.styles';
 import { buildStyleSheet } from '../style-props/style-sheet.service';
@@ -9,11 +10,11 @@ import { switchStyleSheet } from '../switch/switch.styles';
 
 // The stylesheets never change at runtime, so they're built once. Component stylesheets come first, so style
 // props (e.g. padding) win over them.
-const styleSheet = checkboxStyleSheet + inputStyleSheet + loaderStyleSheet + switchStyleSheet + buildStyleSheet();
+const styleSheet = checkboxStyleSheet + dividerStyleSheet + inputStyleSheet + loaderStyleSheet + switchStyleSheet + buildStyleSheet();
 
 /**
  * Wrap each app's root in this. It publishes the theme's colour scales, the stylesheet every style prop relies
- * on, and the fixed component stylesheets (Checkbox's, Input's, Loader's and Switch's).
+ * on, and the fixed component stylesheets (Checkbox's, Divider's, Input's, Loader's and Switch's).
  */
 export function UiProvider({ theme, children }: { theme?: ThemeConfig; children: ReactNode }) {
   return (
