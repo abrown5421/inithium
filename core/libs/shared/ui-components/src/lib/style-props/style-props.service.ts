@@ -10,6 +10,7 @@ import {
   type IconStyleProps,
   type InputStyleProps,
   type LoaderStyleProps,
+  type RadioGroupStyleProps,
   type SharedStyleProps,
   type SolidColorValue,
   type SwitchStyleProps,
@@ -400,6 +401,20 @@ export function resolveCheckboxStyles(props: CheckboxStyleProps, error: boolean)
   const { className, style } = builder.build();
   const colors = { '--ui-checkbox-accent': color(value), '--ui-checkbox-on-accent': lightOf(value) };
   return { className, style: { ...style, ...colors } as CSSProperties };
+}
+
+// --- RadioGroup ---
+
+/**
+ * Resolves a RadioGroup (decision 0061): margin and padding on the outer element, and the accent as a variable
+ * read by the radio group stylesheet. An error turns it red.
+ */
+export function resolveRadioGroupStyles(props: RadioGroupStyleProps, error: boolean) {
+  const builder = new StyleBuilder();
+  applyShared(builder, { margin: props.margin, padding: props.padding });
+  const { className, style } = builder.build();
+  const accent = color(error ? FIELD_ERROR_COLOR : (props.color ?? 'primary'));
+  return { className, style: { ...style, '--ui-radio-accent': accent } as CSSProperties };
 }
 
 // --- Switch ---
