@@ -7,5 +7,9 @@
     "scope:docs"
   ],
   "// targets": "to see all targets run: nx show project docs --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "cache": false
+    }
+  }
 }

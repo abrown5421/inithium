@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type {
+  autoIncrementingListPropsSchema,
   buttonPropsSchema,
   checkboxPropsSchema,
   colorPickerPropsSchema,
@@ -17,6 +18,9 @@ import type {
   textPropsSchema,
   tooltipPropsSchema,
 } from './component-props.schema';
+
+/** An AutoIncrementingList's storable props: label, helper text, limits, button colours and wording, alignment, spacing and animation. */
+export type AutoIncrementingListSerializableProps = z.infer<typeof autoIncrementingListPropsSchema>;
 
 /** A Button's storable props: variant, colours, spacing, width, icons and animation. */
 export type ButtonSerializableProps = z.infer<typeof buttonPropsSchema>;

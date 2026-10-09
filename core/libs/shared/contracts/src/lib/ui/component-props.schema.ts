@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { animationSchema } from './animation.schema';
+import { autoIncrementingListAlignSchema } from './auto-incrementing-list.schema';
 import { colorPickerPaletteSchema } from './color-picker.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
@@ -235,6 +236,33 @@ export const colorPickerPropsSchema = inputStylePropsSchema
     required: z.boolean().optional(),
     /** 'all' (default): theme tokens and Tailwind colours, in two tabs. 'theme': theme tokens only. */
     palette: colorPickerPaletteSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/**
+ * An AutoIncrementingList's storable props (decision 0070): its label, limits, button colours and wording,
+ * alignment, spacing and animation. Its items and how they render are runtime only.
+ */
+export const autoIncrementingListPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true })
+  .extend({
+    /** A name shown above the list, e.g. 'X colours'. */
+    label: z.string().min(1).optional(),
+    /** A line of guidance under the list. */
+    helperText: z.string().optional(),
+    /** The fewest rows; minus buttons hide at this count. Default 1. */
+    min: z.number().int().min(1).optional(),
+    /** The most rows; the plus button hides at this count. */
+    max: z.number().int().min(1).optional(),
+    /** The plus button. Default 'primary'. */
+    addColor: solidColorValueSchema.optional(),
+    /** The minus buttons. Default 'red'. */
+    removeColor: solidColorValueSchema.optional(),
+    /** What a row is called in button labels: 'Add colour', 'Remove colour 2'. Default 'item'. */
+    itemLabel: z.string().min(1).optional(),
+    /** Lines the buttons up with the bottom of each row (default) or its middle. */
+    align: autoIncrementingListAlignSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();
