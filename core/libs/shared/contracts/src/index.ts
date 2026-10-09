@@ -20,6 +20,7 @@ export * from './lib/ui/icon.schema';
 export * from './lib/ui/input.schema';
 export * from './lib/ui/layout.schema';
 export * from './lib/ui/loader.schema';
+export * from './lib/ui/poly-pattern.schema';
 export * from './lib/ui/radio-group.schema';
 export * from './lib/ui/select.schema';
 export * from './lib/ui/sizing.schema';

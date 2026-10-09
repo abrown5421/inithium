@@ -1,12 +1,13 @@
 ---
 id: "0027"
 title: Store profile data in a profile subdocument, with images as an asset or a generator recipe
-status: accepted
+status: superseded
 date: "2026-10-07"
 scope: core
 tags: [users, profiles, avatars, data-model]
 related: ["0022", "0026", "0028"]
 supersedes: []
+supersededBy: "0074"
 ---
 
 # 0027. Store profile data in a profile subdocument, with images as an asset or a generator recipe

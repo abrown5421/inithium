@@ -13,6 +13,7 @@ import type {
   loaderPropsSchema,
   modalPropsSchema,
   paginationPropsSchema,
+  polyBannerPropsSchema,
   radioGroupPropsSchema,
   selectPropsSchema,
   sliderPropsSchema,
@@ -72,6 +73,9 @@ export type DrawerSerializableProps = z.infer<typeof drawerPropsSchema>;
 
 /** A Pagination's storable props: colour, sibling count, first/last buttons, compact mode, page sizes, spacing and animation. */
 export type PaginationSerializableProps = z.infer<typeof paginationPropsSchema>;
+
+/** A PolyBanner's storable props: size, radius, margin, editable, label and animation. */
+export type PolyBannerSerializableProps = z.infer<typeof polyBannerPropsSchema>;
 
 /** A Container's storable props: style props, animation and stagger. */
 export type ContainerSerializableProps = z.infer<typeof containerPropsSchema>;

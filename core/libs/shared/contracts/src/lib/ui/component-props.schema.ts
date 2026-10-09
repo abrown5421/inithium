@@ -331,6 +331,27 @@ export const paginationPropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** A PolyBanner's storable props (decision 0074): its size, corners, spacing, label and whether it's editable. */
+export const polyBannerPropsSchema = sharedStylePropsSchema
+  .pick({
+    width: true,
+    height: true,
+    minWidth: true,
+    maxWidth: true,
+    minHeight: true,
+    maxHeight: true,
+    radius: true,
+    margin: true,
+  })
+  .extend({
+    /** Shows an edit button in the top-right corner that opens the pattern editor. Default false. */
+    editable: z.boolean().optional(),
+    /** Describes the banner to screen readers; without it the pattern is decorative. */
+    label: z.string().min(1).optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
 export const textPropsSchema = textStylePropsSchema.extend({ animation: animationSchema.optional() }).strict();
 
 export const iconPropsSchema = iconStylePropsSchema
