@@ -20,6 +20,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
+| [Navbar](navbar.md) | The main navigation bar, collapsing into a drawer by width and sign-in state |
 | [Pagination](pagination.md) | Paging through long lists |
 | [PolyBanner](poly-banner.md) | Low-poly pattern banners from a storable recipe, with an editor |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |

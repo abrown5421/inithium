@@ -13,6 +13,7 @@ import type {
   inputPropsSchema,
   loaderPropsSchema,
   modalPropsSchema,
+  navbarPropsSchema,
   paginationPropsSchema,
   polyBannerPropsSchema,
   radioGroupPropsSchema,
@@ -74,6 +75,9 @@ export type ColorPickerSerializableProps = z.infer<typeof colorPickerPropsSchema
 
 /** A Drawer's storable props: title, description, side, size, closing behaviour, overlay colour, animation and panel style props. */
 export type DrawerSerializableProps = z.infer<typeof drawerPropsSchema>;
+
+/** A Navbar's storable props: logo, title, links, addresses, collapse point, alignment, colours, spacing and animation. */
+export type NavbarSerializableProps = z.infer<typeof navbarPropsSchema>;
 
 /** A Pagination's storable props: colour, sibling count, first/last buttons, compact mode, page sizes, spacing and animation. */
 export type PaginationSerializableProps = z.infer<typeof paginationPropsSchema>;
