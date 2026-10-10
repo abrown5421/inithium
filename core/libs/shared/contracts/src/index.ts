@@ -17,6 +17,7 @@ export * from './lib/ui/component-props.types';
 export * from './lib/ui/divider.schema';
 export * from './lib/ui/drawer.schema';
 export * from './lib/ui/elements.schema';
+export * from './lib/ui/footer.schema';
 export * from './lib/ui/icon.schema';
 export * from './lib/ui/input.schema';
 export * from './lib/ui/layout.schema';
