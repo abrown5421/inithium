@@ -11,6 +11,12 @@ import type { PageTemplate } from './page-template.types';
 import { audienceRedirect, resolvePage } from './routes.service';
 import { SiteContext, type SiteContextValue } from './site.context';
 
+/**
+ * The app's backdrop: pages sit on their own background over it, so each exit fades into it and each entrance
+ * out of it. Surface 950 is dark in light mode and, mirrored, light in dark mode.
+ */
+const BACKDROP = { color: 'surface', intensity: 950 } as const;
+
 /** The layouts pages can use, by key (decision 0079). More arrive as they're built. */
 const LAYOUTS: Record<string, PageLayout> = { default: DefaultLayout, bare: BareLayout };
 
@@ -44,11 +50,17 @@ export function SiteShell({ templates }: SiteShellProps) {
 
 function StartupScreen({ failed, onRetry }: { failed: boolean; onRetry: () => void }) {
   return (
-    <Container minHeight="screen" flex={{ direction: 'column', align: 'center', justify: 'center', gap: 16 }} padding={{ all: 24 }}>
+    <Container
+      minHeight="screen"
+      flex={{ direction: 'column', align: 'center', justify: 'center', gap: 16 }}
+      padding={{ all: 24 }}
+      bgColor={BACKDROP}
+      textColor={{ color: 'surface', intensity: 50 }}
+    >
       {failed ? (
         <>
           <Text as="p">We couldn't load the site.</Text>
-          <Button variant="outlined" onClick={onRetry}>
+          <Button variant="outlined" color={{ color: 'surface', intensity: 50 }} onClick={onRetry}>
             Try again
           </Button>
         </>
@@ -163,7 +175,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
 
   return (
     <SiteContext.Provider value={site}>
-      <Container minHeight="screen" flex={{ direction: 'column' }}>
+      <Container minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
         <Navbar
           title={bundle.settings.siteTitle}
           logo={bundle.settings.logo}

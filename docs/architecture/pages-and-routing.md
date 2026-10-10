@@ -85,6 +85,7 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
   - A signed-out visitor on a `signed-in` page is sent to `/login` with an alert ("Sign in to view that page"), then back after signing in.
   - A signed-in user on a `signed-out` page (Login, Sign up) is sent to Home, without a message.
 - **Transitions:** the Navbar stays put; everything under it animates. The current page plays its exit, then the next page plays its entrance. Clicking again during an exit doesn't cut it short: when the exit ends, the latest destination enters.
+- **Backdrop:** pages sit on their own background over a surface 950 backdrop (dark in light mode, light in dark mode), so each exit fades into it and each entrance comes out of it. The startup screen uses it too.
 - **Data:** a page that loads data calls `usePageReady(ready)`. The next page starts loading during the exit, and if it isn't ready when the exit ends, a Loader shows until it is.
 - **After each change:** the window scrolls to the top, focus moves to the new page's heading, and the document title updates. Back and forward restore scroll positions.
 
