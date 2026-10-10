@@ -3,7 +3,7 @@ title: Tabs
 description: A set of panels with one shown at a time, chosen by tabs with an underline that slides to the active one.
 scope: core
 tags: [ui, composite, navigation]
-order: 10
+order: 11
 decisions: ["0048", "0056", "0068"]
 component:
   name: Tabs

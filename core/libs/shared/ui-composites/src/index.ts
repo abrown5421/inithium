@@ -1,6 +1,7 @@
 export * from './lib/alert/alert-stack.component';
 export * from './lib/alert/alert.component';
 export * from './lib/auto-incrementing-list/auto-incrementing-list.component';
+export * from './lib/avatar/avatar.component';
 export * from './lib/breadcrumbs/breadcrumbs.component';
 export * from './lib/color-picker/color-picker.component';
 export * from './lib/drawer/drawer.component';
@@ -9,3 +10,4 @@ export * from './lib/pagination/pagination.component';
 export * from './lib/poly-banner/poly-banner.component';
 export * from './lib/tabs/tabs.component';
 export { createPolyPattern, createPolySeed, DEFAULT_POLY_PATTERN } from './lib/poly-banner/poly-pattern.service';
+export { avatarStyleName, createAvatarRecipe, createAvatarSeed } from './lib/avatar/avatar.service';

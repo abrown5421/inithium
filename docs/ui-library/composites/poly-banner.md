@@ -3,7 +3,7 @@ title: PolyBanner
 description: A low-poly triangle pattern banner drawn from a small, storable recipe, with an optional editor.
 scope: core
 tags: [ui, composite, profiles]
-order: 9
+order: 10
 decisions: ["0065", "0069", "0070", "0074"]
 component:
   name: PolyBanner

@@ -6,6 +6,7 @@ export * from './lib/ui/alert.schema';
 export * from './lib/ui/animation.schema';
 export * from './lib/ui/animation.types';
 export * from './lib/ui/auto-incrementing-list.schema';
+export * from './lib/ui/avatar.schema';
 export * from './lib/ui/borders.schema';
 export * from './lib/ui/breadcrumbs.schema';
 export * from './lib/ui/button.schema';

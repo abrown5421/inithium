@@ -4,7 +4,7 @@ description: The users collection, covering its fields and roles, the user servi
 scope: core
 tags: [users, roles, mongodb, backend]
 order: 5
-decisions: ["0022", "0024", "0025", "0026", "0074"]
+decisions: ["0022", "0024", "0025", "0026", "0074", "0075"]
 ---
 
 # Users
@@ -62,7 +62,7 @@ From `@inithium/api-users`:
 
 ## Profiles (planned)
 
-Avatars and profile banners will live in a `profile` subdocument, kept separate from the authentication fields ([0074](../decisions/0074-generate-banners-as-our-own-poly-pattern.md)). Each image is either a generator recipe (Dicebear for avatars; for banners, a [PolyBanner](../ui-library/composites/poly-banner.md) recipe) or an uploaded asset, and falls back to the generated image when there's none. Not built yet.
+Avatars and profile banners will live in a `profile` subdocument, kept separate from the authentication fields ([0074](../decisions/0074-generate-banners-as-our-own-poly-pattern.md)). Each image is either a generator recipe (an [Avatar](../ui-library/composites/avatar.md) recipe, drawn by DiceBear, for avatars; a [PolyBanner](../ui-library/composites/poly-banner.md) recipe for banners) or an uploaded asset, and falls back to the generated image when there's none. Not built yet.
 
 ## Plugins and users
 
