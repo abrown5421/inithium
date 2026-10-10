@@ -94,6 +94,7 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
 - **Transitions:** the Navbar stays put; everything under it animates. The current page plays its exit, then the next page plays its entrance. Clicking again during an exit doesn't cut it short: when the exit ends, the latest destination enters.
 - **Backdrop:** pages sit on their own background over a surface 950 backdrop. The page area clips anything sliding past its edges (`overflow: clip`, which keeps sticky content working) (dark in light mode, light in dark mode), so each exit fades into it and each entrance comes out of it. The startup screen uses it too.
 - **Data:** a page that loads data calls `usePageReady(ready)`. The next page starts loading during the exit, and if it isn't ready when the exit ends, a Loader shows until it is.
+- **Footer below the fold:** the Navbar and the content area together are at least the screen's height, so the Footer starts just below the fold and longer pages push it further down ([0084](../decisions/0084-start-the-footer-just-below-the-fold.md)). The shell publishes the Navbar's height as `--ui-navbar-height` for layouts to use.
 - **After each change:** the window scrolls to the top, focus moves to the new page's heading, and the document title updates. Back and forward restore scroll positions.
 
 ## Menus
@@ -136,7 +137,7 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phases 1 and 2. The phases, in order:
 
 1. **Contracts and API (built):** page and settings contracts, permissions, the [pages](../backend/pages.md) and [settings](../backend/site-settings.md) endpoints, and the seeded core pages and default settings. Not Found lives at `/404`, and each record carries the `layouts` its template allows.
-2. **`web` shell (built):** `SiteShell` in `@inithium/web-shell` (routes from records, audiences, transitions, `usePageReady`, scroll, focus and the document title; Navbar and Footer from the records and settings), the layouts lib with `default` and `bare`, the web registry, and core's templates in `@inithium/web-pages`: a real Login, and placeholder Home, Profile (showing who's viewing), Sign up and Not Found.
+2. **`web` shell (built):** `SiteShell` in `@inithium/web-shell` (routes from records, audiences, transitions, `usePageReady`, scroll, focus and the document title; Navbar and Footer from the records and settings), the layouts lib with `default` and `bare`, the web registry, and core's templates in `@inithium/web-pages`: real Login and Sign up (with a red alert and per-field errors, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)), and placeholder Home, Profile (showing who's viewing) and Not Found.
 3. **CMS:** a sidebar layout, the Pages list with an edit dialog (General, Appearance, Access, Navigation, SEO) and the Settings screen.
 4. **Later:**
    - the real profile page (after end-user auth and profiles);

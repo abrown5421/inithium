@@ -66,6 +66,7 @@ The auth endpoints are ready to use:
 | --- | --- |
 | `useGetCurrentUserQuery()` | The signed-in `User`, or an error with `status: 401` |
 | `useLoginMutation()` | Signs in, and puts the user straight into the current-user cache |
+| `useRegisterMutation()` | Creates a `user` account and signs it in, putting the user straight into the current-user cache |
 | `useLogoutMutation()` | Signs out, and clears every cached response |
 | `useGetSiteQuery()` | The site bundle `web` loads at startup: settings and published pages ([Pages](pages.md)) |
 

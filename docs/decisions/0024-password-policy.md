@@ -1,15 +1,15 @@
 ---
 id: "0024"
-title: Decide the password policy
-status: proposed
-date: "2026-10-07"
+title: Require 10 characters with upper and lower case, a number and a special character
+status: accepted
+date: "2026-10-10"
 scope: core
 tags: [auth, security, passwords]
-related: ["0020", "0023"]
+related: ["0020", "0023", "0083"]
 supersedes: []
 ---
 
-# 0024. Decide the password policy
+# 0024. Require 10 characters with upper and lower case, a number and a special character
 
 ## Context
 
@@ -17,12 +17,20 @@ Passwords are hashed with `scrypt` ([0020](0020-authentication.md)), but nothing
 
 ## Decision
 
-Undecided. Open questions: minimum length and any character requirements, whether to check passwords against known-breached lists, and whether the same rules apply to `SEED_DEV_PASSWORD`.
+A password someone chooses must have:
+
+- at least 10 characters;
+- a lowercase letter and an uppercase letter;
+- a number;
+- a special character (anything that isn't a letter or a number).
+
+It's `newPasswordSchema` in `@inithium/shared-contracts` (with `passwordPolicy` and `passwordPolicyHint`), checked in the form and again by the API. It applies wherever a password is chosen: sign-up now ([0083](0083-let-visitors-sign-up-for-user-accounts.md)), and the first-sign-in password change when it's built. Signing in only requires a password, since existing ones may predate the policy.
 
 ## Alternatives considered
 
-None recorded yet.
+None recorded.
 
 ## Consequences
 
-The first-sign-in password change flow can't validate new passwords until this is decided.
+- The first-sign-in password change flow is no longer blocked on the policy.
+- **Still undecided:** checking passwords against known-breached lists, and whether `SEED_DEV_PASSWORD` must meet the policy (today it only has to be non-empty).

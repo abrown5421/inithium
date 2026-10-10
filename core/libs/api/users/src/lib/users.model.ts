@@ -9,6 +9,11 @@ const usersSchema = new Schema(
     role: { type: String, enum: [...roles], required: true, default: 'user' },
     // Set on accounts created with a temporary password (e.g. the seeded dev account).
     passwordChangeRequired: { type: Boolean, required: true, default: false },
+    // Profile data, apart from the auth fields above (decisions 0074, 0083). Missing on the seeded dev account.
+    profile: {
+      type: new Schema({ firstName: { type: String, required: true, trim: true }, lastName: { type: String, trim: true } }, { _id: false }),
+      required: false,
+    },
   },
   { timestamps: true },
 );

@@ -4,7 +4,7 @@ description: The standard page frame under the Navbar, with centred content and 
 scope: core
 tags: [ui, layout, pages]
 order: 2
-decisions: ["0077", "0079"]
+decisions: ["0077", "0079", "0084"]
 component:
   name: DefaultLayout
   layer: layout
@@ -14,7 +14,7 @@ component:
 
 # DefaultLayout
 
-DefaultLayout is the standard frame a `web` page sits in, under the Navbar ([0079](../../decisions/0079-route-web-pages-through-a-shell-with-audiences-and-sequential-transitions.md)). It centres the content at up to 1200px wide, with the [Footer](../composites/footer.md) underneath. It fills the height it's given, so the Footer sits at the bottom of short pages. Pages choose it with the `default` layout key; the web shell renders it and fills in the Footer from the site's menus.
+DefaultLayout is the standard frame a `web` page sits in, under the Navbar ([0079](../../decisions/0079-route-web-pages-through-a-shell-with-audiences-and-sequential-transitions.md)). It centres the content at up to 1200px wide, with the [Footer](../composites/footer.md) underneath. In `web`, the content area is at least the screen's height minus the Navbar, so the Footer starts just below the fold ([0084](../../decisions/0084-start-the-footer-just-below-the-fold.md)). Pages choose it with the `default` layout key; the web shell renders it and fills in the Footer from the site's menus.
 
 ## Import
 
@@ -67,4 +67,4 @@ ui-library/default-layout/without-footer
 
 ## Notes
 
-- **Filling the height:** DefaultLayout grows to fill a column flex parent; the web shell gives it the space under the Navbar. The page's background and text colours come from the page record, set by the shell around the layout.
+- **Below the fold:** the content area's minimum height is `calc(100dvh - var(--ui-navbar-height))`. The web shell sets `--ui-navbar-height` (exported as `NAVBAR_HEIGHT_VAR`) to the Navbar's measured height. Without it, as in these examples, the rule drops out and DefaultLayout simply grows to fill a column flex parent. The page's background and text colours come from the page record, set by the shell around the layout.

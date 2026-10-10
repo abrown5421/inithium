@@ -1,33 +1,58 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { loginRequestSchema } from '@inithium/shared-contracts';
-import { getApiErrorMessage, useLoginMutation } from '@inithium/shared-data-access';
+import { useLoginMutation } from '@inithium/shared-data-access';
 import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
+import { Alert } from '@inithium/shared-ui-composites';
 import type { PageTemplateProps } from '@inithium/web-shell';
+import { fieldErrorsFrom, focusFirstError, readApiFailure, type FieldErrors } from './form-errors.service';
+
+type Field = 'email' | 'password';
+const FIELDS: readonly Field[] = ['email', 'password'];
+
+type Problem = { title: string; message: string };
+const INVALID: Problem = { title: 'There were problems signing in', message: 'Check the highlighted fields below.' };
 
 /**
- * Core's Login page: signs in any account. Once signed in, the shell sends the visitor on to where they were going
- * (or Home), as it does for every signed-out-only page (decision 0079).
+ * Core's Login page: signs in any account. Problems show a red alert and highlight each field with the reason, as
+ * on Sign up (decision 0083). Once signed in, the shell sends the visitor on to where they were going (or Home), as
+ * it does for every signed-out-only page (decision 0079).
  */
 export function LoginPage({ page }: PageTemplateProps) {
   const [login, { isLoading }] = useLoginMutation();
+  const [values, setValues] = useState<Record<Field, string>>({ email: '', password: '' });
+  const [errors, setErrors] = useState<FieldErrors<Field>>({});
+  const [problem, setProblem] = useState<Problem | null>(null);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const field = (name: Field) => ({
+    value: values[name],
+    onValueChange: (value: string) => setValues((current) => ({ ...current, [name]: value })),
+    name,
+    error: errors[name],
+  });
+
+  const fail = (form: HTMLFormElement, found: FieldErrors<Field>, next: Problem) => {
+    setErrors(found);
+    setProblem(next);
+    focusFirstError(FIELDS, found, form);
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    const parsed = loginRequestSchema.safeParse({ email, password });
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Check your email and password');
-      return;
-    }
+    const form = event.currentTarget;
+    const parsed = loginRequestSchema.safeParse(values);
+    if (!parsed.success) return fail(form, fieldErrorsFrom<Field>(parsed.error.issues), INVALID);
+
+    setErrors({});
+    setProblem(null);
     try {
       await login(parsed.data).unwrap();
-    } catch (loginError) {
-      setError(getApiErrorMessage(loginError, 'Something went wrong. Please try again.'));
+    } catch (error) {
+      const failure = readApiFailure(error);
+      const message = failure.message ?? 'Something went wrong. Please try again.';
+      // Wrong credentials don't say which field was wrong, so both are marked.
+      if (failure.status === 401) return fail(form, { email: true, password: message }, { title: "We couldn't sign you in", message });
+      fail(form, {}, { title: "We couldn't sign you in", message });
     }
   }
 
@@ -37,13 +62,11 @@ export function LoginPage({ page }: PageTemplateProps) {
         <Text as="h1" fontFamily="display" fontSize={26}>
           {page.title}
         </Text>
-        <Input label="Email" type="email" autoComplete="email" value={email} onValueChange={setEmail} />
-        <Input label="Password" type="password" autoComplete="current-password" value={password} onValueChange={setPassword} />
-        {error && (
-          <Text as="p" role="alert" fontSize={14} textColor={{ color: 'red', intensity: 600 }}>
-            {error}
-          </Text>
+        {problem && (
+          <Alert role="alert" color="red" icon="circle-alert" title={problem.title} message={problem.message} onDismiss={() => setProblem(null)} />
         )}
+        <Input label="Email" type="email" autoComplete="email" required {...field('email')} />
+        <Input label="Password" type="password" autoComplete="current-password" required {...field('password')} />
         <Button type="submit" width="full" loading={isLoading}>
           Sign in
         </Button>

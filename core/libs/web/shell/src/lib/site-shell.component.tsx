@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import type { SiteBundle, User } from '@inithium/shared-contracts';
+import { userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
-import { BareLayout, DefaultLayout } from '@inithium/shared-ui-layouts';
+import { BareLayout, DefaultLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
 import { buildMenus } from './menus.service';
 import { PageSlot, type PageEntry, type PageLayout } from './page-slot.component';
 import type { PageTemplate } from './page-template.types';
@@ -156,6 +156,22 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
     }
   }, [shown, bundle.settings.siteTitle]);
 
+  // Publishes the Navbar's height, so layouts can start the Footer just below the fold (see DefaultLayout).
+  const frame = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const header = frame.current?.querySelector('header');
+    if (!header) return;
+    const root = document.documentElement.style;
+    const measure = () => root.setProperty(NAVBAR_HEIGHT_VAR, `${header.getBoundingClientRect().height}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.removeProperty(NAVBAR_HEIGHT_VAR);
+    };
+  }, []);
+
   const handleLogout = async () => {
     // Signed-in-only pages close for good: go Home quietly first.
     if (shown?.audience === 'signed-in') navigate('/');
@@ -175,13 +191,13 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
 
   return (
     <SiteContext.Provider value={site}>
-      <Container minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
+      <Container ref={frame} minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
         <Navbar
           title={bundle.settings.siteTitle}
           logo={bundle.settings.logo}
           links={menus.primary}
           userLinks={menus.profile}
-          user={user ? { name: user.email } : undefined}
+          user={user ? { name: userDisplayName(user) } : undefined}
           currentPath={location.pathname}
           onNavigate={(href) => navigate(href)}
           onLogout={() => void handleLogout()}

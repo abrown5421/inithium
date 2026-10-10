@@ -21,10 +21,11 @@ Every account, whether CMS staff or `web` end users, lives in one `users` collec
 | `passwordHash` | string | scrypt hash. **Never returned by queries** unless selected with `+passwordHash`. |
 | `role` | `'dev'`, `'owner'`, `'admin'`, `'editor'`, `'user'` | Default `'user'` |
 | `passwordChangeRequired` | boolean | Default `false`; `true` on accounts created with a temporary password |
+| `profile` | `{ firstName, lastName? }`, optional | Profile data, apart from the auth fields. Set at sign-up; missing on accounts created otherwise (e.g. the seeded dev account). |
 | `createdAt`, `updatedAt` | Date | Set automatically |
 
 What the API returns is the **`User`** shape from `@inithium/shared-contracts`:
-- `id`, `email`, `role`, `passwordChangeRequired`, `createdAt` (ISO);
+- `id`, `email`, `role`, `passwordChangeRequired`, `profile` (when set), `createdAt` (ISO);
 - never the password hash.
 
 `toUser(document)` converts a stored user to it.
@@ -58,11 +59,14 @@ From `@inithium/api-users`:
 
 - **The dev account** is created automatically on startup ([Authentication](authentication.md#the-dev-account)).
 - **Owner, admin and editor accounts** will be created from the CMS once user management exists. That's blocked on deciding who may assign which roles ([0025](../decisions/0025-role-assignment-rules.md)). Until then, other accounts can only be created directly in MongoDB, and their `passwordHash` must be a valid scrypt hash.
-- **A first-sign-in password change** for accounts with `passwordChangeRequired` is planned. It's blocked on the password policy ([0024](../decisions/0024-password-policy.md)).
+- **`user` accounts** are created by signing up on `web` ([Authentication](authentication.md#sign-up-and-the-password-policy)).
+- **A first-sign-in password change** for accounts with `passwordChangeRequired` is planned. Its new password will follow the password policy ([0024](../decisions/0024-password-policy.md)).
 
-## Profiles (planned)
+## Profiles
 
-Avatars and profile banners will live in a `profile` subdocument, kept separate from the authentication fields ([0074](../decisions/0074-generate-banners-as-our-own-poly-pattern.md)). Each image is either a generator recipe (an [Avatar](../ui-library/composites/avatar.md) recipe, drawn by DiceBear, for avatars; a [PolyBanner](../ui-library/composites/poly-banner.md) recipe for banners) or an uploaded asset, and falls back to the generated image when there's none. Not built yet.
+The `profile` subdocument holds profile data, kept apart from the authentication fields. Today it has the person's `firstName` and optional `lastName`, set at sign-up ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). `userDisplayName(user)` from `@inithium/shared-contracts` gives the name to show: first and last name, or the email when there's no profile.
+
+Avatars and profile banners will also live in it ([0074](../decisions/0074-generate-banners-as-our-own-poly-pattern.md)). Each image is either a generator recipe (an [Avatar](../ui-library/composites/avatar.md) recipe, drawn by DiceBear, for avatars; a [PolyBanner](../ui-library/composites/poly-banner.md) recipe for banners) or an uploaded asset, and falls back to the generated image when there's none. Those aren't built yet.
 
 ## Plugins and users
 
