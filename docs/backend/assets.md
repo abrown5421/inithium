@@ -3,7 +3,7 @@ title: Assets
 description: How uploaded files will be stored and served, behind pluggable storage drivers (not built yet).
 scope: core
 tags: [assets, storage, backend]
-order: 6
+order: 8
 decisions: ["0028", "0029"]
 ---
 

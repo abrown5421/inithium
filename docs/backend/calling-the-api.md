@@ -3,7 +3,7 @@ title: Calling the API
 description: How web and cms talk to the api with RTK Query, including the base API, adding endpoints, automatic session refresh and errors.
 scope: core
 tags: [api, frontend, rtk-query, redux]
-order: 7
+order: 9
 decisions: ["0006", "0008", "0020"]
 ---
 

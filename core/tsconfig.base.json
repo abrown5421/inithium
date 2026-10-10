@@ -51,6 +51,12 @@
       ],
       "@inithium/shared-ui-composites": [
         "./libs/shared/ui-composites/src/index.ts"
+      ],
+      "@inithium/api-settings": [
+        "./libs/api/settings/src/index.ts"
+      ],
+      "@inithium/api-pages": [
+        "./libs/api/pages/src/index.ts"
       ]
     }
   },
