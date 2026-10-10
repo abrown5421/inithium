@@ -259,6 +259,16 @@ The theme and the first components (Container, Text, Icon, Button, Input, Checkb
   - Container: `div`, `section`, `article`, `header`, `footer`, `nav`, `main`, `aside`, `ul`, `ol`, `li`.
 - **The theme holds colours and two fonts** (`display`, `body`). Core ships default font files, and a client can replace them via CMS upload (stored as assets). Radius and shadows are not theme tokens.
 
+### Pages & routing (web)
+Designed, being built in phases; the manual's `architecture/pages-and-routing.md` has the full picture and the phase list.
+- **Pages are records drawn by code** (0078): a `pages` collection (contracts in `shared-contracts`) holds title, path, status, template key, layout, colours, entrance/exit animation, audience, navigation settings, SEO and `protected`. Code **templates** registered in `web` (core directly; plugins and `libs/client/` through the web registry) draw them; each is single-use or reusable and lists its allowed layouts. Never put page metadata only in code, and never make the CMS write files.
+- **Seeds create single-use pages**, all protected: core's Home `/`, Profile `/profile/:id`, Login `/login`, Sign up `/sign-up`, Not Found. The CMS edits but can't delete protected pages or change their path/template. "New page" offers only reusable templates (none yet; the block "content page" comes later).
+- **Routing** (0079): `web` loads settings + published records once at startup and builds React Router routes. Audiences `all` / `signed-out` / `signed-in`: signed-out on a signed-in page → `/login` with an alert, then back; signed-in on a signed-out page → Home silently. Transitions: Navbar stays; old page's exit finishes, then the latest destination's entrance (clicks mid-exit never cut it short); `usePageReady(ready)` holds the entrance behind a Loader. Scroll to top, focus the heading. The CMS uses its own plain routes.
+- **Menus come from page records** (0080): locations `primary-nav`, `profile-nav`, `primary-footer`, `secondary-footer`; label, order, icon, group (one-level dropdowns). No parameterised paths in menus except Profile in `profile-nav` (the signed-in user's id).
+- **Profile** (0081): viewer is `visitor` / `member` / `owner`; plugins add tabs, sidebar sections and header actions per viewer; tabs in the URL (`?tab=`).
+- **Site settings** (0082): one `settings` record (site title, logo, copyright holder) for Navbar and Footer.
+- **Permissions:** `pages.edit` (owner, admin, editor); `pages.publish`, `pages.delete`, `settings.edit` (owner, admin).
+
 ### Profiles & assets
 Neither is built yet. When they are:
 - **Profile data** lives in a `profile` subdocument on the user, apart from auth fields. An avatar or banner is either a **generator recipe** (an Avatar `avatarRecipeSchema` recipe drawn by DiceBear for avatars (0075), a PolyBanner `polyPatternSchema` recipe for banners (0074): options plus seed, rendered in the browser) or an **asset id**. It falls back to the generated image when there's no image or it fails to load. Never store a rendered placeholder.
@@ -376,7 +386,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **First Render deploy** hasn't happened yet. The settings in [Accounts & provisioning](#accounts--provisioning) still need confirming, including that Express `trust proxy = 1` matches Render's proxy setup.
 - [ ] **First-sign-in password change:** accounts with `passwordChangeRequired: true` (e.g. the seeded dev account) must change their password before doing anything else. Not built yet; blocked on the password policy (0024).
 - [ ] **User management** (creating owner/admin/editor accounts from the CMS) isn't built; blocked on role assignment rules (0025). Until then, other accounts can only be created directly in MongoDB.
-- [ ] **Navbar and Footer wiring:** `web` and `cms` don't render Navbar or Footer yet; it waits for the page system (routes, CMS-managed menu, plugin nav and ancillary slots in 0015).
+- [ ] **Page system** (0078–0082), in phases: (1) page and settings contracts, permissions, API endpoints, seeded core pages and settings; (2) `web` shell: template registry, routes, layouts lib (`default`, `bare`), audiences, transitions, `usePageReady`, Navbar and Footer from records, placeholder pages; (3) CMS sidebar layout, Pages list and edit dialog, Settings screen; (4) later: real profile page, collection layouts, content-page template and block editor.
 - [ ] **`web` end-user auth** (sign-up and sign-in for `user` accounts) isn't built.
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0074). The generators, Avatar and PolyBanner, are built.
@@ -495,7 +505,7 @@ CLAUDE.md is the source of truth for the architecture, so keep it current. When 
 
 These haven't been decided. **Ask before doing work that depends on them.** Each has a `proposed` record in `docs/decisions/`, which is updated when the decision is made.
 
-- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): exactly which slots core exposes (including a "user deleted" hook and a storage driver slot), and their contract shapes.
+- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): partly settled (web page templates, Navbar ancillary, profile tabs/sidebar/actions). Still open: API routes, models, CMS screens and sidebar entries, a "user deleted" hook, a storage driver slot, and every contract shape.
 - **Plugin-to-plugin dependencies** ([0016](docs/decisions/0016-plugin-to-plugin-dependencies.md)): can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order and boundaries handle it?
 - **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided.
 - **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): where it lives and how it's run against a real client repo, as opposed to the sandbox.
