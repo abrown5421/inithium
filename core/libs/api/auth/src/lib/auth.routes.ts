@@ -1,7 +1,7 @@
 import { Router, type Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { loginRequestSchema, type AuthResponse } from '@inithium/shared-contracts';
-import { findUserByEmailWithPassword, findUserById, toUser, type UserDocument } from '@inithium/api-users';
+import { loginRequestSchema, registerRequestSchema, type AuthResponse } from '@inithium/shared-contracts';
+import { createUser, findUserByEmailWithPassword, findUserById, toUser, userExistsWithEmail, type UserDocument } from '@inithium/api-users';
 import { getAuth, requireAuth } from './auth.middleware';
 import { clearAuthCookies, REFRESH_COOKIE, setAuthCookies } from './cookies.service';
 import { hashPassword, verifyPassword } from './passwords.service';
@@ -16,6 +16,15 @@ const loginRateLimit = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { message: 'Too many failed login attempts. Try again in 15 minutes.' },
+});
+
+// Sign-ups: 10 per IP per hour, successful or not.
+const registerRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Too many sign-ups from this connection. Try again later.' },
 });
 
 function respondWithUser(res: Response, user: UserDocument): void {
@@ -52,6 +61,38 @@ authRouter.post('/login', loginRateLimit, async (req, res) => {
     accessToken: signAccessToken({ id: userId, role: user.role }),
     refreshToken: await issueRefreshToken(userId),
   });
+  respondWithUser(res, user);
+});
+
+/**
+ * Creates a `user` account and signs it in (decision 0083). The body must pass the password policy (decision 0024);
+ * a taken email is a 409 naming the email field.
+ */
+authRouter.post('/register', registerRateLimit, async (req, res) => {
+  const parsed = registerRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Check the highlighted fields and try again', issues: parsed.error.issues });
+    return;
+  }
+
+  const { firstName, lastName, email, password } = parsed.data;
+  if (await userExistsWithEmail(email)) {
+    res.status(409).send({ message: 'An account with this email already exists', field: 'email' });
+    return;
+  }
+
+  const user = await createUser({
+    email,
+    passwordHash: await hashPassword(password),
+    role: 'user',
+    profile: { firstName, ...(lastName ? { lastName } : {}) },
+  });
+  const userId = user._id.toString();
+  setAuthCookies(res, {
+    accessToken: signAccessToken({ id: userId, role: user.role }),
+    refreshToken: await issueRefreshToken(userId),
+  });
+  res.status(201);
   respondWithUser(res, user);
 });
 

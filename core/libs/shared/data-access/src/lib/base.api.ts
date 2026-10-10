@@ -10,7 +10,7 @@ import {
 const rawBaseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'same-origin' });
 
 // Requests that must never trigger a token refresh.
-const NO_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout'];
+const NO_REFRESH = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
 // Shared so that several requests failing at once trigger a single refresh.
 let refreshing: Promise<boolean> | null = null;

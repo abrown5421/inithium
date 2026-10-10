@@ -57,6 +57,15 @@
       ],
       "@inithium/api-pages": [
         "./libs/api/pages/src/index.ts"
+      ],
+      "@inithium/shared-ui-layouts": [
+        "./libs/shared/ui-layouts/src/index.ts"
+      ],
+      "@inithium/web-shell": [
+        "./libs/web/shell/src/index.ts"
+      ],
+      "@inithium/web-pages": [
+        "./libs/web/pages/src/index.ts"
       ]
     }
   },

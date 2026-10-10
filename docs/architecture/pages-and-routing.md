@@ -36,11 +36,40 @@ A template is code registered in `web` under a key. It declares:
 
 - its component;
 - whether it's **single-use** (one page, like Home) or **reusable** (many pages, like a future content page);
-- which layouts it allows (the first is the default).
+- which layouts it allows (the first is the default);
+- optionally, **defaults** for its pages' background, text colour and animation. A page record's own values (set in the CMS) win; without either, pages use surface 50, surface 950 and a fast fadeIn and fadeOut. Core's Login and Sign up default to a surface 950 background with `fadeInUp` and `fadeOutDown`, so their card rises from the dark backdrop and sinks away.
 
 Core registers its templates directly. Plugins and client libs register theirs through the web registry. A client can replace a core page's look by registering its own component under the core key (e.g. `home`) from `libs/client/`, without touching core.
 
 In the CMS, "New page" offers only reusable templates. Until one exists, pages can be edited but not created.
+
+### Writing a template
+
+Templates live in `@inithium/web-shell`'s contract (`PageTemplate`), and core's are in `@inithium/web-pages`:
+
+```tsx
+import { usePageReady, useSite, type PageTemplate, type PageTemplateProps } from '@inithium/web-shell';
+
+function ClassesPage({ page, params }: PageTemplateProps) {
+  const { data, isLoading } = useGetClassesQuery();
+  usePageReady(!isLoading);          // hold the entrance (behind a Loader) until the data has arrived
+  const { settings, user } = useSite(); // site settings, published pages and the signed-in user
+  return <Text as="h1">{page.title}</Text>;
+}
+
+export const classesTemplate: PageTemplate = {
+  key: 'classes-list',
+  component: ClassesPage,
+  singleUse: true,
+  layouts: ['default'],
+  defaults: { animation: { entrance: { name: 'fadeInUp', speed: 'fast' } } }, // optional
+};
+```
+
+- **Props:** a template gets its `page` record (`PublicPage`) and the path's `params` (e.g. `{ id }` for `/profile/:id`).
+- **Heading:** give it one `h1`; focus moves there when it enters.
+- **Seeding:** its seed (`seedPages()` in `@inithium/api-pages`) must list the same layouts.
+- **Registering:** `apps/web/src/app/plugins.registry.ts` (owned by the install/eject tooling; core ships it empty) holds plugin and `libs/client/` templates. They come after core's, so a template there replaces core's with the same key.
 
 ## Layouts
 
@@ -48,8 +77,8 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
 
 | Layout | Shape | Status |
 | --- | --- | --- |
-| `default` | Navbar, the page, Footer | First |
-| `bare` | A centred panel, for sign-in pages | First |
+| `default` | Navbar, the page, Footer: [DefaultLayout](../ui-library/layouts/default-layout.md) | Built |
+| `bare` | Navbar and a centred card, no Footer, for sign-in pages: [BareLayout](../ui-library/layouts/bare-layout.md) | Built |
 | `full-width` | Content edge to edge, e.g. a calendar | Planned |
 | `collection-list` | A heading, search and filters, and a paginated grid of cards | Planned |
 | `collection-item` | A full-width PolyBanner under the Navbar, breadcrumbs, a title with badges, then content | Planned |
@@ -63,7 +92,9 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
   - A signed-out visitor on a `signed-in` page is sent to `/login` with an alert ("Sign in to view that page"), then back after signing in.
   - A signed-in user on a `signed-out` page (Login, Sign up) is sent to Home, without a message.
 - **Transitions:** the Navbar stays put; everything under it animates. The current page plays its exit, then the next page plays its entrance. Clicking again during an exit doesn't cut it short: when the exit ends, the latest destination enters.
+- **Backdrop:** pages sit on their own background over a surface 950 backdrop. The page area clips anything sliding past its edges (`overflow: clip`, which keeps sticky content working) (dark in light mode, light in dark mode), so each exit fades into it and each entrance comes out of it. The startup screen uses it too.
 - **Data:** a page that loads data calls `usePageReady(ready)`. The next page starts loading during the exit, and if it isn't ready when the exit ends, a Loader shows until it is.
+- **Footer below the fold:** the Navbar and the content area together are at least the screen's height, so the Footer starts just below the fold and longer pages push it further down ([0084](../decisions/0084-start-the-footer-just-below-the-fold.md)). The shell publishes the Navbar's height as `--ui-navbar-height` for layouts to use.
 - **After each change:** the window scrolls to the top, focus moves to the new page's heading, and the document title updates. Back and forward restore scroll positions.
 
 ## Menus
@@ -103,14 +134,10 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 
 ## Build status
 
-Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phase 1. The phases, in order:
+Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phases 1 and 2. The phases, in order:
 
 1. **Contracts and API (built):** page and settings contracts, permissions, the [pages](../backend/pages.md) and [settings](../backend/site-settings.md) endpoints, and the seeded core pages and default settings. Not Found lives at `/404`, and each record carries the `layouts` its template allows.
-2. **`web` shell:**
-   - the template registry, routes built from records, and the layouts lib with `default` and `bare`;
-   - audiences, transitions, `usePageReady`, scroll and focus;
-   - Navbar and Footer filled from records and settings;
-   - placeholder pages.
+2. **`web` shell (built):** `SiteShell` in `@inithium/web-shell` (routes from records, audiences, transitions, `usePageReady`, scroll, focus and the document title; Navbar and Footer from the records and settings), the layouts lib with `default` and `bare`, the web registry, and core's templates in `@inithium/web-pages`: real Login and Sign up (with a red AlertStack alert and per-field errors, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)), and placeholder Home, Profile (showing who's viewing) and Not Found.
 3. **CMS:** a sidebar layout, the Pages list with an edit dialog (General, Appearance, Access, Navigation, SEO) and the Settings screen.
 4. **Later:**
    - the real profile page (after end-user auth and profiles);

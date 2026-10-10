@@ -45,7 +45,7 @@ Run each in its own terminal:
 
 ```sh
 npx nx serve api   # http://localhost:3000/api
-npx nx serve web   # http://localhost:5173/
+npx nx serve web   # http://localhost:5173/ (needs the api: it loads its pages from it)
 npx nx serve cms   # http://localhost:5174/cms/
 npx nx serve docs  # http://localhost:5175/ (this manual)
 ```
