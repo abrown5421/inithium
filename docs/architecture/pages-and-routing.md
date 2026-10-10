@@ -42,14 +42,36 @@ Core registers its templates directly. Plugins and client libs register theirs t
 
 In the CMS, "New page" offers only reusable templates. Until one exists, pages can be edited but not created.
 
+### Writing a template
+
+Templates live in `@inithium/web-shell`'s contract (`PageTemplate`), and core's are in `@inithium/web-pages`:
+
+```tsx
+import { usePageReady, useSite, type PageTemplate, type PageTemplateProps } from '@inithium/web-shell';
+
+function ClassesPage({ page, params }: PageTemplateProps) {
+  const { data, isLoading } = useGetClassesQuery();
+  usePageReady(!isLoading);          // hold the entrance (behind a Loader) until the data has arrived
+  const { settings, user } = useSite(); // site settings, published pages and the signed-in user
+  return <Text as="h1">{page.title}</Text>;
+}
+
+export const classesTemplate: PageTemplate = { key: 'classes-list', component: ClassesPage, singleUse: true, layouts: ['default'] };
+```
+
+- **Props:** a template gets its `page` record (`PublicPage`) and the path's `params` (e.g. `{ id }` for `/profile/:id`).
+- **Heading:** give it one `h1`; focus moves there when it enters.
+- **Seeding:** its seed (`seedPages()` in `@inithium/api-pages`) must list the same layouts.
+- **Registering:** `apps/web/src/app/plugins.registry.ts` (owned by the install/eject tooling; core ships it empty) holds plugin and `libs/client/` templates. They come after core's, so a template there replaces core's with the same key.
+
 ## Layouts
 
 Layouts are frames from the UI library's layouts layer that a page sits in:
 
 | Layout | Shape | Status |
 | --- | --- | --- |
-| `default` | Navbar, the page, Footer | First |
-| `bare` | A centred panel, for sign-in pages | First |
+| `default` | Navbar, the page, Footer: [DefaultLayout](../ui-library/layouts/default-layout.md) | Built |
+| `bare` | Navbar and a centred card, no Footer, for sign-in pages: [BareLayout](../ui-library/layouts/bare-layout.md) | Built |
 | `full-width` | Content edge to edge, e.g. a calendar | Planned |
 | `collection-list` | A heading, search and filters, and a paginated grid of cards | Planned |
 | `collection-item` | A full-width PolyBanner under the Navbar, breadcrumbs, a title with badges, then content | Planned |
@@ -103,14 +125,10 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 
 ## Build status
 
-Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phase 1. The phases, in order:
+Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phases 1 and 2. The phases, in order:
 
 1. **Contracts and API (built):** page and settings contracts, permissions, the [pages](../backend/pages.md) and [settings](../backend/site-settings.md) endpoints, and the seeded core pages and default settings. Not Found lives at `/404`, and each record carries the `layouts` its template allows.
-2. **`web` shell:**
-   - the template registry, routes built from records, and the layouts lib with `default` and `bare`;
-   - audiences, transitions, `usePageReady`, scroll and focus;
-   - Navbar and Footer filled from records and settings;
-   - placeholder pages.
+2. **`web` shell (built):** `SiteShell` in `@inithium/web-shell` (routes from records, audiences, transitions, `usePageReady`, scroll, focus and the document title; Navbar and Footer from the records and settings), the layouts lib with `default` and `bare`, the web registry, and core's templates in `@inithium/web-pages`: a real Login, and placeholder Home, Profile (showing who's viewing), Sign up and Not Found.
 3. **CMS:** a sidebar layout, the Pages list with an edit dialog (General, Appearance, Access, Navigation, SEO) and the Settings screen.
 4. **Later:**
    - the real profile page (after end-user auth and profiles);

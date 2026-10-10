@@ -46,7 +46,7 @@ Core defines **slot points**: typed extension contracts such as API route mounts
 - **The install/eject tooling owns the registries.** Don't hand-edit them, and core never adds entries itself. With empty registries, the apps build and run with no plugin code at all.
 - **New extension points are slot contracts.** When core needs one, it adds a new slot contract and wires it in through the registry; core never looks for a particular plugin.
 
-Exactly which slots core exposes, and their shapes, is still open ([0015](../decisions/0015-slot-catalogue.md)). Known candidates include a "user deleted" hook and a storage-driver slot.
+The first registry exists: `apps/web/src/app/plugins.registry.ts`, where plugins (and `libs/client/`) register `web` page templates ([Pages and routing](../architecture/pages-and-routing.md#writing-a-template)). The rest of the slot catalogue, and every contract's exact shape, is still open ([0015](../decisions/0015-slot-catalogue.md)). Known candidates include a "user deleted" hook and a storage-driver slot.
 
 ## Seeding and unseeding
 

@@ -16,7 +16,7 @@ Run Nx from inside `core/`.
 | `npm install` | Install dependencies. `core/.npmrc` sets `legacy-peer-deps=true`. |
 | `npx nx run-many -t lint typecheck build` | Verify everything. The api's esbuild build also type-checks. |
 | `npx nx serve api` | API at `http://localhost:3000/api`, loading `core/.env` |
-| `npx nx serve web` | End-user site at `http://localhost:5173/` |
+| `npx nx serve web` | End-user site at `http://localhost:5173/`. Needs the api running: it loads its pages from `/api/site`. |
 | `npx nx serve cms` | Client portal at `http://localhost:5174/cms/` |
 | `npx nx serve docs` | This manual, with live examples, at `http://localhost:5175/` (development only) |
 
