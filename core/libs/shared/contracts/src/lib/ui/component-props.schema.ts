@@ -352,6 +352,20 @@ export const polyBannerPropsSchema = sharedStylePropsSchema
   })
   .strict();
 
+/** An Avatar's storable props (decision 0075): its size, spacing, label and whether it's editable. */
+export const avatarPropsSchema = sharedStylePropsSchema
+  .pick({ width: true, height: true, margin: true })
+  .extend({
+    /** Shows an edit button on the bottom-right edge that opens the avatar editor. Default false. */
+    editable: z.boolean().optional(),
+    /** The person's name: the initials style draws its initials. */
+    name: z.string().optional(),
+    /** Describes the avatar to screen readers, e.g. the person's name; without it the avatar is decorative. */
+    label: z.string().min(1).optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
 export const textPropsSchema = textStylePropsSchema.extend({ animation: animationSchema.optional() }).strict();
 
 export const iconPropsSchema = iconStylePropsSchema

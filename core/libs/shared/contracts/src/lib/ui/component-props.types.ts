@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type {
   autoIncrementingListPropsSchema,
+  avatarPropsSchema,
   breadcrumbsPropsSchema,
   buttonPropsSchema,
   checkboxPropsSchema,
@@ -25,6 +26,9 @@ import type {
 
 /** An AutoIncrementingList's storable props: label, helper text, limits, button colours and wording, alignment, spacing and animation. */
 export type AutoIncrementingListSerializableProps = z.infer<typeof autoIncrementingListPropsSchema>;
+
+/** An Avatar's storable props: size, margin, editable, name, label and animation. */
+export type AvatarSerializableProps = z.infer<typeof avatarPropsSchema>;
 
 /** A Breadcrumbs' storable props: trail, separator, maxItems, colour, spacing and animation. */
 export type BreadcrumbsSerializableProps = z.infer<typeof breadcrumbsPropsSchema>;

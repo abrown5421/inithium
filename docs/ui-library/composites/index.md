@@ -15,6 +15,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [Alert](alert.md) | Success, failure, warning and info messages, inline |
 | [AlertStack](alert-stack.md) | Alerts in a screen corner, raised from anywhere through Redux |
 | [AutoIncrementingList](auto-incrementing-list.md) | Lists the user grows and shrinks one row at a time, around any content |
+| [Avatar](avatar.md) | Circular identifiers drawn by DiceBear from a storable recipe, with an editor |
 | [Breadcrumbs](breadcrumbs.md) | The path from the top of a site to the current page |
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |

@@ -3,7 +3,7 @@ title: Breadcrumbs
 description: The path from the top of a site to the current page, as links separated by chevrons, with the current page last.
 scope: core
 tags: [ui, composite, navigation]
-order: 4
+order: 5
 decisions: ["0048", "0050", "0064", "0066", "0072"]
 component:
   name: Breadcrumbs
