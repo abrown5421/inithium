@@ -1,9 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { passwordPolicyHint, registerRequestSchema } from '@inithium/shared-contracts';
-import { useRegisterMutation } from '@inithium/shared-data-access';
+import { useAlerts, useRegisterMutation } from '@inithium/shared-data-access';
 import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
-import { Alert } from '@inithium/shared-ui-composites';
 import type { PageTemplateProps } from '@inithium/web-shell';
 import { fieldErrorsFrom, focusFirstError, readApiFailure, type FieldErrors } from './form-errors.service';
 
@@ -16,14 +15,16 @@ const INVALID: Problem = { title: 'There were problems with your sign-up', messa
 
 /**
  * Core's Sign up page (decision 0083): first name, an optional last name, email, password and its confirmation,
- * checked against the password policy (decision 0024). Problems show a red alert and highlight each field with
- * the reason. Once the account exists the visitor is signed in, and the shell sends them on.
+ * checked against the password policy (decision 0024). Problems raise a red alert in the app's AlertStack and
+ * highlight each field with the reason. Once the account exists the visitor is signed in, and the shell sends them on.
  */
 export function SignUpPage({ page }: PageTemplateProps) {
   const [register, { isLoading }] = useRegisterMutation();
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
-  const [problem, setProblem] = useState<Problem | null>(null);
+  const { show: showAlert, dismiss: dismissAlert } = useAlerts();
+  // This form's last alert, replaced by the next one so only the latest problem shows.
+  const lastAlert = useRef<string | null>(null);
 
   const field = (name: Field) => ({
     value: values[name],
@@ -34,7 +35,9 @@ export function SignUpPage({ page }: PageTemplateProps) {
 
   const fail = (form: HTMLFormElement, found: FieldErrors<Field>, next: Problem) => {
     setErrors(found);
-    setProblem(next);
+    // The app's AlertStack (bottom right), urgent so screen readers hear it at once.
+    if (lastAlert.current) dismissAlert(lastAlert.current);
+    lastAlert.current = showAlert({ color: 'red', icon: 'circle-alert', title: next.title, message: next.message, urgent: true });
     focusFirstError(FIELDS, found, form);
   };
 
@@ -54,14 +57,14 @@ export function SignUpPage({ page }: PageTemplateProps) {
     if (!parsed.success || found.confirmPassword) return fail(form, found, INVALID);
 
     setErrors({});
-    setProblem(null);
     try {
       await register(parsed.data).unwrap();
     } catch (error) {
       const failure = readApiFailure(error);
       if (failure.issues) return fail(form, fieldErrorsFrom<Field>(failure.issues), INVALID);
       if (failure.field === 'email') {
-        return fail(form, { email: failure.message }, { title: "We couldn't create your account", message: failure.message ?? '' });
+        const message = failure.message ?? 'An account with this email already exists';
+        return fail(form, { email: message }, { title: "We couldn't create your account", message });
       }
       fail(form, {}, { title: "We couldn't create your account", message: failure.message ?? 'Something went wrong. Please try again.' });
     }
@@ -73,9 +76,6 @@ export function SignUpPage({ page }: PageTemplateProps) {
         <Text as="h1" fontFamily="display" fontSize={26}>
           {page.title}
         </Text>
-        {problem && (
-          <Alert role="alert" color="red" icon="circle-alert" title={problem.title} message={problem.message} onDismiss={() => setProblem(null)} />
-        )}
         <Input label="First name" autoComplete="given-name" required {...field('firstName')} />
         <Input label="Last name" autoComplete="family-name" helperText="Optional" {...field('lastName')} />
         <Input label="Email" type="email" autoComplete="email" required {...field('email')} />

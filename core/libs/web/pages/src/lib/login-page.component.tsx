@@ -1,9 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { loginRequestSchema } from '@inithium/shared-contracts';
-import { useLoginMutation } from '@inithium/shared-data-access';
+import { useAlerts, useLoginMutation } from '@inithium/shared-data-access';
 import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
-import { Alert } from '@inithium/shared-ui-composites';
 import type { PageTemplateProps } from '@inithium/web-shell';
 import { fieldErrorsFrom, focusFirstError, readApiFailure, type FieldErrors } from './form-errors.service';
 
@@ -14,15 +13,17 @@ type Problem = { title: string; message: string };
 const INVALID: Problem = { title: 'There were problems signing in', message: 'Check the highlighted fields below.' };
 
 /**
- * Core's Login page: signs in any account. Problems show a red alert and highlight each field with the reason, as
- * on Sign up (decision 0083). Once signed in, the shell sends the visitor on to where they were going (or Home), as
+ * Core's Login page: signs in any account. Problems raise a red alert in the app's AlertStack and highlight each
+ * field with the reason, as on Sign up (decision 0083). Once signed in, the shell sends the visitor on to where they were going (or Home), as
  * it does for every signed-out-only page (decision 0079).
  */
 export function LoginPage({ page }: PageTemplateProps) {
   const [login, { isLoading }] = useLoginMutation();
   const [values, setValues] = useState<Record<Field, string>>({ email: '', password: '' });
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
-  const [problem, setProblem] = useState<Problem | null>(null);
+  const { show: showAlert, dismiss: dismissAlert } = useAlerts();
+  // This form's last alert, replaced by the next one so only the latest problem shows.
+  const lastAlert = useRef<string | null>(null);
 
   const field = (name: Field) => ({
     value: values[name],
@@ -33,7 +34,9 @@ export function LoginPage({ page }: PageTemplateProps) {
 
   const fail = (form: HTMLFormElement, found: FieldErrors<Field>, next: Problem) => {
     setErrors(found);
-    setProblem(next);
+    // The app's AlertStack (bottom right), urgent so screen readers hear it at once.
+    if (lastAlert.current) dismissAlert(lastAlert.current);
+    lastAlert.current = showAlert({ color: 'red', icon: 'circle-alert', title: next.title, message: next.message, urgent: true });
     focusFirstError(FIELDS, found, form);
   };
 
@@ -44,7 +47,6 @@ export function LoginPage({ page }: PageTemplateProps) {
     if (!parsed.success) return fail(form, fieldErrorsFrom<Field>(parsed.error.issues), INVALID);
 
     setErrors({});
-    setProblem(null);
     try {
       await login(parsed.data).unwrap();
     } catch (error) {
@@ -62,9 +64,6 @@ export function LoginPage({ page }: PageTemplateProps) {
         <Text as="h1" fontFamily="display" fontSize={26}>
           {page.title}
         </Text>
-        {problem && (
-          <Alert role="alert" color="red" icon="circle-alert" title={problem.title} message={problem.message} onDismiss={() => setProblem(null)} />
-        )}
         <Input label="Email" type="email" autoComplete="email" required {...field('email')} />
         <Input label="Password" type="password" autoComplete="current-password" required {...field('password')} />
         <Button type="submit" width="full" loading={isLoading}>

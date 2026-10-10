@@ -75,7 +75,7 @@ The four layers of the UI library. See the [UI library](../ui-library/index.md) 
 
 ### `@inithium/web-pages`
 
-Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)).
+Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red AlertStack alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)).
 
 ### `@inithium/shared-permissions`
 
