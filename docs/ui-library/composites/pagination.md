@@ -3,7 +3,7 @@ title: Pagination
 description: Moves through pages of a list with previous and next arrows around the page numbers, with gaps in long ranges.
 scope: core
 tags: [ui, composite, navigation]
-order: 10
+order: 11
 decisions: ["0054", "0062", "0072", "0073"]
 component:
   name: Pagination

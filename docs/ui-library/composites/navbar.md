@@ -3,7 +3,7 @@ title: Navbar
 description: The application's main navigation bar, which moves its links into a drawer on narrow screens and adapts to sign-in state.
 scope: core
 tags: [ui, composite, navigation]
-order: 9
+order: 10
 decisions: ["0071", "0072", "0075", "0076"]
 component:
   name: Navbar

@@ -6,6 +6,7 @@ import { colorPickerPaletteSchema } from './color-picker.schema';
 import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { drawerSideSchema } from './drawer.schema';
+import { footerAlignSchema } from './footer.schema';
 import { iconNameSchema } from './icon.schema';
 import { navbarLinksAlignSchema, navbarLogoSchema, navItemSchema, navLinkSchema } from './navbar.schema';
 import { inputTypeSchema } from './input.schema';
@@ -390,6 +391,26 @@ export const navbarPropsSchema = sharedStylePropsSchema
     /** Where the page links sit. Default 'end' (beside the right-hand sections). */
     linksAlign: navbarLinksAlignSchema.optional(),
     /** The current page's link, hover and focus. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A Footer's storable props (decision 0077): its two link rows, copyright, alignment, colours and spacing. */
+export const footerPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true, bgColor: true })
+  .extend({
+    /** The main row of links; groups are flattened into their links. */
+    links: z.array(navItemSchema).optional(),
+    /** The smaller row after the copyright, e.g. privacy and policies. */
+    secondaryLinks: z.array(navLinkSchema).optional(),
+    /** The copyright holder: '© <year> <copyright>. All rights reserved.' */
+    copyright: z.string().min(1).optional(),
+    /** Makes the year a range, e.g. '© 2024–2026'. */
+    copyrightStartYear: z.number().int().min(1900).max(9999).optional(),
+    /** How the rows line up. Default 'start'. */
+    align: footerAlignSchema.optional(),
+    /** Link hover, focus and the current page. Default 'primary' (500). */
     color: solidColorValueSchema.optional(),
     animation: animationSchema.optional(),
   })

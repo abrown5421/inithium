@@ -5,6 +5,7 @@ export * from './lib/avatar/avatar.component';
 export * from './lib/breadcrumbs/breadcrumbs.component';
 export * from './lib/color-picker/color-picker.component';
 export * from './lib/drawer/drawer.component';
+export * from './lib/footer/footer.component';
 export * from './lib/modal/modal.component';
 export * from './lib/navbar/navbar.component';
 export * from './lib/pagination/pagination.component';
