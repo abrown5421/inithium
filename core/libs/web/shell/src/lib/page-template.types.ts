@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { PublicPage } from '@inithium/shared-contracts';
+import type { ColorValue, PageAnimation, PublicPage } from '@inithium/shared-contracts';
 
 /** What a template's component receives: its page record and the path's parameters (e.g. `{ id }`). */
 export type PageTemplateProps = {
@@ -19,4 +19,9 @@ export type PageTemplate = {
   singleUse: boolean;
   /** The layouts it allows; the first is the default. Kept in step with its seed's `layouts`. */
   layouts: readonly [string, ...string[]];
+  /**
+   * The look its pages have until the CMS sets their own: background, text colour, entrance and exit. Without
+   * these, pages use surface 50, surface 950 and a fast fadeIn and fadeOut.
+   */
+  defaults?: { bgColor?: ColorValue; textColor?: ColorValue; animation?: PageAnimation };
 };

@@ -39,6 +39,8 @@ type PageSlotProps = {
  */
 export function PageSlot({ entry, template, layout: Layout, footer, active, leaving, onExitEnd }: PageSlotProps) {
   const { page, params } = entry.resolved;
+  // The page record wins, then its template's defaults, then the shell's.
+  const defaults = template?.defaults;
 
   // Ready unless the page claims readiness with usePageReady, whose layout effect runs before this one.
   const [ready, setReady] = useState(false);
@@ -51,8 +53,8 @@ export function PageSlot({ entry, template, layout: Layout, footer, active, leav
   const show = active && ready;
   const { mounted, className, style, attach, getElement, handleAnimationEnd } = useAnimation({
     animation: {
-      entrance: page.animation?.entrance ?? DEFAULT_PAGE_ANIMATION.entrance,
-      exit: page.animation?.exit ?? DEFAULT_PAGE_ANIMATION.exit,
+      entrance: page.animation?.entrance ?? defaults?.animation?.entrance ?? DEFAULT_PAGE_ANIMATION.entrance,
+      exit: page.animation?.exit ?? defaults?.animation?.exit ?? DEFAULT_PAGE_ANIMATION.exit,
     },
     show,
     onExitEnd,
@@ -85,8 +87,8 @@ export function PageSlot({ entry, template, layout: Layout, footer, active, leav
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
-    background: toCssColor(page.bgColor ?? { color: 'surface', intensity: 50 }),
-    color: toCssColor(page.textColor ?? { color: 'surface', intensity: 950 }),
+    background: toCssColor(page.bgColor ?? defaults?.bgColor ?? { color: 'surface', intensity: 50 }),
+    color: toCssColor(page.textColor ?? defaults?.textColor ?? { color: 'surface', intensity: 950 }),
   } satisfies CSSProperties;
 
   return (

@@ -186,7 +186,8 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
           onNavigate={(href) => navigate(href)}
           onLogout={() => void handleLogout()}
         />
-        <Container position={{ type: 'relative' }} flex={{ direction: 'column' }} flexItem={{ grow: 1 }}>
+        {/* Clips pages sliding in or out (e.g. fadeOutDown) without breaking sticky content, as 'hidden' would. */}
+        <Container position={{ type: 'relative' }} flex={{ direction: 'column' }} flexItem={{ grow: 1 }} overflow={{ all: 'clip' }}>
           {slots.map((entry) => {
             const isCurrent = entry.key === current?.key;
             return (

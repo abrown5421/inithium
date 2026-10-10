@@ -36,7 +36,8 @@ A template is code registered in `web` under a key. It declares:
 
 - its component;
 - whether it's **single-use** (one page, like Home) or **reusable** (many pages, like a future content page);
-- which layouts it allows (the first is the default).
+- which layouts it allows (the first is the default);
+- optionally, **defaults** for its pages' background, text colour and animation. A page record's own values (set in the CMS) win; without either, pages use surface 50, surface 950 and a fast fadeIn and fadeOut. Core's Login and Sign up default to a surface 950 background with `fadeInUp` and `fadeOutDown`, so their card rises from the dark backdrop and sinks away.
 
 Core registers its templates directly. Plugins and client libs register theirs through the web registry. A client can replace a core page's look by registering its own component under the core key (e.g. `home`) from `libs/client/`, without touching core.
 
@@ -56,7 +57,13 @@ function ClassesPage({ page, params }: PageTemplateProps) {
   return <Text as="h1">{page.title}</Text>;
 }
 
-export const classesTemplate: PageTemplate = { key: 'classes-list', component: ClassesPage, singleUse: true, layouts: ['default'] };
+export const classesTemplate: PageTemplate = {
+  key: 'classes-list',
+  component: ClassesPage,
+  singleUse: true,
+  layouts: ['default'],
+  defaults: { animation: { entrance: { name: 'fadeInUp', speed: 'fast' } } }, // optional
+};
 ```
 
 - **Props:** a template gets its `page` record (`PublicPage`) and the path's `params` (e.g. `{ id }` for `/profile/:id`).
@@ -85,7 +92,7 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
   - A signed-out visitor on a `signed-in` page is sent to `/login` with an alert ("Sign in to view that page"), then back after signing in.
   - A signed-in user on a `signed-out` page (Login, Sign up) is sent to Home, without a message.
 - **Transitions:** the Navbar stays put; everything under it animates. The current page plays its exit, then the next page plays its entrance. Clicking again during an exit doesn't cut it short: when the exit ends, the latest destination enters.
-- **Backdrop:** pages sit on their own background over a surface 950 backdrop (dark in light mode, light in dark mode), so each exit fades into it and each entrance comes out of it. The startup screen uses it too.
+- **Backdrop:** pages sit on their own background over a surface 950 backdrop. The page area clips anything sliding past its edges (`overflow: clip`, which keeps sticky content working) (dark in light mode, light in dark mode), so each exit fades into it and each entrance comes out of it. The startup screen uses it too.
 - **Data:** a page that loads data calls `usePageReady(ready)`. The next page starts loading during the exit, and if it isn't ready when the exit ends, a Loader shows until it is.
 - **After each change:** the window scrolls to the top, focus moves to the new page's heading, and the document title updates. Back and forward restore scroll positions.
 
