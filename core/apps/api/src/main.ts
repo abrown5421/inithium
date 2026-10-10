@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase } from '@inithium/api-database';
+import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
+import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 
 const app = express();
 
@@ -19,6 +21,9 @@ api.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
 });
 api.use('/auth', authRouter);
+api.use('/site', siteRouter);
+api.use('/pages', pagesRouter);
+api.use('/settings', settingsRouter);
 
 app.use('/api', api);
 app.use('/api', (_req, res) => {
@@ -50,6 +55,8 @@ async function start() {
   const env = loadEnv();
   await connectDatabase(env.MONGODB_URI);
   await seedDevUser({ email: env.SEED_DEV_EMAIL, password: env.SEED_DEV_PASSWORD });
+  await seedSiteSettings();
+  await seedCorePages();
 
   const server = app.listen(env.PORT, env.HOST, () => {
     console.log(`[ ready ] http://${env.HOST}:${env.PORT}`);

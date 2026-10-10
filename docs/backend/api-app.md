@@ -17,7 +17,7 @@ On start, `main.ts`:
 
 1. Validates the environment with `loadEnv()`. Invalid or missing variables stop the process with a list of problems ([Environment variables](environment-variables.md)).
 2. Connects to MongoDB **before** listening, and exits if it can't ([0010](../decisions/0010-connect-to-the-database-before-listening.md), [Database](database.md)).
-3. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)).
+3. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)), then the default [site settings](site-settings.md#seeding) and core's [pages](pages.md#seeding) if they're missing.
 4. Listens on `HOST`:`PORT` and logs `[ ready ] http://<host>:<port>`.
 
 On `SIGTERM` or `SIGINT` (e.g. Render redeploying, or Ctrl+C), it stops accepting connections, disconnects from MongoDB and exits.
@@ -36,6 +36,9 @@ Every API route is under `/api`, on one router:
 | --- | --- |
 | `GET /api` | A health response, `{ "message": "Hello API" }` |
 | `/api/auth/*` | `authRouter` from `@inithium/api-auth`. See [Authentication](authentication.md). |
+| `/api/site` | `siteRouter` from `@inithium/api-pages`: the site bundle `web` loads. See [Pages](pages.md). |
+| `/api/pages/*` | `pagesRouter` from `@inithium/api-pages`. See [Pages](pages.md). |
+| `/api/settings` | `settingsRouter` from `@inithium/api-settings`. See [Site settings](site-settings.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 
 The router parses JSON bodies (`express.json()`) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).

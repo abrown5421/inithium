@@ -103,9 +103,9 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 
 ## Build status
 
-Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, which take plain data. The phases, in order:
+Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phase 1. The phases, in order:
 
-1. **Contracts and API:** page and settings contracts, permissions, the pages and settings endpoints, and the seeded core pages and default settings.
+1. **Contracts and API (built):** page and settings contracts, permissions, the [pages](../backend/pages.md) and [settings](../backend/site-settings.md) endpoints, and the seeded core pages and default settings. Not Found lives at `/404`, and each record carries the `layouts` its template allows.
 2. **`web` shell:**
    - the template registry, routes built from records, and the layouts lib with `default` and `bare`;
    - audiences, transitions, `usePageReady`, scroll and focus;

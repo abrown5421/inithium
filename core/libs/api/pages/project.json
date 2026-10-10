@@ -1,0 +1,13 @@
+{
+  "name": "api-pages",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/pages/src",
+  "projectType": "library",
+  "tags": [
+    "scope:api",
+    "type:feature",
+    "origin:core"
+  ],
+  "// targets": "to see all targets run: nx show project api-pages --web",
+  "targets": {}
+}
