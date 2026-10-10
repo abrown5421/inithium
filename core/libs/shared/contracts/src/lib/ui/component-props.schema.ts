@@ -7,6 +7,7 @@ import { colorValueSchema, solidColorValueSchema } from './colors.schema';
 import { dividerLabelAlignSchema } from './divider.schema';
 import { drawerSideSchema } from './drawer.schema';
 import { iconNameSchema } from './icon.schema';
+import { navbarLinksAlignSchema, navbarLogoSchema, navItemSchema, navLinkSchema } from './navbar.schema';
 import { inputTypeSchema } from './input.schema';
 import { radioOptionSchema } from './radio-group.schema';
 import { selectOptionsSchema } from './select.schema';
@@ -28,6 +29,7 @@ import {
   switchStylePropsSchema,
   textStylePropsSchema,
 } from './style-props.schema';
+import { breakpoints } from './variants.schema';
 
 // Everything about a component that can be stored (e.g. in a page section): its style props plus its
 // animation. Runtime-only props (show, replay, callbacks, children) are not part of these schemas.
@@ -362,6 +364,33 @@ export const avatarPropsSchema = sharedStylePropsSchema
     name: z.string().optional(),
     /** Describes the avatar to screen readers, e.g. the person's name; without it the avatar is decorative. */
     label: z.string().min(1).optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** A Navbar's storable props (decision 0076): its logo, title, links, addresses, collapse point, look and spacing. */
+export const navbarPropsSchema = sharedStylePropsSchema
+  .pick({ margin: true, padding: true, bgColor: true })
+  .extend({
+    /** The application's name beside the logo. */
+    title: z.string().min(1).optional(),
+    logo: navbarLogoSchema.optional(),
+    /** Where the logo and title go. Default '/'. */
+    homeHref: z.string().min(1).optional(),
+    /** Where Login goes. Default '/login'. */
+    loginHref: z.string().min(1).optional(),
+    /** The page links. */
+    links: z.array(navItemSchema).optional(),
+    /** The signed-in user's links, in the drawer. */
+    userLinks: z.array(navLinkSchema).optional(),
+    /** Below this breakpoint's width, the page links move into the drawer. Default 'lg' (1024px). */
+    collapseAt: z.enum(breakpoints).optional(),
+    /** Keeps the bar at the top of the screen while scrolling. Default true. */
+    sticky: z.boolean().optional(),
+    /** Where the page links sit. Default 'end' (beside the right-hand sections). */
+    linksAlign: navbarLinksAlignSchema.optional(),
+    /** The current page's link, hover and focus. Default 'primary' (500). */
+    color: solidColorValueSchema.optional(),
     animation: animationSchema.optional(),
   })
   .strict();
