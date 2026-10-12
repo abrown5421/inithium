@@ -106,9 +106,7 @@ export function PagesScreen() {
               </Container>
               {pathHasParams(page.path) || page.status !== 'published' ? (
                 <Tooltip content={page.status !== 'published' ? 'Unpublished pages aren’t on the site.' : 'This page needs details in its address, e.g. a profile’s id.'}>
-                  <span>
-                    <Button variant="ghost" leadingIcon="external-link" aria-label={`View ${page.title}`} padding={{ x: 6 }} disabled />
-                  </span>
+                  <Button variant="ghost" leadingIcon="external-link" aria-label={`View ${page.title}`} padding={{ x: 6 }} disabled />
                 </Tooltip>
               ) : (
                 <Tooltip content="View on the site">

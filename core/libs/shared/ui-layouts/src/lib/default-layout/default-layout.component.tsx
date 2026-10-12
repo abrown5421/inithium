@@ -24,13 +24,15 @@ export type DefaultLayoutProps = {
 };
 
 /**
- * The standard page frame under the Navbar (decision 0079): the content centred at up to 1200px wide with 24px
- * sides and 32px above and below. Under the web shell the content area is at least the screen's height minus the
- * Navbar, so the Footer starts just below the fold; longer content pushes it further down.
+ * The standard page frame under the Navbar (decision 0079): the content at full width with 24px sides and 32px
+ * above and below (pages are full width unless asked otherwise). Under the web shell the content area is at least
+ * the screen's height minus the Navbar, so the Footer starts just below the fold; longer content pushes it further
+ * down.
  */
 export function DefaultLayout({ children, footer }: DefaultLayoutProps) {
   return (
     <Container flex={{ direction: 'column', align: 'center' }} flexItem={{ grow: 1 }} width="full">
+      {/* A plain div: Container's sizing has no calc() value for "the screen minus the Navbar". */}
       <div style={ABOVE_THE_FOLD}>
         <Container as="main" flexItem={{ grow: 1 }} width="full" padding={{ x: 24, y: 32 }}>
           {children}

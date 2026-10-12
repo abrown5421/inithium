@@ -14,7 +14,7 @@ const SIGN_IN_DEFAULTS: PageTemplate['defaults'] = {
 /** Core's page templates (decision 0078), matching the pages `@inithium/api-pages` seeds. */
 export const coreTemplates: PageTemplate[] = [
   { key: 'home', component: HomePage, singleUse: true, layouts: ['default'] },
-  { key: 'profile', component: ProfilePage, singleUse: true, layouts: ['default'] },
+  { key: 'profile', component: ProfilePage, singleUse: true, layouts: ['full-width'] },
   { key: 'login', component: LoginPage, singleUse: true, layouts: ['bare'], defaults: SIGN_IN_DEFAULTS },
   { key: 'sign-up', component: SignUpPage, singleUse: true, layouts: ['bare'], defaults: SIGN_IN_DEFAULTS },
   { key: 'not-found', component: NotFoundPage, singleUse: true, layouts: ['default'] },

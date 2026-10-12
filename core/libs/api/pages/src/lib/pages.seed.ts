@@ -26,7 +26,7 @@ export const corePageSeeds: PageSeed[] = [
     template: 'profile',
     path: '/profile/:id',
     title: 'Profile',
-    layouts: ['default'],
+    layouts: ['full-width'],
     audience: 'all',
     navigation: { locations: ['profile-nav'], order: 0 },
   },

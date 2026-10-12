@@ -17,20 +17,21 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | --- | --- | --- | --- |
 | `@inithium/api-config` | `libs/api/config` | `scope:api`, `type:util`, `origin:core` | `loadEnv()`, `envSchema`, `Env` |
 | `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()`, `isDatabaseConnected()`, `healthRouter` |
-| `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, user queries, `createUser()` |
+| `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, `toPublicProfile()`, user queries, `createUser()`, `updateUserProfile()`, `backfillUserProfiles()`, `createProfileAvatar()`, `createProfileBanner()` |
 | `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
 | `@inithium/api-pages` | `libs/api/pages` | `scope:api`, `type:feature`, `origin:core` | `PageModel`, `pagesRouter`, `siteRouter`, page service functions, `seedPages()`, `seedCorePages()` |
+| `@inithium/api-profiles` | `libs/api/profiles` | `scope:api`, `type:feature`, `origin:core` | `profilesRouter` |
 | `@inithium/api-settings` | `libs/api/settings` | `scope:api`, `type:feature`, `origin:core` | `SettingsModel`, `settingsRouter`, `getSiteSettings()`, `updateSiteSettings()`, `seedSiteSettings()` |
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, pages, site settings, theme, UI style props, animation |
 | `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, `defaultLogo`, scale generation, `themeColorProblem()`, `ThemeStyles`, theme fonts CSS |
 | `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation`, `toCssColor()` |
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
-| `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
-| `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen` |
+| `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `FullWidthLayout`, `ProfileLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
+| `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen`, `PasswordChangeForm` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
-| `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage`, the profile slot types, `ProfileSlotsProvider` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
 | `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
@@ -51,15 +52,19 @@ The api calls `connectDatabase` before it listens and `disconnectDatabase` on SI
 
 ### `@inithium/api-users`
 
-The `users` collection. `UserModel` stores `email` (unique, lowercased), `passwordHash` (excluded from queries unless selected with `+passwordHash`), `role` (default `user`) and `passwordChangeRequired`, with timestamps. `toUser()` maps a stored user to the API's `User` shape. Also exports `findUserById()`, `findUserByEmailWithPassword()`, `userExistsWithEmail()`, `userExistsWithRole()` and `createUser()`.
+The `users` collection. `UserModel` stores `email` (unique, lowercased), `passwordHash` (excluded from queries unless selected with `+passwordHash`), `role` (default `user`) and `passwordChangeRequired`, with timestamps, and the `profile` (names, bio, avatar and banner recipes). `toUser()` maps a stored user to the API's `User` shape and `toPublicProfile()` to a `PublicProfile`. Also exports `findUserById()`, `findUserByIdWithPassword()`, `findUserByEmailWithPassword()`, `userExistsWithEmail()`, `userExistsWithRole()`, `createUser()` (always with a generated avatar and banner), `updateUserProfile()`, `backfillUserProfiles()` (run on every start) and the generators `createProfileAvatar()` and `createProfileBanner()`. See [Users](../backend/users.md) and [Profiles](../backend/profiles.md).
 
 ### `@inithium/api-auth`
 
-Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` middleware, `getAuth()` for reading the signed-in user inside a protected route, and `seedDevUser()`, which the api calls after connecting. Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](../backend/authentication.md).
+Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` / `requireSession` middleware, `getAuth()` for reading the signed-in user inside a protected route, `readAuth(req)` for reading an optional session on a public route, and `seedDevUser()`, which the api calls after connecting. Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](../backend/authentication.md).
 
 ### `@inithium/api-pages`
 
 The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)): `PageModel`, `toPage()` / `toPublicPage()`, `listPages()`, `listPublishedPages()`, `findPageById()`, `updatePage()` (the edit rules) and `deletePage()`; `pagesRouter` (`/api/pages`) and `siteRouter` (`/api/site`); and `seedPages()` / `seedCorePages()` / `corePageSeeds`. See [Pages](../backend/pages.md).
+
+### `@inithium/api-profiles`
+
+The profile API ([0090](../decisions/0090-generate-and-show-user-profiles.md)): `profilesRouter`, mounted at `/api/profiles` (`GET /:id`, `PATCH /me`). The data and its service functions are in `@inithium/api-users`. See [Profiles](../backend/profiles.md).
 
 ### `@inithium/api-settings`
 
@@ -67,7 +72,7 @@ The one site settings record ([0082](../decisions/0082-keep-site-wide-settings-i
 
 ### `@inithium/shared-contracts`
 
-The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `userDisplayName()`, `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteBundleSchema` / `SiteBundle`).
+The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `profileLimits`, `profileName()`, `userDisplayName()`, the profile contracts (`publicProfileSchema` / `PublicProfile`, `updateProfileRequestSchema` / `UpdateProfileRequest`, `profileViewers` / `ProfileViewer`, `publicProfileName()`), `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteBundleSchema` / `SiteBundle`).
 
 ### `@inithium/shared-ui-theme`, `@inithium/shared-ui-components`, `@inithium/shared-ui-composites` and `@inithium/shared-ui-layouts`
 
@@ -75,7 +80,7 @@ The four layers of the UI library. See the [UI library](../ui-library/index.md) 
 
 ### `@inithium/shared-auth-ui`
 
-Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accounts that must change a temporary password ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)).
+Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accounts that must change a temporary password ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)), and the `PasswordChangeForm` inside it, which the profile's Account tab also uses.
 
 ### `@inithium/web-shell`
 
@@ -83,7 +88,7 @@ Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accou
 
 ### `@inithium/web-pages`
 
-Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red AlertStack alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)).
+Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red AlertStack alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). Profile is the real profile page with its About and Account tabs; the profile slot types (`ProfileSlots`, `ProfileTab`, `ProfileSidebarSection`, `ProfileHeaderAction`, `ProfileSlotProps`) and `ProfileSlotsProvider` let the web registry add to it ([Profiles](../backend/profiles.md)).
 
 ### `@inithium/shared-permissions`
 

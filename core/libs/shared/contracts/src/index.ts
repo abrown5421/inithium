@@ -44,3 +44,5 @@ export * from './lib/ui/typography.schema';
 export * from './lib/ui/variants.schema';
 export * from './lib/users/users.schema';
 export * from './lib/users/users.types';
+export * from './lib/users/profiles.schema';
+export * from './lib/users/profiles.types';

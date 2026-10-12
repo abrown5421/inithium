@@ -26,6 +26,12 @@ decisions: ["0012", "0007", "0031", "0032", "0038"]
 - **Unused parameters:** prefix a parameter with `_` when its position is required but its value isn't (e.g. `_req`, or `_next` in an Express error handler, which Express only recognises by its four parameters). ESLint ignores `_`-prefixed parameters.
 - Files whose names a tool requires (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep those names.
 
+## Building UI
+
+Build screens, pages and layouts from the UI library's components and composites: Container (with `as` for semantic elements) rather than a `<div>`, Text rather than a `<p>`, and so on ([0092](../decisions/0092-build-ui-from-the-library-before-plain-elements.md)). Plain HTML elements are a last resort, for what no component can express. Today that means a `<form>`, a value style props can't take (a `calc()` height, a raw hex swatch), or a component's own internals, and each one says why in a comment. If a component almost fits, extend its props instead.
+
+Pages are full width by default; don't cap them at a maximum width unless the design calls for it ([0091](../decisions/0091-make-pages-full-width-by-default.md)).
+
 ## Theme colours
 
 The UI library isn't built yet, but these rules already apply to anything designed for it: core screens, plugin UIs and generated pages. See [0031](../decisions/0031-theme-colour-tokens-and-scales.md) and [0032](../decisions/0032-dark-mode-mirrors-the-theme-scales.md).

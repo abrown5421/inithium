@@ -13,7 +13,9 @@ Layouts are page-level frames: what a `web` page sits in under the Navbar, or an
 | Layout | Key | Use it for |
 | --- | --- | --- |
 | [BareLayout](bare-layout.md) | `bare` | Focused pages such as sign-in: a centred card, no Footer |
-| [DefaultLayout](default-layout.md) | `default` | Most pages: centred content with the Footer |
+| [DefaultLayout](default-layout.md) | `default` | Most pages: full-width padded content with the Footer |
+| [FullWidthLayout](full-width-layout.md) | `full-width` | Pages that draw their own frame edge to edge, e.g. Profile |
+| [ProfileLayout](profile-layout.md) | (inside `full-width`) | A profile: banner, overlapping avatar, identity sidebar and main column |
 | [SidebarLayout](sidebar-layout.md) | (app frame) | The CMS: a top bar and a collapsible sidebar of sections |
 
-Still to come: `full-width`, `collection-list`, `collection-item` and `profile` (see [Pages and routing](../../architecture/pages-and-routing.md#layouts)).
+Still to come: `collection-list` and `collection-item` (see [Pages and routing](../../architecture/pages-and-routing.md#layouts)).

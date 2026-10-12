@@ -3,7 +3,7 @@ title: SidebarLayout
 description: An app frame with a top bar and a collapsible sidebar of sections, used by the CMS.
 scope: core
 tags: [ui, layout, cms, navigation]
-order: 3
+order: 5
 decisions: ["0076", "0086"]
 component:
   name: SidebarLayout

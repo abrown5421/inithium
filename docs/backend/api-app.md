@@ -39,6 +39,7 @@ Every API route is under `/api`, on one router:
 | `/api/auth/*` | `authRouter` from `@inithium/api-auth`. See [Authentication](authentication.md). |
 | `/api/site` | `siteRouter` from `@inithium/api-pages`: the site bundle `web` loads. See [Pages](pages.md). |
 | `/api/pages/*` | `pagesRouter` from `@inithium/api-pages`. See [Pages](pages.md). |
+| `/api/profiles/*` | `profilesRouter` from `@inithium/api-profiles`. See [Profiles](profiles.md). |
 | `/api/settings` | `settingsRouter` from `@inithium/api-settings`. See [Site settings](site-settings.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 

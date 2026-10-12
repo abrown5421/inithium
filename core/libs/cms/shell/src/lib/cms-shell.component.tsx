@@ -48,7 +48,7 @@ export function CmsShell({ screens }: CmsShellProps) {
       items={items}
       currentPath={toHref(location.pathname)}
       onNavigate={(href) => navigate(toPath(href))}
-      user={user ? { name: userDisplayName(user) } : undefined}
+      user={user ? { name: userDisplayName(user), avatar: user.profile.avatar } : undefined}
       onLogout={() => void logout()}
     >
       <Routes>
