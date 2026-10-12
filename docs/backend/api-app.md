@@ -34,7 +34,8 @@ Every API route is under `/api`, on one router:
 
 | Path | Provided by |
 | --- | --- |
-| `GET /api` | A health response, `{ "message": "Hello API" }` |
+| `GET /api` | A greeting, `{ "message": "Hello API" }` |
+| `GET /api/health` | `healthRouter` from `@inithium/api-database`: `200 { "status": "ok", "database": "connected" }`, or `503` while the database is disconnected. Render's health check path. |
 | `/api/auth/*` | `authRouter` from `@inithium/api-auth`. See [Authentication](authentication.md). |
 | `/api/site` | `siteRouter` from `@inithium/api-pages`: the site bundle `web` loads. See [Pages](pages.md). |
 | `/api/pages/*` | `pagesRouter` from `@inithium/api-pages`. See [Pages](pages.md). |

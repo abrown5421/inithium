@@ -29,13 +29,14 @@ Moving an app to a different database or cluster is only ever a change to `MONGO
 2. Create the client's Atlas account, cluster and database.
 3. Create the client's Render account through their GitHub, deploy the repo, and set the environment variables.
 
-The Render web service settings below are not yet confirmed by a first deploy:
+The Render web service settings, step by step, are in [Deploying to Render](../getting-started/deploying-to-render.md) ([0089](../decisions/0089-build-for-render-with-dev-dependencies-and-a-health-check.md)):
 
 | Setting | Value |
 | --- | --- |
 | Root directory | `core` |
-| Build command | `npm ci && npx nx run-many -t build` |
+| Build command | `npm ci --include=dev && npx nx run-many -t build --projects=api,web,cms` |
 | Start command | `node dist/apps/api/main.js` |
+| Health check path | `/api/health` |
 | Environment | `MONGODB_URI`, `HOST=0.0.0.0`, `NODE_VERSION=22`, `NODE_ENV=production`, `JWT_ACCESS_SECRET` and `SEED_DEV_PASSWORD` (both unique per client), `SEED_DEV_EMAIL`. Render provides `PORT`. |
 
 See [Environment variables](../backend/environment-variables.md) and [Routing and hosting](../reference/routing-and-hosting.md).
