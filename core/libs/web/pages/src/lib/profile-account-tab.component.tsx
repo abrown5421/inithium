@@ -9,7 +9,8 @@ import {
   useUpdateMyProfileMutation,
   type FieldErrors,
 } from '@inithium/shared-data-access';
-import { Button, Container, Divider, Input, Text } from '@inithium/shared-ui-components';
+import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
+import { PROFILE_CARD_GAP, profileCard } from './profile-card.config';
 import type { ProfileSlotProps } from './profile-slots.types';
 
 type Field = 'firstName' | 'lastName' | 'bio';
@@ -64,40 +65,43 @@ export function ProfileAccountTab({ profile }: ProfileSlotProps) {
   };
 
   return (
-    <Container flex={{ direction: 'column', gap: 32 }}>
-      <form onSubmit={handleSubmit} noValidate>
-        <Container flex={{ direction: 'column', gap: 20 }}>
-          <Text as="h2" fontFamily="display" fontSize={20}>
-            Profile
-          </Text>
-          <Input label="First name" autoComplete="given-name" required {...field('firstName')} />
-          <Input label="Last name" autoComplete="family-name" helperText="Optional" {...field('lastName')} />
-          <Input
-            label="Bio"
-            helperText={`Optional. ${values.bio.trim().length}/${profileLimits.bio} characters.`}
-            {...field('bio')}
-          />
-          <Input label="Email" value={profile.email ?? ''} disabled helperText="Only you can see this. It can't be changed yet." />
-          <Container flex={{ direction: 'row' }}>
-            <Button type="submit" leadingIcon="save" loading={isLoading}>
-              Save profile
-            </Button>
-          </Container>
-        </Container>
-      </form>
-      <Divider />
-      <PasswordChangeForm
-        intro={
-          <Container flex={{ direction: 'column', gap: 6 }}>
+    <Container flex={{ direction: 'column', gap: PROFILE_CARD_GAP }}>
+      <Container as="section" {...profileCard}>
+        <form onSubmit={handleSubmit} noValidate>
+          <Container flex={{ direction: 'column', gap: 20 }}>
             <Text as="h2" fontFamily="display" fontSize={20}>
-              Password
+              Profile
             </Text>
-            <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-              Changing it signs you out everywhere else.
-            </Text>
+            <Input label="First name" autoComplete="given-name" required {...field('firstName')} />
+            <Input label="Last name" autoComplete="family-name" helperText="Optional" {...field('lastName')} />
+            <Input
+              label="Bio"
+              helperText={`Optional. ${values.bio.trim().length}/${profileLimits.bio} characters.`}
+              {...field('bio')}
+            />
+            <Input label="Email" value={profile.email ?? ''} disabled helperText="Only you can see this. It can't be changed yet." />
+            <Container flex={{ direction: 'row' }}>
+              <Button type="submit" leadingIcon="save" loading={isLoading}>
+                Save profile
+              </Button>
+            </Container>
           </Container>
-        }
-      />
+        </form>
+      </Container>
+      <Container as="section" {...profileCard}>
+        <PasswordChangeForm
+          intro={
+            <Container flex={{ direction: 'column', gap: 6 }}>
+              <Text as="h2" fontFamily="display" fontSize={20}>
+                Password
+              </Text>
+              <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
+                Changing it signs you out everywhere else.
+              </Text>
+            </Container>
+          }
+        />
+      </Container>
     </Container>
   );
 }

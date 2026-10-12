@@ -225,6 +225,11 @@ export const tabsPropsSchema = sharedStylePropsSchema
     color: solidColorValueSchema.optional(),
     /** Stretches the tabs to share the bar's width equally. Default false. */
     fill: z.boolean().optional(),
+    /**
+     * Draws the tab bar as a box, e.g. a card: its background, padding, corners and shadow. With it, the bar's
+     * divider line is left out. Default: no box, with the divider.
+     */
+    bar: sharedStylePropsSchema.pick({ bgColor: true, padding: true, radius: true, shadow: true }).optional(),
     animation: animationSchema.optional(),
   })
   .strict();

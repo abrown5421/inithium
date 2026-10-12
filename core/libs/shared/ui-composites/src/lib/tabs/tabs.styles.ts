@@ -11,6 +11,9 @@ export const tabsStyleSheet = [
   // The bar scrolls sideways when the tabs don't fit.
   `.ui-tabs-list{position:relative;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid ${divider}}`,
   '.ui-tabs-list::-webkit-scrollbar{display:none}',
+  // In a box (the bar prop), the box's edge replaces the divider, and the panels sit a little further below it.
+  '.ui-tabs[data-bar] .ui-tabs-list{border-bottom:0}',
+  '.ui-tabs[data-bar] .ui-tabs-panel{padding-top:24px}',
 
   '.ui-tabs-trigger{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;gap:8px;height:40px;' +
     'margin:0;padding:0 16px;border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;line-height:20px;' +

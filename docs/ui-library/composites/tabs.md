@@ -34,6 +34,7 @@ Type names such as `Colour`, `Sides` and `Variants<T>` are defined on [Style pro
 | [`value`, `defaultValue`, `onValueChange`](#value-defaultvalue-and-onvaluechange) | `string` | first enabled tab | The active tab |
 | [`color`](#color) | `Colour` (not `'transparent'`) | `'primary'` | Underline and focus |
 | [`fill`](#fill) | `boolean` | `false` | Tabs share the bar's width |
+| [`bar`](#bar) | `{ bgColor?, padding?, radius?, shadow? }` | none | Draws the tab bar as a box, e.g. a card |
 | [`keepMounted`](#keepmounted) | `boolean` | `false` | Keep inactive panels rendered |
 | [`aria-label`](#aria-label) | `string` | none | Names the tab bar |
 | [`margin`, `padding`](#margin-and-padding) | `Variants<Sides>` | none | Spacing, px |
@@ -77,6 +78,17 @@ Stretches the tabs to share the bar's width equally, e.g. for two or three tabs 
 <Tabs fill tabs={[signIn, register]} />
 ```
 
+#### `bar`
+
+Draws the tab bar as a box, e.g. a card on a tinted page. It takes [`bgColor`](../style-props.md#colour-value), [`padding`](../style-props.md), [`radius`](../style-props.md) and [`shadow`](../style-props.md), with their usual shapes and variants. With it, the bar's divider line is left out (the box's edge replaces it), and the panels sit 24px below the box instead of 16px. **Type:** `{ bgColor?, padding?, radius?, shadow? }`. **Default:** none (no box, with the divider).
+
+```tsx
+<Tabs
+  bar={{ bgColor: { color: 'surface', intensity: 100 }, padding: { x: 12, y: 4 }, radius: { all: 12 }, shadow: '2xl' }}
+  tabs={tabs}
+/>
+```
+
 #### `keepMounted`
 
 Keeps inactive panels rendered but hidden, so what's typed into a form in another tab survives switching. Without it, only the active panel is rendered. **Type:** `boolean`. **Default:** `false`.
@@ -117,6 +129,14 @@ Two tabs sharing a narrow card's width, in the secondary colour.
 
 ```example
 ui-library/tabs/fill
+```
+
+### Example: Card bar
+
+The bar as a card on a tinted page, with each panel's content in a matching card.
+
+```example
+ui-library/tabs/card-bar
 ```
 
 ### Example: Controlled
