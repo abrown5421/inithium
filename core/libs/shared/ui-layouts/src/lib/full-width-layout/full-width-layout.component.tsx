@@ -26,6 +26,7 @@ export type FullWidthLayoutProps = {
 export function FullWidthLayout({ children, footer }: FullWidthLayoutProps) {
   return (
     <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} width="full">
+      {/* A plain div: Container's sizing has no calc() value for "the screen minus the Navbar". */}
       <div style={ABOVE_THE_FOLD}>
         <Container as="main" flex={{ direction: 'column' }} flexItem={{ grow: 1 }} width="full">
           {children}

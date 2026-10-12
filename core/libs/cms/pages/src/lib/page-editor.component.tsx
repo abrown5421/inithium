@@ -180,9 +180,7 @@ export function PageEditor({ page, onClose, canPublish }: PageEditorProps) {
             <Switch label="Published" checked={draft.status === 'published'} onCheckedChange={(on) => change({ status: on ? 'published' : 'unpublished' })} helperText="Unpublished pages show Not Found on the site." />
           ) : (
             <Tooltip content="Publishing needs an admin or the owner.">
-              <span>
-                <Switch label="Published" checked={draft.status === 'published'} disabled />
-              </span>
+              <Switch label="Published" checked={draft.status === 'published'} disabled />
             </Tooltip>
           )}
         </Container>

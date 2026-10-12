@@ -2,10 +2,10 @@
 id: "0033"
 title: Design the UI library's shared props and remaining structure
 status: proposed
-date: "2026-10-07"
+date: "2026-10-12"
 scope: core
 tags: [ui, components, props, design-system]
-related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047", "0048"]
+related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047", "0048", "0092"]
 supersedes: []
 ---
 
@@ -21,12 +21,11 @@ Tailwind v4 only generates classes it finds written out in full in the source, s
 
 Undecided. These are being worked through in order; each will be recorded as an accepted decision when settled.
 
-**Settled so far:** styles via static classes and CSS variables ([0034](0034-resolve-style-props-to-static-classes-and-css-variables.md)); serializable Zod schemas ([0035](0035-define-style-props-as-serializable-zod-schemas.md)); flat state and breakpoint keys ([0036](0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)); no `className` ([0037](0037-style-components-only-through-typed-props.md)); four libs with `ui:` layer tags ([0038](0038-split-the-ui-library-into-four-libs-with-layer-tags.md)); schemas in `shared-contracts` ([0039](0039-keep-style-prop-schemas-in-shared-contracts.md)); colour prop values and properties ([0040](0040-colour-prop-values-and-properties.md)); OKLCH scale generation ([0041](0041-generate-theme-scales-in-oklch.md)); pixel spacing, sizing and measurements ([0042](0042-size-and-space-in-pixel-numbers.md)); Container layout objects ([0043](0043-group-container-layout-props-into-objects.md)); Text typography props ([0044](0044-text-typography-props.md)); the `as` prop ([0045](0045-constrained-as-prop-for-semantic-elements.md)); display and body fonts, with the theme holding colours and fonts only ([0046](0046-theme-fonts-display-and-body.md)); the generated style-prop stylesheet ([0047](0047-generate-the-style-prop-stylesheet-from-a-property-table.md)); animation through animate.css, the `show` trigger and stagger ([0048](0048-animate-components-with-animate-css-through-an-animation-prop.md)).
+**Settled so far:** styles via static classes and CSS variables ([0034](0034-resolve-style-props-to-static-classes-and-css-variables.md)); serializable Zod schemas ([0035](0035-define-style-props-as-serializable-zod-schemas.md)); flat state and breakpoint keys ([0036](0036-write-state-and-breakpoint-values-as-flat-tailwind-style-keys.md)); no `className` ([0037](0037-style-components-only-through-typed-props.md)); four libs with `ui:` layer tags ([0038](0038-split-the-ui-library-into-four-libs-with-layer-tags.md)); schemas in `shared-contracts` ([0039](0039-keep-style-prop-schemas-in-shared-contracts.md)); colour prop values and properties ([0040](0040-colour-prop-values-and-properties.md)); OKLCH scale generation ([0041](0041-generate-theme-scales-in-oklch.md)); pixel spacing, sizing and measurements ([0042](0042-size-and-space-in-pixel-numbers.md)); Container layout objects ([0043](0043-group-container-layout-props-into-objects.md)); Text typography props ([0044](0044-text-typography-props.md)); the `as` prop ([0045](0045-constrained-as-prop-for-semantic-elements.md)); display and body fonts, with the theme holding colours and fonts only ([0046](0046-theme-fonts-display-and-body.md)); the generated style-prop stylesheet ([0047](0047-generate-the-style-prop-stylesheet-from-a-property-table.md)); animation through animate.css, the `show` trigger and stagger ([0048](0048-animate-components-with-animate-css-through-an-animation-prop.md)); building UI from the library before plain elements ([0092](0092-build-ui-from-the-library-before-plain-elements.md)).
 
 **Prop system**
 
 - Whether lint should stop `scope:api` code importing the React UI libs, which are `scope:shared`.
-- Whether feature libs and apps must build their UI only from the UI library, or may also use plain elements with Tailwind classes. Today `@inithium/cms-auth` (sign-in screens) uses plain elements with Tailwind classes.
 - Centring: margins are pixel numbers, so there is no `margin: auto`. Should `margin` accept `'auto'`, or is centring always done with the parent's `flex`?
 
 **Colour**

@@ -61,8 +61,9 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
         }
       />
       {scale ? (
-        <div role="img" aria-label={`${label} scale from 50 to 950`} style={{ display: 'grid', gridTemplateColumns: 'repeat(11, 1fr)', gap: 2 }}>
+        <Container role="img" aria-label={`${label} scale from 50 to 950`} grid={{ columns: 11, gap: 2 }}>
           {scaleSteps.map((scaleStep) => (
+            // Raw hex swatches: colour props take theme references, not hex, so these stay plain spans.
             <span
               key={scaleStep}
               title={`${scaleStep} ${scale[scaleStep]}`}
@@ -75,7 +76,7 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
               }}
             />
           ))}
-        </div>
+        </Container>
       ) : problem ? null : (
         <Text as="p" fontSize={12} textColor={{ color: 'surface', intensity: 700 }}>
           Enter a 6-digit hex colour to preview its scale.

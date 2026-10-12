@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import type { AvatarRecipe, PolyPattern } from '@inithium/shared-contracts';
-import { Text } from '@inithium/shared-ui-components';
+import { Container, Text } from '@inithium/shared-ui-components';
 import { Avatar, PolyBanner } from '@inithium/shared-ui-composites';
-import { profileLayoutStyleSheet } from './profile-layout.styles';
 
 export type ProfileLayoutProps = {
   /** The profile's name, shown as the page's heading and drawn as the avatar's initials. */
@@ -25,6 +24,8 @@ export type ProfileLayoutProps = {
   children?: ReactNode;
 };
 
+const SIDEBAR = { color: 'surface', intensity: 100 } as const;
+
 /**
  * A profile's frame (decisions 0081, 0090, 0091), full width: a PolyBanner, then two columns like the CMS frame. The
  * raised sidebar (surface 100, with a shadow) starts with the Avatar overlapping the banner's bottom edge, the name
@@ -44,11 +45,7 @@ export function ProfileLayout({
   children,
 }: ProfileLayoutProps) {
   return (
-    <div className="ui-profile">
-      {/* React hoists this to <head> and keeps one copy however many render. */}
-      <style href="inithium-profile-layout" precedence="default">
-        {profileLayoutStyleSheet}
-      </style>
+    <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} width="full">
       <PolyBanner
         value={banner}
         onChange={onBannerChange}
@@ -56,10 +53,28 @@ export function ProfileLayout({
         label={`${name}'s banner`}
         height={{ base: 140, md: 220 }}
       />
-      <div className="ui-profile-body">
-        <aside className="ui-profile-sidebar" aria-label="About this profile">
-          <div className="ui-profile-identity">
-            <div className="ui-profile-avatar">
+      <Container flex={{ direction: { base: 'column', md: 'row' } }} flexItem={{ grow: 1 }} width="full">
+        <Container
+          as="aside"
+          aria-label="About this profile"
+          flex={{ direction: 'column', gap: 24 }}
+          flexItem={{ shrink: 0 }}
+          width={{ base: 'full', md: 320 }}
+          minWidth={0}
+          padding={{ base: { x: 24, bottom: 32 }, md: { x: 28, bottom: 40 } }}
+          position={{ type: 'relative', z: 1 }}
+          bgColor={SIDEBAR}
+          shadow="2xl"
+        >
+          <Container flex={{ direction: 'column', align: 'start', gap: 12 }}>
+            {/* The ring around the avatar, in the sidebar's colour, overlapping the banner by half. */}
+            <Container
+              position={{ type: 'relative' }}
+              margin={{ base: { top: -52 }, md: { top: -68 } }}
+              padding={{ all: 4 }}
+              radius={{ all: 9999 }}
+              bgColor={SIDEBAR}
+            >
               <Avatar
                 value={avatar}
                 onChange={onAvatarChange}
@@ -69,19 +84,26 @@ export function ProfileLayout({
                 width={{ base: 96, md: 128 }}
                 height={{ base: 96, md: 128 }}
               />
-            </div>
-            <div className="ui-profile-title">
+            </Container>
+            <Container maxWidth="full" minWidth={0}>
               <Text as="h1" fontFamily="display" fontSize={26} lineHeight={1.2}>
                 {name}
               </Text>
               {subtitle}
-            </div>
-            {actions && <div className="ui-profile-actions">{actions}</div>}
-          </div>
+            </Container>
+            {actions && <Container flex={{ direction: 'row', wrap: 'wrap', gap: 8 }}>{actions}</Container>}
+          </Container>
           {sidebar}
-        </aside>
-        <div className="ui-profile-main">{children}</div>
-      </div>
-    </div>
+        </Container>
+        <Container
+          flexItem={{ grow: 1 }}
+          minWidth={0}
+          padding={{ base: { all: 24 }, md: { all: 32 } }}
+          bgColor={{ color: 'surface', intensity: 200 }}
+        >
+          {children}
+        </Container>
+      </Container>
+    </Container>
   );
 }
