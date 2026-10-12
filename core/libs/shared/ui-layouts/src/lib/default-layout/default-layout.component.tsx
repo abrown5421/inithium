@@ -24,8 +24,8 @@ export type DefaultLayoutProps = {
 };
 
 /**
- * The standard page frame under the Navbar (decision 0079): the content centred at up to 1200px wide with 24px
- * sides and 32px above and below. Under the web shell the content area is at least the screen's height minus the
+ * The standard page frame under the Navbar (decision 0079): the content at full width with 24px sides and 32px
+ * above and below (pages are full width unless asked otherwise). Under the web shell the content area is at least the screen's height minus the
  * Navbar, so the Footer starts just below the fold; longer content pushes it further down.
  */
 export function DefaultLayout({ children, footer }: DefaultLayoutProps) {

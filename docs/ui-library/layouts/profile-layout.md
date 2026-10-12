@@ -1,10 +1,10 @@
 ---
 title: ProfileLayout
-description: A profile's frame, with a full-width banner, an overlapping avatar beside the name, an identity sidebar and the main column.
+description: A profile's full-width frame like the CMS, with a banner, a raised identity sidebar (avatar, name, actions) and the main column.
 scope: core
 tags: [ui, layout, profiles]
 order: 4
-decisions: ["0074", "0075", "0081", "0090"]
+decisions: ["0074", "0075", "0081", "0090", "0091"]
 component:
   name: ProfileLayout
   layer: layout
@@ -14,12 +14,13 @@ component:
 
 # ProfileLayout
 
-ProfileLayout draws a profile's frame ([0081](../../decisions/0081-extend-the-profile-page-through-slots-by-viewer.md), [0090](../../decisions/0090-generate-and-show-user-profiles.md)):
+ProfileLayout draws a profile's frame at full width, laid out like the CMS frame ([0081](../../decisions/0081-extend-the-profile-page-through-slots-by-viewer.md), [0090](../../decisions/0090-generate-and-show-user-profiles.md), [0091](../../decisions/0091-make-pages-full-width-by-default.md)):
 
 - a full-width [PolyBanner](../composites/poly-banner.md), 140px tall on phones and 220px from 768px;
-- the [Avatar](../composites/avatar.md) (96px, or 128px from 768px) in a surface 50 ring, overlapping the banner's bottom edge by half;
-- the name as the page's `<h1>` beside it, and any actions to the right;
-- an identity sidebar (280px) on the left and the main column on the right. They stack below 768px.
+- under it, a raised **identity sidebar** on the left: surface 100 with a shadow on its right edge, 320px wide. It starts with the [Avatar](../composites/avatar.md) (96px, or 128px from 768px) in a surface 100 ring, overlapping the banner's bottom edge by half. Then come the name as the page's `<h1>`, any actions, and the sidebar's content;
+- the **main column** on the right, surface 200, with 32px padding (24px on phones).
+
+The columns fill the height they're given, so they run down to the Footer. Below 768px the sidebar stacks above the main column, with its shadow underneath.
 
 It holds no data of its own: the page supplies the recipes, the edit callbacks and the columns' content. Core's Profile page uses it inside [FullWidthLayout](full-width-layout.md).
 
@@ -39,8 +40,8 @@ import { ProfileLayout } from '@inithium/shared-ui-layouts';
 | [`onAvatarChange`](#onavatarchange) | `(recipe) => void` | none | Makes the avatar editable |
 | [`onBannerChange`](#onbannerchange) | `(pattern) => void` | none | Makes the banner editable |
 | [`subtitle`](#subtitle) | `ReactNode` | none | Under the name |
-| [`actions`](#actions) | `ReactNode` | none | Buttons beside the name |
-| [`sidebar`](#sidebar) | `ReactNode` | none | The left column |
+| [`actions`](#actions) | `ReactNode` | none | Buttons under the name |
+| [`sidebar`](#sidebar) | `ReactNode` | none | The rest of the sidebar |
 | [`children`](#children) | `ReactNode` | none | The right column |
 
 ## Props
@@ -75,7 +76,7 @@ Anything under the name, e.g. a short line. **Type:** `ReactNode`.
 
 #### `actions`
 
-Buttons to the right of the name, e.g. "Add friend". They wrap under the name when there's no room. **Type:** `ReactNode`.
+Buttons under the name, e.g. "Add friend", wrapping onto more lines when needed. **Type:** `ReactNode`.
 
 ```tsx
 <ProfileLayout actions={<Button variant="outlined">Add friend</Button>} … />
@@ -83,7 +84,7 @@ Buttons to the right of the name, e.g. "Add friend". They wrap under the name wh
 
 #### `sidebar`
 
-The identity sidebar's content, in an `<aside>`, with 20px between its children. **Type:** `ReactNode`.
+The rest of the identity sidebar, under the name and actions, with 24px between its children. The sidebar is an `<aside>`. **Type:** `ReactNode`.
 
 #### `children`
 

@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0090"]
+decisions: ["0074", "0075", "0081", "0090", "0091"]
 ---
 
 # Profiles
@@ -67,9 +67,9 @@ The page works out who is looking (`ProfileViewer`):
 
 | Viewer | Who | Sees |
 | --- | --- | --- |
-| `visitor` | Signed out | Banner, avatar, name, join date, the About tab |
+| `visitor` | Signed out | Banner, avatar, name, bio and join date |
 | `member` | Signed in, someone else's profile | The same as a visitor in core; plugins may show more |
-| `owner` | The profile's own account | Also their email, edit buttons on the avatar and banner (saved straight away), "Edit profile", the Account tab, and a prompt to add a name if they have none |
+| `owner` | The profile's own account | Also their email, edit buttons on the avatar and banner (saved straight away), the Account tab's form, and a prompt to add a name if they have none |
 
 Staff accounts have profiles like everyone else, and no role is shown.
 
@@ -77,12 +77,12 @@ Staff accounts have profiles like everyone else, and no role is shown.
 
 | Slot | Entry | Viewers | Order |
 | --- | --- | --- | --- |
-| Tab | **About**: the bio, or a prompt for its owner to write one | everyone | 0 |
-| Tab | **Account**: names, bio, the email (read-only) and a password change (`PasswordChangeForm`) | owner | 1000 |
-| Sidebar section | **Details**: the join date, and the email for its owner | everyone | 0 |
-| Header action | **Edit profile**: opens the Account tab | owner | 1000 |
+| Sidebar section | **About**: the bio, the join date, and the email for its owner | everyone | 0 |
+| Tab | **Account**: the editable form, with names, bio, the email (read-only) and a password change (`PasswordChangeForm`) | owner | 1000 |
 
-- **Tabs are in the URL** as `?tab=<key>`, e.g. `/profile/:id?tab=account`. An unknown or hidden tab opens the first visible one, and the tab bar hides when only one tab is visible.
+Core has no other tabs and no header actions: the owner never has to press a button to start editing, because the form is already there.
+
+- **Tabs are in the URL** as `?tab=<key>`, e.g. `/profile/:id?tab=account`. An unknown or hidden tab opens the first visible one. The tab bar shows whenever there's a tab; with none (visitors and members, until plugins add some), the main column says there's nothing to show yet.
 - **An unknown profile** shows the Not Found page in place, keeping the address.
 
 ### Adding to the profile

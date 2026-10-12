@@ -64,7 +64,7 @@ export function ProfileAccountTab({ profile }: ProfileSlotProps) {
   };
 
   return (
-    <Container flex={{ direction: 'column', gap: 32 }} maxWidth={560}>
+    <Container flex={{ direction: 'column', gap: 32 }}>
       <form onSubmit={handleSubmit} noValidate>
         <Container flex={{ direction: 'column', gap: 20 }}>
           <Text as="h2" fontFamily="display" fontSize={20}>

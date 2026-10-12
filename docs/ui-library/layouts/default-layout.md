@@ -1,6 +1,6 @@
 ---
 title: DefaultLayout
-description: The standard page frame under the Navbar, with centred content and the Footer at the bottom.
+description: The standard page frame under the Navbar, with full-width padded content and the Footer at the bottom.
 scope: core
 tags: [ui, layout, pages]
 order: 2
@@ -14,7 +14,7 @@ component:
 
 # DefaultLayout
 
-DefaultLayout is the standard frame a `web` page sits in, under the Navbar ([0079](../../decisions/0079-route-web-pages-through-a-shell-with-audiences-and-sequential-transitions.md)). It centres the content at up to 1200px wide, with the [Footer](../composites/footer.md) underneath. In `web`, the content area is at least the screen's height minus the Navbar, so the Footer starts just below the fold ([0084](../../decisions/0084-start-the-footer-just-below-the-fold.md)). Pages choose it with the `default` layout key; the web shell renders it and fills in the Footer from the site's menus.
+DefaultLayout is the standard frame a `web` page sits in, under the Navbar ([0079](../../decisions/0079-route-web-pages-through-a-shell-with-audiences-and-sequential-transitions.md)). It puts the content at full width with padding, and the [Footer](../composites/footer.md) underneath. In `web`, the content area is at least the screen's height minus the Navbar, so the Footer starts just below the fold ([0084](../../decisions/0084-start-the-footer-just-below-the-fold.md)). Pages choose it with the `default` layout key; the web shell renders it and fills in the Footer from the site's menus.
 
 ## Import
 
@@ -33,7 +33,7 @@ import { DefaultLayout } from '@inithium/shared-ui-layouts';
 
 #### `children`
 
-The page's content, in a `<main>` up to 1200px wide with 24px either side and 32px above and below. **Type:** `ReactNode`.
+The page's content, in a full-width `<main>` with 24px either side and 32px above and below. **Type:** `ReactNode`.
 
 #### `footer`
 
