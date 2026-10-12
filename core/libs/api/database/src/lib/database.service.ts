@@ -22,3 +22,8 @@ export async function disconnectDatabase(): Promise<void> {
   mongoose.connection.removeAllListeners('disconnected');
   await mongoose.disconnect();
 }
+
+/** Whether the shared connection is open, for the health check. */
+export function isDatabaseConnected(): boolean {
+  return mongoose.connection.readyState === mongoose.ConnectionStates.connected;
+}

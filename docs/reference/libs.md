@@ -16,7 +16,7 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | Lib | Path | Tags | Exports |
 | --- | --- | --- | --- |
 | `@inithium/api-config` | `libs/api/config` | `scope:api`, `type:util`, `origin:core` | `loadEnv()`, `envSchema`, `Env` |
-| `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()` |
+| `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()`, `isDatabaseConnected()`, `healthRouter` |
 | `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, user queries, `createUser()` |
 | `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
 | `@inithium/api-pages` | `libs/api/pages` | `scope:api`, `type:feature`, `origin:core` | `PageModel`, `pagesRouter`, `siteRouter`, page service functions, `seedPages()`, `seedCorePages()` |
@@ -47,7 +47,7 @@ Owns the Mongoose connection.
 - `connectDatabase(uri)` connects with a 10-second server-selection timeout and logs the database name, never the URI. Error and disconnect listeners are attached only after the first connection succeeds, so a failed startup reports a single error.
 - `disconnectDatabase()` removes the disconnect listener and closes the connection.
 
-The api calls `connectDatabase` before it listens and `disconnectDatabase` on SIGTERM or SIGINT.
+The api calls `connectDatabase` before it listens and `disconnectDatabase` on SIGTERM or SIGINT. `isDatabaseConnected()` and `healthRouter` (mounted at `/api/health`) report the connection for Render's health check.
 
 ### `@inithium/api-users`
 

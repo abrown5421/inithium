@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
-import { connectDatabase, disconnectDatabase } from '@inithium/api-database';
+import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 
@@ -20,6 +20,7 @@ api.use(express.json(), cookieParser());
 api.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });
 });
+api.use('/health', healthRouter);
 api.use('/auth', authRouter);
 api.use('/site', siteRouter);
 api.use('/pages', pagesRouter);
