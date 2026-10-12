@@ -10,7 +10,7 @@ import { loaderVariantSchema } from './loader.schema';
 import { radioGroupOrientationSchema, radioGroupVariantSchema } from './radio-group.schema';
 import { sizeValueSchema } from './sizing.schema';
 import { marginSchema, paddingSchema } from './spacing.schema';
-import { fontFamilySchema, fontWeightSchema, textAlignSchema, truncateSchema } from './typography.schema';
+import { fontFamilySchema, fontStyleSchema, fontWeightSchema, textAlignSchema, textDecorationSchema, truncateSchema } from './typography.schema';
 import { withVariants } from './variants.schema';
 
 /** Style props every component shares. Each takes a value or a variant object (decision 0036). */
@@ -165,6 +165,10 @@ export const textStylePropsSchema = sharedStylePropsSchema
     align: withVariants(textAlignSchema).optional(),
     lineHeight: withVariants(z.number().positive()).optional(),
     letterSpacing: withVariants(z.number()).optional(),
+    /** 'italic' slants the text. Default: inherited. */
+    fontStyle: withVariants(fontStyleSchema).optional(),
+    /** A line under or through the text. Default: inherited. */
+    textDecoration: withVariants(textDecorationSchema).optional(),
     truncate: withVariants(truncateSchema).optional(),
   })
   .strict();

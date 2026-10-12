@@ -37,6 +37,8 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 | [`align`](#align) | `Variants<…>` | inherited | Text alignment |
 | [`lineHeight`](#lineheight) | `Variants<number>` | inherited | Ratio of the font size |
 | [`letterSpacing`](#letterspacing) | `Variants<number>` | inherited | px |
+| [`fontStyle`](#fontstyle) | `Variants<'normal' \| 'italic'>` | inherited | Italic text |
+| [`textDecoration`](#textdecoration) | `Variants<'none' \| 'underline' \| 'line-through'>` | inherited | A line under or through the text |
 | [`truncate`](#truncate) | `Variants<number \| false>` | none | Lines before an ellipsis |
 | [`textColor`](#textcolor) | `Variants<Colour>` | inherited | Text colour |
 | [`bgColor`](#bgcolor) | `Variants<Colour>` | none | Background |
@@ -55,7 +57,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 
 #### `as`
 
-The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'h1'`–`'h6'`, `'p'`, `'span'`, `'label'`. **Default:** `'p'`.
+The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'h1'`–`'h6'`, `'p'`, `'span'`, `'label'`, `'strong'`, `'em'`. **Default:** `'p'`. `strong` and `em` give inline text its meaning (importance, stress); style them with `fontWeight` and `fontStyle`.
 
 ```tsx
 <Text>A paragraph</Text>                       // <p>
@@ -138,6 +140,25 @@ px; negative allowed. **Type:** `Variants<number>`.
 ```tsx
 <Text letterSpacing={2}>WIDE CAPS</Text>
 <Text letterSpacing={-0.5}>Slightly tight</Text>
+```
+
+#### `fontStyle`
+
+`'italic'` slants the text; `'normal'` undoes an inherited italic. **Type:** [`Variants`](../style-props.md#variants)`<'normal' | 'italic'>`. **Default:** inherited.
+
+```tsx
+<Text fontStyle="italic">A quotation</Text>
+<Text as="em" fontStyle="italic">stressed</Text>
+```
+
+#### `textDecoration`
+
+A line under or through the text. **Type:** [`Variants`](../style-props.md#variants)`<'none' | 'underline' | 'line-through'>`. **Default:** inherited.
+
+```tsx
+<Text as="span" textDecoration="underline">underlined</Text>
+<Text as="span" textDecoration="line-through">£40</Text>
+<Text as="span" textDecoration={{ base: 'none', hover: 'underline' }}>underlined on hover</Text>
 ```
 
 #### `truncate`

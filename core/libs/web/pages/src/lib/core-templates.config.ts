@@ -1,4 +1,5 @@
 import type { PageTemplate } from '@inithium/web-shell';
+import { ContentPage } from './content-page.component';
 import { HomePage } from './home-page.component';
 import { LoginPage } from './login-page.component';
 import { NotFoundPage } from './not-found-page.component';
@@ -18,4 +19,6 @@ export const coreTemplates: PageTemplate[] = [
   { key: 'login', component: LoginPage, singleUse: true, layouts: ['bare'], defaults: SIGN_IN_DEFAULTS },
   { key: 'sign-up', component: SignUpPage, singleUse: true, layouts: ['bare'], defaults: SIGN_IN_DEFAULTS },
   { key: 'not-found', component: NotFoundPage, singleUse: true, layouts: ['default'] },
+  // The one reusable template: pages built from blocks in the CMS (decision 0093). Sections pad themselves.
+  { key: 'content', component: ContentPage, singleUse: false, layouts: ['full-width', 'default', 'bare'] },
 ];

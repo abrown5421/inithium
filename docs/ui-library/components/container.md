@@ -62,7 +62,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 
 #### `as`
 
-The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'div'`, `'section'`, `'article'`, `'header'`, `'footer'`, `'nav'`, `'main'`, `'aside'`, `'ul'`, `'ol'`, `'li'`. **Default:** `'div'`.
+The element to render ([0045](../../decisions/0045-constrained-as-prop-for-semantic-elements.md)). **Type:** `'div'`, `'section'`, `'article'`, `'header'`, `'footer'`, `'nav'`, `'main'`, `'aside'`, `'ul'`, `'ol'`, `'li'`, `'blockquote'`. **Default:** `'div'`.
 
 ```tsx
 <Container>…</Container>                 // <div>
