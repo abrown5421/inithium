@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { pathHasParams, type Page } from '@inithium/shared-contracts';
-import { useGetCurrentUserQuery, useGetPagesQuery } from '@inithium/shared-data-access';
+import { useGetCurrentUserQuery, useGetPagesQuery, useGetPageTemplatesQuery } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Button, Container, Input, Loader, Select, Text, Tooltip } from '@inithium/shared-ui-components';
+import { DeletePageDialog } from './delete-page-dialog.component';
+import { NewPageDialog } from './new-page-dialog.component';
 import { PageEditor } from './page-editor.component';
 
 type SortKey = 'title' | 'path' | 'status';
@@ -21,8 +23,9 @@ function visiblePages(pages: Page[], search: string, sort: SortKey) {
 }
 
 /**
- * The CMS's Pages screen (decision 0086): every page record with search and sorting, each row showing its path,
- * layout and status, a link to view it on the site and a button opening the page editor.
+ * The CMS's Pages screen (decisions 0086, 0093): every page record with search and sorting, each row showing its path,
+ * layout and status, a link to view it on the site and buttons to edit it, duplicate it (pages made from a reusable
+ * template) and delete it (pages that aren't protected). "New page" creates one from a reusable template.
  */
 export function PagesScreen() {
   const { data: pages, isLoading, isError, refetch } = useGetPagesQuery();
@@ -31,18 +34,36 @@ export function PagesScreen() {
   const [sort, setSort] = useState<SortKey>('title');
   const [editing, setEditing] = useState<Page | null>(null);
   const canPublish = user ? hasPermission(user.role, 'pages.publish') : false;
+  const canCreate = user ? hasPermission(user.role, 'pages.create') : false;
+  const canDelete = user ? hasPermission(user.role, 'pages.delete') : false;
+  const templates = useGetPageTemplatesQuery(undefined, { skip: !canCreate });
+  const reusable = new Set(templates.data?.map((template) => template.key));
+  const [creating, setCreating] = useState(false);
+  const [duplicating, setDuplicating] = useState<Page | null>(null);
+  const [deleting, setDeleting] = useState<Page | null>(null);
+  const closeNewPage = () => {
+    setCreating(false);
+    setDuplicating(null);
+  };
 
   const shown = useMemo(() => visiblePages(pages ?? [], search, sort), [pages, search, sort]);
 
   return (
     <Container flex={{ direction: 'column', gap: 24 }}>
-      <Container flex={{ direction: 'column', gap: 4 }}>
-        <Text as="h1" fontFamily="display" fontSize={28}>
-          Pages
-        </Text>
-        <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-          The pages on your site: their titles, look, who can see them, menus and search details.
-        </Text>
+      <Container flex={{ direction: { base: 'column', md: 'row' }, align: { base: 'start', md: 'end' }, justify: 'between', gap: 16 }}>
+        <Container flex={{ direction: 'column', gap: 4 }}>
+          <Text as="h1" fontFamily="display" fontSize={28}>
+            Pages
+          </Text>
+          <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
+            The pages on your site: their titles, look, who can see them, menus and search details.
+          </Text>
+        </Container>
+        {canCreate && (
+          <Button leadingIcon="plus" onClick={() => setCreating(true)}>
+            New page
+          </Button>
+        )}
       </Container>
 
       <Container grid={{ columns: { base: 1, md: 2 }, gap: 12 }}>
@@ -122,12 +143,40 @@ export function PagesScreen() {
               <Tooltip content="Edit">
                 <Button variant="ghost" leadingIcon="pencil" aria-label={`Edit ${page.title}`} padding={{ x: 6 }} onClick={() => setEditing(page)} />
               </Tooltip>
+              {canCreate && reusable.has(page.template) && (
+                <Tooltip content="Duplicate">
+                  <Button variant="ghost" leadingIcon="copy" aria-label={`Duplicate ${page.title}`} padding={{ x: 6 }} onClick={() => setDuplicating(page)} />
+                </Tooltip>
+              )}
+              {canDelete && !page.protected && (
+                <Tooltip content="Delete">
+                  <Button
+                    variant="ghost"
+                    color="red"
+                    leadingIcon="trash-2"
+                    aria-label={`Delete ${page.title}`}
+                    padding={{ x: 6 }}
+                    onClick={() => setDeleting(page)}
+                  />
+                </Tooltip>
+              )}
             </Container>
           ))}
         </Container>
       )}
 
       <PageEditor page={editing} onClose={() => setEditing(null)} canPublish={canPublish} />
+      <NewPageDialog
+        open={creating || duplicating !== null}
+        source={duplicating}
+        onClose={closeNewPage}
+        onCreated={(page) => {
+          closeNewPage();
+          // Straight on to its settings; the block editor arrives next (decision 0093).
+          setEditing(page);
+        }}
+      />
+      <DeletePageDialog page={deleting} onClose={() => setDeleting(null)} />
     </Container>
   );
 }

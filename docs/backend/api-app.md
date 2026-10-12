@@ -67,7 +67,7 @@ Errors thrown or rejected in a handler reach one error handler for `/api`, so as
 
 | Error | Response |
 | --- | --- |
-| Has a `status` below 500 (e.g. malformed JSON → 400) | That status with `{ "message": <the error's message> }` |
+| Has a `status` below 500 (e.g. malformed JSON → 400) | That status with `{ "message": <the error's message> }`, plus `"field"` when the error names the form field it's about (e.g. a taken path) |
 | Anything else | `500 { "message": "Something went wrong" }`, with the error logged as `[ error ]` |
 
 ## Serving the frontends

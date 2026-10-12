@@ -33,10 +33,11 @@ app.use('/api', api);
 app.use('/api', (_req, res) => {
   res.status(404).send({ message: 'Not found' });
 });
-app.use('/api', (error: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
+app.use('/api', (error: Error & { status?: number; field?: string }, _req: Request, res: Response, _next: NextFunction) => {
   const status = error.status && error.status < 500 ? error.status : 500;
   if (status === 500) console.error('[ error ]', error);
-  res.status(status).send({ message: status === 500 ? 'Something went wrong' : error.message });
+  // A 4xx may name the form field it's about, so the form can mark it.
+  res.status(status).send(status === 500 ? { message: 'Something went wrong' } : { message: error.message, ...(error.field ? { field: error.field } : {}) });
 });
 
 // When the frontends have been built, serve them from this same origin:

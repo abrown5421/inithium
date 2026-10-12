@@ -136,7 +136,7 @@ function renderInline(content: RichTextInline[] | undefined, resolve: Resolve): 
  * on the site shows as plain text.
  */
 function ContentAnchor({ link, children }: { link: ResolvedLink; children: ReactNode }) {
-  if (!link.href) return <>{children}</>;
+  if (!link.href) return children;
   return (
     <a
       href={link.href}

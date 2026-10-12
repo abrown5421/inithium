@@ -99,3 +99,6 @@ export function emptyContentDocument(id: () => string): z.infer<typeof contentDo
     sections: [{ id: id(), layout: 'one', columns: [{ id: id(), blocks: [] }] }],
   };
 }
+
+/** A new random id for a section, column, block or button, e.g. 'k3x9q1za'. */
+export const createContentId = (): string => Math.random().toString(36).slice(2, 10).padEnd(8, '0');

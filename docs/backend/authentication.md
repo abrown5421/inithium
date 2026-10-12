@@ -63,7 +63,7 @@ Each refresh revokes the old refresh token and issues a new one. If an already-r
 | Permission | Granted to |
 | --- | --- |
 | `cms.access` | `owner`, `admin`, `editor` (and `dev`) |
-| `pages.edit` | `owner`, `admin`, `editor` (and `dev`) |
+| `pages.create`, `pages.edit` | `owner`, `admin`, `editor` (and `dev`) |
 | `pages.publish`, `pages.delete` | `owner`, `admin` (and `dev`) |
 | `settings.edit` | `owner`, `admin` (and `dev`) |
 
