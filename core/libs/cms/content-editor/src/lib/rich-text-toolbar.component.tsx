@@ -1,10 +1,18 @@
 import { useState } from 'react';
 import { useEditorState, type Editor } from '@tiptap/react';
-import { contentLinkSchema, type ContentLink, type Page } from '@inithium/shared-contracts';
+import { contentLinkSchema, type ContentLink, type Page, type SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Tooltip, type IconName } from '@inithium/shared-ui-components';
 import { Modal } from '@inithium/shared-ui-composites';
 import { LinkField } from './editor-fields.component';
 import { attrsToLink, linkToAttrs } from './rich-text-convert.service';
+
+export type RichTextToolbarProps = {
+  editor: Editor;
+  /** Every page, for links. */
+  pages: Page[];
+  /** The buttons' colour when they're not active, e.g. light on a dark canvas. Default primary. */
+  color?: SolidColorValue;
+};
 
 type Tool = { label: string; icon: IconName; active: boolean; run: () => void };
 
@@ -12,7 +20,7 @@ type Tool = { label: string; icon: IconName; active: boolean; run: () => void };
  * The text formatting toolbar for the rich text block being edited (decision 0093): bold, italic, underline, link,
  * paragraph and sub-headings, lists and quote. It sits above the preview and drives the in-place editor.
  */
-export function RichTextToolbar({ editor, pages }: { editor: Editor; pages: Page[] }) {
+export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) {
   const state = useEditorState({
     editor,
     selector: ({ editor: current }) => ({
@@ -68,11 +76,12 @@ export function RichTextToolbar({ editor, pages }: { editor: Editor; pages: Page
     <Container flex={{ direction: 'row', align: 'center', wrap: 'wrap', gap: 4 }} role="toolbar" aria-label="Text formatting">
       {groups.map((group, index) => (
         <Container key={index} flex={{ direction: 'row', align: 'center', gap: 2 }}>
-          {index > 0 && <Divider orientation="vertical" margin={{ x: 6 }} />}
+          {index > 0 && <Divider orientation="vertical" margin={{ x: 6 }} color={color ? { color: 'surface', intensity: 500 } : undefined} />}
           {group.map((tool) => (
             <Tooltip key={tool.label} content={tool.label}>
               <Button
                 variant={tool.active ? 'filled' : 'ghost'}
+                color={tool.active ? 'primary' : color}
                 leadingIcon={tool.icon}
                 aria-label={tool.label}
                 aria-pressed={tool.active}

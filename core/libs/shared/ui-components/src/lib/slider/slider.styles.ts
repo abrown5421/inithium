@@ -14,7 +14,7 @@ export const sliderStyleSheet = [
   '.ui-slider-root{position:relative;display:flex;align-items:center;height:32px;touch-action:none;user-select:none}',
   '.ui-slider[data-value-label=always] .ui-slider-root{margin-top:24px}',
   '.ui-slider[data-mark-labels] .ui-slider-root{margin-bottom:20px}',
-  '.ui-slider-track{position:relative;flex-grow:1;height:4px;overflow:hidden;border-radius:2px;background:var(--color-surface-300)}',
+  '.ui-slider-track{position:relative;flex-grow:1;height:4px;overflow:hidden;border-radius:2px;background:var(--color-surface-400)}',
   '.ui-slider-range{position:absolute;height:100%;background:var(--ui-slider-accent)}',
 
   // Thumbs: grow a little on hover and while pressed.

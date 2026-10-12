@@ -27,6 +27,7 @@ supersedes: []
   - A first version replaced the whole frame, top bar included. That was rejected so the CMS's navigation never disappears.
 - **Getting there:** the Pages screen opens it with "Edit content", and a newly created content page opens straight in it.
 - **Width:** it needs a window at least 1024px wide; narrower windows get a notice instead.
+- **Colours:** its toolbar is `surface-200` and its two side panels `surface-300`, all with the `2xl` shadow. The canvas behind the preview is `surface-950`, the backdrop pages animate over on the site.
 
 **Preview**
 - **A real frame:** the preview is an iframe the content renders into through a portal, so its breakpoints follow the chosen width: desktop (full), tablet (768px) or phone (390px).

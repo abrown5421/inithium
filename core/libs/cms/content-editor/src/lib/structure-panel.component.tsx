@@ -54,7 +54,7 @@ function Row({
       flex={{ direction: 'row', align: 'center', gap: 2 }}
       padding={{ left: indent, right: 2 }}
       radius={{ all: 6 }}
-      bgColor={selected ? { color: 'primary', intensity: 100 } : { base: 'transparent', hover: { color: 'surface', intensity: 200 } }}
+      bgColor={selected ? { color: 'primary', intensity: 100 } : { base: 'transparent', hover: { color: 'surface', intensity: 400 } }}
     >
       <Container flexItem={{ grow: 1, basis: 0 }} minWidth={0}>
         <Button

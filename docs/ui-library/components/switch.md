@@ -64,7 +64,7 @@ const [autosave, setAutosave] = useState(true);
 
 #### `color`
 
-The track while on, the icon on the thumb while on, and the keyboard focus outline. The thumb turns the same colour's 100 step when on. When off, the track is always neutral (`surface-300`, `surface-400` on hover) with a `surface-50` thumb. **Type:** [`Colour`](../style-props.md#colour-value), except `'transparent'`. **Default:** `'primary'`.
+The track while on, the icon on the thumb while on, and the keyboard focus outline. The thumb turns the same colour's 100 step when on. When off, the track is always neutral (`surface-400`, `surface-500` on hover, [0095](../../decisions/0095-draw-neutral-switch-and-slider-tracks-at-surface-400.md)) with a `surface-50` thumb. **Type:** [`Colour`](../style-props.md#colour-value), except `'transparent'`. **Default:** `'primary'`.
 
 ```tsx
 <Switch label="Secondary" color="secondary" />

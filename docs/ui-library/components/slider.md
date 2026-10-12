@@ -16,7 +16,7 @@ component:
 
 Slider picks a number, or a range between two numbers, by dragging ([0063](../../decisions/0063-pick-numbers-and-ranges-with-a-slider.md)). Pass a number for one thumb (`defaultValue={40}`) or `[low, high]` for a range (`defaultValue={[20, 80]}`); the value you get back has the same shape. Its behaviour comes from [Radix](https://www.radix-ui.com/primitives/docs/components/slider) ([0056](../../decisions/0056-use-radix-primitives-for-interactive-widgets.md)).
 
-The track is filled in `color` up to the thumb (or between the thumbs). A bubble shows the value above the thumb while it's hovered, focused or dragged, and the label row shows it at the right. Tick marks, with optional labels, can mark the steps. The track sits in a 32px row, so a slider lines up with the other form controls.
+The track (`surface-400` where it isn't filled, [0095](../../decisions/0095-draw-neutral-switch-and-slider-tracks-at-surface-400.md)) is filled in `color` up to the thumb (or between the thumbs). A bubble shows the value above the thumb while it's hovered, focused or dragged, and the label row shows it at the right. Tick marks, with optional labels, can mark the steps. The track sits in a 32px row, so a slider lines up with the other form controls.
 
 ## Import
 

@@ -13,8 +13,8 @@ export const switchStyleSheet = [
 
   // The track, reset from the browser's button styles.
   '.ui-switch-track{position:relative;display:inline-flex;flex-shrink:0;align-items:center;box-sizing:border-box;width:36px;height:20px;' +
-    'margin:0;padding:0;border:0;border-radius:999px;background:var(--color-surface-300);cursor:pointer;transition:background-color 150ms}',
-  `${enabled} .ui-switch-track[data-state=unchecked]:hover{background:var(--color-surface-400)}`,
+    'margin:0;padding:0;border:0;border-radius:999px;background:var(--color-surface-400);cursor:pointer;transition:background-color 150ms}',
+  `${enabled} .ui-switch-track[data-state=unchecked]:hover{background:var(--color-surface-500)}`,
   '.ui-switch-track[data-state=checked]{background:var(--ui-switch-accent)}',
   '.ui-switch-track:focus-visible{outline:2px solid var(--ui-switch-accent);outline-offset:2px}',
   // An error rings the track in the (red) accent, on or off.

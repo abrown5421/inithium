@@ -36,6 +36,10 @@ import { StructurePanel } from './structure-panel.component';
 import { useAutosave, type SaveStatus } from './use-autosave.hook';
 import { useContentHistory } from './use-content-history.hook';
 
+/** The editor's colours (decision 0094): a surface 200 toolbar and surface 300 panels around a surface 950 canvas. */
+const CANVAS = { color: 'surface', intensity: 950 } as const;
+const PANEL = { color: 'surface', intensity: 300 } as const;
+
 type Device = 'desktop' | 'tablet' | 'phone';
 const DEVICES: { value: Device; label: string; icon: IconName; width: number | 'full' }[] = [
   { value: 'desktop', label: 'Desktop', icon: 'monitor', width: 'full' },
@@ -318,15 +322,16 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
   }
 
   return (
-    <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} minHeight={0} bgColor={{ color: 'surface', intensity: 50 }} onKeyDown={handleKeyDown}>
+    <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} minHeight={0} bgColor={CANVAS} onKeyDown={handleKeyDown}>
       {/* The editor's own toolbar, under the CMS's top bar */}
       <Container
         aria-label="Page editor"
         role="region"
         flex={{ direction: 'row', align: 'center', gap: 12, wrap: 'wrap' }}
         padding={{ x: 16, y: 10 }}
-        borderWidth={{ bottom: 1 }}
-        borderColor={{ color: 'surface', intensity: 500, opacity: 30 }}
+        bgColor={{ color: 'surface', intensity: 200 }}
+        shadow="2xl"
+        position={{ type: 'relative', z: 2 }}
       >
         <Button variant="ghost" leadingIcon="arrow-left" onClick={() => navigate('/pages')}>
           Pages
@@ -398,8 +403,9 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           flexItem={{ shrink: 0 }}
           overflow={{ y: 'auto' }}
           padding={{ all: 16 }}
-          borderWidth={{ right: 1 }}
-          borderColor={{ color: 'surface', intensity: 500, opacity: 30 }}
+          bgColor={PANEL}
+          shadow="2xl"
+          position={{ type: 'relative', z: 1 }}
         >
           <StructurePanel
             doc={doc}
@@ -439,24 +445,19 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           />
         </Container>
 
-        <Container flex={{ direction: 'column' }} flexItem={{ grow: 1, basis: 0 }} minWidth={0} bgColor={{ color: 'surface', intensity: 200 }}>
-          <Container
-            flex={{ direction: 'row', align: 'center', gap: 8 }}
-            minHeight={52}
-            padding={{ x: 16, y: 8 }}
-            borderWidth={{ bottom: 1 }}
-            borderColor={{ color: 'surface', intensity: 500, opacity: 30 }}
-          >
+        {/* The canvas: surface 950, like the backdrop pages animate over on the site. */}
+        <Container flex={{ direction: 'column' }} flexItem={{ grow: 1, basis: 0 }} minWidth={0} bgColor={CANVAS}>
+          <Container flex={{ direction: 'row', align: 'center', gap: 8 }} minHeight={52} padding={{ x: 16, y: 8 }}>
             {richEditor ? (
-              <RichTextToolbar editor={richEditor} pages={pages} />
+              <RichTextToolbar editor={richEditor} pages={pages} color={{ color: 'surface', intensity: 100 }} />
             ) : (
-              <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
+              <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 300 }}>
                 Click a block to select it. Click a text block to type in it.
               </Text>
             )}
           </Container>
           <Container flex={{ direction: 'row', justify: 'center' }} flexItem={{ grow: 1, basis: 0 }} minHeight={0} padding={{ all: 16 }}>
-            <Container height="full" width={DEVICES.find((entry) => entry.value === device)?.width ?? 'full'} maxWidth="full" shadow="xl" radius={{ all: 6 }} overflow={{ all: 'hidden' }}>
+            <Container height="full" width={DEVICES.find((entry) => entry.value === device)?.width ?? 'full'} maxWidth="full" shadow="2xl" radius={{ all: 6 }} overflow={{ all: 'hidden' }}>
               <PreviewFrame width="full" title={`Preview of ${page.title}`}>
                 <Container
                   minHeight="screen"
@@ -487,8 +488,9 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           flexItem={{ shrink: 0 }}
           overflow={{ y: 'auto' }}
           padding={{ all: 16 }}
-          borderWidth={{ left: 1 }}
-          borderColor={{ color: 'surface', intensity: 500, opacity: 30 }}
+          bgColor={PANEL}
+          shadow="2xl"
+          position={{ type: 'relative', z: 1 }}
         >
           <Container flex={{ direction: 'column', gap: 16 }}>
             <Text as="h2" fontSize={13} fontWeight={600} letterSpacing={0.5} textColor={{ color: 'surface', intensity: 700 }}>
