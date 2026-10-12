@@ -93,7 +93,7 @@ authRouter.post('/register', registerRateLimit, async (req, res) => {
     email,
     passwordHash: await hashPassword(password),
     role: 'user',
-    profile: { firstName, ...(lastName ? { lastName } : {}) },
+    names: { firstName, ...(lastName ? { lastName } : {}) },
   });
   const userId = user._id.toString();
   setAuthCookies(res, {

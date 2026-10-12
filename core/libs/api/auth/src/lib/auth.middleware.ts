@@ -29,6 +29,15 @@ export const requireSession: RequestHandler = (req: Request, res: Response, next
 };
 
 /**
+ * The request's session, if it carries a valid access token, without requiring one: for public routes that answer
+ * differently to a signed-in user (e.g. a profile shows its owner their email).
+ */
+export function readAuth(req: Request): AccessTokenPayload | null {
+  const token: unknown = req.cookies?.[ACCESS_COOKIE];
+  return typeof token === 'string' ? verifyAccessToken(token) : null;
+}
+
+/**
  * Rejects the request with 401 unless it carries a valid access token, and with 403 (`code:
  * 'PASSWORD_CHANGE_REQUIRED'`) while the account must change its password first (decision 0088).
  */

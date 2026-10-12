@@ -37,7 +37,7 @@ Visitors create `user` accounts on `web`'s Sign up page ([0083](../decisions/008
 | `registerRequestSchema` | `firstName` (required, up to 50), `lastName` (optional, up to 50), `email`, `password`. |
 | `loginRequestSchema` | `email` and any non-empty `password`: existing passwords may predate the policy. |
 
-The first and last name are stored in the user's `profile` ([Users](users.md#profiles)).
+The first and last name are stored in the user's `profile`, which also gets a generated avatar and banner ([Profiles](profiles.md#generated-on-creation)).
 
 ## Cookies
 
@@ -87,6 +87,8 @@ router.get('/profile', requireAuth, (req, res) => {
 
 router.put('/settings', ...requirePermission('cms.access'), handler); // 401 if signed out, 403 if not allowed
 ```
+
+A public route that answers differently to a signed-in user reads the session with `readAuth(req)`, which returns the token payload or `null` and never rejects the request (e.g. `GET /api/profiles/:id` adds the email for its owner).
 
 ### Temporary passwords
 

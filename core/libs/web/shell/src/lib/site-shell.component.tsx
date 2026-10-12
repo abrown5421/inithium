@@ -5,7 +5,7 @@ import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
-import { BareLayout, DefaultLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
+import { BareLayout, DefaultLayout, FullWidthLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
 import { defaultLogo, ThemeStyles } from '@inithium/shared-ui-theme';
 import { buildMenus } from './menus.service';
 import { PageSlot, type PageEntry, type PageLayout } from './page-slot.component';
@@ -20,7 +20,7 @@ import { SiteContext, type SiteContextValue } from './site.context';
 const BACKDROP = { color: 'surface', intensity: 950 } as const;
 
 /** The layouts pages can use, by key (decision 0079). More arrive as they're built. */
-const LAYOUTS: Record<string, PageLayout> = { default: DefaultLayout, bare: BareLayout };
+const LAYOUTS: Record<string, PageLayout> = { default: DefaultLayout, bare: BareLayout, 'full-width': FullWidthLayout };
 
 export type SiteShellProps = {
   /** Every page template: core's, then the registry's (a later one replaces an earlier one with the same key). */
@@ -213,7 +213,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
           logo={bundle.settings.logo ?? defaultLogo}
           links={menus.primary}
           userLinks={menus.profile}
-          user={user ? { name: userDisplayName(user) } : undefined}
+          user={user ? { name: userDisplayName(user), avatar: user.profile.avatar } : undefined}
           currentPath={location.pathname}
           onNavigate={(href) => navigate(href)}
           onLogout={() => void handleLogout()}

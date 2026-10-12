@@ -55,6 +55,9 @@
       "@inithium/api-settings": [
         "./libs/api/settings/src/index.ts"
       ],
+      "@inithium/api-profiles": [
+        "./libs/api/profiles/src/index.ts"
+      ],
       "@inithium/api-pages": [
         "./libs/api/pages/src/index.ts"
       ],

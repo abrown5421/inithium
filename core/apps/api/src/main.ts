@@ -6,7 +6,9 @@ import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
+import { profilesRouter } from '@inithium/api-profiles';
 import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
+import { backfillUserProfiles } from '@inithium/api-users';
 
 const app = express();
 
@@ -24,6 +26,7 @@ api.use('/health', healthRouter);
 api.use('/auth', authRouter);
 api.use('/site', siteRouter);
 api.use('/pages', pagesRouter);
+api.use('/profiles', profilesRouter);
 api.use('/settings', settingsRouter);
 
 app.use('/api', api);
@@ -56,6 +59,7 @@ async function start() {
   const env = loadEnv();
   await connectDatabase(env.MONGODB_URI);
   await seedDevUser({ email: env.SEED_DEV_EMAIL, password: env.SEED_DEV_PASSWORD });
+  await backfillUserProfiles();
   await seedSiteSettings();
   await seedCorePages();
 

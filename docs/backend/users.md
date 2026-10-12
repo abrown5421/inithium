@@ -4,7 +4,7 @@ description: The users collection, covering its fields and roles, the user servi
 scope: core
 tags: [users, roles, mongodb, backend]
 order: 5
-decisions: ["0022", "0024", "0025", "0026", "0074", "0075"]
+decisions: ["0022", "0024", "0025", "0026", "0074", "0075", "0090"]
 ---
 
 # Users
@@ -21,11 +21,11 @@ Every account, whether CMS staff or `web` end users, lives in one `users` collec
 | `passwordHash` | string | scrypt hash. **Never returned by queries** unless selected with `+passwordHash`. |
 | `role` | `'dev'`, `'owner'`, `'admin'`, `'editor'`, `'user'` | Default `'user'` |
 | `passwordChangeRequired` | boolean | Default `false`; `true` on accounts created with a temporary password |
-| `profile` | `{ firstName, lastName? }`, optional | Profile data, apart from the auth fields. Set at sign-up; missing on accounts created otherwise (e.g. the seeded dev account). |
+| `profile` | `{ firstName?, lastName?, bio?, avatar, banner }` | Profile data, apart from the auth fields. Every account has one, with a generated avatar and banner ([Profiles](profiles.md)). |
 | `createdAt`, `updatedAt` | Date | Set automatically |
 
 What the API returns is the **`User`** shape from `@inithium/shared-contracts`:
-- `id`, `email`, `role`, `passwordChangeRequired`, `profile` (when set), `createdAt` (ISO);
+- `id`, `email`, `role`, `passwordChangeRequired`, `profile`, `createdAt` (ISO);
 - never the password hash.
 
 `toUser(document)` converts a stored user to it.
@@ -52,8 +52,12 @@ From `@inithium/api-users`:
 | `findUserByEmailWithPassword(email)` | The user including `passwordHash`, for verifying a login |
 | `userExistsWithEmail(email)` | `boolean` |
 | `userExistsWithRole(role)` | `boolean` |
-| `createUser({ email, passwordHash, role, passwordChangeRequired? })` | The new user |
+| `findUserByIdWithPassword(id)` | The user including `passwordHash`, for checking the current password |
+| `createUser({ email, passwordHash, role, passwordChangeRequired?, names? })` | The new user, always with a generated avatar and banner ([Profiles](profiles.md#generated-on-creation)) |
 | `toUser(document)` | The `User` shape the API returns |
+| `toPublicProfile(document, { owner })` | The `PublicProfile` shape, with the email only for its owner |
+| `updateUserProfile(document, changes)` | The user with a validated profile edit applied |
+| `backfillUserProfiles()` | Gives accounts without a stored avatar or banner their generated ones; runs on every api start |
 
 ## Creating accounts
 
@@ -64,9 +68,11 @@ From `@inithium/api-users`:
 
 ## Profiles
 
-The `profile` subdocument holds profile data, kept apart from the authentication fields. Today it has the person's `firstName` and optional `lastName`, set at sign-up ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). `userDisplayName(user)` from `@inithium/shared-contracts` gives the name to show: first and last name, or the email when there's no profile.
+The `profile` subdocument holds profile data, kept apart from the authentication fields: optional `firstName`, `lastName` (set at sign-up, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)) and `bio`, plus the `avatar` and `banner` recipes every account gets when it's created. [Profiles](profiles.md) covers them, the profile API and the Profile page.
 
-Avatars and profile banners will also live in it ([0074](../decisions/0074-generate-banners-as-our-own-poly-pattern.md)). Each image is either a generator recipe (an [Avatar](../ui-library/composites/avatar.md) recipe, drawn by DiceBear, for avatars; a [PolyBanner](../ui-library/composites/poly-banner.md) recipe for banners) or an uploaded asset, and falls back to the generated image when there's none. Those aren't built yet.
+`userDisplayName(user)` from `@inithium/shared-contracts` gives the name to show a user for themselves: first and last name, or their email when they have none. Others see `publicProfileName(profile)`, which says "Member" instead of ever showing the email.
+
+Uploaded avatar and banner images wait for assets ([0028](../decisions/0028-store-assets-behind-pluggable-storage-drivers.md)): an uploaded image will fall back to the generated recipe when it fails to load.
 
 ## Plugins and users
 

@@ -69,7 +69,7 @@ export const classesTemplate: PageTemplate = {
 - **Props:** a template gets its `page` record (`PublicPage`) and the path's `params` (e.g. `{ id }` for `/profile/:id`).
 - **Heading:** give it one `h1`; focus moves there when it enters.
 - **Seeding:** its seed (`seedPages()` in `@inithium/api-pages`) must list the same layouts.
-- **Registering:** `apps/web/src/app/plugins.registry.ts` (owned by the install/eject tooling; core ships it empty) holds plugin and `libs/client/` templates. They come after core's, so a template there replaces core's with the same key.
+- **Registering:** `apps/web/src/app/plugins.registry.ts` (owned by the install/eject tooling; core ships it empty) holds plugin and `libs/client/` templates, plus their profile slots (`registeredProfileSlots`, [Profiles](../backend/profiles.md#adding-to-the-profile)). Templates come after core's, so a template there replaces core's with the same key.
 
 ## Layouts
 
@@ -79,10 +79,11 @@ Layouts are frames from the UI library's layouts layer that a page sits in:
 | --- | --- | --- |
 | `default` | Navbar, the page, Footer: [DefaultLayout](../ui-library/layouts/default-layout.md) | Built |
 | `bare` | Navbar and a centred card, no Footer, for sign-in pages: [BareLayout](../ui-library/layouts/bare-layout.md) | Built |
-| `full-width` | Content edge to edge, e.g. a calendar | Planned |
+| `full-width` | Navbar, content edge to edge with no padding, Footer: [FullWidthLayout](../ui-library/layouts/full-width-layout.md). The Profile page uses it. | Built |
 | `collection-list` | A heading, search and filters, and a paginated grid of cards | Planned |
 | `collection-item` | A full-width PolyBanner under the Navbar, breadcrumbs, a title with badges, then content | Planned |
-| `profile` | A full-width banner, an overlapping avatar, an identity sidebar and tabbed content | Planned |
+
+The profile's frame (a full-width banner, an overlapping avatar, an identity sidebar and tabbed content) is [ProfileLayout](../ui-library/layouts/profile-layout.md), drawn by the Profile template inside `full-width` rather than being a page layout of its own ([0090](../decisions/0090-generate-and-show-user-profiles.md)).
 
 ## Routing in `web`
 
@@ -116,9 +117,11 @@ Each page record says which menus it appears in ([0080](../decisions/0080-build-
 
 Profile (`/profile/:id`) shows different things to a signed-out **visitor**, a signed-in **member** and the profile's **owner** ([0081](../decisions/0081-extend-the-profile-page-through-slots-by-viewer.md)).
 
-- **What visitors see:** name, avatar, banner and join date. The email, and editing, are for the owner only.
-- **Plugin slots:** core and plugins add **tabs** (right column), **sidebar sections** (left column) and **header actions** (by the avatar). Each declares which viewers see it.
+- **What visitors see:** name, avatar, banner, bio and join date. The email, and editing, are for the owner only.
+- **Plugin slots:** core and plugins add **tabs** (right column), **sidebar sections** (left column) and **header actions** (by the avatar). Each declares which viewers see it ([0090](../decisions/0090-generate-and-show-user-profiles.md)).
 - **Tabs in the URL:** tabs are addressable, e.g. `/profile/:id?tab=orders`.
+
+The page, its core tabs and the slot contracts are described in [Profiles](../backend/profiles.md).
 
 ## Site settings
 
@@ -134,12 +137,12 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 
 ## Build status
 
-Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, and phases 1 to 3. The phases, in order:
+Built so far: the [Navbar](../ui-library/composites/navbar.md) and [Footer](../ui-library/composites/footer.md) composites, phases 1 to 3, and the real profile page. The phases, in order:
 
 1. **Contracts and API (built):** page and settings contracts, permissions, the [pages](../backend/pages.md) and [settings](../backend/site-settings.md) endpoints, and the seeded core pages and default settings. Not Found lives at `/404`, and each record carries the `layouts` its template allows.
 2. **`web` shell (built):** `SiteShell` in `@inithium/web-shell` (routes from records, audiences, transitions, `usePageReady`, scroll, focus and the document title; Navbar and Footer from the records and settings), the layouts lib with `default` and `bare`, the web registry, and core's templates in `@inithium/web-pages`: real Login and Sign up (with a red AlertStack alert and per-field errors, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)), and placeholder Home, Profile (showing who's viewing) and Not Found.
 3. **CMS:** the sidebar frame, a Dashboard, and the Pages list with its edit dialog (General, Appearance, Access, Navigation, SEO) are built ([The CMS](cms.md)); so is the Settings screen, with the theme colours ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)).
 4. **Later:**
-   - the real profile page (after end-user auth and profiles);
+   - the real profile page (built: [Profiles](../backend/profiles.md), [0090](../decisions/0090-generate-and-show-user-profiles.md));
    - the collection layouts (with the first plugin that needs them);
    - the content-page template and its block editor.
