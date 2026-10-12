@@ -59,7 +59,8 @@ Two families ([0046](../../decisions/0046-theme-fonts-display-and-body.md)):
 
 - Select a family with Text's [`fontFamily`](../components/text.md) prop.
 - A heavier weight on `display` is synthesised by the browser.
-- Both defaults use the SIL Open Font License.
+- Both defaults use the SIL Open Font License 1.1. Their licences ship beside the font files in `libs/shared/ui-theme/src/fonts/` (`display-ofl.txt`, `body-ofl.txt`), so every client clone carries them.
+- "Merriweather" is a Reserved Font Name: a modified copy, such as these web fonts, can't be offered under it. That's one reason the families are exposed as `Inithium Display` and `Inithium Body`.
 - Clients will be able to replace either font by uploading their own once assets exist.
 
 ## Examples
