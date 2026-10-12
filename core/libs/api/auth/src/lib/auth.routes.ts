@@ -1,11 +1,19 @@
 import { Router, type Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { loginRequestSchema, registerRequestSchema, type AuthResponse } from '@inithium/shared-contracts';
-import { createUser, findUserByEmailWithPassword, findUserById, toUser, userExistsWithEmail, type UserDocument } from '@inithium/api-users';
-import { getAuth, requireAuth } from './auth.middleware';
+import { changePasswordRequestSchema, loginRequestSchema, registerRequestSchema, type AuthResponse } from '@inithium/shared-contracts';
+import {
+  createUser,
+  findUserByEmailWithPassword,
+  findUserById,
+  findUserByIdWithPassword,
+  toUser,
+  userExistsWithEmail,
+  type UserDocument,
+} from '@inithium/api-users';
+import { getAuth, requireSession } from './auth.middleware';
 import { clearAuthCookies, REFRESH_COOKIE, setAuthCookies } from './cookies.service';
 import { hashPassword, verifyPassword } from './passwords.service';
-import { issueRefreshToken, revokeRefreshToken, rotateRefreshToken } from './refresh-tokens.service';
+import { issueRefreshToken, revokeAllRefreshTokens, revokeRefreshToken, rotateRefreshToken } from './refresh-tokens.service';
 import { signAccessToken } from './tokens.service';
 
 // Counts failed logins only: 10 per IP per 15 minutes.
@@ -58,7 +66,7 @@ authRouter.post('/login', loginRateLimit, async (req, res) => {
 
   const userId = user._id.toString();
   setAuthCookies(res, {
-    accessToken: signAccessToken({ id: userId, role: user.role }),
+    accessToken: signAccessToken({ id: userId, role: user.role, passwordChangeRequired: user.passwordChangeRequired }),
     refreshToken: await issueRefreshToken(userId),
   });
   respondWithUser(res, user);
@@ -107,7 +115,7 @@ authRouter.post('/refresh', async (req, res) => {
   }
 
   setAuthCookies(res, {
-    accessToken: signAccessToken({ id: rotated.userId, role: user.role }),
+    accessToken: signAccessToken({ id: rotated.userId, role: user.role, passwordChangeRequired: user.passwordChangeRequired }),
     refreshToken: rotated.token,
   });
   respondWithUser(res, user);
@@ -120,7 +128,48 @@ authRouter.post('/logout', async (req, res) => {
   res.status(204).end();
 });
 
-authRouter.get('/me', requireAuth, async (_req, res) => {
+/**
+ * Changes the signed-in user's password (decision 0088): the current one must match and the new one meet the
+ * policy and differ from it. Clears passwordChangeRequired, signs out every other session and issues fresh
+ * cookies. Wrong current passwords are a 400 naming the field, not a 401, so the client doesn't try to refresh.
+ */
+authRouter.post('/change-password', requireSession, async (req, res) => {
+  const parsed = changePasswordRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Check the highlighted fields and try again', issues: parsed.error.issues });
+    return;
+  }
+
+  const { currentPassword, newPassword } = parsed.data;
+  const user = await findUserByIdWithPassword(getAuth(res).sub);
+  if (!user) {
+    clearAuthCookies(res);
+    res.status(401).send({ message: 'Not authenticated' });
+    return;
+  }
+  if (!(await verifyPassword(currentPassword, user.passwordHash))) {
+    res.status(400).send({ message: "That isn't your current password", field: 'currentPassword' });
+    return;
+  }
+  if (currentPassword === newPassword) {
+    res.status(400).send({ message: 'Choose a password different from your current one', field: 'newPassword' });
+    return;
+  }
+
+  user.passwordHash = await hashPassword(newPassword);
+  user.passwordChangeRequired = false;
+  await user.save();
+
+  const userId = user._id.toString();
+  await revokeAllRefreshTokens(userId);
+  setAuthCookies(res, {
+    accessToken: signAccessToken({ id: userId, role: user.role }),
+    refreshToken: await issueRefreshToken(userId),
+  });
+  respondWithUser(res, user);
+});
+
+authRouter.get('/me', requireSession, async (_req, res) => {
   const user = await findUserById(getAuth(res).sub);
   if (!user) {
     clearAuthCookies(res);

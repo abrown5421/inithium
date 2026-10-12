@@ -21,6 +21,7 @@ All are under `/api/auth` and exchange JSON. Errors are `{ "message": "..." }`.
 | `POST /api/auth/register` | `{ firstName, lastName?, email, password }` | `201 { user }` (a new `user` account), sets both cookies | `400` with Zod `issues` (e.g. the password policy), `409 { message, field: 'email' }` if the email is taken, `429` after 10 sign-ups per IP in an hour |
 | `POST /api/auth/refresh` | none | `200 { user }`, rotates both cookies | `401`, clears both cookies |
 | `POST /api/auth/logout` | none | `204`, revokes the refresh token and clears both cookies | n/a |
+| `POST /api/auth/change-password` | `{ currentPassword, newPassword }` | `200 { user }` with `passwordChangeRequired: false`; signs out every other session and sets fresh cookies | `400` with Zod `issues` (the policy), `400 { message, field: 'currentPassword' }` if the current password is wrong, `400 { field: 'newPassword' }` if it's unchanged, `401` |
 | `GET /api/auth/me` | none | `200 { user }` | `401` |
 
 `user` matches `userSchema` in `@inithium/shared-contracts`: `id`, `email`, `role`, `passwordChangeRequired`, `createdAt`. It never includes the password hash.
@@ -87,9 +88,15 @@ router.get('/profile', requireAuth, (req, res) => {
 router.put('/settings', ...requirePermission('cms.access'), handler); // 401 if signed out, 403 if not allowed
 ```
 
+### Temporary passwords
+
+While an account has `passwordChangeRequired` (e.g. the seeded dev account), its access token says so, and `requireAuth` (and so `requirePermission()`) answers `403 { message, code: 'PASSWORD_CHANGE_REQUIRED' }` ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)). Only `requireSession` routes accept such a session: `GET /api/auth/me` and `POST /api/auth/change-password`. Use `requireAuth` for everything else.
+
+Both apps show `PasswordChangeScreen` (`@inithium/shared-auth-ui`) to such an account before anything else: the current password, a new one meeting the [policy](#sign-up-and-the-password-policy) and its confirmation, or "Sign out instead". The CMS shows it after its access check, and `web` in place of the site.
+
 ## Frontend usage
 
-Sign up with `useRegisterMutation()` from `@inithium/shared-data-access`: like `useLoginMutation()`, it puts the new user straight into the current-user cache. A failed login, sign-up or logout leaves the cache untouched, and the caller handles the error.
+Change a password with `useChangePasswordMutation()`, which updates the current user (clearing `passwordChangeRequired`). Sign up with `useRegisterMutation()` from `@inithium/shared-data-access`: like `useLoginMutation()`, it puts the new user straight into the current-user cache. A failed login, sign-up or logout leaves the cache untouched, and the caller handles the error.
 
 `@inithium/shared-data-access` provides the RTK Query API and its auth endpoints:
 
@@ -103,4 +110,4 @@ The CMS wraps its routes in `CmsAccessGuard` from `@inithium/cms-auth` ([The CMS
 
 ## The dev account
 
-On every startup, the API creates a `dev` user from `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD` if no dev user exists. It never changes an existing account, and it won't promote a non-dev account that already has that email. The account is created with `passwordChangeRequired: true`. See [0023](../decisions/0023-seed-the-dev-account-on-startup.md).
+On every startup, the API creates a `dev` user from `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD` if no dev user exists. It never changes an existing account, and it won't promote a non-dev account that already has that email. The account is created with `passwordChangeRequired: true`, so the first sign-in asks for a new password ([Temporary passwords](#temporary-passwords)). See [0023](../decisions/0023-seed-the-dev-account-on-startup.md).

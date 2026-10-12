@@ -21,6 +21,12 @@ export async function findUserById(id: string): Promise<UserDocument | null> {
   return UserModel.findById(id);
 }
 
+/** Includes the password hash, for checking the current password. */
+export async function findUserByIdWithPassword(id: string): Promise<UserDocument | null> {
+  if (!isValidObjectId(id)) return null;
+  return UserModel.findById(id).select('+passwordHash');
+}
+
 /** Includes the password hash, for verifying a login. */
 export async function findUserByEmailWithPassword(email: string): Promise<UserDocument | null> {
   return UserModel.findOne({ email: email.toLowerCase() }).select('+passwordHash');

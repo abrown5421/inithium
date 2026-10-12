@@ -26,7 +26,7 @@ apps/cms   App: the routes and the list of screens
 ```
 
 - **Sign-in** (`LoginPage`): the same dark backdrop, card, red alerts and field errors as `web`'s Login ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). Accounts without `cms.access` are signed back out.
-- **`CmsAccessGuard`** sends signed-out visitors to `/cms/login`, then back where they were going.
+- **`CmsAccessGuard`** sends signed-out visitors to `/cms/login`, then back where they were going. An account with a temporary password sees the [password change screen](../backend/authentication.md#temporary-passwords) first.
 - **`CmsShell`** draws the [SidebarLayout](../ui-library/layouts/sidebar-layout.md): the site's title and the user's account menu across the top, a sidebar entry per screen down the left. It routes each screen, hiding those the user lacks the permission for.
 - **Dashboard** (`/cms`) is empty for now apart from a welcome. It will later show different things to different roles.
 

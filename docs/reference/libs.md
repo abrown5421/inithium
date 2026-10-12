@@ -18,7 +18,7 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/api-config` | `libs/api/config` | `scope:api`, `type:util`, `origin:core` | `loadEnv()`, `envSchema`, `Env` |
 | `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()` |
 | `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, user queries, `createUser()` |
-| `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
+| `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
 | `@inithium/api-pages` | `libs/api/pages` | `scope:api`, `type:feature`, `origin:core` | `PageModel`, `pagesRouter`, `siteRouter`, page service functions, `seedPages()`, `seedCorePages()` |
 | `@inithium/api-settings` | `libs/api/settings` | `scope:api`, `type:feature`, `origin:core` | `SettingsModel`, `settingsRouter`, `getSiteSettings()`, `updateSiteSettings()`, `seedSiteSettings()` |
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, pages, site settings, theme, UI style props, animation |
@@ -27,9 +27,10 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
+| `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
 | `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
@@ -71,6 +72,10 @@ The Zod schemas shared by the api and both frontends, with inferred types: `role
 ### `@inithium/shared-ui-theme`, `@inithium/shared-ui-components`, `@inithium/shared-ui-composites` and `@inithium/shared-ui-layouts`
 
 The four layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
+
+### `@inithium/shared-auth-ui`
+
+Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accounts that must change a temporary password ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)).
 
 ### `@inithium/web-shell`
 

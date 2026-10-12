@@ -41,6 +41,14 @@ export const registerRequestSchema = z
   })
   .strict();
 
+/** Changing your password (decision 0088): the current one, and a new one meeting the policy. */
+export const changePasswordRequestSchema = z
+  .object({
+    currentPassword: z.string().min(1, { error: 'Enter your current password' }),
+    newPassword: newPasswordSchema,
+  })
+  .strict();
+
 /** Returned by login, register, refresh and me. */
 export const authResponseSchema = z.object({
   user: userSchema,

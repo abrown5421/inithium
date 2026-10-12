@@ -6,14 +6,16 @@ import { roleSchema } from '@inithium/shared-contracts';
 const accessTokenPayloadSchema = z.object({
   sub: z.string(),
   role: roleSchema,
+  /** Set while the account must change its password before doing anything else (decision 0088). */
+  pcr: z.literal(true).optional(),
 });
 
 /** What an access token carries: who the user is and their role. Everything else comes from /api/auth/me. */
 export type AccessTokenPayload = z.infer<typeof accessTokenPayloadSchema>;
 
-export function signAccessToken(user: { id: string; role: AccessTokenPayload['role'] }): string {
+export function signAccessToken(user: { id: string; role: AccessTokenPayload['role']; passwordChangeRequired?: boolean }): string {
   const env = loadEnv();
-  return jwt.sign({ role: user.role }, env.JWT_ACCESS_SECRET, {
+  return jwt.sign({ role: user.role, ...(user.passwordChangeRequired ? { pcr: true } : {}) }, env.JWT_ACCESS_SECRET, {
     algorithm: 'HS256',
     subject: user.id,
     expiresIn: env.JWT_ACCESS_TTL_MINUTES * 60,
