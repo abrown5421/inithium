@@ -2,6 +2,10 @@
  * Theme fonts (decision 0046). Import this after "tailwindcss" in each app's styles.css.
  * The family names are stable aliases, so a client's replacement font only swaps the file.
  * Colour scales are runtime values published by <ThemeStyles />.
+ *
+ * Both fonts are under the SIL Open Font License 1.1; their licences ship beside them in ../fonts/ (display-ofl.txt,
+ * body-ofl.txt). Merriweather is a Reserved Font Name, so these web-font copies are served only under the
+ * "Inithium" aliases, never as "Merriweather".
  */
 
 /* Bruno Ace SC (SIL Open Font License): one weight. */

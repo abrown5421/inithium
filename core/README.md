@@ -1,96 +1,67 @@
-# Inithium
+# Inithium core
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+The base of an Inithium site: an [Nx](https://nx.dev) workspace with three apps that deploy together as one web service.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+| App | Serves | Dev URL |
+| --- | --- | --- |
+| `api` | The API under `/api`, the only thing that talks to MongoDB; in production it also serves both frontends | http://localhost:3000/api |
+| `web` | The public site at `/`, built at runtime from the pages and settings managed in the CMS | http://localhost:5173/ |
+| `cms` | The client portal at `/cms`, for pages and site settings | http://localhost:5174/cms/ |
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+Business logic lives in libs under `libs/` (`api/`, `web/`, `cms/`, `shared/`). Installed plugins land in `libs/plugins/`, and a client's one-off code goes in `libs/client/`.
 
-## Run tasks
+## Getting started
 
-To run tasks with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-For example:
+You need Node 22 and a MongoDB database (MongoDB Atlas works well).
 
 ```sh
-npx nx build myproject
+npm install
+cp .env.example .env   # then fill it in: the comments explain each variable
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+`.env` is git-ignored. `MONGODB_URI` must include the database name after the host.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
-
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+Then run each app in its own terminal:
 
 ```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
+npx nx serve api
+npx nx serve web
+npx nx serve cms
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+On first start the api creates a `dev` account from `SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD`, the default site settings and the core pages (Home, Profile, Login, Sign up, Not Found). Sign in to the CMS with the dev account; you'll be asked to replace the temporary password before anything else.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
+## Checking a change
 
 ```sh
-npx nx connect
+npx nx run-many -t lint typecheck build
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+## Deploying
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Each site is one Render web service:
 
-### Step 2
+| Setting | Value |
+| --- | --- |
+| Root directory | `core` |
+| Build command | `npm ci --include=dev && npx nx run-many -t build --projects=api,web,cms` |
+| Start command | `node dist/apps/api/main.js` |
+| Health check path | `/api/health` |
+| Environment | `MONGODB_URI`, `NODE_ENV=production`, `HOST=0.0.0.0`, `NODE_VERSION=22`, `JWT_ACCESS_SECRET`, `SEED_DEV_EMAIL`, `SEED_DEV_PASSWORD` (Render provides `PORT`) |
 
-Use the following command to configure a CI workflow for your workspace:
+Use a unique `JWT_ACCESS_SECRET` and temporary `SEED_DEV_PASSWORD` for every site.
 
-```sh
-npx nx g ci-workflow
-```
+## In a client's repository
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Core reaches client sites through upstream merges, so keep core's files unedited:
 
-## Install Nx Console
+- **Configure** what you can in the CMS (pages, menus, title, logo, colours).
+- **Add features** as plugins in `libs/plugins/`.
+- **Put one-off code** in `libs/client/`, registered through the apps' registry files (e.g. `apps/web/src/app/plugins.registry.ts`), which can also replace a core page's template by its key.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## Licences
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Fonts:** Bruno Ace SC and Merriweather Sans are under the SIL Open Font License 1.1. Their licences are in `libs/shared/ui-theme/src/fonts/`.
+- **Avatars:** avatars are drawn by [DiceBear](https://www.dicebear.com) (MIT). Most of its styles used here are CC0; two need credit, which the avatar editor also shows:
+  - **Glyphs** is a remix of "Abstract Avatars for All Creative Profile Use" by Matt Houser, CC BY 4.0;
+  - **Bottts** is a remix of "Bottts" by Pablo Stanley, free for personal and commercial use.

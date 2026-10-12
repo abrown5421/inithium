@@ -261,7 +261,7 @@ The theme and the first components (Container, Text, Icon, Button, Input, Checkb
 - **`as`** comes from fixed lists only:
   - Text: `h1`–`h6`, `p`, `span`, `label`;
   - Container: `div`, `section`, `article`, `header`, `footer`, `nav`, `main`, `aside`, `ul`, `ol`, `li`.
-- **The theme holds colours and two fonts** (`display`, `body`). Core ships default font files, and a client can replace them via CMS upload (stored as assets). Radius and shadows are not theme tokens.
+- **The theme holds colours and two fonts** (`display`, `body`). The default fonts' OFL licences sit beside them in `libs/shared/ui-theme/src/fonts/`; never serve them as "Merriweather" (a Reserved Font Name), only under the `Inithium` aliases. Core ships default font files, and a client can replace them via CMS upload (stored as assets). Radius and shadows are not theme tokens.
 
 ### Pages & routing (web)
 Designed, being built in phases; the manual's `architecture/pages-and-routing.md` has the full picture and the phase list.
@@ -403,9 +403,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Assets** (asset records, the MongoDB storage driver, `/api/assets/:id` with safe headers, capability checks) aren't built (0028).
 - [ ] **Profiles** (the `profile` subdocument, generated avatars and banners, and the reusable image-with-generated-fallback component) aren't built (0074). The generators, Avatar and PolyBanner, are built.
 - [ ] **UI library:** theme, Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup, Select, Slider and Tooltip are built (every planned component), and the composites Modal, Alert, AlertStack, Tabs, ColorPicker, AutoIncrementingList, Drawer, Breadcrumbs, Pagination, PolyBanner, Avatar, Navbar, Footer and IconPicker (every planned composite), and the layouts DefaultLayout, BareLayout and SidebarLayout. Remaining layouts: full-width, collection-list, collection-item and profile. Ring/outline colours wait on width/style props (0033).
-- [ ] **Font licences:** the default fonts (Bruno Ace SC, Merriweather Sans) are under the SIL Open Font License, whose text should ship alongside the font files in `libs/shared/ui-theme/src/fonts/`. It isn't there yet.
 - [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
-- [ ] **`core/README.md`** is still the Nx-generated boilerplate.
 
 ---
 
