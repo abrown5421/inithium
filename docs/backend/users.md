@@ -60,7 +60,7 @@ From `@inithium/api-users`:
 - **The dev account** is created automatically on startup ([Authentication](authentication.md#the-dev-account)).
 - **Owner, admin and editor accounts** will be created from the CMS once user management exists. That's blocked on deciding who may assign which roles ([0025](../decisions/0025-role-assignment-rules.md)). Until then, other accounts can only be created directly in MongoDB, and their `passwordHash` must be a valid scrypt hash.
 - **`user` accounts** are created by signing up on `web` ([Authentication](authentication.md#sign-up-and-the-password-policy)).
-- **A first-sign-in password change** for accounts with `passwordChangeRequired` is planned. Its new password will follow the password policy ([0024](../decisions/0024-password-policy.md)).
+- **Accounts with `passwordChangeRequired`** must choose their own password, meeting the policy ([0024](../decisions/0024-password-policy.md)), before doing anything else ([Authentication](authentication.md#temporary-passwords)).
 
 ## Profiles
 

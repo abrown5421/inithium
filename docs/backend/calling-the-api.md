@@ -66,6 +66,7 @@ The auth endpoints are ready to use:
 | --- | --- |
 | `useGetCurrentUserQuery()` | The signed-in `User`, or an error with `status: 401` |
 | `useLoginMutation()` | Signs in, and puts the user straight into the current-user cache |
+| `useChangePasswordMutation()` | Changes the signed-in user's password and puts the updated user (no longer `passwordChangeRequired`) in the current-user cache |
 | `useRegisterMutation()` | Creates a `user` account and signs it in, putting the user straight into the current-user cache |
 | `useLogoutMutation()` | Signs out, and clears every cached response |
 | `useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()` | Page records for the CMS ([Pages](pages.md)); a saved page replaces its row in the list |

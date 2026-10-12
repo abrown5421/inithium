@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
+import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
@@ -46,7 +47,19 @@ export function SiteShell({ templates }: SiteShellProps) {
   if (!bundle || !sessionKnown) {
     return <StartupScreen failed={site.isError && !bundle} onRetry={() => void site.refetch()} />;
   }
+  // Accounts with a temporary password choose their own before anything else (decision 0088).
+  if (auth.data?.passwordChangeRequired) return <PasswordChangeGate />;
   return <SiteRouter bundle={bundle} user={auth.data ?? null} templates={templates} />;
+}
+
+function PasswordChangeGate() {
+  const { stackProps } = useAlerts();
+  return (
+    <>
+      <PasswordChangeScreen />
+      <AlertStack {...stackProps} />
+    </>
+  );
 }
 
 function StartupScreen({ failed, onRetry }: { failed: boolean; onRetry: () => void }) {

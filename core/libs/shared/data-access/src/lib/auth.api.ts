@@ -1,4 +1,4 @@
-import { authResponseSchema, type LoginRequest, type RegisterRequest, type User } from '@inithium/shared-contracts';
+import { authResponseSchema, type ChangePasswordRequest, type LoginRequest, type RegisterRequest, type User } from '@inithium/shared-contracts';
 import { baseApi } from './base.api';
 
 const toUser = (response: unknown): User => authResponseSchema.parse(response).user;
@@ -30,6 +30,15 @@ export const authApi = baseApi.injectEndpoints({
         if (result) dispatch(authApi.util.upsertQueryData('getCurrentUser', undefined, result.data));
       },
     }),
+    /** Changes the signed-in user's password and clears passwordChangeRequired (decision 0088). */
+    changePassword: build.mutation<User, ChangePasswordRequest>({
+      query: (body) => ({ url: '/auth/change-password', method: 'POST', body }),
+      transformResponse: toUser,
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const result = await queryFulfilled.catch(() => null);
+        if (result) dispatch(authApi.util.upsertQueryData('getCurrentUser', undefined, result.data));
+      },
+    }),
     logout: build.mutation<void, void>({
       query: () => ({ url: '/auth/logout', method: 'POST' }),
       // Drop every cached response so nothing from the signed-out session lingers.
@@ -40,4 +49,4 @@ export const authApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetCurrentUserQuery, useLoginMutation, useLogoutMutation, useRegisterMutation } = authApi;
+export const { useChangePasswordMutation, useGetCurrentUserQuery, useLoginMutation, useLogoutMutation, useRegisterMutation } = authApi;

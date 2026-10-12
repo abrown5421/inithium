@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@inithium/shared-data-access';
+import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 
@@ -12,7 +13,10 @@ function CenteredMessage({ children }: { children: ReactNode }) {
   );
 }
 
-/** Renders its children only for a signed-in user with CMS access; otherwise sends them to /login. */
+/**
+ * Renders its children only for a signed-in user with CMS access; otherwise sends them to /login. An account that
+ * must change its password sees that screen first.
+ */
 export function CmsAccessGuard({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { data: user, error, isFetching, refetch } = useGetCurrentUserQuery();
@@ -51,6 +55,9 @@ export function CmsAccessGuard({ children }: { children: ReactNode }) {
       </CenteredMessage>
     );
   }
+
+  // Accounts with a temporary password choose their own before anything else (decision 0088).
+  if (user.passwordChangeRequired) return <PasswordChangeScreen />;
 
   return children;
 }

@@ -75,6 +75,9 @@
       ],
       "@inithium/cms-settings": [
         "./libs/cms/settings/src/index.ts"
+      ],
+      "@inithium/shared-auth-ui": [
+        "./libs/shared/auth-ui/src/index.ts"
       ]
     }
   },
