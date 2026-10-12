@@ -5,7 +5,7 @@ import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation }
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
 import { BareLayout, DefaultLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
-import { ThemeStyles } from '@inithium/shared-ui-theme';
+import { defaultLogo, ThemeStyles } from '@inithium/shared-ui-theme';
 import { buildMenus } from './menus.service';
 import { PageSlot, type PageEntry, type PageLayout } from './page-slot.component';
 import type { PageTemplate } from './page-template.types';
@@ -197,7 +197,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
       <Container ref={frame} minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
         <Navbar
           title={bundle.settings.siteTitle}
-          logo={bundle.settings.logo}
+          logo={bundle.settings.logo ?? defaultLogo}
           links={menus.primary}
           userLinks={menus.profile}
           user={user ? { name: userDisplayName(user) } : undefined}

@@ -2,7 +2,7 @@ import type { SiteSettings, SiteSettingsInput, ThemeConfig } from '@inithium/sha
 import { SettingsModel, SITE_SETTINGS_KEY, type SettingsDocument } from './settings.model';
 
 /** The settings a new site starts with (decision 0082). */
-export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'My site' };
+export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'Inithium' };
 
 /** Maps the stored settings to the shape the API returns. */
 export function toSiteSettings(doc: SettingsDocument): SiteSettings {

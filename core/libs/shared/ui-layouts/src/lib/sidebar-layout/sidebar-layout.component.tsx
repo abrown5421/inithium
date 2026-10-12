@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
-import type { SolidColorValue } from '@inithium/shared-contracts';
+import type { NavbarLogo, SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Tooltip, toCssColor, type IconName } from '@inithium/shared-ui-components';
 import { Drawer, isCurrentPath, Navbar, type NavbarUser } from '@inithium/shared-ui-composites';
 import { sidebarLayoutStyleSheet } from './sidebar-layout.styles';
@@ -13,6 +13,8 @@ export type SidebarItem = { label: string; href: string; icon: IconName; exact?:
 export type SidebarLayoutProps = {
   /** The app's title, in the top bar. */
   title: string;
+  /** A logo beside the title. */
+  logo?: NavbarLogo;
   /** The sidebar's entries, in order. */
   items: SidebarItem[];
   /** The current address, so its entry is marked. */
@@ -43,6 +45,7 @@ const isPlainClick = (event: MouseEvent) =>
  */
 export function SidebarLayout({
   title,
+  logo,
   items,
   currentPath,
   onNavigate,
@@ -112,6 +115,7 @@ export function SidebarLayout({
       <Container ref={root} minHeight="screen" flex={{ direction: 'column' }} bgColor={{ color: 'surface', intensity: 100 }}>
         <Navbar
           title={title}
+          logo={logo}
           homeHref={homeHref}
           user={user}
           onLogout={onLogout}

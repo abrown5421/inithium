@@ -10,7 +10,7 @@ import {
   type FieldErrors,
 } from '@inithium/shared-data-access';
 import { Button, Container, Input, Loader, Text } from '@inithium/shared-ui-components';
-import { defaultTheme } from '@inithium/shared-ui-theme';
+import { defaultLogo, defaultTheme } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 
 type Draft = {
@@ -132,7 +132,7 @@ export function SettingsScreen() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <Container flex={{ direction: 'column', gap: 24 }} maxWidth={960}>
+      <Container flex={{ direction: 'column', gap: 24 }}>
         <Container flex={{ direction: 'column', gap: 4 }}>
           <Text as="h1" fontFamily="display" fontSize={28}>
             Settings
@@ -162,14 +162,16 @@ export function SettingsScreen() {
               error={errors['logo.alt']}
             />
           </Container>
-          {draft.logoSrc.trim() && (
-            <Container flex={{ align: 'center', gap: 12 }}>
-              <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-                Preview:
-              </Text>
-              <img src={draft.logoSrc.trim()} alt={draft.logoAlt} style={{ height: 40, width: 'auto' }} />
-            </Container>
-          )}
+          <Container flex={{ align: 'center', gap: 12 }}>
+            <img
+              src={draft.logoSrc.trim() || defaultLogo.src}
+              alt={draft.logoSrc.trim() ? draft.logoAlt : defaultLogo.alt}
+              style={{ height: 40, width: 'auto' }}
+            />
+            <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
+              {draft.logoSrc.trim() ? 'Preview of your logo.' : 'No logo set, so Inithium’s default logo is used.'}
+            </Text>
+          </Container>
           <Input
             name="copyright"
             label="Copyright holder"

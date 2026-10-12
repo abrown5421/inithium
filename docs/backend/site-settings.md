@@ -17,8 +17,8 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `My site`. |
-| `logo` | `{ src, alt }`, optional | A URL until assets exist. |
+| `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `Inithium`. |
+| `logo` | `{ src, alt }`, optional | A URL until assets exist. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
@@ -35,7 +35,7 @@ Fonts, SEO defaults and an uploaded logo come later.
 
 ## Seeding
 
-On every start, `seedSiteSettings()` creates the default settings (`siteTitle: 'My site'`) if none exist, and never changes existing ones. `getSiteSettings()` also creates them if they're somehow missing.
+On every start, `seedSiteSettings()` creates the default settings (`siteTitle: 'Inithium'`) if none exist, and never changes existing ones. `getSiteSettings()` also creates them if they're somehow missing.
 
 ## The lib
 

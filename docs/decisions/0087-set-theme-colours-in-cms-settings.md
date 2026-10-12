@@ -20,6 +20,7 @@ Each client brands their site with their own colours. The theme already generate
 - **Where:** the CMS's Settings screen (`settings.edit`, [0086](0086-run-the-cms-in-a-sidebar-frame-with-a-pages-screen.md)), with the site title, logo and copyright holder.
 - **What:** six hex codes, stored as the settings record's optional `theme` (`themeConfigSchema`): the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent`, and the **100** of `surface`, as the theme has always taken them. The rest of each scale is generated.
 - **Editing:** each colour is a hex field with a swatch and a live row of its generated scale, the client's own step outlined. "Reset to defaults" restores Inithium's colours and, once saved, removes the stored theme so the site follows core's defaults.
+- **Default brand:** a new site is titled "Inithium", and wherever no logo is set, `web`'s Navbar and the CMS's top bar show Inithium's logo (`defaultLogo`, bundled with the theme lib like `defaultTheme`).
 - **Applying:** both apps keep `UiProvider`'s default theme and render the client's over it once settings load: `web`'s shell from its startup bundle (visitors see a change on their next full load), and the CMS from the site bundle (straight after saving, so the CMS looks like the client's own).
 
 ## Alternatives considered

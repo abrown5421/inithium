@@ -5,6 +5,7 @@ import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@ini
 import { hasPermission } from '@inithium/shared-permissions';
 import { Container, Text } from '@inithium/shared-ui-components';
 import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
+import { defaultLogo } from '@inithium/shared-ui-theme';
 import type { CmsScreen } from './cms-screen.types';
 
 export type CmsShellProps = {
@@ -42,6 +43,7 @@ export function CmsShell({ screens }: CmsShellProps) {
   return (
     <SidebarLayout
       title={site?.settings.siteTitle ?? 'CMS'}
+      logo={site ? (site.settings.logo ?? defaultLogo) : undefined}
       homeHref={toHref('/')}
       items={items}
       currentPath={toHref(location.pathname)}

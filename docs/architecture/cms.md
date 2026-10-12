@@ -73,7 +73,7 @@ The editor is a Modal over a draft, with five tabs:
 
 `SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
 
-- **Site:** the title (Navbar, Footer and browser tabs), the logo's address and description, with a preview, and the copyright holder.
+- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo's address and description, with a preview (Inithium's logo when none is set), and the copyright holder.
 - **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
 
 Saving updates the CMS at once: `CmsTheme` renders the client's theme at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
