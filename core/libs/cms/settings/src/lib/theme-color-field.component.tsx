@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { ThemeColor } from '@inithium/shared-contracts';
 import { Container, Input, Text } from '@inithium/shared-ui-components';
-import { generateBrandScale, generateSurfaceScale, scaleSteps } from '@inithium/shared-ui-theme';
+import { generateBrandScale, generateSurfaceScale, scaleSteps, themeColorProblem } from '@inithium/shared-ui-theme';
 
 const HEX = /^#?[0-9a-f]{6}$/i;
 
@@ -27,11 +27,13 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
   const isSurface = token === 'surface';
   const step = isSurface ? 100 : 500;
   const valid = HEX.test(value.trim());
+  // A colour the scale can't be built from (a too-dark surface) shows its reason instead of a preview.
+  const problem = valid ? themeColorProblem(token, normalizeHex(value)) : null;
   const scale = useMemo(() => {
-    if (!valid) return null;
+    if (!valid || problem) return null;
     const hex = normalizeHex(value);
     return isSurface ? generateSurfaceScale(hex) : generateBrandScale(hex);
-  }, [valid, value, isSurface]);
+  }, [valid, problem, value, isSurface]);
   const label = `${token[0].toUpperCase()}${token.slice(1)}`;
 
   return (
@@ -41,7 +43,7 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
         label={`${label} (${step})`}
         value={value}
         onValueChange={onValueChange}
-        error={error}
+        error={error ?? problem ?? undefined}
         autoComplete="off"
         spellCheck={false}
         helperText={isSurface ? 'The 100: the page background. Text and borders come from the darker steps.' : 'The 500: the colour as your brand uses it.'}
@@ -74,7 +76,7 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
             />
           ))}
         </div>
-      ) : (
+      ) : problem ? null : (
         <Text as="p" fontSize={12} textColor={{ color: 'surface', intensity: 700 }}>
           Enter a 6-digit hex colour to preview its scale.
         </Text>

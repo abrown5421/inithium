@@ -21,3 +21,18 @@ export function themeToCss(theme: ThemeConfig): string {
   );
   return `:root{${declarations.join('')}}`;
 }
+
+/**
+ * Why a colour can't be a token's chosen step, or null when it can (decision 0087). A surface colour must be light
+ * enough that its generated text steps meet WCAG AA against it; brand colours always work.
+ */
+export function themeColorProblem(token: ThemeColor, hex: string): string | null {
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return 'Use a 6-digit hex colour, e.g. #006a8e';
+  if (token !== 'surface') return null;
+  try {
+    generateSurfaceScale(hex);
+    return null;
+  } catch {
+    return 'Too dark for a page background: no text colour would be readable on it. Choose a lighter colour.';
+  }
+}

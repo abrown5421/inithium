@@ -10,7 +10,7 @@ import {
   type FieldErrors,
 } from '@inithium/shared-data-access';
 import { Button, Container, Input, Loader, Text } from '@inithium/shared-ui-components';
-import { defaultLogo, defaultTheme } from '@inithium/shared-ui-theme';
+import { defaultLogo, defaultTheme, themeColorProblem } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 
 type Draft = {
@@ -117,7 +117,13 @@ export function SettingsScreen() {
         : {}),
     };
     const parsed = siteSettingsInputSchema.safeParse(input);
-    if (!parsed.success) return fail(fieldErrorsFrom<Field>(parsed.error.issues), 'There were problems with the settings', 'Check the highlighted fields.');
+    const found: FieldErrors<Field> = parsed.success ? {} : fieldErrorsFrom<Field>(parsed.error.issues);
+    // Colours the theme can't be built from, e.g. a surface too dark for readable text.
+    for (const token of input.theme ? themeColors : []) {
+      const problem = themeColorProblem(token, input.theme?.colors[token] ?? '');
+      if (problem && !found[`theme.colors.${token}`]) found[`theme.colors.${token}`] = problem;
+    }
+    if (!parsed.success || Object.keys(found).length > 0) return fail(found, 'There were problems with the settings', 'Check the highlighted fields.');
 
     setErrors({});
     try {

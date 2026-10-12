@@ -26,6 +26,7 @@ Six tokens, each on an 11-step scale (50, 100, 200 … 900, 950), generated in O
 
 - The client's colour is exactly the 500 (brand tokens) or 100 (surface) step.
 - **Clients set them in the CMS's Settings** as hex codes, with a live preview of each scale ([0087](../../decisions/0087-set-theme-colours-in-cms-settings.md)). Both `web` and the CMS render that theme over `UiProvider`'s default once settings load; without one, core's defaults apply.
+- **Surface must be light enough:** its generated text steps (600–950) have to meet WCAG AA against its backgrounds, so a dark surface (e.g. `#006a8e`) can't be used; `generateSurfaceScale` throws for one. `themeColorProblem(token, hex)` returns the reason (or null) without throwing, and the CMS shows it on the field. `ThemeStyles` falls back to the default theme, with a console warning, if a stored theme can't be generated, so a bad value never breaks an app.
 - **Default logo:** `defaultLogo` (`{ src, alt: 'Inithium' }`, a 178 × 160 PNG bundled from `libs/shared/ui-theme/src/assets/`) is shown wherever the site has no logo in settings.
 - Every step is published as a CSS variable, `--color-<token>-<step>` (e.g. `--color-primary-200`).
 - Colour props use them through a [colour value](../style-props.md#colour-value), e.g. `{ color: 'primary', intensity: 200 }`.
