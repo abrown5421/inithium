@@ -1,10 +1,9 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { loginRequestSchema } from '@inithium/shared-contracts';
-import { useAlerts, useLoginMutation } from '@inithium/shared-data-access';
+import { fieldErrorsFrom, focusFirstError, readApiFailure, useAlerts, useLoginMutation, type FieldErrors } from '@inithium/shared-data-access';
 import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
 import type { PageTemplateProps } from '@inithium/web-shell';
-import { fieldErrorsFrom, focusFirstError, readApiFailure, type FieldErrors } from './form-errors.service';
 
 type Field = 'email' | 'password';
 const FIELDS: readonly Field[] = ['email', 'password'];

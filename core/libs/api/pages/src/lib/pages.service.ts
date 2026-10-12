@@ -83,7 +83,8 @@ export async function updatePage(doc: PageDocument, update: PageUpdate, options:
     throw failure(400, 'Pages with parameters in their path can only appear in menus as the profile page in profile-nav');
   }
 
-  for (const [key, value] of Object.entries(update)) doc.set(key, value);
+  // null clears an optional field (a colour or the animation).
+  for (const [key, value] of Object.entries(update)) doc.set(key, value === null ? undefined : value);
   try {
     return await doc.save();
   } catch (error) {

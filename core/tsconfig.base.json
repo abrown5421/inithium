@@ -66,6 +66,12 @@
       ],
       "@inithium/web-pages": [
         "./libs/web/pages/src/index.ts"
+      ],
+      "@inithium/cms-shell": [
+        "./libs/cms/shell/src/index.ts"
+      ],
+      "@inithium/cms-pages": [
+        "./libs/cms/pages/src/index.ts"
       ]
     }
   },

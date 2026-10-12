@@ -3,12 +3,15 @@ export type FieldErrors<Field extends string> = Partial<Record<Field, string | t
 
 type Issue = { path: readonly PropertyKey[]; message: string };
 
-/** Turns validation issues (from a Zod parse, or the API's 400 `issues`) into each field's first message. */
+/**
+ * Turns validation issues (from a Zod parse, or the API's 400 `issues`) into each field's first message, keyed by
+ * the field's dotted path, e.g. 'email' or 'seo.title'.
+ */
 export function fieldErrorsFrom<Field extends string>(issues: readonly Issue[]): FieldErrors<Field> {
   const errors: FieldErrors<Field> = {};
   for (const issue of issues) {
-    const field = issue.path[0];
-    if (typeof field === 'string' && !(field in errors)) errors[field as Field] = issue.message;
+    const field = issue.path.filter((part) => typeof part === 'string' || typeof part === 'number').join('.');
+    if (field && !(field in errors)) errors[field as Field] = issue.message;
   }
   return errors;
 }
@@ -26,7 +29,10 @@ export function readApiFailure(error: unknown): { status?: number; message?: str
   };
 }
 
-/** Moves focus to the first field, in form order, that has an error. Fields are found by their `name`. */
+/**
+ * Moves focus to the first field, in form order, that has an error. Fields are found by their `name` (the field's
+ * key, e.g. 'seo.title').
+ */
 export function focusFirstError<Field extends string>(order: readonly Field[], errors: FieldErrors<Field>, form: HTMLFormElement) {
   const first = order.find((field) => errors[field]);
   const element = first ? form.elements.namedItem(first) : null;

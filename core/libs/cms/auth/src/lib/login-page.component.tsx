@@ -1,10 +1,27 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { loginRequestSchema } from '@inithium/shared-contracts';
-import { getApiErrorMessage, useGetCurrentUserQuery, useLoginMutation, useLogoutMutation } from '@inithium/shared-data-access';
+import {
+  fieldErrorsFrom,
+  focusFirstError,
+  readApiFailure,
+  useAlerts,
+  useGetCurrentUserQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  type FieldErrors,
+} from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
-import { Button, Input } from '@inithium/shared-ui-components';
+import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
+import { BareLayout } from '@inithium/shared-ui-layouts';
 
+type Field = 'email' | 'password';
+const FIELDS: readonly Field[] = ['email', 'password'];
+
+/**
+ * The CMS's sign-in screen: the same card on a dark backdrop as `web`'s Login, with its red alerts and per-field
+ * errors (decision 0083). Accounts without CMS access are signed straight back out.
+ */
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,62 +30,70 @@ export function LoginPage() {
   const { data: currentUser } = useGetCurrentUserQuery();
   const [login, { isLoading }] = useLoginMutation();
   const [logout] = useLogoutMutation();
+  const { show: showAlert, dismiss: dismissAlert } = useAlerts();
+  const lastAlert = useRef<string | null>(null);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [values, setValues] = useState<Record<Field, string>>({ email: '', password: '' });
+  const [errors, setErrors] = useState<FieldErrors<Field>>({});
 
   if (currentUser && hasPermission(currentUser.role, 'cms.access')) {
     return <Navigate to={from} replace />;
   }
 
+  const field = (name: Field) => ({
+    name,
+    value: values[name],
+    onValueChange: (value: string) => setValues((current) => ({ ...current, [name]: value })),
+    error: errors[name],
+  });
+
+  const fail = (form: HTMLFormElement, found: FieldErrors<Field>, title: string, message: string) => {
+    setErrors(found);
+    if (lastAlert.current) dismissAlert(lastAlert.current);
+    lastAlert.current = showAlert({ color: 'red', icon: 'circle-alert', title, message, urgent: true });
+    focusFirstError(FIELDS, found, form);
+  };
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-
-    const parsed = loginRequestSchema.safeParse({ email, password });
+    const form = event.currentTarget;
+    const parsed = loginRequestSchema.safeParse(values);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Check your email and password');
-      return;
+      return fail(form, fieldErrorsFrom<Field>(parsed.error.issues), 'There were problems signing in', 'Check the highlighted fields below.');
     }
 
+    setErrors({});
     try {
       const user = await login(parsed.data).unwrap();
       if (!hasPermission(user.role, 'cms.access')) {
         await logout();
-        setError("This account doesn't have access to the CMS");
-        return;
+        return fail(form, {}, "This account can't use the CMS", 'Sign in with an owner, admin or editor account.');
       }
       navigate(from, { replace: true });
-    } catch (loginError) {
-      setError(getApiErrorMessage(loginError, 'Something went wrong. Please try again.'));
+    } catch (error) {
+      const failure = readApiFailure(error);
+      const message = failure.message ?? 'Something went wrong. Please try again.';
+      if (failure.status === 401) return fail(form, { email: true, password: message }, "We couldn't sign you in", message);
+      fail(form, {}, "We couldn't sign you in", message);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <form onSubmit={handleSubmit} noValidate className="w-full max-w-sm space-y-4 rounded-lg bg-white p-8 shadow">
-        <h1 className="text-xl font-semibold">Sign in to the CMS</h1>
-
-        <Input label="Email" type="email" autoComplete="email" value={email} onValueChange={setEmail} />
-        <Input
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onValueChange={setPassword}
-        />
-
-        {error && (
-          <p role="alert" className="text-sm text-red-600">
-            {error}
-          </p>
-        )}
-
-        <Button type="submit" disabled={isLoading} width="full">
-          {isLoading ? 'Signing in…' : 'Sign in'}
-        </Button>
-      </form>
-    </main>
+    <Container minHeight="screen" flex={{ direction: 'column' }} bgColor={{ color: 'surface', intensity: 950 }}>
+      <BareLayout>
+        <form onSubmit={handleSubmit} noValidate>
+          <Container flex={{ direction: 'column', gap: 20 }}>
+            <Text as="h1" fontFamily="display" fontSize={26}>
+              Sign in to the CMS
+            </Text>
+            <Input label="Email" type="email" autoComplete="email" required {...field('email')} />
+            <Input label="Password" type="password" autoComplete="current-password" required {...field('password')} />
+            <Button type="submit" width="full" loading={isLoading}>
+              Sign in
+            </Button>
+          </Container>
+        </form>
+      </BareLayout>
+    </Container>
   );
 }
