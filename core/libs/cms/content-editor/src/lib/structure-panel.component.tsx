@@ -102,15 +102,18 @@ export function StructurePanel(props: StructurePanelProps) {
   const { doc, selection, onSelect, invalid } = props;
   const [layout, setLayout] = useState<SectionLayout>('one');
 
-  // Blocks are added to the selected block's column, or the selected section's first column.
-  const target = (() => {
-    if (!selection) return undefined;
-    const section = doc.sections.find((candidate) => candidate.id === selection.sectionId);
-    if (!section) return undefined;
-    const columnId = selection.kind === 'block' ? selection.columnId : section.columns[0]?.id;
-    const index = section.columns.findIndex((column) => column.id === columnId);
-    return columnId ? { columnId, label: section.columns.length > 1 ? `column ${index + 1}` : 'the section' } : undefined;
-  })();
+  // Blocks go into the selected column, or the selected block's column (after it), or a one-column section's column.
+  // A section with several columns needs one of them picked first.
+  const section = selection ? doc.sections.find((candidate) => candidate.id === selection.sectionId) : undefined;
+  const sectionIndex = section ? doc.sections.indexOf(section) : -1;
+  const columnId = !selection || !section ? undefined : selection.kind === 'section' ? (section.columns.length === 1 ? section.columns[0]?.id : undefined) : selection.columnId;
+  const columnIndex = section && columnId ? section.columns.findIndex((column) => column.id === columnId) : -1;
+  const target = section && columnId ? { columnId, label: section.columns.length > 1 ? `column ${columnIndex + 1} of section ${sectionIndex + 1}` : `section ${sectionIndex + 1}` } : undefined;
+  const hint = target
+    ? `To ${target.label}${selection?.kind === 'block' ? ', after the selected block' : ''}.`
+    : section
+      ? `Section ${sectionIndex + 1} has ${section.columns.length} columns: pick one in the structure or the preview.`
+      : 'Select a section, column or block first.';
 
   return (
     <Container flex={{ direction: 'column', gap: 20 }}>
@@ -143,16 +146,24 @@ export function StructurePanel(props: StructurePanelProps) {
                 </Row>
                 {section.columns.map((column, columnIndex) => (
                   <Container as="li" key={column.id} flex={{ direction: 'column', gap: 2 }}>
-                    {section.columns.length > 1 && (
-                      <Text as="span" fontSize={12} fontWeight={600} padding={{ left: 20, top: 4 }} textColor={{ color: 'surface', intensity: 600 }}>
-                        Column {columnIndex + 1}
-                      </Text>
-                    )}
                     <Container as="ul" flex={{ direction: 'column', gap: 2 }}>
-                      {column.blocks.length === 0 && (
-                        <Text as="span" fontSize={13} padding={{ left: 28, y: 4 }} textColor={{ color: 'surface', intensity: 600 }}>
-                          Empty
-                        </Text>
+                      {section.columns.length > 1 && (
+                        <Row
+                          icon="columns-2"
+                          label={`Column ${columnIndex + 1}`}
+                          detail={column.blocks.length === 0 ? 'empty' : `${column.blocks.length} ${column.blocks.length === 1 ? 'block' : 'blocks'}`}
+                          selected={selection?.kind === 'column' && selection.columnId === column.id}
+                          invalid={false}
+                          indent={12}
+                          onSelect={() => onSelect({ kind: 'column', sectionId: section.id, columnId: column.id })}
+                        />
+                      )}
+                      {section.columns.length === 1 && column.blocks.length === 0 && (
+                        <Container as="li" padding={{ left: 24 }}>
+                          <Button variant="link" onClick={() => onSelect({ kind: 'section', sectionId: section.id })}>
+                            Empty: select to add blocks
+                          </Button>
+                        </Container>
                       )}
                       {column.blocks.map((block, blockIndex) => (
                         <Row
@@ -161,7 +172,7 @@ export function StructurePanel(props: StructurePanelProps) {
                           label={blockSummary(block)}
                           selected={selection?.kind === 'block' && selection.blockId === block.id}
                           invalid={invalid.has(block.id)}
-                          indent={16}
+                          indent={section.columns.length > 1 ? 28 : 16}
                           onSelect={() => onSelect({ kind: 'block', sectionId: section.id, columnId: column.id, blockId: block.id })}
                         >
                           <Action label="Move block up" icon="arrow-up" disabled={blockIndex === 0} onClick={() => props.onMoveBlock(block.id, -1)} />
@@ -184,7 +195,7 @@ export function StructurePanel(props: StructurePanelProps) {
           ADD A BLOCK
         </Text>
         <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-          {target ? `To ${target.label}${selection?.kind === 'block' ? ', after the selected block' : ''}.` : 'Select a section or block first.'}
+          {hint}
         </Text>
         <Container grid={{ columns: 2, gap: 6 }}>
           {contentBlockTypes.map((type) => (

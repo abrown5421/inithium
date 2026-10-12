@@ -39,6 +39,7 @@ import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
 | [`user`, `onLogout`](#user-and-onlogout) | `{ name, avatar? }`, `() => void` | none | The account menu |
 | [`defaultCollapsed`](#defaultcollapsed) | `boolean` | `false` | Start with icons only |
 | [`color`](#color) | `Colour` | `'primary'` | Current entry, hover and focus |
+| [`fill`](#fill) | `boolean` | `false` | No sidebar or padding; the content fills the space under the top bar |
 | [`children`](#children) | `ReactNode` | none | The screen's content |
 
 ## Props
@@ -80,6 +81,16 @@ Starts with the sidebar collapsed to icons. **Type:** `boolean`. **Default:** `f
 #### `color`
 
 The current entry's tint, hover and focus, and the Navbar's accent. **Type:** [`Colour`](../style-props.md#colour-value). **Default:** `'primary'`.
+
+#### `fill`
+
+For full-screen tools such as the CMS's content editor: the sidebar and the content's padding go, and the content fills exactly the space under the top bar (the frame is the screen's height, so the content scrolls inside itself, not the page). The entries move behind the top bar's menu button, as below 1024px. **Type:** `boolean`. **Default:** `false`.
+
+```tsx
+<SidebarLayout fill title="CMS" items={items}>
+  <Editor />
+</SidebarLayout>
+```
 
 #### `children`
 

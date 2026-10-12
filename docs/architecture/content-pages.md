@@ -112,13 +112,13 @@ architecture/content-pages/sample
 
 ## Editing
 
-Content pages are edited in the CMS's full-screen editor at `/cms/pages/:id/content` ([0094](../decisions/0094-edit-content-pages-in-a-full-screen-editor.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide.
+Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, which fills the space under the CMS's top bar, with its own toolbar first ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide.
 
 | Part | Does |
 | --- | --- |
 | Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Preview width** (desktop, tablet 768px, phone 390px); **Undo** and **Redo**; **Settings** (the page editor); **Discard changes**; **Publish** |
-| Structure (left) | The sections, their columns and blocks as a tree. Click to select; move up or down, duplicate or delete each. Problems are marked with a red icon. Below it, **Add a block** (to the selected block's column, after it; or to the selected section's first column) and **Add a section** (with a layout). |
-| Preview (middle) | The draft drawn by the site's renderer, in an iframe at the chosen width, so phone and tablet widths really stack the columns. Click a block or section to select it; the selected rich text block becomes editable in place, with the formatting toolbar above the preview. Links go nowhere in the preview. |
+| Structure (left) | The sections, their columns (a row each, with how many blocks they hold, in multi-column sections) and blocks as a tree. Click to select; move up or down, duplicate or delete sections and blocks. Problems are marked with a red icon. Below it, **Add a block** goes into the selected column, or after the selected block, or into a one-column section (a section of several columns asks you to pick a column first), and **Add a section** takes a layout. |
+| Preview (middle) | The draft drawn by the site's renderer, in an iframe at the chosen width, so phone and tablet widths really stack the columns. Click a block, column or section to select it; empty columns show a dashed box to click; the selected rich text block becomes editable in place, with the formatting toolbar above the preview. Links go nowhere in the preview. |
 | Properties (right) | The selection's settings. A section: layout, background colour or pattern, text colour, spacing, width limit, column alignment and stacking, entrance animation, anchor. A block: its own settings (below), then hiding on phones or wider screens, and which column it's in. |
 
 **Block settings:**
@@ -150,6 +150,6 @@ Content pages are edited in the CMS's full-screen editor at `/cms/pages/:id/cont
    - `ContentRenderer` in `@inithium/shared-content`;
    - the `content` template in `@inithium/web-pages`.
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
-3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-full-screen-editor.md)). Drag-and-drop, revision history and reusable sections come later.
+3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). Drag-and-drop, revision history and reusable sections come later.
 4. **The privacy policy,** seeded at `/privacy-policy` in the secondary footer: protected, with placeholder blocks. Not built.
 5. **Assets and the Image block.** Not built.

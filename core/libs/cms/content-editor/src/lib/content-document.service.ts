@@ -10,9 +10,10 @@ import {
   type SectionLayout,
 } from '@inithium/shared-contracts';
 
-/** What the editor has selected: a section, or a block in one of its columns. */
+/** What the editor has selected: a section, one of its columns, or a block in a column. */
 export type EditorSelection =
   | { kind: 'section'; sectionId: string }
+  | { kind: 'column'; sectionId: string; columnId: string }
   | { kind: 'block'; sectionId: string; columnId: string; blockId: string }
   | null;
 

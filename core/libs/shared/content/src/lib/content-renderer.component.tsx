@@ -45,6 +45,7 @@ function DecoratedSection({ section }: { section: ContentSection }) {
 
 /** One section: its background, then its columns side by side, stacked below its breakpoint. */
 export function ContentSectionView({ section }: { section: ContentSection }) {
+  const decorators = useContentDecorators();
   const stackBelow = section.stackBelow ?? 'md';
   const ratios = sectionLayouts[section.layout];
   const vertical = ALIGN[section.verticalAlign ?? 'start'];
@@ -84,9 +85,10 @@ export function ContentSectionView({ section }: { section: ContentSection }) {
             flexItem={{ grow: { base: 0, [stackBelow]: ratios[index] ?? 1 }, basis: { base: 'auto', [stackBelow]: 0 } }}
             minWidth={0}
           >
-            {column.blocks.map((block) => (
-              <ContentBlockView key={block.id} block={block} stackBelow={stackBelow} />
-            ))}
+            {(() => {
+              const drawn = column.blocks.map((block) => <ContentBlockView key={block.id} block={block} stackBelow={stackBelow} />);
+              return decorators.column ? decorators.column(column, section, drawn) : drawn;
+            })()}
           </Container>
         ))}
       </Container>

@@ -9,6 +9,16 @@ import { CmsAlerts, CmsShell, CmsTheme, DashboardPage, type CmsScreen } from '@i
 const screens: CmsScreen[] = [
   { path: '/', label: 'Dashboard', icon: 'layout-dashboard', element: <DashboardPage /> },
   { path: '/pages', label: 'Pages', icon: 'file-text', element: <PagesScreen />, permission: 'pages.edit' },
+  // Reached from Pages: full screen under the top bar, with no sidebar entry of its own (decision 0094).
+  {
+    path: '/pages/:id/content',
+    label: 'Page editor',
+    icon: 'layout-template',
+    element: <ContentEditorScreen />,
+    permission: 'pages.edit',
+    inSidebar: false,
+    fill: true,
+  },
   { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },
 ];
 
@@ -18,15 +28,6 @@ export function App() {
       <CmsTheme />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        {/* The content editor is full screen, outside the sidebar frame (decision 0093). */}
-        <Route
-          path="/pages/:id/content"
-          element={
-            <CmsAccessGuard>
-              <ContentEditorScreen />
-            </CmsAccessGuard>
-          }
-        />
         <Route
           path="*"
           element={

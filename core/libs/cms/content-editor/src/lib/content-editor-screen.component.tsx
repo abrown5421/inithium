@@ -8,7 +8,7 @@ import { ContentEditor } from './content-editor.component';
 function Notice({ title, message }: { title: string; message: string }) {
   const navigate = useNavigate();
   return (
-    <Container minHeight="screen" flex={{ direction: 'column', align: 'center', justify: 'center', gap: 12 }} padding={{ all: 24 }}>
+    <Container flexItem={{ grow: 1 }} flex={{ direction: 'column', align: 'center', justify: 'center', gap: 12 }} padding={{ all: 24 }}>
       <Text as="h1" fontFamily="display" fontSize={24}>
         {title}
       </Text>
@@ -23,8 +23,8 @@ function Notice({ title, message }: { title: string; message: string }) {
 }
 
 /**
- * The CMS route for editing a content page's blocks, `/pages/:id/content` (decision 0093), full screen outside the
- * sidebar frame. Needs pages.edit; publishing needs pages.publish.
+ * The CMS screen for editing a content page's blocks, `/pages/:id/content` (decisions 0093, 0094): it fills the space
+ * under the CMS's top bar, with no sidebar (a `fill` screen). Needs pages.edit; publishing needs pages.publish.
  */
 export function ContentEditorScreen() {
   const { id = '' } = useParams();
@@ -36,7 +36,7 @@ export function ContentEditorScreen() {
   if (user && !canEdit) return <Notice title="You can’t edit pages" message="Ask an admin or the owner for access." />;
   if (page.isLoading || pages.isLoading || !user) {
     return (
-      <Container minHeight="screen" flex={{ align: 'center', justify: 'center' }}>
+      <Container flexItem={{ grow: 1 }} flex={{ align: 'center', justify: 'center' }}>
         <Loader size={40} label="Loading the page" />
       </Container>
     );

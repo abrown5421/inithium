@@ -63,6 +63,9 @@ const previewStyles = `
   outline: 1px dashed color-mix(in oklab, var(--color-primary-500) 60%, transparent); outline-offset: -2px;
 }
 [data-editor-section][data-selected]::after { outline: 2px solid var(--color-primary-500); }
+[data-editor-column] { border-radius: 6px; outline: 1px dashed transparent; outline-offset: 6px; }
+[data-editor-column]:hover { outline-color: color-mix(in oklab, var(--color-primary-500) 35%, transparent); }
+[data-editor-column][data-selected] { outline: 2px solid var(--color-primary-500); }
 [data-editor-block] { border-radius: 4px; outline: 1px dashed transparent; outline-offset: 4px; cursor: pointer; }
 [data-editor-block]:hover { outline-color: color-mix(in oklab, var(--color-primary-500) 60%, transparent); }
 [data-editor-block][data-selected] { outline: 2px solid var(--color-primary-500); cursor: text; }
@@ -95,7 +98,8 @@ export type ContentEditorProps = {
 };
 
 /**
- * The content page editor (decision 0093), full screen: the page's structure on the left, a live preview in the
+ * The content page editor (decisions 0093, 0094), filling the space under the CMS's top bar, with its own toolbar
+ * first: the page's structure on the left, a live preview in the
  * middle (desktop, tablet and phone widths, drawn by the same renderer as the site, with rich text edited in place)
  * and the selection's properties on the right. The draft autosaves; Publish puts it live and Discard goes back to
  * what's published. Undo and redo work for the session.
@@ -126,6 +130,10 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
       ? findSection(doc, selectionState.sectionId)
         ? selectionState
         : null
+      : selectionState?.kind === 'column'
+        ? findSection(doc, selectionState.sectionId)?.columns.some((column) => column.id === selectionState.columnId)
+          ? selectionState
+          : null
       : selectionState?.kind === 'block'
         ? (() => {
             const found = findBlock(doc, selectionState.blockId);
@@ -154,6 +162,38 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           onClick={() => setSelection({ kind: 'section', sectionId: section.id })}
         >
           {drawn}
+        </Container>
+      ),
+      column: (column, section, drawn) => (
+        <Container
+          data-editor-column=""
+          data-selected={selection?.kind === 'column' && selection.columnId === column.id ? '' : undefined}
+          flex={{ direction: 'column', gap: 20 }}
+          flexItem={{ grow: 1 }}
+          onClick={(event) => {
+            event.stopPropagation();
+            setSelection({ kind: 'column', sectionId: section.id, columnId: column.id });
+          }}
+        >
+          {column.blocks.length > 0 ? (
+            drawn
+          ) : (
+            <Container
+              flex={{ direction: 'column', align: 'center', justify: 'center', gap: 6 }}
+              minHeight={96}
+              padding={{ all: 16 }}
+              radius={{ all: 8 }}
+              borderWidth={{ all: 2 }}
+              borderStyle="dashed"
+              borderColor={{ color: 'primary', intensity: 500, opacity: 50 }}
+              textColor={{ color: 'primary', intensity: 700 }}
+            >
+              <Icon name="plus" size={20} />
+              <Text as="span" fontSize={13} align="center">
+                Empty column: click it, then add a block
+              </Text>
+            </Container>
+          )}
         </Container>
       ),
       block: (block, drawn) => {
@@ -236,6 +276,8 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
       Select a section or block, in the preview or the structure, to change it.
     </Text>
   );
+  const selectedColumnIndex =
+    selection?.kind === 'column' && selectedSection ? selectedSection.columns.findIndex((column) => column.id === selection.columnId) : -1;
   if (selectedBlock) {
     properties = (
       <BlockProperties
@@ -247,6 +289,22 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
         columnId={selectedBlock.column.id}
         onMoveToColumn={(columnId) => change(moveBlockToColumn(doc, selectedBlock.block.id, columnId))}
       />
+    );
+  } else if (selectedSection && selectedColumnIndex >= 0) {
+    const column = selectedSection.columns[selectedColumnIndex];
+    properties = (
+      <Container flex={{ direction: 'column', align: 'start', gap: 12 }}>
+        <Text as="p">
+          Column {selectedColumnIndex + 1} of section {doc.sections.indexOf(selectedSection) + 1}, with {column?.blocks.length ?? 0}{' '}
+          {column?.blocks.length === 1 ? 'block' : 'blocks'}.
+        </Text>
+        <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
+          Add blocks to it with Add a block on the left. Its width comes from the section’s layout.
+        </Text>
+        <Button variant="outlined" leadingIcon="rows-3" onClick={() => setSelection({ kind: 'section', sectionId: selectedSection.id })}>
+          Section settings
+        </Button>
+      </Container>
     );
   } else if (selectedSection) {
     properties = (
@@ -260,10 +318,11 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
   }
 
   return (
-    <Container height="screen" flex={{ direction: 'column' }} bgColor={{ color: 'surface', intensity: 50 }} onKeyDown={handleKeyDown}>
-      {/* The top bar */}
+    <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} minHeight={0} bgColor={{ color: 'surface', intensity: 50 }} onKeyDown={handleKeyDown}>
+      {/* The editor's own toolbar, under the CMS's top bar */}
       <Container
-        as="header"
+        aria-label="Page editor"
+        role="region"
         flex={{ direction: 'row', align: 'center', gap: 12, wrap: 'wrap' }}
         padding={{ x: 16, y: 10 }}
         borderWidth={{ bottom: 1 }}
@@ -433,7 +492,13 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
         >
           <Container flex={{ direction: 'column', gap: 16 }}>
             <Text as="h2" fontSize={13} fontWeight={600} letterSpacing={0.5} textColor={{ color: 'surface', intensity: 700 }}>
-              {selectedBlock ? BLOCK_TYPES[selectedBlock.block.type].label.toUpperCase() : selectedSection ? 'SECTION' : 'PROPERTIES'}
+              {selectedBlock
+                ? BLOCK_TYPES[selectedBlock.block.type].label.toUpperCase()
+                : selectedColumnIndex >= 0
+                  ? 'COLUMN'
+                  : selectedSection
+                    ? 'SECTION'
+                    : 'PROPERTIES'}
             </Text>
             {properties}
           </Container>

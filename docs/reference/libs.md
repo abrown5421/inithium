@@ -86,7 +86,7 @@ Draws content pages ([0093](../decisions/0093-build-content-pages-from-sections-
 
 ### `@inithium/cms-content-editor`
 
-The CMS's full-screen content page editor ([0094](../decisions/0094-edit-content-pages-in-a-full-screen-editor.md)): `ContentEditorScreen` (the `/pages/:id/content` route), `ContentEditor`, the iframe `PreviewFrame`, the TipTap `RichTextEditor` and `RichTextToolbar` with `richTextToTiptap()` / `tiptapToRichText()`, the structure and properties panels, the pure document operations (`content-document.service.ts`) and the `useContentHistory()` / `useAutosave()` hooks. See [Content pages](../architecture/content-pages.md#editing).
+The CMS's full-screen content page editor ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)): `ContentEditorScreen` (the `/pages/:id/content` route), `ContentEditor`, the iframe `PreviewFrame`, the TipTap `RichTextEditor` and `RichTextToolbar` with `richTextToTiptap()` / `tiptapToRichText()`, the structure and properties panels, the pure document operations (`content-document.service.ts`) and the `useContentHistory()` / `useAutosave()` hooks. See [Content pages](../architecture/content-pages.md#editing).
 
 ### `@inithium/shared-auth-ui`
 
