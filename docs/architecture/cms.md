@@ -51,14 +51,15 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
 - search by title or path, and sort by title, path or status;
 - a "Site page" badge on protected pages, and each page's path, layout and status;
 - **View on the site** for published pages without parameters. It opens the path on the CMS's origin, which is the site in production; under `nx serve cms` it lands on the CMS dev server.
-- **Edit** opens the page editor.
+- **Edit content** (content pages) opens the full-screen [content editor](content-pages.md#editing) at `/pages/:id/content`, outside the sidebar frame.
+- **Settings** opens the page editor.
 - **New page** (with `pages.create`) opens a dialog with:
   - the template (the reusable ones; today "Content page", with its description);
   - a title;
   - an address, suggested from the title until you edit it;
   - a layout, from the template's.
 
-  The page is created unpublished and out of menus, and its editor opens straight away ([Creating pages](../backend/pages.md#creating-pages)).
+  The page is created unpublished and out of menus, and opens straight away: content pages in the content editor, others in the page editor ([Creating pages](../backend/pages.md#creating-pages)).
 - **Duplicate** (with `pages.create`, on pages made from a reusable template) opens the same dialog with "(copy)" titles and addresses.
 - **Delete** (with `pages.delete`, on pages that aren't protected) asks first, since it can't be undone.
 

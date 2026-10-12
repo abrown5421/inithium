@@ -17,7 +17,8 @@ app.set('trust proxy', 1);
 
 // Every API route lives under /api.
 const api = express.Router();
-api.use(express.json(), cookieParser());
+// Content pages' drafts are saved whole, so bodies may be larger than express's 100 KB default.
+api.use(express.json({ limit: '1mb' }), cookieParser());
 
 api.get('/', (_req, res) => {
   res.send({ message: 'Hello API' });

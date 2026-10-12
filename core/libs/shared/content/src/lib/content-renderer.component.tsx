@@ -3,6 +3,7 @@ import { sectionLayouts } from '@inithium/shared-contracts';
 import { Container } from '@inithium/shared-ui-components';
 import { PolyBanner } from '@inithium/shared-ui-composites';
 import { ContentBlockView } from './content-block.component';
+import { ContentDecoratorsProvider, useContentDecorators, type ContentDecorators } from './content-decorators.context';
 import { ContentLinksProvider, type ContentLinks } from './content-links.context';
 
 const ALIGN = { start: 'start', center: 'center', end: 'end', stretch: 'stretch' } as const;
@@ -12,22 +13,34 @@ export type ContentRendererProps = {
   content: ContentDocument;
   /** Resolves links to the site's pages and follows them through the app's router. */
   links: ContentLinks;
+  /** Wraps or replaces sections and blocks as they're drawn: for the CMS editor's preview only. */
+  decorators?: ContentDecorators;
 };
 
 /**
  * Draws a content page's sections, columns and blocks (decision 0093) with the UI library's components. `web`'s
  * content template and the CMS editor's preview both use it, so a preview always matches the site.
  */
-export function ContentRenderer({ content, links }: ContentRendererProps) {
+export function ContentRenderer({ content, links, decorators = NO_DECORATORS }: ContentRendererProps) {
   return (
     <ContentLinksProvider links={links}>
-      <Container flex={{ direction: 'column' }} width="full">
-        {content.sections.map((section) => (
-          <ContentSectionView key={section.id} section={section} />
-        ))}
-      </Container>
+      <ContentDecoratorsProvider value={decorators}>
+        <Container flex={{ direction: 'column' }} width="full">
+          {content.sections.map((section) => (
+            <DecoratedSection key={section.id} section={section} />
+          ))}
+        </Container>
+      </ContentDecoratorsProvider>
     </ContentLinksProvider>
   );
+}
+
+const NO_DECORATORS: ContentDecorators = {};
+
+function DecoratedSection({ section }: { section: ContentSection }) {
+  const decorators = useContentDecorators();
+  const drawn = <ContentSectionView section={section} />;
+  return decorators.section ? decorators.section(section, drawn) : drawn;
 }
 
 /** One section: its background, then its columns side by side, stacked below its breakpoint. */

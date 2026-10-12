@@ -2,6 +2,7 @@ import {
   pageSchema,
   reusableTemplateSchema,
   type Page,
+  type ContentDocument,
   type PageCreate,
   type PageDuplicate,
   type PageUpdate,
@@ -19,6 +20,39 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
         { type: 'Page' as const, id: 'LIST' },
         ...(pages ?? []).map((page) => ({ type: 'Page' as const, id: page.id })),
       ],
+    }),
+    /** One page record, e.g. for the content editor (needs pages.edit). */
+    getPage: build.query<Page, string>({
+      query: (id) => `/pages/${id}`,
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      providesTags: (_page, _error, id) => [{ type: 'Page', id }],
+    }),
+    /** Saves a content page's draft (needs pages.edit; decision 0093). The saved page replaces the cached one. */
+    saveContentDraft: build.mutation<Page, { id: string; draft: ContentDocument }>({
+      query: ({ id, draft }) => ({ url: `/pages/${id}/content`, method: 'PUT', body: { draft } }),
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+        const result = await queryFulfilled.catch(() => null);
+        if (result) replacePage(dispatch, id, result.data);
+      },
+    }),
+    /** Publishes a content page's draft, and the page if it wasn't live (needs pages.publish). */
+    publishContent: build.mutation<Page, string>({
+      query: (id) => ({ url: `/pages/${id}/content/publish`, method: 'POST' }),
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const result = await queryFulfilled.catch(() => null);
+        if (result) replacePage(dispatch, id, result.data);
+      },
+    }),
+    /** Throws away a content page's unpublished changes (needs pages.edit). */
+    discardContentDraft: build.mutation<Page, string>({
+      query: (id) => ({ url: `/pages/${id}/content/discard`, method: 'POST' }),
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const result = await queryFulfilled.catch(() => null);
+        if (result) replacePage(dispatch, id, result.data);
+      },
     }),
     /** Edits a page; `null` clears a colour or the animation. Changing status needs pages.publish. */
     updatePage: build.mutation<Page, { id: string; update: PageUpdate }>({
@@ -63,6 +97,10 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
 });
 
 export const {
+  useGetPageQuery,
+  useSaveContentDraftMutation,
+  usePublishContentMutation,
+  useDiscardContentDraftMutation,
   useGetPagesQuery,
   useUpdatePageMutation,
   useDeletePageMutation,
@@ -71,3 +109,14 @@ export const {
   useDuplicatePageMutation,
 } = pagesApi;
 export { pagesApi };
+
+/** Puts a saved page into the cached page and its row in the list, without refetching either. */
+function replacePage(dispatch: (action: unknown) => unknown, id: string, page: Page) {
+  dispatch(pagesApi.util.upsertQueryData('getPage', id, page));
+  dispatch(
+    pagesApi.util.updateQueryData('getPages', undefined, (pages) => {
+      const index = pages.findIndex((entry) => entry.id === id);
+      if (index >= 0) pages[index] = page;
+    }),
+  );
+}

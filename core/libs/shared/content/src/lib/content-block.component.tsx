@@ -1,6 +1,7 @@
 import type { Breakpoint, ContentAlign, ContentBlock, ContentVisibility } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Icon, Text, type IconName } from '@inithium/shared-ui-components';
 import { PolyBanner } from '@inithium/shared-ui-composites';
+import { useContentDecorators } from './content-decorators.context';
 import { useContentLinks } from './content-links.context';
 import { RichText } from './rich-text.component';
 
@@ -27,9 +28,11 @@ export type ContentBlockViewProps = {
 
 /** Draws one content block (decision 0093) with the UI library's components. */
 export function ContentBlockView({ block, stackBelow }: ContentBlockViewProps) {
+  const decorators = useContentDecorators();
+  const drawn = <BlockBody block={block} />;
   return (
     <Container hidden={hiddenFor(block.hideOn, stackBelow)} minWidth={0} data-block={block.type}>
-      <BlockBody block={block} />
+      {decorators.block ? decorators.block(block, drawn) : drawn}
     </Container>
   );
 }

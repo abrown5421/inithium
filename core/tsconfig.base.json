@@ -76,6 +76,9 @@
       "@inithium/cms-pages": [
         "./libs/cms/pages/src/index.ts"
       ],
+      "@inithium/cms-content-editor": [
+        "./libs/cms/content-editor/src/index.ts"
+      ],
       "@inithium/cms-settings": [
         "./libs/cms/settings/src/index.ts"
       ],

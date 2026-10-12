@@ -80,8 +80,17 @@ export const pageContentSchema = z
     draft: contentDocumentSchema,
     /** Null until the draft is first published. */
     published: contentDocumentSchema.nullable(),
+    /** When the draft was last saved, and by whom (a user id). */
+    draftSavedAt: z.iso.datetime().optional(),
+    draftSavedBy: z.string().optional(),
+    /** When the draft was last published, and by whom (a user id). */
+    publishedAt: z.iso.datetime().optional(),
+    publishedBy: z.string().optional(),
   })
   .strict();
+
+/** `PUT /api/pages/:id/content`: the editor saves the whole draft (decision 0093). */
+export const pageDraftSaveSchema = z.object({ draft: contentDocumentSchema }).strict();
 
 /**
  * Reads stored content of any version, upgrading older versions to the current one (decision 0093). Returns

@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { CmsAccessGuard, LoginPage } from '@inithium/cms-auth';
+import { ContentEditorScreen } from '@inithium/cms-content-editor';
 import { PagesScreen } from '@inithium/cms-pages';
 import { SettingsScreen } from '@inithium/cms-settings';
 import { CmsAlerts, CmsShell, CmsTheme, DashboardPage, type CmsScreen } from '@inithium/cms-shell';
@@ -17,6 +18,15 @@ export function App() {
       <CmsTheme />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {/* The content editor is full screen, outside the sidebar frame (decision 0093). */}
+        <Route
+          path="/pages/:id/content"
+          element={
+            <CmsAccessGuard>
+              <ContentEditorScreen />
+            </CmsAccessGuard>
+          }
+        />
         <Route
           path="*"
           element={
