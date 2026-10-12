@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { entranceAnimationSchema, exitAnimationSchema } from '../ui/animation.schema';
 import { colorValueSchema } from '../ui/colors.schema';
 import { iconNameSchema } from '../ui/icon.schema';
+import { contentDocumentSchema, pageContentSchema } from '../content/content.schema';
 
 /** Whether a page is live on the site (decision 0078). */
 export const pageStatuses = ['published', 'unpublished'] as const;
@@ -95,13 +96,20 @@ export const pageSchema = z
     layouts: z.array(kebabKeySchema).min(1),
     /** Seeded pages: can't be deleted, and their path, template and layouts are fixed. */
     protected: z.boolean(),
+    /** Content pages' blocks (decision 0093): the working draft and the published version. Other templates have none. */
+    content: pageContentSchema.optional(),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
   .strict();
 
 /** A published page as `web` receives it: no CMS-only fields. */
-export const publicPageSchema = pageSchema.omit({ status: true, layouts: true, protected: true, createdAt: true, updatedAt: true });
+export const publicPageSchema = pageSchema
+  .omit({ status: true, layouts: true, protected: true, content: true, createdAt: true, updatedAt: true })
+  .extend({
+    /** A content page's published blocks (decision 0093); never its draft. */
+    content: contentDocumentSchema.optional(),
+  });
 
 /**
  * A CMS edit: any editable field, plus the path on pages that aren't protected. Changing status needs pages.publish.

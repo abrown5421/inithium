@@ -1,3 +1,4 @@
+export * from './lib/content-page.component';
 export * from './lib/core-templates.config';
 export * from './lib/home-page.component';
 export * from './lib/login-page.component';

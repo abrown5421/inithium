@@ -11,7 +11,7 @@ decisions: ["0078", "0079", "0080", "0081", "0082"]
 
 > **Being built.** This page describes the agreed design. The pieces arrive in phases; [what exists today](#build-status) is listed at the end.
 
-`web`'s pages are **database records drawn by code**. The CMS manages the records: titles, appearance, who can see a page, which menus it's in, and SEO. Core, plugins and client libs supply the code that draws them as **templates**. Complex pages such as a catalogue, a checkout or a profile are written in TSX. Clients can't create pages from nothing yet; a block-based "content page" template for simple marketing pages comes later ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)).
+`web`'s pages are **database records drawn by code**. The CMS manages the records: titles, appearance, who can see a page, which menus it's in, and SEO. Core, plugins and client libs supply the code that draws them as **templates**. Complex pages such as a catalogue, a checkout or a profile are written in TSX. Clients build simple pages from blocks with core's reusable [content page](content-pages.md) template ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md), [0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)).
 
 The CMS is a separate app with its own hand-written routes. Nothing on this page applies to it.
 
@@ -35,7 +35,7 @@ Core's own pages are seeded on first start: Home (`/`), Profile (`/profile/:id`)
 A template is code registered in `web` under a key. It declares:
 
 - its component;
-- whether it's **single-use** (one page, like Home) or **reusable** (many pages, like a future content page);
+- whether it's **single-use** (one page, like Home) or **reusable** (many pages, like the [content page](content-pages.md));
 - which layouts it allows (the first is the default);
 - optionally, **defaults** for its pages' background, text colour and animation. A page record's own values (set in the CMS) win; without either, pages use surface 50, surface 950 and a fast fadeIn and fadeOut. Core's Login and Sign up default to a surface 950 background with `fadeInUp` and `fadeOutDown`, so their card rises from the dark backdrop and sinks away.
 

@@ -49,6 +49,8 @@ export const styleProperties = {
   'text-align': ['text-align'],
   leading: ['line-height'],
   tracking: ['letter-spacing'],
+  'font-style': ['font-style'],
+  decoration: ['text-decoration-line'],
   clamp: ['display', 'overflow', '-webkit-box-orient', '-webkit-line-clamp'],
 
   // layout

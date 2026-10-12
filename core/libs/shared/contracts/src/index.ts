@@ -46,3 +46,8 @@ export * from './lib/users/users.schema';
 export * from './lib/users/users.types';
 export * from './lib/users/profiles.schema';
 export * from './lib/users/profiles.types';
+export * from './lib/content/content-blocks.schema';
+export * from './lib/content/content-links.schema';
+export * from './lib/content/content.schema';
+export * from './lib/content/content.types';
+export * from './lib/content/rich-text.schema';

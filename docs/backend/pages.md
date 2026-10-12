@@ -44,7 +44,9 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `PATCH /api/pages/:id` | `pages.edit` | Edits a page with a `pageUpdateSchema` body (any of `title`, `status`, `layout`, `bgColor`, `textColor`, `animation`, `audience`, `navigation`, `seo`, `path`). `null` for `bgColor`, `textColor` or `animation` clears it, so the page falls back to its template's or the site's default. |
 | `DELETE /api/pages/:id` | `pages.delete` | Deletes a page that isn't protected. |
 
-There's no create endpoint yet. Pages are created from **reusable** templates, and none exist until the block editor's content page arrives. Until then, every page comes from a seed.
+There's no create endpoint yet. Pages will be created from **reusable** templates; the first, the [content page](../architecture/content-pages.md), exists, and its create endpoint is the next step. Until then, every page comes from a seed.
+
+Content pages carry `content`: `{ draft, published }` content documents ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions.
 
 ### Edit rules
 

@@ -275,6 +275,8 @@ function applyText(builder: StyleBuilder, props: TextStyleProps): void {
   builder.each(props.align, (key, value) => builder.set('text-align', key, value));
   builder.each(props.lineHeight, (key, value) => builder.set('leading', key, String(value)));
   builder.each(props.letterSpacing, (key, value) => builder.set('tracking', key, px(value)));
+  builder.each(props.fontStyle, (key, value) => builder.set('font-style', key, value));
+  builder.each(props.textDecoration, (key, value) => builder.set('decoration', key, value));
   builder.each(props.truncate, (key, value) =>
     builder.set(
       'clamp',

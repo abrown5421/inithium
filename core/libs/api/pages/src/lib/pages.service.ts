@@ -1,9 +1,11 @@
 import { isValidObjectId } from 'mongoose';
 import {
   navigationAllowed,
+  readContentDocument,
   type NavLocation,
   type Page,
   type PageAnimation,
+  type PageContent,
   type PageUpdate,
   type PublicPage,
 } from '@inithium/shared-contracts';
@@ -39,6 +41,7 @@ export function toPage(doc: PageDocument): Page {
     }),
     seo: definedOnly({ title: doc.seo?.title ?? undefined, description: doc.seo?.description ?? undefined }),
     protected: doc.protected,
+    ...readPageContent(doc.content),
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
@@ -46,8 +49,20 @@ export function toPage(doc: PageDocument): Page {
 
 /** A published page as `web` receives it. */
 export function toPublicPage(doc: PageDocument): PublicPage {
-  const { id, title, path, template, layout, bgColor, textColor, animation, audience, navigation, seo } = toPage(doc);
-  return definedOnly({ id, title, path, template, layout, bgColor, textColor, animation, audience, navigation, seo });
+  const { id, title, path, template, layout, bgColor, textColor, animation, audience, navigation, seo, content } = toPage(doc);
+  return definedOnly({
+    id, title, path, template, layout, bgColor, textColor, animation, audience, navigation, seo,
+    // Visitors only ever get the published version of a content page (decision 0093).
+    content: content?.published ?? undefined,
+  });
+}
+
+/** A stored content field as `{ content }`, upgraded to the current format; nothing when there's no valid draft. */
+function readPageContent(stored: unknown): { content?: PageContent } {
+  const { draft, published } = (stored ?? {}) as { draft?: unknown; published?: unknown };
+  const current = readContentDocument(draft);
+  if (!current) return {};
+  return { content: { draft: current, published: published ? (readContentDocument(published) ?? null) : null } };
 }
 
 export async function listPages(): Promise<PageDocument[]> {

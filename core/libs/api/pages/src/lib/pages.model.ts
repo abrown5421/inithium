@@ -31,6 +31,8 @@ const pagesSchema = new Schema(
     navigation: { type: navigationSchema, required: true, default: () => ({}) },
     seo: { type: seoSchema, required: true, default: () => ({}) },
     protected: { type: Boolean, required: true, default: false },
+    // Content pages' blocks (decision 0093): { draft, published }, read through readContentDocument().
+    content: { type: Schema.Types.Mixed },
   },
   { timestamps: true, minimize: false },
 );

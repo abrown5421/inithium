@@ -81,6 +81,9 @@
       ],
       "@inithium/shared-auth-ui": [
         "./libs/shared/auth-ui/src/index.ts"
+      ],
+      "@inithium/shared-content": [
+        "./libs/shared/content/src/index.ts"
       ]
     }
   },

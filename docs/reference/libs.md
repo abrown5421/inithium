@@ -28,6 +28,7 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `FullWidthLayout`, `ProfileLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
+| `@inithium/shared-content` | `libs/shared/content` | `scope:shared`, `type:feature`, `origin:core` | `ContentRenderer`, `ContentSectionView`, `ContentBlockView`, `RichText`, `ContentLinksProvider`, `useContentLinks()` |
 | `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen`, `PasswordChangeForm` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage`, the profile slot types, `ProfileSlotsProvider`, `profileCard` |
@@ -78,6 +79,10 @@ The Zod schemas shared by the api and both frontends, with inferred types: `role
 
 The four layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
 
+### `@inithium/shared-content`
+
+Draws content pages ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)): `ContentRenderer` (a content document's sections, columns and blocks), with `RichText` for rich text documents. Links resolve through the `links` prop (`pagePath`, `onNavigate`). Used by `web`'s `content` template and, later, the CMS editor's preview. See [Content pages](../architecture/content-pages.md).
+
 ### `@inithium/shared-auth-ui`
 
 Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accounts that must change a temporary password ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)), and the `PasswordChangeForm` inside it, which the profile's Account tab also uses.
@@ -88,7 +93,7 @@ Auth screens shared by `web` and the CMS: `PasswordChangeScreen`, shown to accou
 
 ### `@inithium/web-pages`
 
-Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red AlertStack alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). Profile is the real profile page with its About and Account tabs; the profile slot types (`ProfileSlots`, `ProfileTab`, `ProfileSidebarSection`, `ProfileHeaderAction`, `ProfileSlotProps`) and `ProfileSlotsProvider` let the web registry add to it ([Profiles](../backend/profiles.md)).
+Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Found, matching the pages the api seeds. Login and Sign up are real forms with a red AlertStack alert and per-field errors ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). `ContentPage` is the reusable `content` template ([Content pages](../architecture/content-pages.md)). Profile is the real profile page with its About and Account tabs; the profile slot types (`ProfileSlots`, `ProfileTab`, `ProfileSidebarSection`, `ProfileHeaderAction`, `ProfileSlotProps`) and `ProfileSlotsProvider` let the web registry add to it ([Profiles](../backend/profiles.md)).
 
 ### `@inithium/shared-permissions`
 
