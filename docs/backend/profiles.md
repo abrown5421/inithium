@@ -82,6 +82,8 @@ Staff accounts have profiles like everyone else, and no role is shown.
 
 Core has no other tabs and no header actions: the owner never has to press a button to start editing, because the form is already there.
 
+The main column (surface 200) holds **cards**: the tab bar (Tabs' [`bar`](../ui-library/composites/tabs.md#bar)), and in the Account tab one card for the profile form and one for the password, 24px apart. Each is surface 100 with padding, 12px corners and the sidebar's `2xl` shadow. Their props are exported as `profileCard` (and the gap as `PROFILE_CARD_GAP`) from `@inithium/web-pages`; spread `profileCard` onto a Container so a plugin tab's sections match.
+
 - **Tabs are in the URL** as `?tab=<key>`, e.g. `/profile/:id?tab=account`. An unknown or hidden tab opens the first visible one. The tab bar shows whenever there's a tab; with none (visitors and members, until plugins add some), the main column says there's nothing to show yet.
 - **An unknown profile** shows the Not Found page in place, keeping the address.
 

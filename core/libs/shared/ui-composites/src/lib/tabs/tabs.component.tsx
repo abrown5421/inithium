@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import * as RadixTabs from '@radix-ui/react-tabs';
 import type { TabItem, TabsSerializableProps } from '@inithium/shared-contracts';
-import { Container, Icon, toCssColor, type AnimationRuntimeProps, type IconName } from '@inithium/shared-ui-components';
+import { Button, Container, Icon, toCssColor, type AnimationRuntimeProps, type IconName } from '@inithium/shared-ui-components';
 import { tabsStyleSheet } from './tabs.styles';
 
 /** Icon size in a tab, in px. */
@@ -24,6 +24,11 @@ export type TabsProps = Omit<TabsSerializableProps, 'tabs'> &
     'aria-label'?: string;
   };
 
+/** The tab bar's box when `bar` is set; otherwise the bar stands alone. */
+function TabBar({ box, children }: { box: TabsProps['bar']; children: ReactNode }) {
+  return box ? <Container {...box}>{children}</Container> : children;
+}
+
 /**
  * A set of panels with one shown at a time, chosen by tabs (decisions 0056 and 0068): Radix's accessible tabs, with
  * an underline in one colour that slides to the active tab, and panels that fade in. Tabs are data, so their
@@ -35,7 +40,9 @@ export function Tabs({
   defaultValue,
   onValueChange,
   color = 'primary',
+  variant = 'underline',
   fill = false,
+  bar,
   keepMounted = false,
   margin,
   padding,
@@ -85,6 +92,8 @@ export function Tabs({
         }}
         className="ui-tabs"
         data-fill={fill ? '' : undefined}
+        data-bar={bar ? '' : undefined}
+        data-variant={variant}
         style={{ '--ui-tabs-accent': toCssColor(color) } as CSSProperties}
       >
         <Container
@@ -96,15 +105,26 @@ export function Tabs({
           onEntranceEnd={onEntranceEnd}
           onExitEnd={onExitEnd}
         >
-          <RadixTabs.List ref={list} className="ui-tabs-list" aria-label={ariaLabel}>
-            {tabs.map((tab) => (
-              <RadixTabs.Trigger key={tab.value} value={tab.value} disabled={tab.disabled} className="ui-tabs-trigger">
-                {tab.icon && <Icon name={tab.icon} size={ICON_SIZE} />}
-                {tab.label}
-              </RadixTabs.Trigger>
-            ))}
-            <span className="ui-tabs-indicator" aria-hidden="true" />
-          </RadixTabs.List>
+          <TabBar box={bar}>
+            <RadixTabs.List ref={list} className="ui-tabs-list" aria-label={ariaLabel}>
+              {tabs.map((tab) =>
+                variant === 'buttons' ? (
+                  // Each tab is a Button: filled while active, ghost otherwise.
+                  <RadixTabs.Trigger key={tab.value} value={tab.value} disabled={tab.disabled} asChild>
+                    <Button variant={tab.value === active ? 'filled' : 'ghost'} color={color} leadingIcon={tab.icon} disabled={tab.disabled}>
+                      {tab.label}
+                    </Button>
+                  </RadixTabs.Trigger>
+                ) : (
+                  <RadixTabs.Trigger key={tab.value} value={tab.value} disabled={tab.disabled} className="ui-tabs-trigger">
+                    {tab.icon && <Icon name={tab.icon} size={ICON_SIZE} />}
+                    {tab.label}
+                  </RadixTabs.Trigger>
+                ),
+              )}
+              {variant === 'underline' && <span className="ui-tabs-indicator" aria-hidden="true" />}
+            </RadixTabs.List>
+          </TabBar>
           {tabs.map((tab) => (
             <RadixTabs.Content key={tab.value} value={tab.value} forceMount={keepMounted || undefined} className="ui-tabs-panel">
               {tab.content}

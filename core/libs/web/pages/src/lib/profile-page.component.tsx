@@ -8,6 +8,7 @@ import { ProfileLayout } from '@inithium/shared-ui-layouts';
 import { usePageReady, useSite, type PageTemplateProps } from '@inithium/web-shell';
 import { NotFoundPage } from './not-found-page.component';
 import { ProfileAccountTab } from './profile-account-tab.component';
+import { PROFILE_CARD_GAP, profileCard } from './profile-card.config';
 import { useProfileSlots } from './profile-slots.context';
 import type { ProfileSidebarSection, ProfileSlotEntry, ProfileSlotProps, ProfileTab } from './profile-slots.types';
 
@@ -128,7 +129,7 @@ export function ProfilePage({ params }: PageTemplateProps) {
         </Container>
       ))}
     >
-      <Container flex={{ direction: 'column', gap: 20 }}>
+      <Container flex={{ direction: 'column', gap: PROFILE_CARD_GAP }}>
         {owner && !profile.firstName && (
           <Alert color="primary" icon="user-pen" title="Add your name" message="Others see you as “Member” until you do." />
         )}
@@ -136,12 +137,17 @@ export function ProfilePage({ params }: PageTemplateProps) {
           <Tabs
             value={activeTab}
             onValueChange={(tab) => setSearchParams({ tab }, { replace: true })}
+            // The bar is a card like the sections under it; the gap above the panels separates them.
+            variant="buttons"
+            bar={{ ...profileCard, padding: { all: 8 } }}
             tabs={tabs.map((tab) => ({ value: tab.key, label: tab.label, icon: tab.icon, content: <tab.component {...props} /> }))}
           />
         ) : (
-          <Text as="p" textColor={{ color: 'surface', intensity: 700 }}>
-            Nothing to show here yet.
-          </Text>
+          <Container {...profileCard}>
+            <Text as="p" textColor={{ color: 'surface', intensity: 700 }}>
+              Nothing to show here yet.
+            </Text>
+          </Container>
         )}
       </Container>
     </ProfileLayout>

@@ -33,7 +33,9 @@ Type names such as `Colour`, `Sides` and `Variants<T>` are defined on [Style pro
 | [`tabs`](#tabs) | `TabsItem[]` | **required** | The tabs and their content |
 | [`value`, `defaultValue`, `onValueChange`](#value-defaultvalue-and-onvaluechange) | `string` | first enabled tab | The active tab |
 | [`color`](#color) | `Colour` (not `'transparent'`) | `'primary'` | Underline and focus |
+| [`variant`](#variant) | `'underline'`, `'buttons'` | `'underline'` | A sliding underline, or Buttons |
 | [`fill`](#fill) | `boolean` | `false` | Tabs share the bar's width |
+| [`bar`](#bar) | `{ bgColor?, padding?, radius?, shadow? }` | none | Draws the tab bar as a box, e.g. a card |
 | [`keepMounted`](#keepmounted) | `boolean` | `false` | Keep inactive panels rendered |
 | [`aria-label`](#aria-label) | `string` | none | Names the tab bar |
 | [`margin`, `padding`](#margin-and-padding) | `Variants<Sides>` | none | Spacing, px |
@@ -69,12 +71,33 @@ const [step, setStep] = useState('details');
 
 The active tab's underline and the keyboard focus outline. **Type:** [`Colour`](../style-props.md#colour-value), except `'transparent'`. **Default:** `'primary'`.
 
+#### `variant`
+
+How the tabs look. `'underline'` marks the active tab with an underline in `color` that slides between tabs, over a divider. `'buttons'` draws every tab as a [Button](../components/button.md) in `color`: the active one `filled`, the others `ghost`, 4px apart with no divider or underline. Tab icons become the Buttons' leading icons. **Type:** `'underline' | 'buttons'`. **Default:** `'underline'`.
+
+```tsx
+<Tabs tabs={tabs} />                               // underline
+<Tabs variant="buttons" tabs={tabs} />             // filled active tab, ghost others, primary
+<Tabs variant="buttons" color="secondary" tabs={tabs} />
+```
+
 #### `fill`
 
 Stretches the tabs to share the bar's width equally, e.g. for two or three tabs in a narrow card. Without it, tabs are as wide as their labels, and the bar scrolls sideways when they don't fit. **Type:** `boolean`. **Default:** `false`.
 
 ```tsx
 <Tabs fill tabs={[signIn, register]} />
+```
+
+#### `bar`
+
+Draws the tab bar as a box, e.g. a card on a tinted page. It takes [`bgColor`](../style-props.md#colour-value), [`padding`](../style-props.md), [`radius`](../style-props.md) and [`shadow`](../style-props.md), with their usual shapes and variants. With it, the bar's divider line is left out (the box's edge replaces it), and the panels sit 24px below the box instead of 16px. **Type:** `{ bgColor?, padding?, radius?, shadow? }`. **Default:** none (no box, with the divider).
+
+```tsx
+<Tabs
+  bar={{ bgColor: { color: 'surface', intensity: 100 }, padding: { x: 12, y: 4 }, radius: { all: 12 }, shadow: '2xl' }}
+  tabs={tabs}
+/>
 ```
 
 #### `keepMounted`
@@ -117,6 +140,22 @@ Two tabs sharing a narrow card's width, in the secondary colour.
 
 ```example
 ui-library/tabs/fill
+```
+
+### Example: Buttons
+
+Tabs drawn as Buttons: the active one filled, the rest ghost.
+
+```example
+ui-library/tabs/buttons
+```
+
+### Example: Card bar
+
+The bar as a card on a tinted page, with each panel's content in a matching card.
+
+```example
+ui-library/tabs/card-bar
 ```
 
 ### Example: Controlled
