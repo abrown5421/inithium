@@ -40,11 +40,33 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | --- | --- | --- |
 | `GET /api/site` | Anyone | The site bundle `web` loads at startup: `{ settings, pages }`, with every published page as a `PublicPage` (`siteBundleSchema`). |
 | `GET /api/pages` | `pages.edit` | Every page, sorted by path. |
+| `GET /api/pages/templates` | `pages.create` | The reusable templates new pages can be made from: `ReusableTemplate[]` (`key`, `label`, `description`, `layouts`). Today only `content`. |
+| `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |
+| `POST /api/pages/:id/duplicate` | `pages.create` | Copies a page made from a reusable template, with a `pageDuplicateSchema` body (`title`, `path`). `201` with the copy. |
 | `GET /api/pages/:id` | `pages.edit` | One page, or 404. |
 | `PATCH /api/pages/:id` | `pages.edit` | Edits a page with a `pageUpdateSchema` body (any of `title`, `status`, `layout`, `bgColor`, `textColor`, `animation`, `audience`, `navigation`, `seo`, `path`). `null` for `bgColor`, `textColor` or `animation` clears it, so the page falls back to its template's or the site's default. |
 | `DELETE /api/pages/:id` | `pages.delete` | Deletes a page that isn't protected. |
 
-There's no create endpoint yet. Pages will be created from **reusable** templates; the first, the [content page](../architecture/content-pages.md), exists, and its create endpoint is the next step. Until then, every page comes from a seed.
+### Creating pages
+
+Pages are created from **reusable** templates ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). The api lists them in `reusableTemplates` (`reusable-templates.config.ts`), whose layouts must match the `web` templates with the same keys. Core has one, the [content page](../architecture/content-pages.md); plugins will add theirs through a slot.
+
+A new page starts:
+- **unpublished,** so it isn't on the site until someone with `pages.publish` publishes it;
+- **out of every menu,** visible to everyone, unprotected, with no colours, animation or SEO;
+- with **one empty section** in its draft content and nothing published, for content pages.
+
+A duplicate copies the source's template, layout, colours, animation, audience, SEO and draft content. It starts unpublished, out of menus, unprotected and with nothing published. Pages drawn by their own code (Home, Login and so on) can't be duplicated.
+
+| Create or duplicate rule | Response |
+| --- | --- |
+| The body fails its schema (a missing title, a path with parameters, a path under `/api` or `/cms`) | 400 with the Zod `issues` |
+| `template` isn't a reusable template | `400 { message, field: 'template' }` |
+| `layout` isn't one of the template's | `400 { message, field: 'layout' }` |
+| `path` is already used | `409 { message, field: 'path' }` |
+| Duplicating a page drawn by its own code | 409 |
+
+`pathFromTitle(title)` from `@inithium/shared-contracts` suggests a path, e.g. `'Our Café & Team!'` → `'/our-cafe-team'`. A static path beats a parameterised one, so `/profile/settings` would win over `/profile/:id`.
 
 Content pages carry `content`: `{ draft, published }` content documents ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions.
 
@@ -84,6 +106,7 @@ New pages are published and protected. On later starts the seed **never touches 
 
 - **Model:** `PageModel` (the `pages` collection).
 - **Mapping:** `toPage()` and `toPublicPage()`.
-- **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `updatePage()` and `deletePage()`.
+- **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` and `deletePage()`.
+- **Reusable templates:** `reusableTemplates` and `listReusableTemplates()`.
 - **Routers:** `pagesRouter` (mounted at `/api/pages`) and `siteRouter` (mounted at `/api/site`).
 - **Seeding:** `seedPages()`, `seedCorePages()` and `corePageSeeds`.

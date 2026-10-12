@@ -1,20 +1,58 @@
 import { Router, type Request, type Response } from 'express';
-import { pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
+import { pageCreateSchema, pageDuplicateSchema, pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
 import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requirePermission } from '@inithium/api-auth';
 import { getSiteSettings, toSiteSettings } from '@inithium/api-settings';
 import type { PageDocument } from './pages.model';
-import { deletePage, findPageById, listPages, listPublishedPages, toPage, toPublicPage, updatePage } from './pages.service';
+import {
+  createPage,
+  deletePage,
+  duplicatePage,
+  findPageById,
+  listPages,
+  listPublishedPages,
+  toPage,
+  toPublicPage,
+  updatePage,
+} from './pages.service';
+import { listReusableTemplates } from './reusable-templates.config';
 
 const notFound = (res: Response) => res.status(404).send({ message: 'Page not found' });
 /** The :id route parameter. */
 const pageId = (req: Request) => String(req.params['id']);
 
-/** Mounted at /api/pages: the CMS lists, edits and deletes page records (decision 0078). */
+/** Mounted at /api/pages: the CMS lists, creates, edits and deletes page records (decisions 0078, 0093). */
 export const pagesRouter = Router();
 
 pagesRouter.get('/', ...requirePermission('pages.edit'), async (_req, res) => {
   res.send((await listPages()).map(toPage));
+});
+
+/** The reusable templates new pages can be made from (decision 0093). */
+pagesRouter.get('/templates', ...requirePermission('pages.create'), (_req, res) => {
+  res.send(listReusableTemplates());
+});
+
+/** Creates an unpublished page from a reusable template. */
+pagesRouter.post('/', ...requirePermission('pages.create'), async (req, res) => {
+  const parsed = pageCreateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Check the highlighted fields and try again', issues: parsed.error.issues });
+    return;
+  }
+  res.status(201).send(toPage(await createPage(parsed.data)));
+});
+
+/** Copies a page made from a reusable template under a new title and path. */
+pagesRouter.post('/:id/duplicate', ...requirePermission('pages.create'), async (req, res) => {
+  const parsed = pageDuplicateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Check the highlighted fields and try again', issues: parsed.error.issues });
+    return;
+  }
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  res.status(201).send(toPage(await duplicatePage(page, parsed.data)));
 });
 
 pagesRouter.get('/:id', ...requirePermission('pages.edit'), async (req, res) => {

@@ -1,4 +1,12 @@
-import { pageSchema, type Page, type PageUpdate } from '@inithium/shared-contracts';
+import {
+  pageSchema,
+  reusableTemplateSchema,
+  type Page,
+  type PageCreate,
+  type PageDuplicate,
+  type PageUpdate,
+  type ReusableTemplate,
+} from '@inithium/shared-contracts';
 import { baseApi } from './base.api';
 
 const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpoints({
@@ -29,6 +37,23 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
         );
       },
     }),
+    /** The reusable templates new pages can be made from (needs pages.create; decision 0093). */
+    getPageTemplates: build.query<ReusableTemplate[], void>({
+      query: () => '/pages/templates',
+      transformResponse: (response: unknown) => reusableTemplateSchema.array().parse(response),
+    }),
+    /** Creates an unpublished page from a reusable template (needs pages.create). */
+    createPage: build.mutation<Page, PageCreate>({
+      query: (body) => ({ url: '/pages', method: 'POST', body }),
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      invalidatesTags: [{ type: 'Page', id: 'LIST' }],
+    }),
+    /** Copies a page made from a reusable template under a new title and path (needs pages.create). */
+    duplicatePage: build.mutation<Page, { id: string; copy: PageDuplicate }>({
+      query: ({ id, copy }) => ({ url: `/pages/${id}/duplicate`, method: 'POST', body: copy }),
+      transformResponse: (response: unknown) => pageSchema.parse(response),
+      invalidatesTags: [{ type: 'Page', id: 'LIST' }],
+    }),
     /** Deletes a page that isn't protected (needs pages.delete). */
     deletePage: build.mutation<void, string>({
       query: (id) => ({ url: `/pages/${id}`, method: 'DELETE' }),
@@ -37,5 +62,12 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
   }),
 });
 
-export const { useGetPagesQuery, useUpdatePageMutation, useDeletePageMutation } = pagesApi;
+export const {
+  useGetPagesQuery,
+  useUpdatePageMutation,
+  useDeletePageMutation,
+  useGetPageTemplatesQuery,
+  useCreatePageMutation,
+  useDuplicatePageMutation,
+} = pagesApi;
 export { pagesApi };

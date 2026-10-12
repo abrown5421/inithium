@@ -135,3 +135,53 @@ export function navigationAllowed(page: { path: string; template: string; naviga
   if (!pathHasParams(page.path) || locations.length === 0) return true;
   return page.template === 'profile' && locations.every((location) => location === 'profile-nav');
 }
+
+/** A reusable template the CMS can create pages from (decision 0093), as `GET /api/pages/templates` lists it. */
+export const reusableTemplateSchema = z
+  .object({
+    key: kebabKeySchema,
+    label: z.string().min(1),
+    description: z.string(),
+    /** The layouts its pages may use; the first is the default. */
+    layouts: z.array(kebabKeySchema).min(1),
+  })
+  .strict();
+
+/** A new page's address: like any page's, but without ':name' parameters. */
+const newPagePathSchema = pagePathSchema.refine((path) => !pathHasParams(path), {
+  error: 'New pages can’t have parameters in their address',
+});
+
+/**
+ * `POST /api/pages`: a new page from a reusable template (decision 0093). It starts unpublished and out of menus;
+ * content pages start with one empty section. The layout defaults to the template's first.
+ */
+export const pageCreateSchema = z
+  .object({
+    title: editableFields.title,
+    path: newPagePathSchema,
+    template: kebabKeySchema,
+    layout: kebabKeySchema.optional(),
+  })
+  .strict();
+
+/** `POST /api/pages/:id/duplicate`: a copy of a page made from a reusable template, under a new title and path. */
+export const pageDuplicateSchema = z
+  .object({
+    title: editableFields.title,
+    path: newPagePathSchema,
+  })
+  .strict();
+
+/** A path suggested from a title, e.g. 'About Us!' → '/about-us'. */
+export function pathFromTitle(title: string): string {
+  const slug = title
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/, '');
+  return slug ? `/${slug}` : '/';
+}

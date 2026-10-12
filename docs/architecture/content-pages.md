@@ -128,7 +128,7 @@ architecture/content-pages/sample
    - `content` on page records (the CMS gets both versions, `web` only the published one);
    - `ContentRenderer` in `@inithium/shared-content`;
    - the `content` template in `@inithium/web-pages`.
-2. **Creating pages:** `POST /api/pages` and "New page". Not built.
+2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
 3. **Editor v1.** Not built.
 4. **The privacy policy,** seeded at `/privacy-policy` in the secondary footer: protected, with placeholder blocks. Not built.
 5. **Assets and the Image block.** Not built.

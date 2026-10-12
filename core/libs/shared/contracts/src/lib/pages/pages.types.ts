@@ -2,6 +2,8 @@ import type { z } from 'zod';
 import type {
   navLocationSchema,
   pageAnimationSchema,
+  pageCreateSchema,
+  pageDuplicateSchema,
   pageAudienceSchema,
   pageNavigationSchema,
   pageSchema,
@@ -9,6 +11,7 @@ import type {
   pageStatusSchema,
   pageUpdateSchema,
   publicPageSchema,
+  reusableTemplateSchema,
 } from './pages.schema';
 
 export type PageStatus = z.infer<typeof pageStatusSchema>;
@@ -20,3 +23,6 @@ export type PageAnimation = z.infer<typeof pageAnimationSchema>;
 export type Page = z.infer<typeof pageSchema>;
 export type PublicPage = z.infer<typeof publicPageSchema>;
 export type PageUpdate = z.infer<typeof pageUpdateSchema>;
+export type PageCreate = z.infer<typeof pageCreateSchema>;
+export type PageDuplicate = z.infer<typeof pageDuplicateSchema>;
+export type ReusableTemplate = z.infer<typeof reusableTemplateSchema>;

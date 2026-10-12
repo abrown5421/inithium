@@ -131,7 +131,7 @@ One `settings` record holds the site title, logo and copyright holder for the Na
 
 | Permission | Roles |
 | --- | --- |
-| `pages.edit` | owner, admin, editor |
+| `pages.create`, `pages.edit` | owner, admin, editor |
 | `pages.publish`, `pages.delete` | owner, admin |
 | `settings.edit` | owner, admin |
 
