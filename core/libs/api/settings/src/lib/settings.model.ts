@@ -12,6 +12,19 @@ const settingsSchema = new Schema(
       required: false,
     },
     copyright: { type: String, required: false, trim: true },
+    // Hex colours, validated by the contract (decision 0087). Missing means Inithium's default theme.
+    theme: {
+      type: new Schema(
+        {
+          colors: new Schema(
+            { primary: String, secondary: String, tertiary: String, quaternary: String, accent: String, surface: String },
+            { _id: false },
+          ),
+        },
+        { _id: false },
+      ),
+      required: false,
+    },
   },
   { timestamps: true },
 );

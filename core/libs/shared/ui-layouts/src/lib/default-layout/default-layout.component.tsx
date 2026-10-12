@@ -32,7 +32,7 @@ export function DefaultLayout({ children, footer }: DefaultLayoutProps) {
   return (
     <Container flex={{ direction: 'column', align: 'center' }} flexItem={{ grow: 1 }} width="full">
       <div style={ABOVE_THE_FOLD}>
-        <Container as="main" flexItem={{ grow: 1 }} width="full" maxWidth={1200} padding={{ x: 24, y: 32 }}>
+        <Container as="main" flexItem={{ grow: 1 }} width="full" padding={{ x: 24, y: 32 }}>
           {children}
         </Container>
       </div>

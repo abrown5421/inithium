@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in and t
 scope: core
 tags: [cms, architecture, permissions]
 order: 6
-decisions: ["0083", "0086"]
+decisions: ["0083", "0086", "0087"]
 ---
 
 # The CMS
@@ -20,6 +20,8 @@ apps/cms   App: the routes and the list of screens
     CmsShell              SidebarLayout frame  @inithium/cms-shell
       /                   DashboardPage        @inithium/cms-shell
       /pages              PagesScreen          @inithium/cms-pages  (pages.edit)
+      /settings           SettingsScreen       @inithium/cms-settings  (settings.edit)
+  CmsTheme                the client's theme   @inithium/cms-shell
   CmsAlerts               the AlertStack       @inithium/cms-shell
 ```
 
@@ -36,6 +38,7 @@ A screen is `{ path, label, icon, element, permission? }` (`CmsScreen` from `@in
 const screens: CmsScreen[] = [
   { path: '/', label: 'Dashboard', icon: 'layout-dashboard', element: <DashboardPage /> },
   { path: '/pages', label: 'Pages', icon: 'file-text', element: <PagesScreen />, permission: 'pages.edit' },
+  { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },
 ];
 ```
 
@@ -66,6 +69,15 @@ The editor is a Modal over a draft, with five tabs:
 
 **Cancel** discards the draft. Switching a colour or the animation back to default sends `null`, which clears it ([Pages API](../backend/pages.md#edit-rules)).
 
+## The Settings screen
+
+`SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
+
+- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo's address and description, with a preview (Inithium's logo when none is set), and the copyright holder.
+- **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
+
+Saving updates the CMS at once: `CmsTheme` renders the client's theme at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
+
 ## Forms
 
 CMS and `web` forms share the same helpers from `@inithium/shared-data-access`:
@@ -73,4 +85,4 @@ CMS and `web` forms share the same helpers from `@inithium/shared-data-access`:
 - `readApiFailure()` reads an API error's status, message, issues and field;
 - `focusFirstError()` focuses the first failing field by its `name`.
 
-Show problems with `useAlerts().show()` in red, as [Sign-up](../backend/authentication.md#sign-up-and-the-password-policy) does.
+Show problems with `useAlerts().show()` in red, as [Sign-up](../backend/authentication.md#sign-up-and-the-password-policy) does. Alerts appear in the bottom-right corner, so keep a form's buttons out of it: put Save on the left, under the fields.

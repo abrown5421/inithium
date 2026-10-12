@@ -32,7 +32,7 @@ import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| [`title`, `homeHref`](#title-and-homehref) | `string` | none, `'/'` | The top bar's title and where it goes |
+| [`title`, `logo`, `homeHref`](#title-logo-and-homehref) | `string`, `{ src, alt }`, `string` | none, none, `'/'` | The top bar's brand and where it goes |
 | [`items`](#items) | `SidebarItem[]` | **required** | The sidebar's entries |
 | [`currentPath`](#currentpath) | `string` | none | Marks the current entry |
 | [`onNavigate`](#onnavigate) | `(href) => void` | browser navigation | The app's router |
@@ -43,9 +43,9 @@ import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
 
 ## Props
 
-#### `title` and `homeHref`
+#### `title`, `logo` and `homeHref`
 
-The app's name in the top bar, linking to `homeHref`. It also titles the narrow-screen drawer. **Type:** `string`. **Default:** `homeHref` `'/'`.
+The app's name and an optional logo in the top bar, as on the [Navbar](../composites/navbar.md#title-logo-and-homehref), linking to `homeHref`. The title also names the narrow-screen drawer. **Type:** `string`, `{ src: string; alt: string }`, `string`. **Default:** `homeHref` `'/'`.
 
 #### `items`
 

@@ -35,7 +35,7 @@ export function PagesScreen() {
   const shown = useMemo(() => visiblePages(pages ?? [], search, sort), [pages, search, sort]);
 
   return (
-    <Container flex={{ direction: 'column', gap: 24 }} maxWidth={960}>
+    <Container flex={{ direction: 'column', gap: 24 }}>
       <Container flex={{ direction: 'column', gap: 4 }}>
         <Text as="h1" fontFamily="display" fontSize={28}>
           Pages
