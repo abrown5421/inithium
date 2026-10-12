@@ -26,11 +26,13 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation`, `toCssColor()` |
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
-| `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `NAVBAR_HEIGHT_VAR` |
+| `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()`), `useGetSiteQuery()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
-| `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard`, `CurrentUserMenu` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
+| `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts` |
+| `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
 
 ### `@inithium/api-config`
 
@@ -87,7 +89,15 @@ The frontends' RTK Query layer. `baseApi` calls `/api` and, on a `401`, refreshe
 
 ### `@inithium/cms-auth`
 
-CMS sign-in: `LoginPage` (route `/login`), `CmsAccessGuard` (wrap any route that needs CMS access) and `CurrentUserMenu` (the user's email, role and a sign-out button).
+CMS sign-in: `LoginPage` (route `/login`, the same card and form errors as `web`'s Login) and `CmsAccessGuard` (wrap any route that needs CMS access).
+
+### `@inithium/cms-shell`
+
+The signed-in CMS ([0086](../decisions/0086-run-the-cms-in-a-sidebar-frame-with-a-pages-screen.md)): `CmsShell` (the SidebarLayout frame, routing a list of `CmsScreen`s and hiding those the user can't use), `DashboardPage` and `CmsAlerts` (the app's AlertStack). See [The CMS](../architecture/cms.md).
+
+### `@inithium/cms-pages`
+
+The Pages screen: `PagesScreen` (search, sort and rows) and `PageEditor` (the tabbed edit dialog).
 
 ## Creating a lib
 

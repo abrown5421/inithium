@@ -68,13 +68,14 @@ The auth endpoints are ready to use:
 | `useLoginMutation()` | Signs in, and puts the user straight into the current-user cache |
 | `useRegisterMutation()` | Creates a `user` account and signs it in, putting the user straight into the current-user cache |
 | `useLogoutMutation()` | Signs out, and clears every cached response |
+| `useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()` | Page records for the CMS ([Pages](pages.md)); a saved page replaces its row in the list |
 | `useGetSiteQuery()` | The site bundle `web` loads at startup: settings and published pages ([Pages](pages.md)) |
 
 See [Authentication](authentication.md#frontend-usage).
 
 ## Errors
 
-The API returns errors as `{ "message": "..." }`. `getApiErrorMessage(error, fallback)` extracts that message from a failed request:
+The API returns errors as `{ "message": "..." }`, sometimes with Zod `issues` or the `field` at fault. For forms, `readApiFailure(error)` reads all of them, `fieldErrorsFrom(issues)` turns issues into per-field messages keyed by dotted path (e.g. `seo.title`), and `focusFirstError()` focuses the first failing field ([The CMS](../architecture/cms.md#forms)). `getApiErrorMessage(error, fallback)` extracts just the message from a failed request:
 
 ```ts
 try {

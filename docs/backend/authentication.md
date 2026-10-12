@@ -99,7 +99,7 @@ Sign up with `useRegisterMutation()` from `@inithium/shared-data-access`: like `
 
 Any request that gets a `401` refreshes the session once and retries. Several requests failing at once share one refresh.
 
-The CMS wraps its routes in `CmsAccessGuard` from `@inithium/cms-auth`. The guard redirects signed-out visitors to `/cms/login` and shows a "no access" message to accounts without `cms.access`.
+The CMS wraps its routes in `CmsAccessGuard` from `@inithium/cms-auth` ([The CMS](../architecture/cms.md)). The guard redirects signed-out visitors to `/cms/login` and shows a "no access" message to accounts without `cms.access`.
 
 ## The dev account
 

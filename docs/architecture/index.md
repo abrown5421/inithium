@@ -17,6 +17,7 @@ Inithium is built so that every client gets the same well-maintained foundation,
 | [The core workspace](core-workspace.md) | Apps, libs, layers and the rules that keep them apart |
 | [Client repositories](client-repositories.md) | How a client app is created, kept up to date, customised and hosted |
 | [The sandbox](sandbox.md) | Testing plugins in a regenerated copy of core |
+| [The CMS](cms.md) | The client portal: its frame, screens, sign-in and the Pages editor, and adding a screen |
 | [Pages and routing](pages-and-routing.md) | Page records, code templates, layouts, routing, transitions and menus in `web` |
 
 How plugins plug in is covered in [Plugins](../plugins/index.md).

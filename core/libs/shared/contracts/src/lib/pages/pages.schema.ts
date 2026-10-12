@@ -42,20 +42,20 @@ export const pageNavigationSchema = z
     /** The menus it appears in; none keeps it out of menus. */
     locations: z.array(navLocationSchema).refine((list) => new Set(list).size === list.length, 'List each menu once'),
     /** The link's text. Default: the page's title. */
-    label: z.string().min(1).max(60).optional(),
+    label: z.string().min(1, { error: 'Enter a label, or leave it out' }).max(60, { error: 'Use 60 characters or fewer' }).optional(),
     /** Its position; lower comes first. */
-    order: z.number().int(),
+    order: z.number({ error: 'Enter a whole number' }).int({ error: 'Enter a whole number' }),
     icon: iconNameSchema.optional(),
     /** Primary-nav pages sharing a group form one dropdown. */
-    group: z.string().min(1).max(60).optional(),
+    group: z.string().min(1, { error: 'Enter a group, or leave it out' }).max(60, { error: 'Use 60 characters or fewer' }).optional(),
   })
   .strict();
 
 export const pageSeoSchema = z
   .object({
     /** The document title. Default: the page's title. */
-    title: z.string().min(1).max(70).optional(),
-    description: z.string().min(1).max(160).optional(),
+    title: z.string().min(1).max(70, { error: 'Keep the search title to 70 characters or fewer' }).optional(),
+    description: z.string().min(1).max(160, { error: 'Keep the description to 160 characters or fewer' }).optional(),
   })
   .strict();
 
@@ -69,7 +69,7 @@ export const pageAnimationSchema = z
 
 /** The fields the CMS edits on any page (decision 0078). */
 const editableFields = {
-  title: z.string().min(1).max(100),
+  title: z.string().trim().min(1, { error: 'Enter a title' }).max(100, { error: 'Use 100 characters or fewer' }),
   status: pageStatusSchema,
   /** One of the page's `layouts`. */
   layout: kebabKeySchema,
@@ -103,9 +103,18 @@ export const pageSchema = z
 /** A published page as `web` receives it: no CMS-only fields. */
 export const publicPageSchema = pageSchema.omit({ status: true, layouts: true, protected: true, createdAt: true, updatedAt: true });
 
-/** A CMS edit: any editable field, plus the path on pages that aren't protected. Changing status needs pages.publish. */
+/**
+ * A CMS edit: any editable field, plus the path on pages that aren't protected. Changing status needs pages.publish.
+ * `null` clears a colour or the animation, so the page falls back to its template's or the site's default.
+ */
 export const pageUpdateSchema = z
-  .object({ ...editableFields, path: pagePathSchema })
+  .object({
+    ...editableFields,
+    bgColor: colorValueSchema.nullable(),
+    textColor: colorValueSchema.nullable(),
+    animation: pageAnimationSchema.nullable(),
+    path: pagePathSchema,
+  })
   .partial()
   .strict();
 

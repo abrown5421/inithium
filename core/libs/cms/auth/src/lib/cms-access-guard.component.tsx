@@ -2,9 +2,14 @@ import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
+import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 
 function CenteredMessage({ children }: { children: ReactNode }) {
-  return <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">{children}</main>;
+  return (
+    <Container minHeight="screen" flex={{ direction: 'column', align: 'center', justify: 'center', gap: 16 }} padding={{ all: 24 }}>
+      {children}
+    </Container>
+  );
 }
 
 /** Renders its children only for a signed-in user with CMS access; otherwise sends them to /login. */
@@ -14,16 +19,20 @@ export function CmsAccessGuard({ children }: { children: ReactNode }) {
   const [logout] = useLogoutMutation();
 
   if (!user && isFetching) {
-    return <CenteredMessage>Loading…</CenteredMessage>;
+    return (
+      <CenteredMessage>
+        <Loader size={40} label="Loading the CMS" />
+      </CenteredMessage>
+    );
   }
 
   if (error && 'status' in error && error.status !== 401) {
     return (
       <CenteredMessage>
-        <p>Couldn't reach the server.</p>
-        <button type="button" onClick={() => refetch()} className="rounded border px-3 py-1">
+        <Text as="p">Couldn't reach the server.</Text>
+        <Button variant="outlined" onClick={() => void refetch()}>
           Try again
-        </button>
+        </Button>
       </CenteredMessage>
     );
   }
@@ -35,10 +44,10 @@ export function CmsAccessGuard({ children }: { children: ReactNode }) {
   if (!hasPermission(user.role, 'cms.access')) {
     return (
       <CenteredMessage>
-        <p>Your account doesn't have access to the CMS.</p>
-        <button type="button" onClick={() => logout()} className="rounded border px-3 py-1">
+        <Text as="p">Your account doesn't have access to the CMS.</Text>
+        <Button variant="outlined" onClick={() => void logout()}>
           Sign out
-        </button>
+        </Button>
       </CenteredMessage>
     );
   }
