@@ -14,6 +14,9 @@ export const tabsStyleSheet = [
   // In a box (the bar prop), the box's edge replaces the divider, and the panels sit a little further below it.
   '.ui-tabs[data-bar] .ui-tabs-list{border-bottom:0}',
   '.ui-tabs[data-bar] .ui-tabs-panel{padding-top:24px}',
+  // The buttons variant: Buttons in a row with no divider, padded so their focus outlines aren't clipped.
+  '.ui-tabs[data-variant=buttons] .ui-tabs-list{gap:4px;padding:3px;border-bottom:0}',
+  '.ui-tabs[data-variant=buttons][data-fill] .ui-tabs-list>*{flex:1 1 0}',
 
   '.ui-tabs-trigger{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;gap:8px;height:40px;' +
     'margin:0;padding:0 16px;border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;line-height:20px;' +

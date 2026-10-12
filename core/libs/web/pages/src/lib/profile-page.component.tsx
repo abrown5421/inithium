@@ -138,7 +138,8 @@ export function ProfilePage({ params }: PageTemplateProps) {
             value={activeTab}
             onValueChange={(tab) => setSearchParams({ tab }, { replace: true })}
             // The bar is a card like the sections under it; the gap above the panels separates them.
-            bar={{ ...profileCard, padding: { x: 12, y: 4 } }}
+            variant="buttons"
+            bar={{ ...profileCard, padding: { all: 8 } }}
             tabs={tabs.map((tab) => ({ value: tab.key, label: tab.label, icon: tab.icon, content: <tab.component {...props} /> }))}
           />
         ) : (

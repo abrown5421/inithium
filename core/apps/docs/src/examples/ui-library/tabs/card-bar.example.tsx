@@ -8,7 +8,8 @@ export default function ExampleTabsCardBar() {
     <Container padding={{ all: 24 }} bgColor={{ color: 'surface', intensity: 200 }}>
       <Tabs
         aria-label="Account"
-        bar={{ ...card, padding: { x: 12, y: 4 } }}
+        variant="buttons"
+        bar={{ ...card, padding: { all: 8 } }}
         tabs={[
           {
             value: 'profile',

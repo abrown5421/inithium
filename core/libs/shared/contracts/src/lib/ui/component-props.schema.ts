@@ -223,6 +223,11 @@ export const tabsPropsSchema = sharedStylePropsSchema
     tabs: z.array(tabItemSchema).min(1),
     /** The active tab's underline and the focus outline. Default 'primary' (500). */
     color: solidColorValueSchema.optional(),
+    /**
+     * How tabs look: 'underline' (default) marks the active tab with a sliding underline; 'buttons' draws each tab as a
+     * Button, the active one filled and the rest ghost, all in `color`.
+     */
+    variant: z.enum(['underline', 'buttons']).optional(),
     /** Stretches the tabs to share the bar's width equally. Default false. */
     fill: z.boolean().optional(),
     /**
