@@ -4,7 +4,7 @@ description: The single settings record that holds the site's title, logo and co
 scope: core
 tags: [api, settings, cms, branding]
 order: 7
-decisions: ["0082"]
+decisions: ["0082", "0087"]
 ---
 
 # Site settings
@@ -20,9 +20,10 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `My site`. |
 | `logo` | `{ src, alt }`, optional | A URL until assets exist. |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
+| `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
 
-Theme colours, fonts, SEO defaults and an uploaded logo come later.
+Fonts, SEO defaults and an uploaded logo come later.
 
 ## Endpoints
 
@@ -30,7 +31,7 @@ Theme colours, fonts, SEO defaults and an uploaded logo come later.
 | --- | --- | --- |
 | `GET /api/site` | Anyone | Returns the settings with the published pages; see [Pages](pages.md#endpoints). |
 | `GET /api/settings` | `settings.edit` | The settings. |
-| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `copyright`) are cleared. 400 with Zod `issues` if invalid. |
+| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `copyright`, `theme`) are cleared, so leaving out `theme` returns the site to core's default colours. 400 with Zod `issues` if invalid. |
 
 ## Seeding
 

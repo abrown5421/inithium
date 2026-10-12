@@ -29,10 +29,11 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
-| `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts` |
+| `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
+| `@inithium/cms-settings` | `libs/cms/settings` | `scope:cms`, `type:feature`, `origin:core` | `SettingsScreen`, `ThemeColorField`, `normalizeHex()` |
 
 ### `@inithium/api-config`
 
@@ -93,11 +94,15 @@ CMS sign-in: `LoginPage` (route `/login`, the same card and form errors as `web`
 
 ### `@inithium/cms-shell`
 
-The signed-in CMS ([0086](../decisions/0086-run-the-cms-in-a-sidebar-frame-with-a-pages-screen.md)): `CmsShell` (the SidebarLayout frame, routing a list of `CmsScreen`s and hiding those the user can't use), `DashboardPage` and `CmsAlerts` (the app's AlertStack). See [The CMS](../architecture/cms.md).
+The signed-in CMS ([0086](../decisions/0086-run-the-cms-in-a-sidebar-frame-with-a-pages-screen.md)): `CmsShell` (the SidebarLayout frame, routing a list of `CmsScreen`s and hiding those the user can't use), `DashboardPage`, `CmsAlerts` (the app's AlertStack) and `CmsTheme` (the client's theme over the default). See [The CMS](../architecture/cms.md).
 
 ### `@inithium/cms-pages`
 
 The Pages screen: `PagesScreen` (search, sort and rows) and `PageEditor` (the tabbed edit dialog).
+
+### `@inithium/cms-settings`
+
+The Settings screen ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)): `SettingsScreen` (site details and theme colours) and `ThemeColorField` (a hex field with its generated scale).
 
 ## Creating a lib
 

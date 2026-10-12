@@ -1,4 +1,4 @@
-import type { SiteSettings, SiteSettingsInput } from '@inithium/shared-contracts';
+import type { SiteSettings, SiteSettingsInput, ThemeConfig } from '@inithium/shared-contracts';
 import { SettingsModel, SITE_SETTINGS_KEY, type SettingsDocument } from './settings.model';
 
 /** The settings a new site starts with (decision 0082). */
@@ -10,6 +10,7 @@ export function toSiteSettings(doc: SettingsDocument): SiteSettings {
     siteTitle: doc.siteTitle,
     ...(doc.logo ? { logo: { src: doc.logo.src, alt: doc.logo.alt ?? '' } } : {}),
     ...(doc.copyright ? { copyright: doc.copyright } : {}),
+    ...(doc.theme?.colors ? { theme: { colors: doc.theme.colors as ThemeConfig['colors'] } } : {}),
     updatedAt: doc.updatedAt.toISOString(),
   };
 }
@@ -28,5 +29,6 @@ export async function updateSiteSettings(input: SiteSettingsInput): Promise<Sett
   doc.siteTitle = input.siteTitle;
   doc.set('logo', input.logo ?? undefined);
   doc.set('copyright', input.copyright ?? undefined);
+  doc.set('theme', input.theme ?? undefined);
   return doc.save();
 }

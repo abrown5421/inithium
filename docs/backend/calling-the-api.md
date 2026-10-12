@@ -69,6 +69,7 @@ The auth endpoints are ready to use:
 | `useRegisterMutation()` | Creates a `user` account and signs it in, putting the user straight into the current-user cache |
 | `useLogoutMutation()` | Signs out, and clears every cached response |
 | `useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()` | Page records for the CMS ([Pages](pages.md)); a saved page replaces its row in the list |
+| `useGetSettingsQuery()`, `useUpdateSettingsMutation()` | Site settings for the CMS ([Site settings](site-settings.md)); a save also refreshes the site bundle |
 | `useGetSiteQuery()` | The site bundle `web` loads at startup: settings and published pages ([Pages](pages.md)) |
 
 See [Authentication](authentication.md#frontend-usage).

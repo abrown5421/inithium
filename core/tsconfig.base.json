@@ -72,6 +72,9 @@
       ],
       "@inithium/cms-pages": [
         "./libs/cms/pages/src/index.ts"
+      ],
+      "@inithium/cms-settings": [
+        "./libs/cms/settings/src/index.ts"
       ]
     }
   },

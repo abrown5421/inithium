@@ -25,6 +25,7 @@ Six tokens, each on an 11-step scale (50, 100, 200 … 900, 950), generated in O
 | `surface` | 100 | `#f8fafc` |
 
 - The client's colour is exactly the 500 (brand tokens) or 100 (surface) step.
+- **Clients set them in the CMS's Settings** as hex codes, with a live preview of each scale ([0087](../../decisions/0087-set-theme-colours-in-cms-settings.md)). Both `web` and the CMS render that theme over `UiProvider`'s default once settings load; without one, core's defaults apply.
 - Every step is published as a CSS variable, `--color-<token>-<step>` (e.g. `--color-primary-200`).
 - Colour props use them through a [colour value](../style-props.md#colour-value), e.g. `{ color: 'primary', intensity: 200 }`.
 - There are no status tokens (success, warning …). Use these six or Tailwind's colours.
