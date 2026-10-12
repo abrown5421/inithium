@@ -245,6 +245,20 @@ export const colorPickerPropsSchema = inputStylePropsSchema
   })
   .strict();
 
+/** An IconPicker's storable props (decision 0085): the field's label, placeholder, helper text, look and animation. */
+export const iconPickerPropsSchema = inputStylePropsSchema
+  .extend({
+    /** Sits in the field and floats above it once an icon is chosen or the panel is open. */
+    label: z.string().min(1).optional(),
+    /** Shown while no icon is chosen. Default 'No icon'. */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
 /**
  * An AutoIncrementingList's storable props (decision 0070): its label, limits, button colours and wording,
  * alignment, spacing and animation. Its items and how they render are runtime only.
