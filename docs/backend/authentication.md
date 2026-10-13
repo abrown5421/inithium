@@ -4,7 +4,7 @@ description: Auth endpoints, cookies, roles and permissions, and how frontends a
 scope: core
 tags: [auth, security, roles, permissions]
 order: 4
-decisions: ["0020", "0022", "0023"]
+decisions: ["0020", "0022", "0023", "0100"]
 ---
 
 # Authentication
@@ -68,6 +68,10 @@ Each refresh revokes the old refresh token and issues a new one. If an already-r
 | `settings.edit` | `owner`, `admin` (and `dev`) |
 | `assets.upload` | `owner`, `admin`, `editor` (and `dev`) |
 | `assets.delete` | `owner`, `admin` (and `dev`) |
+| `users.view`, `users.create` | `owner`, `admin`, `editor` (and `dev`); editors create only editors and members |
+| `users.edit`, `users.delete` | `owner`, `admin` (and `dev`) |
+
+Who may give which role, and change whom, is one rule on top of these: up to your own role, never `dev` ([User management](user-management.md#who-may-do-what)).
 
 The permission names are in `permissions.schema.ts` in `@inithium/shared-contracts`, and the role-to-permission matrix is in `@inithium/shared-permissions`. See [0022](../decisions/0022-store-all-users-in-one-collection-with-roles.md).
 
@@ -96,7 +100,13 @@ A public route that answers differently to a signed-in user reads the session wi
 
 While an account has `passwordChangeRequired` (e.g. the seeded dev account), its access token says so, and `requireAuth` (and so `requirePermission()`) answers `403 { message, code: 'PASSWORD_CHANGE_REQUIRED' }` ([0088](../decisions/0088-make-temporary-passwords-change-on-first-sign-in.md)). Only `requireSession` routes accept such a session: `GET /api/auth/me` and `POST /api/auth/change-password`. Use `requireAuth` for everything else.
 
+Accounts created in the CMS, and passwords reset there, start on the site's temporary password with this flag set ([User management](user-management.md#the-temporary-password)).
+
 Both apps show `PasswordChangeScreen` (`@inithium/shared-auth-ui`) to such an account before anything else: the current password, a new one meeting the [policy](#sign-up-and-the-password-policy) and its confirmation, or "Sign out instead". The CMS shows it after its access check, and `web` in place of the site.
+
+### Signing an account out everywhere
+
+`revokeSessions(userId)` revokes an account's refresh tokens and refuses its access tokens issued up to that second, so the next request gets 401 and, with nothing to refresh, it's signed out. User management uses it when a role changes or a password is reset, and `endSessionsOfDeletedUsers(ids)` when accounts are deleted ([0100](../decisions/0100-manage-accounts-from-the-cms.md)). Revocations live in memory for one access-token lifetime: an api restart forgets them.
 
 ## Frontend usage
 

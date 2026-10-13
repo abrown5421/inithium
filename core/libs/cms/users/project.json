@@ -1,0 +1,13 @@
+{
+  "name": "cms-users",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/cms/users/src",
+  "projectType": "library",
+  "tags": [
+    "scope:cms",
+    "type:feature",
+    "origin:core"
+  ],
+  "// targets": "to see all targets run: nx show project cms-users --web",
+  "targets": {}
+}

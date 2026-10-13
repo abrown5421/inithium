@@ -9,7 +9,9 @@ import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { profilesRouter } from '@inithium/api-profiles';
 import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
+import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
+import { registeredUserDeletionHooks } from './app/plugins.registry';
 
 const app = express();
 
@@ -31,6 +33,7 @@ api.use('/site', siteRouter);
 api.use('/pages', pagesRouter);
 api.use('/profiles', profilesRouter);
 api.use('/settings', settingsRouter);
+api.use('/users', createUsersRouter({ deletionHooks: registeredUserDeletionHooks }));
 
 app.use('/api', api);
 app.use('/api', (_req, res) => {

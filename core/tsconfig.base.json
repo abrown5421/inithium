@@ -96,6 +96,12 @@
       ],
       "@inithium/shared-media": [
         "./libs/shared/media/src/index.ts"
+      ],
+      "@inithium/api-user-management": [
+        "./libs/api/user-management/src/index.ts"
+      ],
+      "@inithium/cms-users": [
+        "./libs/cms/users/src/index.ts"
       ]
     }
   },

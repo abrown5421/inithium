@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { newPasswordSchema } from '@inithium/shared-contracts';
 
 const missingUri =
   'MONGODB_URI is required. Copy core/.env.example to core/.env and paste your MongoDB connection string.';
@@ -39,6 +40,9 @@ export const envSchema = z.object({
   SEED_DEV_PASSWORD: z
     .string({ error: "SEED_DEV_PASSWORD is required: the dev account's temporary password." })
     .min(1, { error: "SEED_DEV_PASSWORD is required: the dev account's temporary password." }),
+  // The temporary password of accounts created in the CMS and of password resets (decision 0100); they must change it
+  // on first sign-in. It must meet the password policy. Without it, creating accounts and resetting passwords are off.
+  USER_TEMP_PASSWORD: optional(newPasswordSchema),
 
   // Where uploaded files live (decision 0098): the site's own database, or Cloudflare R2 for staff only or for everyone.
   STORAGE_MODE: z

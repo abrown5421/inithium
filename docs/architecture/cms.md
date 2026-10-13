@@ -1,10 +1,10 @@
 ---
 title: The CMS
-description: How the CMS app is put together - its frame, screens, sign-in, the Pages editor and the Media library - and how to add a screen.
+description: How the CMS app is put together - its frame, screens, sign-in, the Pages editor, the Media library and the Users screen - and how to add a screen.
 scope: core
 tags: [cms, architecture, permissions]
 order: 6
-decisions: ["0083", "0086", "0087", "0098", "0099"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100"]
 ---
 
 # The CMS
@@ -21,6 +21,7 @@ apps/cms   App: the routes and the list of screens
       /                   DashboardPage        @inithium/cms-shell
       /pages              PagesScreen          @inithium/cms-pages  (pages.edit)
       /media              MediaScreen          @inithium/cms-media  (assets.upload)
+      /users              UsersScreen          @inithium/cms-users  (users.view)
       /settings           SettingsScreen       @inithium/cms-settings  (settings.edit)
       /pages/:id/content  ContentEditorScreen  @inithium/cms-content-editor  (pages.edit; no sidebar entry, fills the frame)
   CmsTheme                the client's theme   @inithium/cms-shell
@@ -97,6 +98,16 @@ Other screens use the library through two components:
 
 - **`AssetPicker`**: a Modal with the library's grid (filtered by `kind`), search and **Upload new**, which uploads in place (with `purpose`) and picks the result.
 - **`AssetField`**: a form field showing the chosen file's thumbnail, name and size, with Choose/Change (opening the picker) and Remove (hidden when `required`). It hands back the whole asset, so a form can copy its default description. The Settings logo and the content editor's Image block use it.
+
+## Users
+
+`UsersScreen` (`@inithium/cms-users`, needs `users.view`) manages accounts ([0100](../decisions/0100-manage-accounts-from-the-cms.md), [User management](../backend/user-management.md)):
+
+- **List:** every account the viewer may see (dev accounts only for dev), 25 a page from the server, newest first, with [Pagination](../ui-library/composites/pagination.md). Each row shows the avatar, name, email, role, a **Temporary password** badge until they've chosen their own, and when they joined.
+- **Search and filter:** every word in the name or email, and a role.
+- **New account** (`users.create`) opens `NewUserDialog`: first and last name, email and a role from those the viewer may give (editors: Editor and Member). The account signs in with the site's temporary password. With no `USER_TEMP_PASSWORD` set, the button is disabled and an alert explains why.
+- **Details:** clicking a row opens `UserDetails`, a Modal with the avatar, the names and role, and the account's details. Its footer holds **Save**, **View profile**, **Reset password** and **Delete**, as the viewer is allowed. Reset and Delete confirm in the footer. Your own account shows only Save and View profile, with the role locked. Editors see a read-only view.
+- **Bulk delete** (`users.delete`): a checkbox on each row and **Select this page** above the list. Accounts you can't delete (yourself, more senior roles) have their checkbox disabled, with a tooltip saying why. Selections carry across pages. **Delete N** opens `DeleteUsersDialog`, which names them (the first 10, then "and N more"). Afterwards an alert reports how many were deleted, and another lists any refused with their reasons.
 
 ## The Settings screen
 

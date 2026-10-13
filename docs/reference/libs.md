@@ -17,17 +17,18 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | --- | --- | --- | --- |
 | `@inithium/api-config` | `libs/api/config` | `scope:api`, `type:util`, `origin:core` | `loadEnv()`, `envSchema`, `Env` |
 | `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()`, `isDatabaseConnected()`, `healthRouter` |
-| `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, `toPublicProfile()`, user queries, `createUser()`, `updateUserProfile()`, `backfillUserProfiles()`, `createProfileAvatar()`, `createProfileBanner()`, `findUsersWithProfileImage()`, `clearProfileImage()` |
-| `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
+| `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, `toPublicProfile()`, user queries, `createUser()`, `updateUserProfile()`, `backfillUserProfiles()`, `createProfileAvatar()`, `createProfileBanner()`, `findUsersWithProfileImage()`, `clearProfileImage()`, `toManagedUser()`, `listUsers()`, `findUsersByIds()`, `countUsersWithRole()`, `deleteUserRecords()` |
+| `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `readAuth()`, `seedDevUser()`, `hashPassword()`, `revokeSessions()`, `endSessionsOfDeletedUsers()` |
 | `@inithium/api-pages` | `libs/api/pages` | `scope:api`, `type:feature`, `origin:core` | `PageModel`, `pagesRouter`, `siteRouter`, page service functions, `seedPages()`, `seedCorePages()` |
 | `@inithium/api-profiles` | `libs/api/profiles` | `scope:api`, `type:feature`, `origin:core` | `profilesRouter` |
+| `@inithium/api-user-management` | `libs/api/user-management` | `scope:api`, `type:feature`, `origin:core` | `createUsersRouter()`, `UserDeletionHook`, the user management service functions |
 | `@inithium/api-assets` | `libs/api/assets` | `scope:api`, `type:feature`, `origin:core` | `AssetModel`, `AssetBlobModel`, `assetsRouter`, `startStorage()`, `storageDriver()`, `driverFor()`, `databaseDriver()`, `r2Driver()`, `processUpload()`, asset service functions (incl. `checkProfileImage()`, `releaseProfileImage()`) |
 | `@inithium/api-settings` | `libs/api/settings` | `scope:api`, `type:feature`, `origin:core` | `SettingsModel`, `settingsRouter`, `getSiteSettings()`, `updateSiteSettings()`, `seedSiteSettings()` |
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, pages, site settings, theme, UI style props, animation |
 | `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, `defaultLogo`, scale generation, `themeColorProblem()`, `ThemeStyles`, theme fonts CSS |
 | `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Image`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation`, `toCssColor()` |
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `ImageCropper`, `renderCrop()`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
-| `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
+| `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()`, `assignableRoles()`, `canManageRole()` |
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `FullWidthLayout`, `ProfileLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
 | `@inithium/shared-media` | `libs/shared/media` | `scope:shared`, `type:feature`, `origin:core` | `UploadForm`, `UploadDialog`, `AssetThumbnail`, `formatBytes()`, `CROP_SHAPES`, `PURPOSE_LABELS`, `KIND_ICONS`, `resolveCssColor()` |
 | `@inithium/shared-content` | `libs/shared/content` | `scope:shared`, `type:feature`, `origin:core` | `ContentRenderer`, `ContentSectionView`, `ContentBlockView`, `RichText`, `ContentLinksProvider`, `useContentLinks()`, `ContentDecoratorsProvider`, `useContentDecorators()` |
@@ -35,11 +36,12 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen`, `PasswordChangeForm` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage`, the profile slot types, `ProfileSlotsProvider`, `profileCard` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useGetPageQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), asset hooks (`useGetStorageInfoQuery()`, `useGetAssetsQuery()`, `useGetAssetQuery()`, `useUploadAssetMutation()`, `useUpdateAssetMutation()`, `useDeleteAssetMutation()`, `useGetAssetUsageQuery()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useGetPageQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), asset hooks (`useGetStorageInfoQuery()`, `useGetAssetsQuery()`, `useGetAssetQuery()`, `useUploadAssetMutation()`, `useUpdateAssetMutation()`, `useDeleteAssetMutation()`, `useGetAssetUsageQuery()`), user management hooks (`useGetUsersQuery()`, `useGetUserManagementInfoQuery()`, `useCreateUserMutation()`, `useUpdateUserMutation()`, `useResetUserPasswordMutation()`, `useDeleteUsersMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
 | `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
 | `@inithium/cms-media` | `libs/cms/media` | `scope:cms`, `type:feature`, `origin:core` | `MediaScreen`, `AssetPicker`, `AssetField` |
+| `@inithium/cms-users` | `libs/cms/users` | `scope:cms`, `type:feature`, `origin:core` | `UsersScreen`, `NewUserDialog`, `UserDetails`, `DeleteUsersDialog`, `ROLE_LABELS` |
 | `@inithium/cms-settings` | `libs/cms/settings` | `scope:cms`, `type:feature`, `origin:core` | `SettingsScreen`, `ThemeColorField`, `normalizeHex()` |
 
 ### `@inithium/api-config`
@@ -61,7 +63,11 @@ The `users` collection. `UserModel` stores `email` (unique, lowercased), `passwo
 
 ### `@inithium/api-auth`
 
-Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` / `requireSession` middleware, `getAuth()` for reading the signed-in user inside a protected route, `readAuth(req)` for reading an optional session on a public route, and `seedDevUser()`, which the api calls after connecting. Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](../backend/authentication.md).
+Authentication for the API: the `/api/auth` routes, the `requireAuth` / `requirePermission()` / `requireSession` middleware, `getAuth()` for reading the signed-in user inside a protected route, `readAuth(req)` for reading an optional session on a public route, `seedDevUser()`, which the api calls after connecting, `hashPassword()`, and `revokeSessions()` / `endSessionsOfDeletedUsers()` for signing accounts out at once ([0100](../decisions/0100-manage-accounts-from-the-cms.md)). Internally it owns password hashing (`scrypt`), access tokens, the `refreshtokens` collection and the auth cookies. See [Authentication](../backend/authentication.md).
+
+### `@inithium/api-user-management`
+
+Managing accounts from the CMS ([0100](../decisions/0100-manage-accounts-from-the-cms.md)): `createUsersRouter({ deletionHooks })` (`/api/users`), the service functions behind it (`listManagedUsers()`, `createManagedUser()`, `updateManagedUser()`, `resetManagedUserPassword()`, `deleteManagedUsers()`, `userManagementInfo()`), and the `UserDeletionHook` contract plugins implement. See [User management](../backend/user-management.md).
 
 ### `@inithium/api-pages`
 
@@ -81,7 +87,7 @@ The one site settings record ([0082](../decisions/0082-keep-site-wide-settings-i
 
 ### `@inithium/shared-contracts`
 
-The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `profileLimits`, `profileName()`, `userDisplayName()`, the profile contracts (`publicProfileSchema` / `PublicProfile`, `updateProfileRequestSchema` / `UpdateProfileRequest`, `profileViewers` / `ProfileViewer`, `publicProfileName()`), `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteLogoSchema`, `logoImage()`, `siteBundleSchema` / `SiteBundle`) and the asset contracts (`assetSchema` / `Asset`, `assetFileTypes`, `assetPurposes`, `assetKinds`, `storageModes`, `storageInfoSchema`, `assetUsageSchema`, `MAX_ASSET_BYTES`, `assetUrl()`).
+The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `profileLimits`, `profileName()`, `userDisplayName()`, the profile contracts (`publicProfileSchema` / `PublicProfile`, `updateProfileRequestSchema` / `UpdateProfileRequest`, `profileViewers` / `ProfileViewer`, `publicProfileName()`), `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteLogoSchema`, `logoImage()`, `siteBundleSchema` / `SiteBundle`) the user management contracts (`managedUserSchema` / `ManagedUser`, `userListQuerySchema`, `userListResponseSchema`, `createUserRequestSchema`, `updateUserRequestSchema`, `deleteUsersRequestSchema`, `deleteUsersResponseSchema`, `userManagementInfoSchema`) and the asset contracts (`assetSchema` / `Asset`, `assetFileTypes`, `assetPurposes`, `assetKinds`, `storageModes`, `storageInfoSchema`, `assetUsageSchema`, `MAX_ASSET_BYTES`, `assetUrl()`).
 
 ### `@inithium/shared-ui-theme`, `@inithium/shared-ui-components`, `@inithium/shared-ui-composites` and `@inithium/shared-ui-layouts`
 
@@ -113,7 +119,7 @@ Core's page templates, `coreTemplates`: Home, Profile, Login, Sign up and Not Fo
 
 ### `@inithium/shared-permissions`
 
-The permission matrix (`rolePermissions`) and `hasPermission(role, permission)`. `dev` holds every permission.
+The permission matrix (`rolePermissions`) and `hasPermission(role, permission)`. `dev` holds every permission. Also the role rules for managing accounts ([0100](../decisions/0100-manage-accounts-from-the-cms.md)): `assignableRoles(role)` (up to your own, never dev) and `canManageRole(actor, target)`.
 
 ### `@inithium/shared-data-access`
 
@@ -134,6 +140,10 @@ The Pages screen: `PagesScreen` (search, sort and rows) and `PageEditor` (the ta
 ### `@inithium/cms-media`
 
 The CMS's Media screen and the asset picker ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `MediaScreen` (storage meter, search, kind filter, grid, details modal), `AssetPicker` (choose from the library or upload in place, in a Modal) and `AssetField` (a form field holding one asset id, used by the logo and the Image block). See [The CMS](../architecture/cms.md#media).
+
+### `@inithium/cms-users`
+
+The CMS's Users screen ([0100](../decisions/0100-manage-accounts-from-the-cms.md)): `UsersScreen` (paged list, search, role filter, bulk delete), `NewUserDialog`, `UserDetails` (the details Modal) and `DeleteUsersDialog`. See [The CMS](../architecture/cms.md#users).
 
 ### `@inithium/cms-settings`
 

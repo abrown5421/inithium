@@ -120,7 +120,7 @@ Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 4
 
 - **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)). Its asset can't be deleted while it's the logo.
 - **Image block** in content pages ([Content pages](../architecture/content-pages.md)). Deleting its asset warns first; the page then shows a "missing image" placeholder.
-- **Profiles**: `profile.avatarAssetId` and `profile.bannerAssetId`. Deleting the asset clears them, so the profile shows its generated picture.
+- **Profiles**: `profile.avatarAssetId` and `profile.bannerAssetId`. Deleting the asset clears them, so the profile shows its generated picture. Deleting an account deletes the avatars and banners it uploaded (`deleteMemberUploads()`); files staff uploaded stay ([User management](user-management.md#deleting-accounts)).
 
 ## Permissions
 

@@ -74,6 +74,7 @@ The auth endpoints are ready to use:
 | `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()` | The reusable templates, and creating or duplicating a page; both refresh the list |
 | `useGetSettingsQuery()`, `useUpdateSettingsMutation()` | Site settings for the CMS ([Site settings](site-settings.md)); a save also refreshes the site bundle |
 | `useGetProfileQuery(id)`, `useUpdateMyProfileMutation()` | A profile, and editing your own ([Profiles](profiles.md)); a save updates that profile's cache entry and refetches the current user |
+| `useGetUsersQuery(query)`, `useGetUserManagementInfoQuery()`, `useCreateUserMutation()`, `useUpdateUserMutation()`, `useResetUserPasswordMutation()`, `useDeleteUsersMutation()` | Accounts for the CMS's Users screen ([User management](user-management.md)); every change refreshes the list |
 | `useGetSiteQuery()` | The site bundle `web` loads at startup: settings and published pages ([Pages](pages.md)) |
 
 See [Authentication](authentication.md#frontend-usage).

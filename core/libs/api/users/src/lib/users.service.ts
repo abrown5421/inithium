@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import type { PublicProfile, Role, UpdateProfileRequest, User, UserProfile } from '@inithium/shared-contracts';
+import type { ManagedUser, PublicProfile, Role, UpdateProfileRequest, User, UserProfile } from '@inithium/shared-contracts';
 import { createProfileAvatar, createProfileBanner, readAvatar, readBanner } from './profiles.service';
 import { UserModel, type UserDocument } from './users.model';
 
@@ -43,6 +43,62 @@ export function toUser(doc: UserDocument): User {
   };
 }
 
+/** An account as the CMS's Users screen shows it (decision 0100). */
+export function toManagedUser(doc: UserDocument): ManagedUser {
+  const profile = toProfile(doc);
+  return {
+    id: doc._id.toString(),
+    email: doc.email,
+    role: doc.role,
+    ...(profile.firstName ? { firstName: profile.firstName } : {}),
+    ...(profile.lastName ? { lastName: profile.lastName } : {}),
+    avatar: profile.avatar,
+    ...(profile.avatarAssetId ? { avatarAssetId: profile.avatarAssetId } : {}),
+    passwordChangeRequired: doc.passwordChangeRequired,
+    ...(doc.createdBy ? { createdBy: doc.createdBy } : {}),
+    createdAt: doc.createdAt.toISOString(),
+  };
+}
+
+/**
+ * A page of accounts, newest first (decision 0100). Every word of `search` must appear in the email, first name or
+ * last name; `excludeRoles` hides roles the viewer mustn't see (e.g. dev).
+ */
+export async function listUsers(options: {
+  skip: number;
+  limit: number;
+  search?: string;
+  role?: Role;
+  excludeRoles?: Role[];
+}): Promise<{ users: UserDocument[]; total: number }> {
+  const conditions: Record<string, unknown>[] = [];
+  if (options.role) conditions.push({ role: options.role });
+  if (options.excludeRoles?.length) conditions.push({ role: { $nin: options.excludeRoles } });
+  for (const word of options.search?.split(/\s+/).filter(Boolean) ?? []) {
+    const pattern = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    conditions.push({ $or: [{ email: pattern }, { 'profile.firstName': pattern }, { 'profile.lastName': pattern }] });
+  }
+  const query = conditions.length ? { $and: conditions } : {};
+  const [users, total] = await Promise.all([
+    UserModel.find(query).sort({ createdAt: -1, _id: -1 }).skip(options.skip).limit(options.limit),
+    UserModel.countDocuments(query),
+  ]);
+  return { users, total };
+}
+
+export async function findUsersByIds(ids: string[]): Promise<UserDocument[]> {
+  return UserModel.find({ _id: { $in: ids.filter((id) => isValidObjectId(id)) } });
+}
+
+export async function countUsersWithRole(role: Role): Promise<number> {
+  return UserModel.countDocuments({ role });
+}
+
+/** Deletes accounts' records. Their other data must be removed first (decision 0100's deletion order). */
+export async function deleteUserRecords(ids: string[]): Promise<void> {
+  await UserModel.deleteMany({ _id: { $in: ids } });
+}
+
 /** A user's public profile (decision 0090): the email only for its owner. */
 export function toPublicProfile(doc: UserDocument, { owner }: { owner: boolean }): PublicProfile {
   return {
@@ -84,6 +140,8 @@ export async function createUser(input: {
   role: Role;
   passwordChangeRequired?: boolean;
   names?: { firstName: string; lastName?: string };
+  /** The account creating this one, when it's made in the CMS. */
+  createdBy?: string;
 }): Promise<UserDocument> {
   const { names, ...account } = input;
   const user = new UserModel(account);
