@@ -28,6 +28,7 @@ The shadow is a drop shadow, falling mostly downward. What spills sideways lands
   - the Structure panel's right edge;
   - the Properties panel's left edge.
 - **Shadows:** each keeps its `2xl` shadow.
+- **Stacking:** the panels are stacked above the toolbar, so the toolbar's shadow falls only on the canvas. Stacked the other way, its shadow darkened the top ~100px of both panels (to about #D0D3D6 under the default theme), so they looked a different colour from the toolbar.
 - **Back button:** the toolbar's back button is icon-only, labelled "Back to Pages" (with a tooltip).
 - Everything else in 0094 stands. This amends only these details, so 0094 isn't superseded.
 
