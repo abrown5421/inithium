@@ -44,6 +44,9 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |
 | `POST /api/pages/:id/duplicate` | `pages.create` | Copies a page made from a reusable template, with a `pageDuplicateSchema` body (`title`, `path`). `201` with the copy. |
 | `GET /api/pages/:id` | `pages.edit` | One page, or 404. |
+| `PUT /api/pages/:id/content` | `pages.edit` | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 for a page without blocks. |
+| `POST /api/pages/:id/content/publish` | `pages.publish` | Copies the draft to `published` and sets the page's `status` to `published`. |
+| `POST /api/pages/:id/content/discard` | `pages.edit` | Sets the draft back to the published version (or one empty section if it was never published). |
 | `PATCH /api/pages/:id` | `pages.edit` | Edits a page with a `pageUpdateSchema` body (any of `title`, `status`, `layout`, `bgColor`, `textColor`, `animation`, `audience`, `navigation`, `seo`, `path`). `null` for `bgColor`, `textColor` or `animation` clears it, so the page falls back to its template's or the site's default. |
 | `DELETE /api/pages/:id` | `pages.delete` | Deletes a page that isn't protected. |
 
@@ -68,7 +71,7 @@ A duplicate copies the source's template, layout, colours, animation, audience, 
 
 `pathFromTitle(title)` from `@inithium/shared-contracts` suggests a path, e.g. `'Our Café & Team!'` → `'/our-cafe-team'`. A static path beats a parameterised one, so `/profile/settings` would win over `/profile/:id`.
 
-Content pages carry `content`: `{ draft, published }` content documents ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions.
+Content pages carry `content`: `{ draft, published }` content documents ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions. `content` also records `draftSavedAt` / `draftSavedBy` and `publishedAt` / `publishedBy` (ISO dates and user ids). The CMS editor saves and publishes through the endpoints above ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)).
 
 ### Edit rules
 
@@ -106,7 +109,7 @@ New pages are published and protected. On later starts the seed **never touches 
 
 - **Model:** `PageModel` (the `pages` collection).
 - **Mapping:** `toPage()` and `toPublicPage()`.
-- **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` and `deletePage()`.
+- **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()`, `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`.
 - **Reusable templates:** `reusableTemplates` and `listReusableTemplates()`.
 - **Routers:** `pagesRouter` (mounted at `/api/pages`) and `siteRouter` (mounted at `/api/site`).
 - **Seeding:** `seedPages()`, `seedCorePages()` and `corePageSeeds`.

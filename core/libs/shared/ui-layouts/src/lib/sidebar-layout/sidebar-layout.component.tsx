@@ -30,6 +30,11 @@ export type SidebarLayoutProps = {
   defaultCollapsed?: boolean;
   /** The current entry, hover and focus. Default 'primary'. */
   color?: SolidColorValue;
+  /**
+   * For full-screen tools (e.g. an editor): no sidebar and no padding, and the content fills exactly the space under
+   * the top bar (it scrolls inside itself, not the page). The entries stay reachable from the menu button. Default false.
+   */
+  fill?: boolean;
   /** The screen's content. */
   children?: ReactNode;
 };
@@ -54,6 +59,7 @@ export function SidebarLayout({
   homeHref = '/',
   defaultCollapsed = false,
   color = 'primary',
+  fill = false,
   children,
 }: SidebarLayoutProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -112,7 +118,13 @@ export function SidebarLayout({
       <style href="inithium-sidebar-layout" precedence="default">
         {sidebarLayoutStyleSheet}
       </style>
-      <Container ref={root} minHeight="screen" flex={{ direction: 'column' }} bgColor={{ color: 'surface', intensity: 100 }}>
+      <Container
+        ref={root}
+        minHeight="screen"
+        height={fill ? 'screen' : undefined}
+        flex={{ direction: 'column' }}
+        bgColor={{ color: 'surface', intensity: 100 }}
+      >
         <Navbar
           title={title}
           logo={logo}
@@ -123,7 +135,7 @@ export function SidebarLayout({
           onNavigate={onNavigate}
           color={color}
           ancillary={
-            narrow ? (
+            narrow || fill ? (
               <Button
                 variant="ghost"
                 color={{ color: 'surface', intensity: 800 }}
@@ -137,8 +149,8 @@ export function SidebarLayout({
             ) : undefined
           }
         />
-        <Container flex={{ direction: 'row' }} flexItem={{ grow: 1 }}>
-          {!narrow && (
+        <Container flex={{ direction: 'row' }} flexItem={{ grow: 1 }} minHeight={fill ? 0 : undefined}>
+          {!narrow && !fill && (
             <nav className="ui-sidebar" aria-label="Sections" data-collapsed={collapsed || undefined} style={accent}>
               <ul className="ui-sidebar-list">{items.map((item) => link(item, collapsed))}</ul>
               {collapsed ? (
@@ -155,12 +167,18 @@ export function SidebarLayout({
               )}
             </nav>
           )}
-          <Container as="main" flexItem={{ grow: 1 }} minWidth={0} padding={{ x: narrow ? 16 : 32, y: 32 }}>
+          <Container
+            as="main"
+            flexItem={{ grow: 1 }}
+            minWidth={0}
+            flex={fill ? { direction: 'column' } : undefined}
+            padding={fill ? undefined : { x: narrow ? 16 : 32, y: 32 }}
+          >
             {children}
           </Container>
         </Container>
       </Container>
-      {narrow && (
+      {(narrow || fill) && (
         <Drawer open={menuOpen} onOpenChange={setMenuOpen} title={title} side="left" size={280}>
           <nav aria-label="Sections" style={accent}>
             <ul className="ui-sidebar-list">{items.map((item) => link(item, false, () => setMenuOpen(false)))}</ul>

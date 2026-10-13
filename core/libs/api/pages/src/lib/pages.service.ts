@@ -4,6 +4,7 @@ import {
   emptyContentDocument,
   navigationAllowed,
   readContentDocument,
+  type ContentDocument,
   type NavLocation,
   type Page,
   type PageAnimation,
@@ -64,10 +65,23 @@ export function toPublicPage(doc: PageDocument): PublicPage {
 
 /** A stored content field as `{ content }`, upgraded to the current format; nothing when there's no valid draft. */
 function readPageContent(stored: unknown): { content?: PageContent } {
-  const { draft, published } = (stored ?? {}) as { draft?: unknown; published?: unknown };
+  const { draft, published, ...meta } = (stored ?? {}) as Record<string, unknown>;
   const current = readContentDocument(draft);
   if (!current) return {};
-  return { content: { draft: current, published: published ? (readContentDocument(published) ?? null) : null } };
+  const text = (key: string) => (typeof meta[key] === 'string' ? (meta[key] as string) : undefined);
+  return {
+    content: {
+      draft: current,
+      // Kept out of definedOnly(), which would drop the null that means "never published".
+      published: published ? (readContentDocument(published) ?? null) : null,
+      ...definedOnly({
+        draftSavedAt: text('draftSavedAt'),
+        draftSavedBy: text('draftSavedBy'),
+        publishedAt: text('publishedAt'),
+        publishedBy: text('publishedBy'),
+      }),
+    },
+  };
 }
 
 export async function listPages(): Promise<PageDocument[]> {
@@ -186,4 +200,37 @@ export async function duplicatePage(source: PageDocument, input: PageDuplicate):
       ...(page.content ? { content: { draft: page.content.draft, published: null } } : {}),
     }),
   );
+}
+
+/** The page's content, or a 409 when its template doesn't hold blocks. */
+function contentOf(doc: PageDocument): PageContent {
+  const { content } = toPage(doc);
+  if (!content) throw failure(409, "This page is drawn by its own code, so it has no blocks to edit");
+  return content;
+}
+
+/** Saves a content page's draft (decision 0093). The body must already have passed `pageDraftSaveSchema`. */
+export async function saveContentDraft(doc: PageDocument, draft: ContentDocument, userId: string): Promise<PageDocument> {
+  const content = contentOf(doc);
+  doc.set('content', { ...content, draft, draftSavedAt: new Date().toISOString(), draftSavedBy: userId });
+  return doc.save();
+}
+
+/**
+ * Publishes a content page (decision 0093): its draft becomes the version visitors see, and the page goes live if it
+ * wasn't. Needs pages.publish.
+ */
+export async function publishContent(doc: PageDocument, userId: string): Promise<PageDocument> {
+  const content = contentOf(doc);
+  doc.set('content', { ...content, published: content.draft, publishedAt: new Date().toISOString(), publishedBy: userId });
+  doc.set('status', 'published');
+  return doc.save();
+}
+
+/** Throws away a content page's draft changes: the draft goes back to the published version (or empty). */
+export async function discardContentDraft(doc: PageDocument, userId: string): Promise<PageDocument> {
+  const content = contentOf(doc);
+  const draft = content.published ?? emptyContentDocument(createContentId);
+  doc.set('content', { ...content, draft, draftSavedAt: new Date().toISOString(), draftSavedBy: userId });
+  return doc.save();
 }

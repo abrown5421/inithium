@@ -6,6 +6,8 @@ export type ContentLinks = {
   pagePath: (pageId: string) => string | undefined;
   /** Goes to a path on the site, through the app's router. */
   onNavigate: (path: string) => void;
+  /** A preview (the CMS editor): links and buttons show as usual but go nowhere when clicked. */
+  preview?: boolean;
 };
 
 const ContentLinksContext = createContext<ContentLinks>({ pagePath: () => undefined, onNavigate: () => undefined });
@@ -29,8 +31,12 @@ export type ResolvedLink = {
 
 /** Resolves content links against the site's pages. */
 export function useContentLinks(): (link: ContentLink) => ResolvedLink {
-  const { pagePath, onNavigate } = useContext(ContentLinksContext);
+  const { pagePath, onNavigate, preview } = useContext(ContentLinksContext);
   return (link) => {
+    if (preview) {
+      const href = link.type === 'page' ? pagePath(link.pageId) : link.href;
+      return { href, newTab: link.type === 'url' && Boolean(link.newTab), follow: () => undefined, onClick: (event) => event.preventDefault() };
+    }
     if (link.type === 'page') {
       const href = pagePath(link.pageId);
       return {

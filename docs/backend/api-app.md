@@ -43,7 +43,7 @@ Every API route is under `/api`, on one router:
 | `/api/settings` | `settingsRouter` from `@inithium/api-settings`. See [Site settings](site-settings.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 
-The router parses JSON bodies (`express.json()`) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).
+The router parses JSON bodies (`express.json()`, up to 1 MB, since content drafts are saved whole) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).
 
 ### Adding routes
 

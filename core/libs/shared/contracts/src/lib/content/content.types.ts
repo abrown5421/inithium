@@ -12,7 +12,13 @@ import type {
   richTextBlockSchema,
   spacerBlockSchema,
 } from './content-blocks.schema';
-import type { contentColumnSchema, contentDocumentSchema, contentSectionSchema, pageContentSchema } from './content.schema';
+import type {
+  contentColumnSchema,
+  contentDocumentSchema,
+  contentSectionSchema,
+  pageContentSchema,
+  pageDraftSaveSchema,
+} from './content.schema';
 
 export type ContentAlign = z.infer<typeof contentAlignSchema>;
 export type ContentVisibility = z.infer<typeof contentVisibilitySchema>;
@@ -30,3 +36,4 @@ export type ContentColumn = z.infer<typeof contentColumnSchema>;
 export type ContentSection = z.infer<typeof contentSectionSchema>;
 export type ContentDocument = z.infer<typeof contentDocumentSchema>;
 export type PageContent = z.infer<typeof pageContentSchema>;
+export type PageDraftSave = z.infer<typeof pageDraftSaveSchema>;

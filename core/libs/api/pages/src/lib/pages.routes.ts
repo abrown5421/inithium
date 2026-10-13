@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { pageCreateSchema, pageDuplicateSchema, pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
+import { pageCreateSchema, pageDraftSaveSchema, pageDuplicateSchema, pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
 import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requirePermission } from '@inithium/api-auth';
 import { getSiteSettings, toSiteSettings } from '@inithium/api-settings';
@@ -7,10 +7,13 @@ import type { PageDocument } from './pages.model';
 import {
   createPage,
   deletePage,
+  discardContentDraft,
   duplicatePage,
   findPageById,
   listPages,
   listPublishedPages,
+  publishContent,
+  saveContentDraft,
   toPage,
   toPublicPage,
   updatePage,
@@ -71,6 +74,32 @@ pagesRouter.patch('/:id', ...requirePermission('pages.edit'), async (req, res) =
   if (!page) return void notFound(res);
   const updated = await updatePage(page, parsed.data, { canPublish: hasPermission(getAuth(res).role, 'pages.publish') });
   res.send(toPage(updated));
+});
+
+/** Saves a content page's draft (decision 0093); the CMS editor autosaves through it. */
+pagesRouter.put('/:id/content', ...requirePermission('pages.edit'), async (req, res) => {
+  const parsed = pageDraftSaveSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Some blocks have problems', issues: parsed.error.issues });
+    return;
+  }
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  res.send(toPage(await saveContentDraft(page, parsed.data.draft, getAuth(res).sub)));
+});
+
+/** Publishes a content page's draft, and the page itself if it wasn't live. */
+pagesRouter.post('/:id/content/publish', ...requirePermission('pages.publish'), async (req, res) => {
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  res.send(toPage(await publishContent(page, getAuth(res).sub)));
+});
+
+/** Throws away a content page's unpublished changes. */
+pagesRouter.post('/:id/content/discard', ...requirePermission('pages.edit'), async (req, res) => {
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  res.send(toPage(await discardContentDraft(page, getAuth(res).sub)));
 });
 
 pagesRouter.delete('/:id', ...requirePermission('pages.delete'), async (req, res) => {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
+import { matchPath, Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
 import { userDisplayName } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
@@ -33,15 +33,21 @@ export function CmsShell({ screens }: CmsShellProps) {
     () => screens.filter((screen) => !screen.permission || (user && hasPermission(user.role, screen.permission))),
     [screens, user],
   );
-  const items: SidebarItem[] = allowed.map((screen) => ({
-    label: screen.label,
-    icon: screen.icon,
-    href: toHref(screen.path),
-    exact: screen.path === '/',
-  }));
+  const items: SidebarItem[] = allowed
+    .filter((screen) => screen.inSidebar !== false)
+    .map((screen) => ({
+      label: screen.label,
+      icon: screen.icon,
+      href: toHref(screen.path),
+      exact: screen.path === '/',
+    }));
+
+  // Full-screen screens (e.g. the content editor) fill the space under the top bar.
+  const fill = allowed.some((screen) => screen.fill && matchPath(screen.path, location.pathname));
 
   return (
     <SidebarLayout
+      fill={fill}
       title={site?.settings.siteTitle ?? 'CMS'}
       logo={site ? (site.settings.logo ?? defaultLogo) : undefined}
       homeHref={toHref('/')}

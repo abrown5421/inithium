@@ -21,18 +21,19 @@ apps/cms   App: the routes and the list of screens
       /                   DashboardPage        @inithium/cms-shell
       /pages              PagesScreen          @inithium/cms-pages  (pages.edit)
       /settings           SettingsScreen       @inithium/cms-settings  (settings.edit)
+      /pages/:id/content  ContentEditorScreen  @inithium/cms-content-editor  (pages.edit; no sidebar entry, fills the frame)
   CmsTheme                the client's theme   @inithium/cms-shell
   CmsAlerts               the AlertStack       @inithium/cms-shell
 ```
 
 - **Sign-in** (`LoginPage`): the same dark backdrop, card, red alerts and field errors as `web`'s Login ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). Accounts without `cms.access` are signed back out.
 - **`CmsAccessGuard`** sends signed-out visitors to `/cms/login`, then back where they were going. An account with a temporary password sees the [password change screen](../backend/authentication.md#temporary-passwords) first.
-- **`CmsShell`** draws the [SidebarLayout](../ui-library/layouts/sidebar-layout.md): the site's title and the user's account menu across the top, a sidebar entry per screen down the left. It routes each screen, hiding those the user lacks the permission for.
+- **`CmsShell`** draws the [SidebarLayout](../ui-library/layouts/sidebar-layout.md): the site's title and the user's account menu across the top, a sidebar entry per screen down the left. It routes each screen, hiding those the user lacks the permission for. A screen marked `fill` (the content editor) gets the space under the top bar with no sidebar; the sections are then in the top bar's menu.
 - **Dashboard** (`/cms`) is empty for now apart from a welcome. It will later show different things to different roles.
 
 ## Adding a screen
 
-A screen is `{ path, label, icon, element, permission? }` (`CmsScreen` from `@inithium/cms-shell`). Build it in a CMS feature lib, then add it to the list in `apps/cms/src/app/app.component.tsx`:
+A screen is `{ path, label, icon, element, permission?, inSidebar?, fill? }` (`CmsScreen` from `@inithium/cms-shell`). `inSidebar: false` routes it without a sidebar entry (for screens reached from another, like an editor), and `fill` gives it the whole space under the top bar. Build it in a CMS feature lib, then add it to the list in `apps/cms/src/app/app.component.tsx`:
 
 ```tsx
 const screens: CmsScreen[] = [
@@ -51,14 +52,15 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
 - search by title or path, and sort by title, path or status;
 - a "Site page" badge on protected pages, and each page's path, layout and status;
 - **View on the site** for published pages without parameters. It opens the path on the CMS's origin, which is the site in production; under `nx serve cms` it lands on the CMS dev server.
-- **Edit** opens the page editor.
+- **Edit content** (content pages) opens the full-screen [content editor](content-pages.md#editing) at `/pages/:id/content`, outside the sidebar frame.
+- **Settings** opens the page editor.
 - **New page** (with `pages.create`) opens a dialog with:
   - the template (the reusable ones; today "Content page", with its description);
   - a title;
   - an address, suggested from the title until you edit it;
   - a layout, from the template's.
 
-  The page is created unpublished and out of menus, and its editor opens straight away ([Creating pages](../backend/pages.md#creating-pages)).
+  The page is created unpublished and out of menus, and opens straight away: content pages in the content editor, others in the page editor ([Creating pages](../backend/pages.md#creating-pages)).
 - **Duplicate** (with `pages.create`, on pages made from a reusable template) opens the same dialog with "(copy)" titles and addresses.
 - **Delete** (with `pages.delete`, on pages that aren't protected) asks first, since it can't be undone.
 

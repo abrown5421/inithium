@@ -70,6 +70,7 @@ The auth endpoints are ready to use:
 | `useRegisterMutation()` | Creates a `user` account and signs it in, putting the user straight into the current-user cache |
 | `useLogoutMutation()` | Signs out, and clears every cached response |
 | `useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()` | Page records for the CMS ([Pages](pages.md)); a saved page replaces its row in the list |
+| `useGetPageQuery(id)`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()` | One page, and a content page's draft: save, publish, discard. Each puts the saved page into the cached page and its row in the list |
 | `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()` | The reusable templates, and creating or duplicating a page; both refresh the list |
 | `useGetSettingsQuery()`, `useUpdateSettingsMutation()` | Site settings for the CMS ([Site settings](site-settings.md)); a save also refreshes the site bundle |
 | `useGetProfileQuery(id)`, `useUpdateMyProfileMutation()` | A profile, and editing your own ([Profiles](profiles.md)); a save updates that profile's cache entry and refetches the current user |

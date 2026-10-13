@@ -28,11 +28,12 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `FullWidthLayout`, `ProfileLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
-| `@inithium/shared-content` | `libs/shared/content` | `scope:shared`, `type:feature`, `origin:core` | `ContentRenderer`, `ContentSectionView`, `ContentBlockView`, `RichText`, `ContentLinksProvider`, `useContentLinks()` |
+| `@inithium/shared-content` | `libs/shared/content` | `scope:shared`, `type:feature`, `origin:core` | `ContentRenderer`, `ContentSectionView`, `ContentBlockView`, `RichText`, `ContentLinksProvider`, `useContentLinks()`, `ContentDecoratorsProvider`, `useContentDecorators()` |
+| `@inithium/cms-content-editor` | `libs/cms/content-editor` | `scope:cms`, `type:feature`, `origin:core` | `ContentEditorScreen`, `ContentEditor`, `PreviewFrame`, `RichTextEditor`, `RichTextToolbar`, the document operations and hooks |
 | `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen`, `PasswordChangeForm` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage`, the profile slot types, `ProfileSlotsProvider`, `profileCard` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useGetPageQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
 | `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
@@ -61,7 +62,7 @@ Authentication for the API: the `/api/auth` routes, the `requireAuth` / `require
 
 ### `@inithium/api-pages`
 
-The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)): `PageModel`, `toPage()` / `toPublicPage()`, `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` (the edit rules) and `deletePage()`; `reusableTemplates` / `listReusableTemplates()`; `pagesRouter` (`/api/pages`) and `siteRouter` (`/api/site`); and `seedPages()` / `seedCorePages()` / `corePageSeeds`. See [Pages](../backend/pages.md).
+The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)): `PageModel`, `toPage()` / `toPublicPage()`, `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` (the edit rules), `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`; `reusableTemplates` / `listReusableTemplates()`; `pagesRouter` (`/api/pages`) and `siteRouter` (`/api/site`); and `seedPages()` / `seedCorePages()` / `corePageSeeds`. See [Pages](../backend/pages.md).
 
 ### `@inithium/api-profiles`
 
@@ -82,6 +83,10 @@ The four layers of the UI library. See the [UI library](../ui-library/index.md) 
 ### `@inithium/shared-content`
 
 Draws content pages ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)): `ContentRenderer` (a content document's sections, columns and blocks), with `RichText` for rich text documents. Links resolve through the `links` prop (`pagePath`, `onNavigate`). Used by `web`'s `content` template and, later, the CMS editor's preview. See [Content pages](../architecture/content-pages.md).
+
+### `@inithium/cms-content-editor`
+
+The CMS's full-screen content page editor ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)): `ContentEditorScreen` (the `/pages/:id/content` route), `ContentEditor`, the iframe `PreviewFrame`, the TipTap `RichTextEditor` and `RichTextToolbar` with `richTextToTiptap()` / `tiptapToRichText()`, the structure and properties panels, the pure document operations (`content-document.service.ts`) and the `useContentHistory()` / `useAutosave()` hooks. See [Content pages](../architecture/content-pages.md#editing).
 
 ### `@inithium/shared-auth-ui`
 

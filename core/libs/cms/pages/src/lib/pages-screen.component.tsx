@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { pathHasParams, type Page } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetPagesQuery, useGetPageTemplatesQuery } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
@@ -33,6 +34,7 @@ export function PagesScreen() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('title');
   const [editing, setEditing] = useState<Page | null>(null);
+  const navigate = useNavigate();
   const canPublish = user ? hasPermission(user.role, 'pages.publish') : false;
   const canCreate = user ? hasPermission(user.role, 'pages.create') : false;
   const canDelete = user ? hasPermission(user.role, 'pages.delete') : false;
@@ -140,8 +142,19 @@ export function PagesScreen() {
                   />
                 </Tooltip>
               )}
-              <Tooltip content="Edit">
-                <Button variant="ghost" leadingIcon="pencil" aria-label={`Edit ${page.title}`} padding={{ x: 6 }} onClick={() => setEditing(page)} />
+              {page.content && (
+                <Tooltip content="Edit content">
+                  <Button
+                    variant="ghost"
+                    leadingIcon="layout-template"
+                    aria-label={`Edit the content of ${page.title}`}
+                    padding={{ x: 6 }}
+                    onClick={() => navigate(`/pages/${page.id}/content`)}
+                  />
+                </Tooltip>
+              )}
+              <Tooltip content="Settings">
+                <Button variant="ghost" leadingIcon="settings-2" aria-label={`Edit ${page.title}`} padding={{ x: 6 }} onClick={() => setEditing(page)} />
               </Tooltip>
               {canCreate && reusable.has(page.template) && (
                 <Tooltip content="Duplicate">
@@ -172,8 +185,9 @@ export function PagesScreen() {
         onClose={closeNewPage}
         onCreated={(page) => {
           closeNewPage();
-          // Straight on to its settings; the block editor arrives next (decision 0093).
-          setEditing(page);
+          // Straight on to building it: content pages open in the block editor, others in their settings (decision 0093).
+          if (page.content) navigate(`/pages/${page.id}/content`);
+          else setEditing(page);
         }}
       />
       <DeletePageDialog page={deleting} onClose={() => setDeleting(null)} />

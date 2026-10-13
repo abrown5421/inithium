@@ -4,7 +4,7 @@ description: Pages clients build in the CMS from sections, columns and blocks, s
 scope: core
 tags: [pages, content, cms, blocks]
 order: 7
-decisions: ["0078", "0091", "0092", "0093"]
+decisions: ["0078", "0091", "0092", "0093", "0094"]
 ---
 
 # Content pages
@@ -92,7 +92,7 @@ Stored content carries a `schemaVersion`. `readContentDocument()` upgrades older
 
 `ContentRenderer` (`@inithium/shared-content`) draws a content document with the UI library's components. `web`'s `content` template uses it, and the CMS editor's preview will too, so the preview always matches the site.
 
-It takes the content and `links` (`{ pagePath(pageId), onNavigate(path) }`), which resolves page links against the site's pages and follows them through the app's router:
+It takes the content and `links` (`{ pagePath(pageId), onNavigate(path), preview? }`), which resolves page links against the site's pages and follows them through the app's router; with `preview`, links and buttons go nowhere. The CMS editor also passes `decorators` (`{ section?, block? }`), which wrap or replace each section and block as it's drawn:
 
 ```tsx
 import { ContentRenderer } from '@inithium/shared-content';
@@ -110,16 +110,37 @@ A banner, a row of three features and a two-thirds/one-third section with rich t
 architecture/content-pages/sample
 ```
 
-## Editing (planned)
+## Editing
 
-- **The editor:** a full-screen CMS editor with three parts:
-  - a structure tree and "add block" panel on the left;
-  - the live preview in the middle, with desktop, tablet and phone widths;
-  - a properties panel on the right, generated from the selected block's schema.
-- **Text** is edited in place with TipTap.
-- **Drafts** autosave; undo and redo work within a session.
-- **New page** asks for a title, a path, the template (Content page) and a layout. Pages can be duplicated.
-- **Permissions:** `pages.create` for owner, admin and editor; `pages.publish` stays with owner and admin, so editors build drafts that someone else publishes.
+Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, which fills the space under the CMS's top bar, with its own toolbar first ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide. Its toolbar (`surface-200`) and side panels (`surface-300`) cast shadows over a `surface-950` canvas, the same backdrop pages animate over on the site.
+
+| Part | Does |
+| --- | --- |
+| Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Preview width** (desktop, tablet 768px, phone 390px); **Undo** and **Redo**; **Settings** (the page editor); **Discard changes**; **Publish** |
+| Structure (left) | The sections, their columns (a row each, with how many blocks they hold, in multi-column sections) and blocks as a tree. Click to select; move up or down, duplicate or delete sections and blocks. Problems are marked with a red icon. Below it, **Add a block** goes into the selected column, or after the selected block, or into a one-column section (a section of several columns asks you to pick a column first), and **Add a section** takes a layout. |
+| Preview (middle) | The draft drawn by the site's renderer, in an iframe at the chosen width, so phone and tablet widths really stack the columns. Click a block, column or section to select it; empty columns show a dashed box to click; the selected rich text block becomes editable in place, with the formatting toolbar above the preview. Links go nowhere in the preview. |
+| Properties (right) | The selection's settings. A section: layout, background colour or pattern, text colour, spacing, width limit, column alignment and stacking, entrance animation, anchor. A block: its own settings (below), then hiding on phones or wider screens, and which column it's in. |
+
+**Block settings:**
+- **Heading:** text, level, alignment and colour.
+- **Text:** alignment and colour; the words themselves are edited in the preview.
+- **Buttons:** up to four buttons, each with a label, a link (a page, or an address with "open in a new tab"), a style and an icon, plus the row's alignment.
+- **Feature:** icon, title, text, alignment and icon colour.
+- **Banner:** the pattern (its own editor), height, heading, text, alignment and text colour.
+- **Divider:** thickness, line and colour.
+- **Spacer:** height.
+
+**Rich text toolbar:**
+- bold, italic, underline;
+- link (to a page or an address), paragraph, headings 2–4;
+- bulleted list, numbered list, quote.
+
+**Saving.** The draft autosaves 1.2 seconds after the last change. A draft with problems (e.g. an empty heading) isn't saved: the field shows its problem, the tree marks the block, and the status says to fix it. Leaving the page with unsaved changes asks first.
+
+**Publishing.**
+- **Publish** (`pages.publish`) saves anything pending, copies the draft to the published version and makes the page live if it wasn't. Editors without the permission see it disabled; their draft waits for someone who has it.
+- **Discard changes** returns the draft to what's published.
+- **Undo and redo** (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y) cover the session. Quick changes to one field are one step. While typing in a text block, TipTap's own undo applies.
 
 ## Build status
 
@@ -129,6 +150,6 @@ architecture/content-pages/sample
    - `ContentRenderer` in `@inithium/shared-content`;
    - the `content` template in `@inithium/web-pages`.
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
-3. **Editor v1.** Not built.
+3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). Drag-and-drop, revision history and reusable sections come later.
 4. **The privacy policy,** seeded at `/privacy-policy` in the secondary footer: protected, with placeholder blocks. Not built.
 5. **Assets and the Image block.** Not built.
