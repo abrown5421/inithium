@@ -40,7 +40,7 @@ function StorageMeter() {
 
 /**
  * The CMS's Media screen (decision 0098): every uploaded file with search and a kind filter, how much storage is
- * used, uploading (with the crop or fit step for images), and a details drawer to rename, describe, check where a file
+ * used, uploading (with the crop or fit step for images), and a details modal to rename, describe, check where a file
  * is used and delete it.
  */
 export function MediaScreen() {

@@ -133,7 +133,7 @@ The Pages screen: `PagesScreen` (search, sort and rows) and `PageEditor` (the ta
 
 ### `@inithium/cms-media`
 
-The CMS's Media screen and the asset picker ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `MediaScreen` (storage meter, search, kind filter, grid, details drawer), `AssetPicker` (choose from the library or upload in place, in a Modal) and `AssetField` (a form field holding one asset id, used by the logo and the Image block). See [The CMS](../architecture/cms.md#media).
+The CMS's Media screen and the asset picker ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `MediaScreen` (storage meter, search, kind filter, grid, details modal), `AssetPicker` (choose from the library or upload in place, in a Modal) and `AssetField` (a form field holding one asset id, used by the logo and the Image block). See [The CMS](../architecture/cms.md#media).
 
 ### `@inithium/cms-settings`
 

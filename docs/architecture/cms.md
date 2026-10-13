@@ -89,9 +89,9 @@ The editor is a Modal over a draft, with five tabs:
 
 - **Storage meter:** in `database` mode, how much of the quota is used (red from 90%).
 - **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video).
-- **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details drawer (in the picker, picks it).
-- **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details drawer.
-- **Details drawer:** a preview (audio and video play), the name and default description to edit, its type, size, dimensions, date and storage, Copy address and Open, **where it's used**, and **Delete file** (needs `assets.delete`; disabled while it's the site logo; other uses are listed in the confirmation).
+- **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it).
+- **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
+- **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo, with a note saying to choose another logo first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
 
 Other screens use the library through two components:
 
