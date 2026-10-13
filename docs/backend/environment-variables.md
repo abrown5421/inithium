@@ -4,7 +4,7 @@ description: Every environment variable the api reads, its default and how it's 
 scope: core
 tags: [environment, config, mongodb, auth]
 order: 2
-decisions: ["0009", "0010", "0005", "0020", "0023", "0098"]
+decisions: ["0009", "0010", "0005", "0020", "0023", "0098", "0099"]
 ---
 
 # Environment variables
@@ -22,8 +22,16 @@ Only `@inithium/api-config` reads `process.env`. Everything else calls `loadEnv(
 | `JWT_REFRESH_TTL_DAYS` | No | `30` | Refresh token and cookie lifetime. |
 | `SEED_DEV_EMAIL` | Yes | | Email of the dev account created on startup when no dev user exists. Trimmed and lowercased. |
 | `SEED_DEV_PASSWORD` | Yes | | That account's temporary password. Use a different one for every client. |
-| `STORAGE_MODE` | No | `database` | Where uploaded files go ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `database` (MongoDB, staff uploads only), `cloud-staff` or `cloud-all` (R2; the api refuses to start in these until the R2 driver is built). |
+| `STORAGE_MODE` | No | `database` | Where uploaded files go ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `database` (MongoDB, staff uploads only), `cloud-staff` (R2, staff uploads only) or `cloud-all` (R2, members' avatars and banners too). The cloud modes need the `R2_*` settings below. |
 | `STORAGE_DATABASE_QUOTA_MB` | No | `250` | In `database` mode, the most space uploaded files may take, in MB. Uploads past it are refused. |
+| `R2_ACCOUNT_ID` | In cloud modes | | The Cloudflare account id, shown on the R2 overview page. Builds the endpoint; not needed with `R2_ENDPOINT`. See [Cloudflare R2](assets.md#cloudflare-r2) ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). |
+| `R2_ACCESS_KEY_ID` | In cloud modes | | An R2 API token's access key id (Object Read & Write on the bucket). |
+| `R2_SECRET_ACCESS_KEY` | In cloud modes | | That token's secret access key. Unique per client. |
+| `R2_BUCKET` | In cloud modes | | The bucket's name, one per site. |
+| `R2_ENDPOINT` | No | `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com` | Another S3 endpoint, e.g. `https://<account>.eu.r2.cloudflarestorage.com` for an EU bucket. |
+| `R2_PUBLIC_URL` | No | | The bucket's public address (a custom domain). Files then redirect there instead of streaming through the api; add the safety headers at Cloudflare first ([Cloudflare R2](assets.md#cloudflare-r2)). |
+
+The `R2_*` settings are optional in `database` mode (left empty, they count as unset), but keep them while R2 still holds files from a cloud mode, so those stay readable.
 
 `NODE_VERSION=22` is also set on Render, but only to select the Node runtime; the app doesn't read it.
 

@@ -2,8 +2,11 @@ import { randomBytes } from 'node:crypto';
 import { loadEnv } from '@inithium/api-config';
 import { PageModel } from '@inithium/api-pages';
 import { getSiteSettings } from '@inithium/api-settings';
+import { clearProfileImage, findUsersWithProfileImage } from '@inithium/api-users';
 import {
+  assetFileTypes,
   assetUrl,
+  publicProfileName,
   readContentDocument,
   type Asset,
   type AssetKind,
@@ -51,6 +54,12 @@ export async function storageInfo(): Promise<StorageInfo> {
   };
 }
 
+/** How a file of a type is sent: inline for types browsers show safely, otherwise as a download with its name. */
+export function contentDisposition(contentType: string, filename: string): string {
+  const inline = assetFileTypes[contentType]?.inline ?? false;
+  return `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(filename)}`;
+}
+
 /** A new random asset id: 22 URL-safe characters, so addresses can't be guessed. */
 const newId = () => randomBytes(16).toString('base64url');
 
@@ -75,7 +84,7 @@ export async function createAsset(
   }
 
   const id = newId();
-  await driver.put(id, processed.data, processed.contentType);
+  await driver.put(id, processed.data, { contentType: processed.contentType, disposition: contentDisposition(processed.contentType, processed.filename) });
   try {
     return await AssetModel.create({
       _id: id,
@@ -98,11 +107,19 @@ export async function createAsset(
   }
 }
 
-export type AssetFilter = { purpose?: AssetPurpose; kind?: AssetKind; search?: string };
+export type AssetFilter = { group?: 'staff' | 'members'; purpose?: AssetPurpose; kind?: AssetKind; search?: string };
 
-/** Assets, newest first, optionally filtered by purpose, kind or a search of their names and alt text. */
+/** The purposes of members' own uploads, kept apart from staff files on the Media screen. */
+export const MEMBER_PURPOSES: AssetPurpose[] = ['avatar', 'banner'];
+
+/**
+ * Assets, newest first: staff files by default, or members' avatars and banners (`group: 'members'`), optionally
+ * filtered by purpose, kind or a search of their names and alt text.
+ */
 export async function listAssets(filter: AssetFilter): Promise<AssetDocument[]> {
-  const query: Record<string, unknown> = {};
+  const query: Record<string, unknown> = {
+    purpose: filter.group === 'members' ? { $in: MEMBER_PURPOSES } : { $nin: MEMBER_PURPOSES },
+  };
   if (filter.purpose) query['purpose'] = filter.purpose;
   if (filter.kind) query['kind'] = filter.kind;
   if (filter.search) {
@@ -119,6 +136,11 @@ export async function findAsset(id: string): Promise<AssetDocument | null> {
 /** An asset's bytes, from whichever driver holds them. */
 export async function readAssetBytes(doc: AssetDocument): Promise<Buffer | null> {
   return driverFor(doc.driver).get(doc.key);
+}
+
+/** The asset's direct address on its driver's public host, if it has one (R2 with R2_PUBLIC_URL). */
+export function assetPublicUrl(doc: AssetDocument): string | undefined {
+  return driverFor(doc.driver).publicUrl?.(doc.key);
 }
 
 /** Renames an asset or changes its default alt text; an empty alt removes it. */
@@ -156,6 +178,12 @@ export async function assetUsage(id: string): Promise<AssetUsage> {
     if (published.has(id)) places.push({ label: `Page: ${page.title}`, blocking: false });
     else if (draft.has(id)) places.push({ label: `Page: ${page.title} (unpublished changes)`, blocking: false });
   }
+
+  // Members' profiles: deleting one (moderation) puts their generated picture back.
+  for (const user of await findUsersWithProfileImage(id)) {
+    const what = user.profile?.avatarAssetId === id ? 'avatar' : 'banner';
+    places.push({ label: `Profile: ${publicProfileName(user.profile ?? {})} (${what})`, blocking: false });
+  }
   return { places };
 }
 
@@ -166,4 +194,26 @@ export async function deleteAsset(doc: AssetDocument): Promise<void> {
   if (blocking) throw failure(409, `This file is in use (${blocking.label}). Replace it there first.`);
   await driverFor(doc.driver).remove(doc.key);
   await doc.deleteOne();
+  await clearProfileImage(doc._id);
+}
+
+/**
+ * Checks a member may show an upload on their profile (decision 0098): it exists, it's theirs, and it was uploaded
+ * as that kind of picture. Throws a 400 naming the field otherwise.
+ */
+export async function checkProfileImage(userId: string, assetId: string, purpose: 'avatar' | 'banner'): Promise<void> {
+  const field = purpose === 'avatar' ? 'avatarAssetId' : 'bannerAssetId';
+  const asset = await AssetModel.findById(assetId);
+  if (!asset || asset.uploadedBy !== userId || asset.purpose !== purpose) {
+    throw failure(400, `That picture can’t be used as your ${purpose}`, field);
+  }
+}
+
+/** Deletes a member's replaced or removed profile picture. Its own deletion never blocks, so this doesn't either. */
+export async function releaseProfileImage(assetId: string): Promise<void> {
+  const asset = await AssetModel.findById(assetId);
+  if (!asset || !MEMBER_PURPOSES.includes(asset.purpose)) return;
+  if ((await findUsersWithProfileImage(assetId)).length > 0) return;
+  await driverFor(asset.driver).remove(asset.key);
+  await asset.deleteOne();
 }

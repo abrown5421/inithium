@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { assetUrl } from '../assets/assets.schema';
 import { avatarRecipeSchema } from '../ui/avatar.schema';
 import { polyPatternSchema } from '../ui/poly-pattern.schema';
 
@@ -22,6 +23,10 @@ export const userProfileSchema = z
     bio: z.string().optional(),
     avatar: avatarRecipeSchema,
     banner: polyPatternSchema,
+    /** An uploaded picture shown instead of the generated avatar, which stays as its fallback (decision 0098). */
+    avatarAssetId: z.string().optional(),
+    /** An uploaded picture shown instead of the generated banner, which stays as its fallback. */
+    bannerAssetId: z.string().optional(),
   })
   .strict();
 
@@ -36,6 +41,11 @@ export const userSchema = z.object({
 });
 
 type Named = { firstName?: string; lastName?: string };
+
+/** An uploaded profile picture as components take it (`{ src }`), or undefined without one (decision 0098). */
+export function profileImage(assetId: string | undefined): { src: string } | undefined {
+  return assetId ? { src: assetUrl(assetId) } : undefined;
+}
 
 /** A profile's first and last name, or undefined when it has none. */
 export function profileName(profile: Named): string | undefined {

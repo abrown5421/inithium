@@ -14,7 +14,13 @@ const KIND_LABELS: Record<AssetKind, string> = {
   audio: 'Audio',
   video: 'Video',
 };
-const KIND_OPTIONS = [{ value: 'all', label: 'All files' }, ...assetKinds.map((kind) => ({ value: kind, label: KIND_LABELS[kind] }))];
+// Members' avatars and banners are kept apart from the site's own files, under their own option (decision 0098).
+const SHOW_OPTIONS = [
+  { value: 'all', label: 'All files' },
+  ...assetKinds.map((kind) => ({ value: kind, label: KIND_LABELS[kind] })),
+  { value: 'members', label: 'Member uploads' },
+];
+type Show = AssetKind | 'all' | 'members';
 
 /** How much of the database's storage quota is used, while assets are stored there. */
 function StorageMeter() {
@@ -46,8 +52,11 @@ function StorageMeter() {
 export function MediaScreen() {
   const { data: user } = useGetCurrentUserQuery();
   const [search, setSearch] = useState('');
-  const [kind, setKind] = useState<AssetKind | 'all'>('all');
-  const { data: assets, isLoading, isError, refetch } = useGetAssetsQuery({ q: search.trim() || undefined, kind: kind === 'all' ? undefined : kind });
+  const [show, setShow] = useState<Show>('all');
+  const { data: assets, isLoading, isError, refetch } = useGetAssetsQuery({
+    q: search.trim() || undefined,
+    ...(show === 'members' ? { group: 'members' as const } : show === 'all' ? {} : { kind: show }),
+  });
   const [uploading, setUploading] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const canDelete = user ? hasPermission(user.role, 'assets.delete') : false;
@@ -74,7 +83,7 @@ export function MediaScreen() {
 
       <Container grid={{ columns: { base: 1, md: 2 }, gap: 12 }}>
         <Input label="Search files" leadingIcon="search" value={search} onValueChange={setSearch} />
-        <Select label="Show" value={kind} onValueChange={(value) => setKind(value as AssetKind | 'all')} options={KIND_OPTIONS} />
+        <Select label="Show" value={show} onValueChange={(value) => setShow(value as Show)} options={SHOW_OPTIONS} />
       </Container>
 
       {isLoading ? (
@@ -90,7 +99,7 @@ export function MediaScreen() {
         </Container>
       ) : !assets?.length ? (
         <Text as="p" textColor={{ color: 'surface', intensity: 700 }}>
-          {search || kind !== 'all' ? 'No files match.' : 'No files yet. Upload one to get started.'}
+          {show === 'members' && !search ? 'No member uploads.' : search || show !== 'all' ? 'No files match.' : 'No files yet. Upload one to get started.'}
         </Text>
       ) : (
         <AssetGrid assets={assets} onSelect={(asset) => setOpenId(asset.id)} selectedId={openId ?? undefined} />

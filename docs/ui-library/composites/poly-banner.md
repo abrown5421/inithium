@@ -4,7 +4,7 @@ description: A low-poly triangle pattern banner drawn from a small, storable rec
 scope: core
 tags: [ui, composite, profiles]
 order: 13
-decisions: ["0065", "0069", "0070", "0074"]
+decisions: ["0065", "0069", "0070", "0074", "0099"]
 component:
   name: PolyBanner
   layer: composite
@@ -60,6 +60,8 @@ Type names such as `Size`, `Sides` and `Variants<T>` are defined on [Style props
 | [`value`, `defaultValue`, `onChange`](#value-defaultvalue-and-onchange) | `PolyPattern` | a random default | The recipe |
 | [`editable`](#editable) | `boolean` | `false` | Edit button and editor |
 | [`children`](#children) | `ReactNode` | none | Content over the pattern |
+| [`image`](#image) | `{ src: string }` | none | An uploaded picture shown instead |
+| [`onUpload`](#onupload) | `() => void` | none | Adds Upload a picture to the editor |
 | [`label`](#label) | `string` | none (decorative) | Describes the banner |
 | [`width`, `height`](#width-and-height) | `Variants<Size>` | `'full'`, `200` | Size |
 | [`minWidth`, `maxWidth`, `minHeight`, `maxHeight`](#width-and-height) | `Variants<Size>` | none | Size limits |
@@ -92,6 +94,22 @@ Changes stay in a draft until Save. Cancel, ✕, Escape or clicking outside thro
 #### `children`
 
 Anything drawn over the pattern, e.g. a name and an avatar, filling the banner's height. The edit button stays on top. **Type:** `ReactNode`.
+
+#### `image`
+
+An uploaded picture to show instead of the pattern ([0099](../../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)), covering the banner behind its `children`. The recipe stays: if the picture fails to load, the pattern is drawn instead. While a picture shows, the editor says so, and its Save becomes **Use this banner**, since saving switches back to the pattern; your `onChange` should then drop the picture. **Type:** `{ src: string }`. **Default:** none.
+
+```tsx
+<PolyBanner value={pattern} image={profileImage(profile.bannerAssetId)} />
+```
+
+#### `onUpload`
+
+Adds **Upload a picture** beside Shuffle in the editor. It closes the editor and calls this; the app does the uploading and passes the result as `image`. **Type:** `() => void`. **Default:** none.
+
+```tsx
+<PolyBanner editable value={pattern} onChange={save} image={image} onUpload={() => setUploading(true)} />
+```
 
 #### `label`
 
@@ -153,6 +171,14 @@ A profile-style banner with an avatar and a name over it.
 
 ```example
 ui-library/poly-banner/with-content
+```
+
+### Example: Uploaded picture
+
+A picture in place of the pattern. Edit it to go back to the pattern, or to upload it again.
+
+```example
+ui-library/poly-banner/uploaded-picture
 ```
 
 ## Accessibility

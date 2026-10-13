@@ -19,6 +19,9 @@ export const publicProfileSchema = z.object({
   bio: z.string().optional(),
   avatar: avatarRecipeSchema,
   banner: polyPatternSchema,
+  /** Uploaded pictures shown instead of the generated avatar and banner (decision 0098). */
+  avatarAssetId: z.string().optional(),
+  bannerAssetId: z.string().optional(),
   joinedAt: z.iso.datetime(),
   /** Only for the profile's owner. */
   email: z.email().optional(),
@@ -26,7 +29,8 @@ export const publicProfileSchema = z.object({
 
 /**
  * `PATCH /api/profiles/me`: the fields to change. Fields left out stay as they are; an empty last name or bio
- * removes it. The first name can be changed but not removed.
+ * removes it. The first name can be changed but not removed. `avatarAssetId` / `bannerAssetId` show one of the
+ * user's own uploads (decision 0098); `null` goes back to the generated one. Either way the old upload is deleted.
  */
 export const updateProfileRequestSchema = z
   .object({
@@ -39,6 +43,8 @@ export const updateProfileRequestSchema = z
     bio: z.string().trim().max(profileLimits.bio, { error: `Use ${profileLimits.bio} characters or fewer` }),
     avatar: avatarRecipeSchema,
     banner: polyPatternSchema,
+    avatarAssetId: z.string().min(1).nullable(),
+    bannerAssetId: z.string().min(1).nullable(),
   })
   .partial()
   .strict();

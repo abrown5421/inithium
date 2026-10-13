@@ -4,7 +4,7 @@ description: A profile's full-width frame like the CMS, with a banner, a raised 
 scope: core
 tags: [ui, layout, profiles]
 order: 4
-decisions: ["0074", "0075", "0081", "0090", "0091", "0092"]
+decisions: ["0074", "0075", "0081", "0090", "0091", "0092", "0099"]
 component:
   name: ProfileLayout
   layer: layout
@@ -39,6 +39,8 @@ import { ProfileLayout } from '@inithium/shared-ui-layouts';
 | [`banner`](#banner) | `PolyPattern` | required | The banner's recipe |
 | [`onAvatarChange`](#onavatarchange) | `(recipe) => void` | none | Makes the avatar editable |
 | [`onBannerChange`](#onbannerchange) | `(pattern) => void` | none | Makes the banner editable |
+| [`avatarImage`, `bannerImage`](#avatarimage-and-bannerimage) | `{ src: string }` | none | Uploaded pictures shown instead |
+| [`onAvatarUpload`, `onBannerUpload`](#onavatarupload-and-onbannerupload) | `() => void` | none | Adds Upload a picture to the editors |
 | [`subtitle`](#subtitle) | `ReactNode` | none | Under the name |
 | [`actions`](#actions) | `ReactNode` | none | Buttons under the name |
 | [`sidebar`](#sidebar) | `ReactNode` | none | The rest of the sidebar |
@@ -69,6 +71,22 @@ With it, the avatar shows its pencil button and editor; it receives the recipe w
 #### `onBannerChange`
 
 With it, the banner shows its edit button and editor; it receives the recipe when the editor is saved. **Type:** `(pattern: PolyPattern) => void`.
+
+#### `avatarImage` and `bannerImage`
+
+Uploaded pictures shown instead of the generated avatar and banner, which stay as their fallbacks: the Avatar's and PolyBanner's `image` ([0099](../../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). **Type:** `{ src: string }`. **Default:** none.
+
+```tsx
+<ProfileLayout name={name} avatar={avatar} banner={banner} avatarImage={profileImage(profile.avatarAssetId)} />
+```
+
+#### `onAvatarUpload` and `onBannerUpload`
+
+Add **Upload a picture** to the avatar's and the banner's editors (their `onUpload`). The Profile page passes them only to the owner, in the `cloud-all` storage mode. **Type:** `() => void`. **Default:** none.
+
+```tsx
+<ProfileLayout {...props} onAvatarChange={saveAvatar} onAvatarUpload={() => setUploading('avatar')} />
+```
 
 #### `subtitle`
 

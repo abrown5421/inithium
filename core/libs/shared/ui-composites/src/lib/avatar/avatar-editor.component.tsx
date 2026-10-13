@@ -31,6 +31,10 @@ export type AvatarEditorProps = {
   recipe: AvatarRecipe;
   name?: string;
   onSave: (recipe: AvatarRecipe) => void;
+  /** An uploaded picture is showing: saving switches back to the generated avatar, and the editor says so. */
+  hasImage?: boolean;
+  /** Adds an Upload a picture button, which closes the editor and calls this. */
+  onUpload?: () => void;
 };
 
 /**
@@ -38,7 +42,7 @@ export type AvatarEditorProps = {
  * random seeds), the styles as thumbnails, and background, flip, rotate and scale. Changes stay in a draft until
  * Save.
  */
-export function AvatarEditor({ open, onOpenChange, recipe, name, onSave }: AvatarEditorProps) {
+export function AvatarEditor({ open, onOpenChange, recipe, name, onSave, hasImage = false, onUpload }: AvatarEditorProps) {
   const [draft, setDraft] = useState(recipe);
   // The seeds seen while open, and where the preview is among them. The saved seed comes first.
   const [seeds, setSeeds] = useState([recipe.seed]);
@@ -98,6 +102,11 @@ export function AvatarEditor({ open, onOpenChange, recipe, name, onSave }: Avata
       maxWidth={640}
     >
       <Container flex={{ direction: 'column', gap: 20 }}>
+        {hasImage && (
+          <Text as="p" fontSize={14} padding={{ all: 12 }} radius={{ all: 8 }} bgColor={{ color: 'primary', intensity: 100 }} textColor={{ color: 'primary', intensity: 800 }}>
+            Your uploaded picture is showing. Saving here switches back to a generated avatar.
+          </Text>
+        )}
         <Container flex={{ align: 'center', justify: 'center', gap: 16 }}>
           <Button variant="ghost" leadingIcon="chevron-left" aria-label="Previous avatar" disabled={position === 0} onClick={() => step(-1)} padding={{ x: 6 }} />
           <div className="ui-avatar-preview">
@@ -182,11 +191,25 @@ export function AvatarEditor({ open, onOpenChange, recipe, name, onSave }: Avata
           formatValue={(value) => `${value}%`}
         />
 
-        <Container flex={{ justify: 'end', gap: 8 }}>
-          <Button variant="outlined" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={save}>Save</Button>
+        <Container flex={{ justify: onUpload ? 'between' : 'end', align: 'center', gap: 8, wrap: 'wrap' }}>
+          {onUpload && (
+            <Button
+              variant="ghost"
+              leadingIcon="upload"
+              onClick={() => {
+                onOpenChange(false);
+                onUpload();
+              }}
+            >
+              Upload a picture
+            </Button>
+          )}
+          <Container flex={{ gap: 8 }}>
+            <Button variant="outlined" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save}>{hasImage ? 'Use this avatar' : 'Save'}</Button>
+          </Container>
         </Container>
       </Container>
     </Modal>

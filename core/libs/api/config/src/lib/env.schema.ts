@@ -6,6 +6,9 @@ const missingUri =
 const generateSecret = `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`;
 const weakSecret = `JWT_ACCESS_SECRET must be at least 32 characters. Generate one with: ${generateSecret}`;
 
+// Optional settings left empty (e.g. `R2_PUBLIC_URL=`) count as unset.
+const optional = <T extends z.ZodType>(schema: T) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional());
+
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   HOST: z.string().min(1).default('localhost'),
@@ -43,4 +46,24 @@ export const envSchema = z.object({
     .default('database'),
   // The database driver's total cap for uploaded files, in MB; it shares the database with everything else.
   STORAGE_DATABASE_QUOTA_MB: z.coerce.number().int().positive().default(250),
+
+  // Cloudflare R2, for the cloud storage modes: the account, an API token's S3 keys and the bucket.
+  R2_ACCOUNT_ID: optional(z.string().trim().min(1)),
+  R2_ACCESS_KEY_ID: optional(z.string().trim().min(1)),
+  R2_SECRET_ACCESS_KEY: optional(z.string().trim().min(1)),
+  R2_BUCKET: optional(z.string().trim().min(1)),
+  // Overrides the endpoint built from R2_ACCOUNT_ID, e.g. for an EU-jurisdiction bucket or a local S3-compatible server.
+  R2_ENDPOINT: optional(z.url({ error: 'R2_ENDPOINT must be a URL, e.g. https://<account>.eu.r2.cloudflarestorage.com' })),
+  // The bucket's public address (r2.dev or a custom domain): files are then sent from there instead of through the api.
+  R2_PUBLIC_URL: optional(
+    z.url({ error: 'R2_PUBLIC_URL must be a URL, e.g. https://files.example.com' }).transform((url) => url.replace(/\/+$/, '')),
+  ),
+}).superRefine((env, ctx) => {
+  if (env.STORAGE_MODE === 'database') return;
+  // The cloud modes can't start without R2: name exactly which settings are missing.
+  const missing: string[] = ['R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET'].filter((key) => !env[key as keyof typeof env]);
+  if (!env.R2_ACCOUNT_ID && !env.R2_ENDPOINT) missing.unshift('R2_ACCOUNT_ID');
+  for (const key of missing) {
+    ctx.addIssue({ code: 'custom', path: [key], message: `${key} is required when STORAGE_MODE=${env.STORAGE_MODE}` });
+  }
 });

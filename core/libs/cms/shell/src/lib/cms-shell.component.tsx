@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { matchPath, Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
-import { logoImage, userDisplayName } from '@inithium/shared-contracts';
+import { logoImage, profileImage, userDisplayName } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Container, Text } from '@inithium/shared-ui-components';
@@ -54,7 +54,7 @@ export function CmsShell({ screens }: CmsShellProps) {
       items={items}
       currentPath={toHref(location.pathname)}
       onNavigate={(href) => navigate(toPath(href))}
-      user={user ? { name: userDisplayName(user), avatar: user.profile.avatar } : undefined}
+      user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId) } : undefined}
       onLogout={() => void logout()}
     >
       <Routes>

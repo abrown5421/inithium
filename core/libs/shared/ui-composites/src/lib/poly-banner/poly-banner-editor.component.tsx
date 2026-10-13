@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { polyPatternLimits, type PolyPattern, type PolyPatternColor } from '@inithium/shared-contracts';
-import { Button, Container, Slider, Switch } from '@inithium/shared-ui-components';
+import { Button, Container, Slider, Switch, Text } from '@inithium/shared-ui-components';
 import { AutoIncrementingList } from '../auto-incrementing-list/auto-incrementing-list.component';
 import { ColorPicker } from '../color-picker/color-picker.component';
 import { Modal } from '../modal/modal.component';
@@ -19,13 +19,17 @@ export type PolyBannerEditorProps = {
   width: number;
   height: number;
   onSave: (pattern: PolyPattern) => void;
+  /** An uploaded picture is showing: saving switches back to the pattern, and the editor says so. */
+  hasImage?: boolean;
+  /** Adds an Upload a picture button, which closes the editor and calls this. */
+  onUpload?: () => void;
 };
 
 /**
  * PolyBanner's editor (decision 0074): a Modal with a live preview, sliders for cell size and variance, and lists
  * of colour pickers for the two gradients. Changes stay in a draft until Save.
  */
-export function PolyBannerEditor({ open, onOpenChange, pattern, width, height, onSave }: PolyBannerEditorProps) {
+export function PolyBannerEditor({ open, onOpenChange, pattern, width, height, onSave, hasImage = false, onUpload }: PolyBannerEditorProps) {
   const [draft, setDraft] = useState(pattern);
   // Each opening starts again from the saved pattern.
   const [wasOpen, setWasOpen] = useState(open);
@@ -73,6 +77,11 @@ export function PolyBannerEditor({ open, onOpenChange, pattern, width, height, o
       maxWidth={640}
     >
       <Container flex={{ direction: 'column', gap: 20 }}>
+        {hasImage && (
+          <Text as="p" fontSize={14} padding={{ all: 12 }} radius={{ all: 8 }} bgColor={{ color: 'primary', intensity: 100 }} textColor={{ color: 'primary', intensity: 800 }}>
+            Your uploaded picture is showing. Saving here switches back to a generated banner.
+          </Text>
+        )}
         <div
           className="ui-poly-preview"
           style={{ aspectRatio: `${previewWidth} / ${previewHeight}`, maxWidth: `calc(200px * ${previewWidth / previewHeight})` }}
@@ -107,14 +116,28 @@ export function PolyBannerEditor({ open, onOpenChange, pattern, width, height, o
         />
         {draft.yColors && colorList('Y', draft.yColors, 'The gradient from top to bottom.', (yColors) => change({ yColors }))}
         <Container flex={{ justify: 'between', align: 'center', gap: 8, wrap: 'wrap' }}>
-          <Button variant="ghost" leadingIcon="shuffle" onClick={() => change({ seed: createPolySeed() })}>
-            Shuffle
-          </Button>
+          <Container flex={{ gap: 8, wrap: 'wrap' }}>
+            <Button variant="ghost" leadingIcon="shuffle" onClick={() => change({ seed: createPolySeed() })}>
+              Shuffle
+            </Button>
+            {onUpload && (
+              <Button
+                variant="ghost"
+                leadingIcon="upload"
+                onClick={() => {
+                  onOpenChange(false);
+                  onUpload();
+                }}
+              >
+                Upload a picture
+              </Button>
+            )}
+          </Container>
           <Container flex={{ gap: 8 }}>
             <Button variant="outlined" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={save}>Save</Button>
+            <Button onClick={save}>{hasImage ? 'Use this banner' : 'Save'}</Button>
           </Container>
         </Container>
       </Container>

@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { assetsRouter, storageDriver } from '@inithium/api-assets';
+import { assetsRouter, startStorage } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
@@ -61,8 +61,9 @@ function serveSpa(mountPath: string, dir: string) {
 
 async function start() {
   const env = loadEnv();
-  // Fails fast on a storage mode this build can't serve (decision 0098).
-  storageDriver();
+  // Picks where uploads go and, for R2, checks the bucket can be reached, failing fast if not (decision 0098).
+  const storage = await startStorage();
+  console.log(`[ storage ] ${storage.name}${storage.publicUrl ? ', files sent from the bucket’s public address' : ''}`);
   await connectDatabase(env.MONGODB_URI);
   await seedDevUser({ email: env.SEED_DEV_EMAIL, password: env.SEED_DEV_PASSWORD });
   await backfillUserProfiles();

@@ -14,8 +14,8 @@ import { baseApi } from './base.api';
 /** What to upload: the file (already cropped, for images), what it's for, and the font licence for fonts. */
 export type AssetUploadInput = { file: Blob; filename: string; purpose: AssetPurpose; alt?: string; fontLicence?: boolean };
 
-/** Filters for the asset list. */
-export type AssetListFilter = { purpose?: AssetPurpose; kind?: AssetKind; q?: string };
+/** Filters for the asset list. `group: 'members'` lists members' avatars and banners instead of staff files. */
+export type AssetListFilter = { group?: 'members'; purpose?: AssetPurpose; kind?: AssetKind; q?: string };
 
 const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage'] }).injectEndpoints({
   endpoints: (build) => ({

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
+import { rateLimit } from 'express-rate-limit';
 import multer from 'multer';
 import {
-  assetFileTypes,
   assetKindSchema,
   assetPurposeSchema,
   assetUpdateSchema,
@@ -14,11 +14,13 @@ import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requireAuth, requirePermission } from '@inithium/api-auth';
 import {
   assetUsage,
+  contentDisposition,
   createAsset,
   deleteAsset,
   findAsset,
   listAssets,
   readAssetBytes,
+  assetPublicUrl,
   storageInfo,
   toAsset,
   updateAsset,
@@ -31,6 +33,20 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX
 const notFound = (res: Response) => res.status(404).send({ message: 'File not found' });
 const param = (req: Request, name: string) => String(req.params[name]);
 
+/** Is this upload a member's own avatar or banner (the only uploads members may make)? */
+const isMemberPurpose = (purpose: unknown) => purpose === 'avatar' || purpose === 'banner';
+
+// Members' uploads: 10 per account per hour (decision 0098). Staff uploads aren't limited.
+const memberUploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  keyGenerator: (_req, res) => getAuth(res).sub,
+  skip: (req, res) => !isMemberPurpose((req.body as Record<string, unknown> | undefined)?.['purpose']) || hasPermission(getAuth(res).role, 'assets.upload'),
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'You’ve uploaded a lot of pictures in the last hour. Try again later.', field: 'file' },
+});
+
 /** Mounted at /api/assets (decisions 0028, 0098). */
 export const assetsRouter = Router();
 
@@ -40,13 +56,14 @@ assetsRouter.get('/storage', requireAuth, async (_req, res) => {
   res.send(body);
 });
 
-/** Every asset, for the CMS's Media screen and pickers. */
+/** Assets for the CMS's Media screen and pickers: staff files, or members' avatars and banners with `group=members`. */
 assetsRouter.get('/', ...requirePermission('assets.upload'), async (req, res) => {
   const purpose = assetPurposeSchema.safeParse(req.query['purpose']);
+  const group = req.query['group'] === 'members' ? 'members' : 'staff';
   const kind = assetKindSchema.safeParse(req.query['kind']);
   const search = typeof req.query['q'] === 'string' ? req.query['q'].trim().slice(0, 100) : '';
   const body: Asset[] = (
-    await listAssets({ purpose: purpose.success ? purpose.data : undefined, kind: kind.success ? kind.data : undefined, search: search || undefined })
+    await listAssets({ group, purpose: purpose.success ? purpose.data : undefined, kind: kind.success ? kind.data : undefined, search: search || undefined })
   ).map(toAsset);
   res.send(body);
 });
@@ -64,7 +81,7 @@ assetsRouter.post('/', requireAuth, (req, res, next) => {
     if (error) return next(error);
     next();
   });
-}, async (req, res) => {
+}, memberUploadRateLimit, async (req, res) => {
   const fields = assetUploadFieldsSchema.safeParse(req.body);
   if (!fields.success) {
     res.status(400).send({ message: 'Check the highlighted fields and try again', issues: fields.error.issues });
@@ -75,7 +92,7 @@ assetsRouter.post('/', requireAuth, (req, res, next) => {
     return;
   }
   const { role, sub } = getAuth(res);
-  const member = fields.data.purpose === 'avatar' || fields.data.purpose === 'banner';
+  const member = isMemberPurpose(fields.data.purpose);
   const staff = hasPermission(role, 'assets.upload');
   if (!member && !staff) {
     res.status(403).send({ message: 'You do not have permission to upload files' });
@@ -132,11 +149,16 @@ assetsRouter.delete('/:id', ...requirePermission('assets.delete'), async (req, r
 assetsRouter.get('/:id', async (req, res) => {
   const asset = await findAsset(param(req, 'id'));
   if (!asset) return void notFound(res);
+  // With a public bucket address (R2_PUBLIC_URL), the file comes from there; the redirect is cached for an hour only,
+  // so changing the address takes effect soon.
+  const direct = assetPublicUrl(asset);
+  if (direct) {
+    res.set('Cache-Control', 'public, max-age=3600').redirect(302, direct);
+    return;
+  }
   const data = await readAssetBytes(asset);
   if (!data) return void notFound(res);
 
-  const inline = assetFileTypes[asset.contentType]?.inline ?? false;
-  const name = encodeURIComponent(asset.filename);
   res.set({
     'Content-Type': asset.contentType,
     'X-Content-Type-Options': 'nosniff',
@@ -145,7 +167,7 @@ assetsRouter.get('/:id', async (req, res) => {
       asset.contentType === 'application/pdf'
         ? "default-src 'none'; object-src 'none'; script-src 'none'"
         : "default-src 'none'; style-src 'unsafe-inline'; img-src data:; media-src 'self'; sandbox",
-    'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${name}`,
+    'Content-Disposition': contentDisposition(asset.contentType, asset.filename),
     'Cache-Control': 'public, max-age=31536000, immutable',
     'Cross-Origin-Resource-Policy': 'same-site',
     'Accept-Ranges': 'bytes',

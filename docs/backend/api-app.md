@@ -16,7 +16,7 @@ decisions: ["0006", "0007", "0010", "0023"]
 On start, `main.ts`:
 
 1. Validates the environment with `loadEnv()`. Invalid or missing variables stop the process with a list of problems ([Environment variables](environment-variables.md)).
-2. Picks the [storage driver](assets.md#storage-modes) for `STORAGE_MODE`, and stops if that mode isn't available yet (the cloud modes, until the R2 driver is built).
+2. Picks the [storage driver](assets.md#storage-modes) for `STORAGE_MODE` (`startStorage()`) and logs it. In a cloud mode it first checks the R2 bucket can be reached, and stops with the reason if not.
 3. Connects to MongoDB **before** listening, and exits if it can't ([0010](../decisions/0010-connect-to-the-database-before-listening.md), [Database](database.md)).
 4. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)), then the default [site settings](site-settings.md#seeding) and core's [pages](pages.md#seeding) if they're missing.
 5. Listens on `HOST`:`PORT` and logs `[ ready ] http://<host>:<port>`.

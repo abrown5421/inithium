@@ -8,13 +8,15 @@ export type UploadDialogProps = {
   /** What the file is for; without it, the dialog asks. */
   purpose?: AssetPurpose;
   purposes?: readonly AssetPurpose[];
+  /** The dialog's heading. Default 'Upload a file'. */
+  title?: string;
   onUploaded: (asset: Asset) => void;
 };
 
 /** The upload form (decision 0098) in a Modal. It starts afresh each time it opens. */
-export function UploadDialog({ open, onClose, purpose, purposes, onUploaded }: UploadDialogProps) {
+export function UploadDialog({ open, onClose, purpose, purposes, title = 'Upload a file', onUploaded }: UploadDialogProps) {
   return (
-    <Modal open={open} onOpenChange={(next) => !next && onClose()} title="Upload a file" maxWidth={720}>
+    <Modal open={open} onOpenChange={(next) => !next && onClose()} title={title} maxWidth={720}>
       {open && (
         <UploadForm
           purpose={purpose}

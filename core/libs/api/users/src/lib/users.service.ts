@@ -26,6 +26,8 @@ function toProfile(doc: UserDocument): UserProfile {
     ...(stored?.bio ? { bio: stored.bio } : {}),
     avatar: readAvatar(stored?.avatar) ?? createProfileAvatar(id),
     banner: readBanner(stored?.banner) ?? fallbackBanner(id),
+    ...(stored?.avatarAssetId ? { avatarAssetId: stored.avatarAssetId } : {}),
+    ...(stored?.bannerAssetId ? { bannerAssetId: stored.bannerAssetId } : {}),
   };
 }
 
@@ -109,8 +111,26 @@ export async function updateUserProfile(user: UserDocument, changes: UpdateProfi
   }
   if (changes.avatar) next.avatar = changes.avatar;
   if (changes.banner) next.banner = changes.banner;
+  // Uploaded pictures: an id shows it, null goes back to the generated one. Checking the id is the caller's job.
+  for (const key of ['avatarAssetId', 'bannerAssetId'] as const) {
+    const value = changes[key];
+    if (value === undefined) continue;
+    if (value) next[key] = value;
+    else delete next[key];
+  }
   user.set('profile', next);
   return user.save();
+}
+
+/** The accounts whose profile shows an uploaded picture, as their avatar or banner. */
+export async function findUsersWithProfileImage(assetId: string): Promise<UserDocument[]> {
+  return UserModel.find({ $or: [{ 'profile.avatarAssetId': assetId }, { 'profile.bannerAssetId': assetId }] });
+}
+
+/** Stops every profile showing an uploaded picture (e.g. once it's deleted), so they show their generated one. */
+export async function clearProfileImage(assetId: string): Promise<void> {
+  await UserModel.updateMany({ 'profile.avatarAssetId': assetId }, { $unset: { 'profile.avatarAssetId': 1 } });
+  await UserModel.updateMany({ 'profile.bannerAssetId': assetId }, { $unset: { 'profile.bannerAssetId': 1 } });
 }
 
 /**

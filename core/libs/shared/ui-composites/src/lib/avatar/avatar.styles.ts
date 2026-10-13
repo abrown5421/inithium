@@ -6,6 +6,7 @@ export const avatarStyleSheet = `
 .ui-avatar { position: relative; width: 100%; height: 100%; container-type: inline-size; }
 .ui-avatar-circle { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: var(--ui-avatar-bg); }
 .ui-avatar-circle > svg { display: block; width: 100%; height: 100%; }
+.ui-avatar-photo { width: 100%; height: 100%; object-fit: cover; }
 .ui-avatar-edit {
   position: absolute; left: calc(85.36% - 14px); top: calc(85.36% - 14px); width: 28px; height: 28px; padding: 0;
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer;

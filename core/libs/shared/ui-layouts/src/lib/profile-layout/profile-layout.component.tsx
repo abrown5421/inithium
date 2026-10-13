@@ -14,6 +14,12 @@ export type ProfileLayoutProps = {
   onAvatarChange?: (recipe: AvatarRecipe) => void;
   /** Makes the banner editable and receives the saved recipe. */
   onBannerChange?: (pattern: PolyPattern) => void;
+  /** Uploaded pictures shown instead of the generated avatar and banner, which stay as their fallbacks (decision 0098). */
+  avatarImage?: { src: string };
+  bannerImage?: { src: string };
+  /** Add 'Upload a picture' to the avatar's and the banner's editors. */
+  onAvatarUpload?: () => void;
+  onBannerUpload?: () => void;
   /** Under the name, e.g. a short line about the profile. */
   subtitle?: ReactNode;
   /** Buttons under the name, e.g. 'Add friend'. */
@@ -39,6 +45,10 @@ export function ProfileLayout({
   banner,
   onAvatarChange,
   onBannerChange,
+  avatarImage,
+  bannerImage,
+  onAvatarUpload,
+  onBannerUpload,
   subtitle,
   actions,
   sidebar,
@@ -50,6 +60,8 @@ export function ProfileLayout({
         value={banner}
         onChange={onBannerChange}
         editable={Boolean(onBannerChange)}
+        image={bannerImage}
+        onUpload={onBannerUpload}
         label={`${name}'s banner`}
         height={{ base: 140, md: 220 }}
       />
@@ -79,6 +91,8 @@ export function ProfileLayout({
                 value={avatar}
                 onChange={onAvatarChange}
                 editable={Boolean(onAvatarChange)}
+                image={avatarImage}
+                onUpload={onAvatarUpload}
                 name={name}
                 label={`${name}'s avatar`}
                 width={{ base: 96, md: 128 }}

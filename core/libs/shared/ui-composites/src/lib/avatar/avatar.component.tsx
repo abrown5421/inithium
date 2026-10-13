@@ -14,6 +14,13 @@ export type AvatarProps = AvatarSerializableProps &
     defaultValue?: AvatarRecipe;
     /** Called with the new recipe when the editor is saved. */
     onChange?: (recipe: AvatarRecipe) => void;
+    /**
+     * An uploaded picture to show instead of the generated art (decision 0098). If it fails to load, the recipe is
+     * drawn instead, so the avatar is never blank.
+     */
+    image?: { src: string };
+    /** Adds 'Upload a picture' to the editor, which closes it and calls this; the app does the uploading. */
+    onUpload?: () => void;
   };
 
 /**
@@ -25,6 +32,8 @@ export function Avatar({
   value,
   defaultValue,
   onChange,
+  image,
+  onUpload,
   editable = false,
   name,
   label,
@@ -40,6 +49,9 @@ export function Avatar({
   const [own, setOwn] = useState(() => defaultValue ?? createAvatarRecipe());
   const recipe = value ?? own;
   const [editing, setEditing] = useState(false);
+  // The address that failed to load, if any: the generated art shows in its place.
+  const [failed, setFailed] = useState<string | null>(null);
+  const picture = image && image.src !== failed ? image.src : undefined;
 
   const save = (next: AvatarRecipe) => {
     setOwn(next);
@@ -64,7 +76,11 @@ export function Avatar({
         onExitEnd={onExitEnd}
       >
         <div className="ui-avatar">
-          <AvatarArt recipe={recipe} name={name} label={label} />
+          {picture ? (
+            <img className="ui-avatar-circle ui-avatar-photo" src={picture} alt={label ?? ''} aria-hidden={label ? undefined : true} onError={() => setFailed(picture)} />
+          ) : (
+            <AvatarArt recipe={recipe} name={name} label={label} />
+          )}
           {editable && (
             <Tooltip content="Edit avatar">
               <button type="button" className="ui-avatar-edit" aria-label="Edit avatar" onClick={() => setEditing(true)}>
@@ -74,7 +90,7 @@ export function Avatar({
           )}
         </div>
       </Container>
-      {editable && <AvatarEditor open={editing} onOpenChange={setEditing} recipe={recipe} name={name} onSave={save} />}
+      {editable && <AvatarEditor open={editing} onOpenChange={setEditing} recipe={recipe} name={name} onSave={save} hasImage={Boolean(picture)} onUpload={onUpload} />}
     </>
   );
 }
