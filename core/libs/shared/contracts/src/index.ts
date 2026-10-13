@@ -51,3 +51,5 @@ export * from './lib/content/content-links.schema';
 export * from './lib/content/content.schema';
 export * from './lib/content/content.types';
 export * from './lib/content/rich-text.schema';
+export * from './lib/assets/assets.schema';
+export * from './lib/assets/assets.types';

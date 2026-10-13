@@ -75,6 +75,7 @@ Type names such as `Colour`, `Sides`, `Size` and `Variants<T>` are defined on [S
 | [`hideTitle`](#title-and-hidetitle) | `boolean` | `false` | Title for screen readers only |
 | [`description`](#description) | `string` | none | A line under the title |
 | [`children`](#children) | `ReactNode` | none | The content |
+| [`footer`](#footer) | `ReactNode` | none | Pinned under the body, e.g. action buttons |
 | [`dismissible`](#dismissible) | `boolean` | `true` | Overlay click and Escape close it |
 | [`closeButton`](#closebutton) | `boolean` | `true` | ✕ in the top-right corner |
 | [`animation`](#animation) | `Animation` | `fadeInUp` / `fadeOutDown` | The panel's entrance and exit |
@@ -130,6 +131,16 @@ A line under the title, read with it by screen readers. **Type:** `string`.
 #### `children`
 
 The content: anything. The panel scrolls when its content is taller than the window. **Type:** `ReactNode`.
+
+#### `footer`
+
+Pinned under the body, behind a thin divider, e.g. Save and Cancel buttons. With a footer, only the body scrolls, so the title and the footer stay in view. Keep Save on the left: alerts appear in the bottom-right corner. **Type:** `ReactNode`. **Default:** none.
+
+```tsx
+<Modal open={open} onOpenChange={setOpen} title="Edit file" footer={<Button onClick={save}>Save</Button>}>
+  …
+</Modal>
+```
 
 ### Look
 
@@ -215,6 +226,14 @@ Content taller than the window scrolls inside the panel.
 
 ```example
 ui-library/modal/long-content
+```
+
+### Example: Pinned footer
+
+Action buttons that stay in view while long content scrolls above them.
+
+```example
+ui-library/modal/pinned-footer
 ```
 
 ## Accessibility

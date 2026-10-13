@@ -4,7 +4,7 @@ description: The single settings record that holds the site's title, logo and co
 scope: core
 tags: [api, settings, cms, branding]
 order: 7
-decisions: ["0082", "0087"]
+decisions: ["0082", "0087", "0098"]
 ---
 
 # Site settings
@@ -18,12 +18,12 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | Field | Type | Notes |
 | --- | --- | --- |
 | `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `Inithium`. |
-| `logo` | `{ src, alt }`, optional | A URL until assets exist. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). |
+| `logo` | `{ assetId, alt }`, optional | An uploaded image, by its [asset](assets.md) id, and its description ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). `logoImage(logo)` gives the Navbar's `{ src, alt }`. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). Its asset can't be deleted while it's the logo. |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
 
-Fonts, SEO defaults and an uploaded logo come later.
+Fonts and SEO defaults come later. Logos saved as URLs before assets existed are dropped, so those sites show the default logo until one is chosen.
 
 ## Endpoints
 

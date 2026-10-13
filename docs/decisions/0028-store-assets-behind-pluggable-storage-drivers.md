@@ -1,12 +1,13 @@
 ---
 id: "0028"
 title: Store assets behind pluggable storage drivers, with MongoDB as core's default
-status: accepted
-date: "2026-10-07"
+status: superseded
+date: "2026-10-13"
 scope: ecosystem
 tags: [assets, storage, plugins, security, render]
 related: ["0002", "0005", "0006", "0015", "0027"]
 supersedes: []
+supersededBy: "0098"
 ---
 
 # 0028. Store assets behind pluggable storage drivers, with MongoDB as core's default

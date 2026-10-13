@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-12"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098"]
 supersedes: []
 ---
 
@@ -29,7 +29,7 @@ Still open:
 
 - Which other slots core exposes. Raised so far: API route mounts, Mongoose models, CMS screens and CMS sidebar entries.
 - A **"user deleted" hook**, so plugins can remove a deleted user's data from their own collections ([0026](0026-plugins-keep-user-data-in-their-own-collections.md)) without core knowing which plugins exist.
-- A **storage driver slot**, through which the storage plugin registers an object-storage driver ([0028](0028-store-assets-behind-pluggable-storage-drivers.md)).
+- ~~A **storage driver slot**~~: no longer needed. The R2 driver ships in core, chosen by `STORAGE_MODE` ([0098](0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 - The contract shape of each slot.
 
 ## Alternatives considered

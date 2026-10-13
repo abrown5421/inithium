@@ -8,7 +8,8 @@ const settingsSchema = new Schema(
     key: { type: String, required: true, unique: true, default: SITE_SETTINGS_KEY },
     siteTitle: { type: String, required: true, trim: true },
     logo: {
-      type: new Schema({ src: { type: String, required: true }, alt: { type: String, default: '' } }, { _id: false }),
+      // An asset id (decision 0098); logos stored as URLs before assets existed have none, and are ignored.
+      type: new Schema({ assetId: { type: String }, alt: { type: String, default: '' } }, { _id: false }),
       required: false,
     },
     copyright: { type: String, required: false, trim: true },

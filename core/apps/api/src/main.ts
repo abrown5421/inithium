@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { assetsRouter, storageDriver } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
@@ -25,6 +26,7 @@ api.get('/', (_req, res) => {
 });
 api.use('/health', healthRouter);
 api.use('/auth', authRouter);
+api.use('/assets', assetsRouter);
 api.use('/site', siteRouter);
 api.use('/pages', pagesRouter);
 api.use('/profiles', profilesRouter);
@@ -59,6 +61,8 @@ function serveSpa(mountPath: string, dir: string) {
 
 async function start() {
   const env = loadEnv();
+  // Fails fast on a storage mode this build can't serve (decision 0098).
+  storageDriver();
   await connectDatabase(env.MONGODB_URI);
   await seedDevUser({ email: env.SEED_DEV_EMAIL, password: env.SEED_DEV_PASSWORD });
   await backfillUserProfiles();

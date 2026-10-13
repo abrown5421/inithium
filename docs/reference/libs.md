@@ -21,22 +21,25 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `seedDevUser()` |
 | `@inithium/api-pages` | `libs/api/pages` | `scope:api`, `type:feature`, `origin:core` | `PageModel`, `pagesRouter`, `siteRouter`, page service functions, `seedPages()`, `seedCorePages()` |
 | `@inithium/api-profiles` | `libs/api/profiles` | `scope:api`, `type:feature`, `origin:core` | `profilesRouter` |
+| `@inithium/api-assets` | `libs/api/assets` | `scope:api`, `type:feature`, `origin:core` | `AssetModel`, `AssetBlobModel`, `assetsRouter`, `storageDriver()`, `processUpload()`, asset service functions |
 | `@inithium/api-settings` | `libs/api/settings` | `scope:api`, `type:feature`, `origin:core` | `SettingsModel`, `settingsRouter`, `getSiteSettings()`, `updateSiteSettings()`, `seedSiteSettings()` |
 | `@inithium/shared-contracts` | `libs/shared/contracts` | `scope:shared`, `type:util`, `origin:core` | Zod schemas and inferred types: users, roles, auth, permissions, pages, site settings, theme, UI style props, animation |
 | `@inithium/shared-ui-theme` | `libs/shared/ui-theme` | `scope:shared`, `type:ui`, `origin:core`, `ui:theme` | `defaultTheme`, `defaultLogo`, scale generation, `themeColorProblem()`, `ThemeStyles`, theme fonts CSS |
-| `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation`, `toCssColor()` |
-| `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
+| `@inithium/shared-ui-components` | `libs/shared/ui-components` | `scope:shared`, `type:ui`, `origin:core`, `ui:component` | `Button`, `Checkbox`, `Container`, `Divider`, `Icon`, `Image`, `Input`, `InputAdornment`, `Loader`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Text`, `Tooltip`, `UiProvider`, `useAnimation`, `toCssColor()` |
+| `@inithium/shared-ui-composites` | `libs/shared/ui-composites` | `scope:shared`, `type:ui`, `origin:core`, `ui:composite` | `Alert`, `AlertStack`, `AutoIncrementingList`, `Avatar`, `Breadcrumbs`, `ColorPicker`, `Drawer`, `Footer`, `IconPicker`, `ImageCropper`, `renderCrop()`, `Modal`, `Navbar`, `Pagination`, `PolyBanner`, `Tabs` |
 | `@inithium/shared-permissions` | `libs/shared/permissions` | `scope:shared`, `type:util`, `origin:core` | `rolePermissions`, `hasPermission()` |
 | `@inithium/shared-ui-layouts` | `libs/shared/ui-layouts` | `scope:shared`, `type:ui`, `origin:core`, `ui:layout` | `BareLayout`, `DefaultLayout`, `FullWidthLayout`, `ProfileLayout`, `SidebarLayout`, `NAVBAR_HEIGHT_VAR` |
+| `@inithium/shared-media` | `libs/shared/media` | `scope:shared`, `type:feature`, `origin:core` | `UploadForm`, `UploadDialog`, `AssetThumbnail`, `formatBytes()`, `CROP_SHAPES`, `PURPOSE_LABELS`, `KIND_ICONS`, `resolveCssColor()` |
 | `@inithium/shared-content` | `libs/shared/content` | `scope:shared`, `type:feature`, `origin:core` | `ContentRenderer`, `ContentSectionView`, `ContentBlockView`, `RichText`, `ContentLinksProvider`, `useContentLinks()`, `ContentDecoratorsProvider`, `useContentDecorators()` |
 | `@inithium/cms-content-editor` | `libs/cms/content-editor` | `scope:cms`, `type:feature`, `origin:core` | `ContentEditorScreen`, `ContentEditor`, `PreviewFrame`, `RichTextEditor`, `RichTextToolbar`, the document operations and hooks |
 | `@inithium/shared-auth-ui` | `libs/shared/auth-ui` | `scope:shared`, `type:feature`, `origin:core` | `PasswordChangeScreen`, `PasswordChangeForm` |
 | `@inithium/web-shell` | `libs/web/shell` | `scope:web`, `type:feature`, `origin:core` | `SiteShell`, `PageTemplate`, `PageTemplateProps`, `usePageReady()`, `useSite()`, `buildMenus()`, `resolvePage()` |
 | `@inithium/web-pages` | `libs/web/pages` | `scope:web`, `type:feature`, `origin:core` | `coreTemplates`, `HomePage`, `LoginPage`, `NotFoundPage`, `ProfilePage`, `SignUpPage`, the profile slot types, `ProfileSlotsProvider`, `profileCard` |
-| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useGetPageQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
+| `@inithium/shared-data-access` | `libs/shared/data-access` | `scope:shared`, `type:data-access`, `origin:core` | `baseApi`, auth hooks (including `useRegisterMutation()` and `useChangePasswordMutation()`), `useGetSiteQuery()`, page hooks (`useGetPagesQuery()`, `useGetPageQuery()`, `useUpdatePageMutation()`, `useDeletePageMutation()`, `useSaveContentDraftMutation()`, `usePublishContentMutation()`, `useDiscardContentDraftMutation()`, `useGetPageTemplatesQuery()`, `useCreatePageMutation()`, `useDuplicatePageMutation()`), settings hooks (`useGetSettingsQuery()`, `useUpdateSettingsMutation()`), profile hooks (`useGetProfileQuery()`, `useUpdateMyProfileMutation()`), asset hooks (`useGetStorageInfoQuery()`, `useGetAssetsQuery()`, `useGetAssetQuery()`, `useUploadAssetMutation()`, `useUpdateAssetMutation()`, `useDeleteAssetMutation()`, `useGetAssetUsageQuery()`), the form helpers `fieldErrorsFrom()`, `readApiFailure()` and `focusFirstError()`, `createAppStore()`, `getApiErrorMessage()`, the `modals` slice (`openModal`, `closeModal`) and `useModal()`, the `alerts` slice (`showAlert`, `dismissAlert`) and `useAlerts()` |
 | `@inithium/cms-auth` | `libs/cms/auth` | `scope:cms`, `type:feature`, `origin:core` | `LoginPage`, `CmsAccessGuard` |
 | `@inithium/cms-shell` | `libs/cms/shell` | `scope:cms`, `type:feature`, `origin:core` | `CmsShell`, `CmsScreen`, `DashboardPage`, `CmsAlerts`, `CmsTheme` |
 | `@inithium/cms-pages` | `libs/cms/pages` | `scope:cms`, `type:feature`, `origin:core` | `PagesScreen`, `PageEditor` |
+| `@inithium/cms-media` | `libs/cms/media` | `scope:cms`, `type:feature`, `origin:core` | `MediaScreen`, `AssetPicker`, `AssetField` |
 | `@inithium/cms-settings` | `libs/cms/settings` | `scope:cms`, `type:feature`, `origin:core` | `SettingsScreen`, `ThemeColorField`, `normalizeHex()` |
 
 ### `@inithium/api-config`
@@ -68,17 +71,25 @@ The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered
 
 The profile API ([0090](../decisions/0090-generate-and-show-user-profiles.md)): `profilesRouter`, mounted at `/api/profiles` (`GET /:id`, `PATCH /me`). The data and its service functions are in `@inithium/api-users`. See [Profiles](../backend/profiles.md).
 
+### `@inithium/api-assets`
+
+Uploaded files ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `AssetModel` and `AssetBlobModel` (the database driver's bytes), the storage drivers (`storageDriver()` picks one from `STORAGE_MODE` on startup), `processUpload()` (type detection by contents, WebP conversion under 2 MB, SVG sanitising, TTF/OTF to WOFF2), the asset service (`createAsset()`, `listAssets()`, `assetUsage()`, `deleteAsset()`, `storageInfo()`, …) and `assetsRouter` (`/api/assets`). See [Assets](../backend/assets.md).
+
 ### `@inithium/api-settings`
 
 The one site settings record ([0082](../decisions/0082-keep-site-wide-settings-in-one-record.md)): `SettingsModel`, `toSiteSettings()`, `getSiteSettings()`, `updateSiteSettings()`, `DEFAULT_SITE_SETTINGS`, `settingsRouter` (`/api/settings`) and `seedSiteSettings()`. See [Site settings](../backend/site-settings.md).
 
 ### `@inithium/shared-contracts`
 
-The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `profileLimits`, `profileName()`, `userDisplayName()`, the profile contracts (`publicProfileSchema` / `PublicProfile`, `updateProfileRequestSchema` / `UpdateProfileRequest`, `profileViewers` / `ProfileViewer`, `publicProfileName()`), `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteBundleSchema` / `SiteBundle`).
+The Zod schemas shared by the api and both frontends, with inferred types: `roles` / `roleSchema` / `Role`, `userSchema` / `User`, `loginRequestSchema` / `LoginRequest`, `registerRequestSchema` / `RegisterRequest`, `emailSchema`, `newPasswordSchema` (with `passwordPolicy` and `passwordPolicyHint`), `userProfileSchema` / `UserProfile`, `profileLimits`, `profileName()`, `userDisplayName()`, the profile contracts (`publicProfileSchema` / `PublicProfile`, `updateProfileRequestSchema` / `UpdateProfileRequest`, `profileViewers` / `ProfileViewer`, `publicProfileName()`), `authResponseSchema` / `AuthResponse`, `permissions` / `permissionSchema` / `Permission`, the page contracts (`pageSchema` / `Page`, `publicPageSchema` / `PublicPage`, `pageUpdateSchema`, `pageNavigationSchema`, `pagePathSchema`, `pageAudiences`, `navLocations`, `navigationAllowed()`, `pathHasParams()`) and the site settings contracts (`siteSettingsSchema` / `SiteSettings`, `siteSettingsInputSchema`, `siteLogoSchema`, `logoImage()`, `siteBundleSchema` / `SiteBundle`) and the asset contracts (`assetSchema` / `Asset`, `assetFileTypes`, `assetPurposes`, `assetKinds`, `storageModes`, `storageInfoSchema`, `assetUsageSchema`, `MAX_ASSET_BYTES`, `assetUrl()`).
 
 ### `@inithium/shared-ui-theme`, `@inithium/shared-ui-components`, `@inithium/shared-ui-composites` and `@inithium/shared-ui-layouts`
 
 The four layers of the UI library. See the [UI library](../ui-library/index.md) section, with a page per component.
+
+### `@inithium/shared-media`
+
+Uploading, shared by the CMS and (later) `web`'s profile ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `UploadForm` (choose or drop a file, crop or fit images to the purpose's shapes, alt text, the font licence), `UploadDialog` (the form in a Modal), `AssetThumbnail` and the helpers `formatBytes()`, `CROP_SHAPES`, `PURPOSE_LABELS`, `KIND_ICONS` and `resolveCssColor()`. See [Assets](../backend/assets.md).
 
 ### `@inithium/shared-content`
 
@@ -119,6 +130,10 @@ The signed-in CMS ([0086](../decisions/0086-run-the-cms-in-a-sidebar-frame-with-
 ### `@inithium/cms-pages`
 
 The Pages screen: `PagesScreen` (search, sort and rows) and `PageEditor` (the tabbed edit dialog).
+
+### `@inithium/cms-media`
+
+The CMS's Media screen and the asset picker ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `MediaScreen` (storage meter, search, kind filter, grid, details modal), `AssetPicker` (choose from the library or upload in place, in a Modal) and `AssetField` (a form field holding one asset id, used by the logo and the Image block). See [The CMS](../architecture/cms.md#media).
 
 ### `@inithium/cms-settings`
 

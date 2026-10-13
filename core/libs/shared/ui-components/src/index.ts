@@ -4,6 +4,7 @@ export * from './lib/checkbox/checkbox.component';
 export * from './lib/container/container.component';
 export * from './lib/divider/divider.component';
 export * from './lib/icon/icon.component';
+export * from './lib/image/image.component';
 export * from './lib/input/input.component';
 export * from './lib/input/input-adornment.component';
 export * from './lib/loader/loader.component';

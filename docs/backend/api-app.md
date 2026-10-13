@@ -16,9 +16,10 @@ decisions: ["0006", "0007", "0010", "0023"]
 On start, `main.ts`:
 
 1. Validates the environment with `loadEnv()`. Invalid or missing variables stop the process with a list of problems ([Environment variables](environment-variables.md)).
-2. Connects to MongoDB **before** listening, and exits if it can't ([0010](../decisions/0010-connect-to-the-database-before-listening.md), [Database](database.md)).
-3. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)), then the default [site settings](site-settings.md#seeding) and core's [pages](pages.md#seeding) if they're missing.
-4. Listens on `HOST`:`PORT` and logs `[ ready ] http://<host>:<port>`.
+2. Picks the [storage driver](assets.md#storage-modes) for `STORAGE_MODE`, and stops if that mode isn't available yet (the cloud modes, until the R2 driver is built).
+3. Connects to MongoDB **before** listening, and exits if it can't ([0010](../decisions/0010-connect-to-the-database-before-listening.md), [Database](database.md)).
+4. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)), then the default [site settings](site-settings.md#seeding) and core's [pages](pages.md#seeding) if they're missing.
+5. Listens on `HOST`:`PORT` and logs `[ ready ] http://<host>:<port>`.
 
 On `SIGTERM` or `SIGINT` (e.g. Render redeploying, or Ctrl+C), it stops accepting connections, disconnects from MongoDB and exits.
 
@@ -41,6 +42,7 @@ Every API route is under `/api`, on one router:
 | `/api/pages/*` | `pagesRouter` from `@inithium/api-pages`. See [Pages](pages.md). |
 | `/api/profiles/*` | `profilesRouter` from `@inithium/api-profiles`. See [Profiles](profiles.md). |
 | `/api/settings` | `settingsRouter` from `@inithium/api-settings`. See [Site settings](site-settings.md). |
+| `/api/assets/*` | `assetsRouter` from `@inithium/api-assets`; `GET /api/assets/:id` serves files to anyone. See [Assets](assets.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 
 The router parses JSON bodies (`express.json()`, up to 1 MB, since content drafts are saved whole) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).

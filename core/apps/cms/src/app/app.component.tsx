@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { CmsAccessGuard, LoginPage } from '@inithium/cms-auth';
 import { ContentEditorScreen } from '@inithium/cms-content-editor';
 import { PagesScreen } from '@inithium/cms-pages';
+import { MediaScreen } from '@inithium/cms-media';
 import { SettingsScreen } from '@inithium/cms-settings';
 import { CmsAlerts, CmsShell, CmsTheme, DashboardPage, type CmsScreen } from '@inithium/cms-shell';
 
@@ -19,6 +20,7 @@ const screens: CmsScreen[] = [
     inSidebar: false,
     fill: true,
   },
+  { path: '/media', label: 'Media', icon: 'images', element: <MediaScreen />, permission: 'assets.upload' },
   { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },
 ];
 

@@ -21,6 +21,7 @@ import {
   checkboxStylePropsSchema,
   containerStylePropsSchema,
   dividerStylePropsSchema,
+  imageStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
@@ -103,6 +104,28 @@ export const switchPropsSchema = switchStylePropsSchema
     checkedIcon: iconNameSchema.optional(),
     /** A Lucide icon on the thumb while off. */
     uncheckedIcon: iconNameSchema.optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/** How an image fills its box when the box's shape differs from the image's. */
+export const imageFitSchema = z.enum(['cover', 'contain', 'fill', 'none']);
+
+/** Image's storable props (decision 0098): an address, its description, and how it fits its box. */
+export const imagePropsSchema = imageStylePropsSchema
+  .extend({
+    /** The image's address, e.g. assetUrl(id). */
+    src: z.string().min(1),
+    /** Describes the image for screen readers. Required unless the image is decorative. */
+    alt: z.string().optional(),
+    /** Purely visual: hidden from screen readers. */
+    decorative: z.boolean().optional(),
+    /** Default 'cover' when both width and height are set; otherwise the image keeps its own shape. */
+    fit: imageFitSchema.optional(),
+    /** Width divided by height, e.g. 16 / 9, to give the box a shape before the image loads. */
+    aspectRatio: z.number().positive().optional(),
+    /** 'lazy' (default) waits until the image is near the screen. */
+    loading: z.enum(['lazy', 'eager']).optional(),
     animation: animationSchema.optional(),
   })
   .strict();

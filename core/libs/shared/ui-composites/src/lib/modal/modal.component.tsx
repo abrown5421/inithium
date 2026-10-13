@@ -20,13 +20,16 @@ export type ModalProps = Omit<ModalSerializableProps, 'title'> & {
   title: ReactNode;
   /** Anything: forms, text, images, buttons. */
   children?: ReactNode;
+  /** Pinned under the body, e.g. Cancel and Save buttons. With a footer, the body scrolls between the title and it. */
+  footer?: ReactNode;
 };
 
 /**
  * A dialog over the page (decisions 0056 and 0065): Radix's accessible dialog, with a dark overlay that fades in
  * and a centred panel that animates in (fadeInUp) and out (fadeOutDown), holding any content. Controlled by
  * `open` and `onOpenChange`; connect it to the global modal state with `useModal(id)` from
- * @inithium/shared-data-access. The panel takes Container's style props.
+ * @inithium/shared-data-access. An optional `footer` stays pinned under a scrolling body. The panel takes Container's
+ * style props.
  */
 export function Modal({
   open,
@@ -39,6 +42,7 @@ export function Modal({
   overlayColor = DEFAULT_OVERLAY_COLOR,
   animation = PANEL_ANIMATION,
   children,
+  footer,
   ...panelProps
 }: ModalProps) {
   return (
@@ -56,7 +60,8 @@ export function Modal({
           width="full"
           maxWidth={480}
           maxHeight="full"
-          overflow={{ y: 'auto' }}
+          overflow={footer ? { all: 'hidden' } : { y: 'auto' }}
+          flex={footer ? { direction: 'column' } : undefined}
           padding={{ all: 24 }}
           radius={{ all: 12 }}
           bgColor={{ color: 'surface', intensity: 50 }}
@@ -88,7 +93,25 @@ export function Modal({
               </Text>
             </Dialog.Description>
           )}
-          {children}
+          {footer ? (
+            <>
+              {/* The body scrolls; the title above and the footer below stay put. The padding (offset by the margin) keeps floating labels and focus rings from being clipped. */}
+              <Container flexItem={{ grow: 1, shrink: 1 }} minHeight={0} overflow={{ y: 'auto' }} margin={{ x: -4, top: -8 }} padding={{ x: 4, top: 8, bottom: 4 }}>
+                {children}
+              </Container>
+              <Container
+                flexItem={{ shrink: 0 }}
+                margin={{ top: 16, x: -24, bottom: -24 }}
+                padding={{ x: 24, y: 16 }}
+                borderWidth={{ top: 1 }}
+                borderColor={{ color: 'surface', intensity: 500, opacity: 40 }}
+              >
+                {footer}
+              </Container>
+            </>
+          ) : (
+            children
+          )}
           {closeButton && (
             <Container position={{ type: 'absolute', top: 12, right: 12 }}>
               <Dialog.Close asChild>

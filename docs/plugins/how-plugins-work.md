@@ -61,7 +61,7 @@ How unseed identifies exactly what its seed created is still open ([0019](../dec
 - **Plugins never add fields to `users`,** or to the core user schema or contract. A plugin keeps per-user data in its own collections, each document carrying a `userId`. For example, `ecom` would own `addresses` ([0026](../decisions/0026-plugins-keep-user-data-in-their-own-collections.md)).
 - **Data comes from the plugin's own endpoints.** Anything a frontend needs is served there, never added to `GET /api/auth/me`.
 - **Deleting a user** will need the "user deleted" slot, so plugins can remove that user's data without core knowing which plugins exist.
-- **Uploads:** whether plugin uploads (e.g. product images) require a scalable storage driver is still open ([0029](../decisions/0029-storage-requirements-for-plugin-uploads.md)).
+- **Uploads:** staff uploads work in every storage mode; member uploads only in `cloud-all`. Check `memberUploads` from `GET /api/assets/storage`, never the mode or driver ([0029](../decisions/0029-storage-requirements-for-plugin-uploads.md)).
 
 ## Ejecting
 

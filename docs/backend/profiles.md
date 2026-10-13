@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0090", "0091"]
+decisions: ["0074", "0075", "0081", "0090", "0091", "0098"]
 ---
 
 # Profiles
@@ -113,7 +113,7 @@ Every entry (`ProfileSlotEntry`) has:
 
 ## Not built yet
 
-- **Uploaded avatar and banner images:** these wait for assets and a scalable storage driver ([0028](../decisions/0028-store-assets-behind-pluggable-storage-drivers.md)).
+- **Uploaded avatar and banner images:** these need the `cloud-all` storage mode and the R2 driver, which isn't built yet ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 - **Changing the email:** this needs email verification.
 - **Privacy settings.**
 - **Usernames in profile addresses:** ids are MongoDB ids for now.

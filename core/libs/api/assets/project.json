@@ -1,0 +1,13 @@
+{
+  "name": "api-assets",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/assets/src",
+  "projectType": "library",
+  "tags": [
+    "scope:api",
+    "type:feature",
+    "origin:core"
+  ],
+  "// targets": "to see all targets run: nx show project api-assets --web",
+  "targets": {}
+}

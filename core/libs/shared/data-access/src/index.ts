@@ -1,4 +1,5 @@
 export * from './lib/alerts.slice';
+export * from './lib/assets.api';
 export * from './lib/auth.api';
 export * from './lib/base.api';
 export * from './lib/form-errors.service';

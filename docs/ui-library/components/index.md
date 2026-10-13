@@ -17,6 +17,7 @@ Components are the atoms of the UI library: single-purpose elements that share t
 | [Container](container.md) | Boxes and layout: flex, grid, position, overflow |
 | [Divider](divider.md) | Lines between content, horizontal or vertical, optionally labelled |
 | [Icon](icon.md) | Lucide icons by name |
+| [Image](image.md) | Pictures, sized, rounded and fitted to their box |
 | [Input](input.md) | Single-line text fields: outlined, filled and standard, with a floating label |
 | [InputAdornment](input-adornment.md) | Icons and small buttons inside an Input |
 | [Loader](loader.md) | Loading indicators in ten variants, from a spinner to a progress bar |

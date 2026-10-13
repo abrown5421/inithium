@@ -1,10 +1,10 @@
 ---
 title: The CMS
-description: How the CMS app is put together - its frame, screens, sign-in and the Pages editor - and how to add a screen.
+description: How the CMS app is put together - its frame, screens, sign-in, the Pages editor and the Media library - and how to add a screen.
 scope: core
 tags: [cms, architecture, permissions]
 order: 6
-decisions: ["0083", "0086", "0087"]
+decisions: ["0083", "0086", "0087", "0098"]
 ---
 
 # The CMS
@@ -20,6 +20,7 @@ apps/cms   App: the routes and the list of screens
     CmsShell              SidebarLayout frame  @inithium/cms-shell
       /                   DashboardPage        @inithium/cms-shell
       /pages              PagesScreen          @inithium/cms-pages  (pages.edit)
+      /media              MediaScreen          @inithium/cms-media  (assets.upload)
       /settings           SettingsScreen       @inithium/cms-settings  (settings.edit)
       /pages/:id/content  ContentEditorScreen  @inithium/cms-content-editor  (pages.edit; no sidebar entry, fills the frame)
   CmsTheme                the client's theme   @inithium/cms-shell
@@ -82,11 +83,26 @@ The editor is a Modal over a draft, with five tabs:
 
 **Cancel** discards the draft. Switching a colour or the animation back to default sends `null`, which clears it ([Pages API](../backend/pages.md#edit-rules)).
 
+## Media
+
+`MediaScreen` (`@inithium/cms-media`, needs `assets.upload`) is the library of uploaded files ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md), [Assets](../backend/assets.md)):
+
+- **Storage meter:** in `database` mode, how much of the quota is used (red from 90%).
+- **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video).
+- **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it).
+- **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
+- **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo, with a note saying to choose another logo first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
+
+Other screens use the library through two components:
+
+- **`AssetPicker`**: a Modal with the library's grid (filtered by `kind`), search and **Upload new**, which uploads in place (with `purpose`) and picks the result.
+- **`AssetField`**: a form field showing the chosen file's thumbnail, name and size, with Choose/Change (opening the picker) and Remove (hidden when `required`). It hands back the whole asset, so a form can copy its default description. The Settings logo and the content editor's Image block use it.
+
 ## The Settings screen
 
 `SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
 
-- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo's address and description, with a preview (Inithium's logo when none is set), and the copyright holder.
+- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview (Inithium's logo when none is set), and the copyright holder.
 - **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. A surface too dark for readable text shows why on the field instead of a preview, and Save refuses it. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
 
 Saving updates the CMS at once: `CmsTheme` renders the client's theme at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
