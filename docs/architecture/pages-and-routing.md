@@ -28,7 +28,7 @@ Every page is a record in the `pages` collection, with Zod contracts in `@inithi
 | SEO | `seo` `{ title?, description? }` |
 | System | `protected`: can't be deleted; path and template are fixed |
 
-Core's own pages are seeded on first start: Home (`/`), Profile (`/profile/:id`), Login (`/login`), Sign up (`/sign-up`) and Not Found. All are protected. Plugins seed their pages on install, and their unseed removes them on eject.
+Core's own pages are seeded on first start: Home (`/`), Profile (`/profile/:id`), Login (`/login`), Sign up (`/sign-up`) and Not Found, plus a starter [privacy policy](content-pages.md#the-privacy-policy) (`/privacy-policy`), a content page admins edit in the CMS. All are protected. Plugins seed their pages on install, and their unseed removes them on eject.
 
 ## Templates
 

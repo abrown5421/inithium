@@ -89,17 +89,35 @@ Content pages carry `content`: `{ draft, published }` content documents ([0093](
 
 ## Seeding
 
-On every start, after the dev account and [site settings](site-settings.md), the api runs `seedCorePages()`. It creates core's single-use pages if they don't exist yet:
+On every start, after the dev account and [site settings](site-settings.md), the api runs `seedCorePages()`. It creates core's pages if they don't exist yet: the single-use ones, and the privacy policy, a content page:
 
 | Template | Path | Title | Layouts | Audience | Menus |
 | --- | --- | --- | --- | --- | --- |
 | `home` | `/` | Home | `default` | all | `primary-nav`, `primary-footer` |
-| `profile` | `/profile/:id` | Profile | `default` | all | `profile-nav` |
+| `profile` | `/profile/:id` | Profile | `full-width` | all | `profile-nav` |
 | `login` | `/login` | Login | `bare` | signed-out | none |
 | `sign-up` | `/sign-up` | Sign up | `bare` | signed-out | none |
 | `not-found` | `/404` | Page not found | `default` | all | none |
+| `content` (seed key `privacy-policy`) | `/privacy-policy` | Privacy policy | `full-width`, `default`, `bare` | all | `secondary-footer` |
 
 New pages are published and protected. On later starts the seed **never touches what the CMS edits** (titles, status, appearance, audience, menus, SEO). It only brings the fields the code owns, `path` and `layouts`, back in line with the seed. If the chosen layout is no longer allowed, it resets to the first. That way, a template that gains a layout (Profile will move to `profile`) updates existing sites on their next start. The Not Found page also serves unknown paths and unpublished pages in `web`.
+
+### Seeded content pages
+
+A seed for a reusable template, such as a content page, carries a **`seedKey`** stored on the page, and is found by it on later starts; other seeds are found by their template ([0097](../decisions/0097-seed-a-starter-privacy-policy-as-a-content-page.md)).
+
+- **Starting blocks:** its `content()` gives the page's blocks. They're written once, as both draft and published, when the page is created, and later starts never touch them, so admins edit the page freely in the [content editor](../architecture/content-pages.md#editing).
+- **An address already in use:** if another page already uses the address, the seed leaves it alone and logs `[ seed ] page '<key>' not created: another page already uses <path>`. Move or delete that page, and the next start creates the seeded one.
+
+**The privacy policy.** `privacyPolicyContent()` writes a starter policy in plain English covering what core itself collects and its cookies. It covers:
+- account details;
+- the public profile;
+- sign-in sessions;
+- the brief IP-based limit on failed sign-ins;
+- the two essential cookies, `inithium_access` and `inithium_refresh`, with their lifetimes from `JWT_ACCESS_TTL_MINUTES` / `JWT_REFRESH_TTL_DAYS`;
+- use, sharing, how long data is kept, the reader's rights and changes to the policy.
+
+It's a starting point, not legal advice. Each site's owner edits it to match their site, including anything plugins or their own processes add.
 
 `seedPages(seeds)` takes any list of `PageSeed`s, so plugins can seed their own pages the same way. How their unseed tracks what it created is still open ([0019](../decisions/0019-seed-tracking.md)).
 
@@ -112,4 +130,4 @@ New pages are published and protected. On later starts the seed **never touches 
 - **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()`, `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`.
 - **Reusable templates:** `reusableTemplates` and `listReusableTemplates()`.
 - **Routers:** `pagesRouter` (mounted at `/api/pages`) and `siteRouter` (mounted at `/api/site`).
-- **Seeding:** `seedPages()`, `seedCorePages()` and `corePageSeeds`.
+- **Seeding:** `seedPages()`, `seedCorePages()`, `corePageSeeds` and `privacyPolicyContent()`.
