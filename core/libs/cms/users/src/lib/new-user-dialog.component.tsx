@@ -92,9 +92,6 @@ export function NewUserDialog({ open, onClose, roles, onCreated }: NewUserDialog
             helperText={ROLE_HELP[values.role]}
             error={errors.role}
           />
-          <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-            They get a generated avatar and banner, just like a sign-up, and can change them from their profile.
-          </Text>
           <Container flex={{ gap: 8 }}>
             <Button type="submit" leadingIcon="user-plus" loading={isLoading}>
               Create account
