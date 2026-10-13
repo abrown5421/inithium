@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in, the 
 scope: core
 tags: [cms, architecture, permissions]
 order: 6
-decisions: ["0083", "0086", "0087", "0098"]
+decisions: ["0083", "0086", "0087", "0098", "0099"]
 ---
 
 # The CMS
@@ -88,7 +88,7 @@ The editor is a Modal over a draft, with five tabs:
 `MediaScreen` (`@inithium/cms-media`, needs `assets.upload`) is the library of uploaded files ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md), [Assets](../backend/assets.md)):
 
 - **Storage meter:** in `database` mode, how much of the quota is used (red from 90%).
-- **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video).
+- **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video). **Member uploads** shows members' avatars and banners instead, which are otherwise kept apart from the site's files; owners and admins can delete one, and that profile goes back to its generated picture ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)).
 - **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it).
 - **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
 - **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo, with a note saying to choose another logo first). Delete asks for confirmation in the footer, listing how many places will show a missing image.

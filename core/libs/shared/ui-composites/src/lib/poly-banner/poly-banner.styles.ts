@@ -6,6 +6,7 @@ export const polyBannerStyleSheet = `
 .ui-poly-canvas { position: absolute; inset: 0; overflow: hidden; }
 .ui-poly-canvas > svg { display: block; width: 100%; height: 100%; }
 .ui-poly-canvas polygon { stroke-width: 1px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.ui-poly-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ui-poly-content { position: relative; height: 100%; }
 .ui-poly-preview { position: relative; width: 100%; margin: 0 auto; border-radius: 8px; overflow: hidden; }
 `;

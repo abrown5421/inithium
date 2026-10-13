@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { publicProfileName, type AvatarRecipe, type PolyPattern, type ProfileViewer } from '@inithium/shared-contracts';
-import { readApiFailure, useAlerts, useGetProfileQuery, useUpdateMyProfileMutation } from '@inithium/shared-data-access';
+import { profileImage, publicProfileName, type ProfileViewer, type UpdateProfileRequest } from '@inithium/shared-contracts';
+import { readApiFailure, useAlerts, useGetProfileQuery, useGetStorageInfoQuery, useUpdateMyProfileMutation } from '@inithium/shared-data-access';
+import { UploadDialog } from '@inithium/shared-media';
 import { Container, Icon, Text } from '@inithium/shared-ui-components';
 import { Alert, Tabs } from '@inithium/shared-ui-composites';
 import { ProfileLayout } from '@inithium/shared-ui-layouts';
@@ -54,7 +55,8 @@ const visible = <Entry extends ProfileSlotEntry>(entries: Entry[], viewer: Profi
  * Core's Profile page (decisions 0081, 0090, 0091): the profile's banner, avatar, name and bio in ProfileLayout's
  * sidebar, with its tabs in the main column, each for the viewers it names. Plugins add tabs, sidebar sections and
  * header actions through the web registry. Its owner edits the avatar and banner in place, and everything else in
- * the Account tab's form.
+ * the Account tab's form. With cloud storage for everyone (decision 0098), the editors also offer uploading a
+ * picture, shown instead of the generated one, which stays as its fallback.
  */
 export function ProfilePage({ params }: PageTemplateProps) {
   const id = params['id'] ?? '';
@@ -68,6 +70,9 @@ export function ProfilePage({ params }: PageTemplateProps) {
   const lastAlert = useRef<string | null>(null);
 
   const viewer: ProfileViewer = !user ? 'visitor' : user.id === id ? 'owner' : 'member';
+  // Only the owner can upload, and only when the site stores members' pictures (STORAGE_MODE=cloud-all).
+  const storage = useGetStorageInfoQuery(undefined, { skip: viewer !== 'owner' });
+  const [uploading, setUploading] = useState<'avatar' | 'banner' | null>(null);
   const tabs = useMemo(() => visible([...CORE_TABS, ...slots.tabs], viewer), [slots.tabs, viewer]);
   const sidebar = useMemo(() => visible([...CORE_SIDEBAR, ...slots.sidebarSections], viewer), [slots.sidebarSections, viewer]);
   const actions = useMemo(() => visible(slots.headerActions, viewer), [slots.headerActions, viewer]);
@@ -95,7 +100,7 @@ export function ProfilePage({ params }: PageTemplateProps) {
   const requested = searchParams.get('tab');
   const activeTab = tabs.find((tab) => tab.key === requested)?.key ?? tabs[0]?.key;
 
-  const save = async (changes: { avatar: AvatarRecipe } | { banner: PolyPattern }, what: string) => {
+  const save = async (changes: UpdateProfileRequest, what: string) => {
     try {
       await updateProfile(changes).unwrap();
     } catch (error) {
@@ -111,14 +116,20 @@ export function ProfilePage({ params }: PageTemplateProps) {
   };
 
   const owner = viewer === 'owner';
+  const uploads = owner && storage.data?.memberUploads === true;
 
   return (
     <ProfileLayout
       name={name}
       avatar={profile.avatar}
       banner={profile.banner}
-      onAvatarChange={owner ? (avatar) => void save({ avatar }, 'avatar') : undefined}
-      onBannerChange={owner ? (banner) => void save({ banner }, 'banner') : undefined}
+      // Saving a generated one while a picture shows switches back to it, and the picture is deleted.
+      onAvatarChange={owner ? (avatar) => void save({ avatar, ...(profile.avatarAssetId ? { avatarAssetId: null } : {}) }, 'avatar') : undefined}
+      onBannerChange={owner ? (banner) => void save({ banner, ...(profile.bannerAssetId ? { bannerAssetId: null } : {}) }, 'banner') : undefined}
+      avatarImage={profileImage(profile.avatarAssetId)}
+      bannerImage={profileImage(profile.bannerAssetId)}
+      onAvatarUpload={uploads ? () => setUploading('avatar') : undefined}
+      onBannerUpload={uploads ? () => setUploading('banner') : undefined}
       actions={actions.length > 0 ? actions.map((action) => <action.component key={action.key} {...props} />) : undefined}
       sidebar={sidebar.map((section) => (
         <Container as="section" key={section.key} flex={{ direction: 'column', gap: 10 }}>
@@ -150,6 +161,17 @@ export function ProfilePage({ params }: PageTemplateProps) {
           </Container>
         )}
       </Container>
+      {uploads && (
+        <UploadDialog
+          open={uploading !== null}
+          onClose={() => setUploading(null)}
+          purpose={uploading ?? 'avatar'}
+          title={uploading === 'banner' ? 'Upload a banner' : 'Upload a profile picture'}
+          onUploaded={(asset) =>
+            void save(uploading === 'banner' ? { bannerAssetId: asset.id } : { avatarAssetId: asset.id }, uploading === 'banner' ? 'banner' : 'avatar')
+          }
+        />
+      )}
     </ProfileLayout>
   );
 }

@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0090", "0091", "0098"]
+decisions: ["0074", "0075", "0081", "0090", "0091", "0098", "0099"]
 ---
 
 # Profiles
@@ -22,6 +22,8 @@ The user's `profile` subdocument ([Users](users.md#profiles)), validated by `use
 | `bio` | string, optional | Up to 280 characters (`profileLimits.bio`) |
 | `avatar` | `AvatarRecipe` | An [Avatar](../ui-library/composites/avatar.md) recipe. Always present. |
 | `banner` | `PolyPattern` | A [PolyBanner](../ui-library/composites/poly-banner.md) recipe. Always present. |
+| `avatarAssetId` | string, optional | An uploaded picture shown instead of the generated avatar ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). |
+| `bannerAssetId` | string, optional | An uploaded picture shown instead of the generated banner. |
 
 Plugins never add to it; they keep per-user data in their own collections ([0026](../decisions/0026-plugins-keep-user-data-in-their-own-collections.md)).
 
@@ -52,8 +54,8 @@ No account is ever without a saved avatar and banner. `createUser()` in `@inithi
 
 Both are in `profilesRouter` from `@inithium/api-profiles`, mounted at `/api/profiles`.
 
-- **`PublicProfile`** (`publicProfileSchema`): `id`, `firstName?`, `lastName?`, `bio?`, `avatar`, `banner`, `joinedAt` (ISO), and `email` only when the viewer is the profile's owner. The route reads the session with `readAuth(req)` from `@inithium/api-auth`, which never rejects a request.
-- **`UpdateProfileRequest`** (`updateProfileRequestSchema`): any of `firstName` (1–50), `lastName` (up to 50), `bio` (up to 280), `avatar`, `banner`; unknown keys are rejected. Fields left out stay as they are; an empty `lastName` or `bio` removes it. Text is trimmed.
+- **`PublicProfile`** (`publicProfileSchema`): `id`, `firstName?`, `lastName?`, `bio?`, `avatar`, `banner`, `avatarAssetId?`, `bannerAssetId?`, `joinedAt` (ISO), and `email` only when the viewer is the profile's owner. The route reads the session with `readAuth(req)` from `@inithium/api-auth`, which never rejects a request.
+- **`UpdateProfileRequest`** (`updateProfileRequestSchema`): any of `firstName` (1–50), `lastName` (up to 50), `bio` (up to 280), `avatar`, `banner`, `avatarAssetId`, `bannerAssetId`; unknown keys are rejected. Fields left out stay as they are; an empty `lastName` or `bio` removes it. Text is trimmed. An asset id must be the user's own upload of that kind (`400` with `field` otherwise); `null` goes back to the generated picture. A picture that's replaced or removed is deleted.
 
 From the frontends, use `useGetProfileQuery(id)` and `useUpdateMyProfileMutation()` from `@inithium/shared-data-access` ([Calling the API](calling-the-api.md)). A saved edit goes straight into that profile's cache entry, and the current user refetches so the Navbar's name and avatar follow.
 
@@ -111,9 +113,18 @@ Every entry (`ProfileSlotEntry`) has:
 
 `ProfileTab` adds a `label` and an optional `icon`, `ProfileSidebarSection` adds a `label` (its heading), and a `ProfileHeaderAction`'s component renders its own button. The app hands the registry to the page through `ProfileSlotsProvider`. A slot's data comes from the plugin's own endpoints, never from the profile or `/auth/me` ([0026](../decisions/0026-plugins-keep-user-data-in-their-own-collections.md)).
 
+## Uploaded pictures
+
+With `STORAGE_MODE=cloud-all` ([Assets](assets.md#members-pictures)), an owner can show an uploaded picture instead of their generated avatar or banner ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)):
+
+- The avatar's and the banner's editors gain **Upload a picture**. It opens the upload form, cropped to a circle or 4:1, and the result is attached with `PATCH /api/profiles/me`.
+- The picture shows on the profile and in the Navbar. `profileImage(assetId)` from `@inithium/shared-contracts` turns the id into the `{ src }` the Avatar, PolyBanner, ProfileLayout and Navbar take.
+- If it fails to load, the generated one shows: the recipe is always kept.
+- With a picture showing, the editor says so, and saving there (**Use this avatar** / **Use this banner**) goes back to the generated one and deletes the picture.
+- In the other modes, the editors look as they always have, and pictures already attached keep showing while their files exist.
+
 ## Not built yet
 
-- **Uploaded avatar and banner images:** these need the `cloud-all` storage mode and the R2 driver, which isn't built yet ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 - **Changing the email:** this needs email verification.
 - **Privacy settings.**
 - **Usernames in profile addresses:** ids are MongoDB ids for now.

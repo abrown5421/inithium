@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { logoImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
+import { logoImage, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
@@ -213,7 +213,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
           logo={bundle.settings.logo ? logoImage(bundle.settings.logo) : defaultLogo}
           links={menus.primary}
           userLinks={menus.profile}
-          user={user ? { name: userDisplayName(user), avatar: user.profile.avatar } : undefined}
+          user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId) } : undefined}
           currentPath={location.pathname}
           onNavigate={(href) => navigate(href)}
           onLogout={() => void handleLogout()}

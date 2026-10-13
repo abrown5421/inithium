@@ -4,7 +4,7 @@ description: The users collection, covering its fields and roles, the user servi
 scope: core
 tags: [users, roles, mongodb, backend]
 order: 5
-decisions: ["0022", "0024", "0025", "0026", "0074", "0075", "0090", "0098"]
+decisions: ["0022", "0024", "0025", "0026", "0074", "0075", "0090", "0098", "0099"]
 ---
 
 # Users
@@ -72,7 +72,7 @@ The `profile` subdocument holds profile data, kept apart from the authentication
 
 `userDisplayName(user)` from `@inithium/shared-contracts` gives the name to show a user for themselves: first and last name, or their email when they have none. Others see `publicProfileName(profile)`, which says "Member" instead of ever showing the email.
 
-Uploaded avatar and banner images wait for the R2 driver and the `cloud-all` storage mode ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): an uploaded image will fall back to the generated recipe when it fails to load.
+An uploaded picture may replace either (`profile.avatarAssetId`, `profile.bannerAssetId`) in the `cloud-all` storage mode, with the recipe kept as its fallback ([Profiles](profiles.md#uploaded-pictures), [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). `findUsersWithProfileImage()` and `clearProfileImage()` find and clear the profiles showing an asset.
 
 ## Plugins and users
 

@@ -44,7 +44,7 @@ Type names such as `Colour`, `Sides` and `Variants<T>` are defined on [Style pro
 | --- | --- | --- | --- |
 | [`title`, `logo`, `homeHref`](#title-logo-and-homehref) | `string`, `{ src, alt }`, `string` | none, none, `'/'` | The brand |
 | [`links`](#links) | `NavItem[]` | `[]` | Page links and groups |
-| [`user`](#user) | `{ name, avatar? }` | none (signed out) | The signed-in user |
+| [`user`](#user) | `{ name, avatar?, image? }` | none (signed out) | The signed-in user |
 | [`userLinks`](#userlinks) | `NavLink[]` | `[]` | The user's links, in the drawer |
 | [`currentPath`](#currentpath) | `string` | none | Marks the current link |
 | [`onNavigate`](#onnavigate) | `(href) => void` | browser navigation | The app's router |
@@ -83,7 +83,7 @@ The page links, in order (`navItemSchema` in `@inithium/shared-contracts`). Each
 
 #### `user`
 
-The signed-in user, from `GET /api/auth/me`; leave it out when signed out. The bar shows their [Avatar](avatar.md), 36px, which opens the drawer. `avatar` is their avatar's recipe; without one, it shows initials from `name`. **Type:** `{ name: string; avatar?: AvatarRecipe }`.
+The signed-in user, from `GET /api/auth/me`; leave it out when signed out. The bar shows their [Avatar](avatar.md), 36px, which opens the drawer. `avatar` is their avatar's recipe; without one, it shows initials from `name`. `image` is an uploaded picture shown instead, with the recipe as its fallback (the Avatar's [`image`](avatar.md#image)). **Type:** `{ name: string; avatar?: AvatarRecipe; image?: { src: string } }`.
 
 #### `userLinks`
 

@@ -4,7 +4,7 @@ description: A circular identifier drawn by DiceBear from a small, storable reci
 scope: core
 tags: [ui, composite, profiles]
 order: 4
-decisions: ["0065", "0069", "0075"]
+decisions: ["0065", "0069", "0075", "0099"]
 component:
   name: Avatar
   layer: composite
@@ -68,6 +68,8 @@ Type names such as `Size`, `Sides` and `Variants<T>` are defined on [Style props
 | --- | --- | --- | --- |
 | [`value`, `defaultValue`, `onChange`](#value-defaultvalue-and-onchange) | `AvatarRecipe` | random initials | The recipe |
 | [`editable`](#editable) | `boolean` | `false` | Edit button and editor |
+| [`image`](#image) | `{ src: string }` | none | An uploaded picture shown instead |
+| [`onUpload`](#onupload) | `() => void` | none | Adds Upload a picture to the editor |
 | [`name`](#name) | `string` | none | The initials style's letters |
 | [`label`](#label) | `string` | none (decorative) | Describes the avatar |
 | [`width`, `height`](#width-and-height) | `Variants<Size>` | `40` | Size |
@@ -96,6 +98,23 @@ Shows a round pencil button on the circle's bottom-right edge, labelled "Edit av
 - **Cancel** and **Save**.
 
 Changes stay in a draft until Save. Cancel, ✕, Escape or clicking outside throw the draft away. **Type:** `boolean`. **Default:** `false`.
+
+#### `image`
+
+An uploaded picture to show in the circle instead of the generated art ([0099](../../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)), cropped to fill it. The recipe stays: if the picture fails to load, the art is drawn instead, so the avatar is never blank. While a picture shows, the editor says so, and its Save becomes **Use this avatar**, since saving switches back to the generated one; your `onChange` should then drop the picture. For a stored asset id, `profileImage(id)` from `@inithium/shared-contracts` gives the value. **Type:** `{ src: string }`. **Default:** none.
+
+```tsx
+<Avatar value={recipe} image={{ src: assetUrl(assetId) }} />
+<Avatar value={recipe} image={profileImage(profile.avatarAssetId)} />
+```
+
+#### `onUpload`
+
+Adds **Upload a picture** to the editor's footer. It closes the editor and calls this; the app does the uploading (e.g. with `UploadDialog` from `@inithium/shared-media`), then passes the result as `image`. Leave it out when uploads aren't available, e.g. outside the `cloud-all` storage mode. **Type:** `() => void`. **Default:** none.
+
+```tsx
+<Avatar editable value={recipe} onChange={save} image={image} onUpload={() => setUploading(true)} />
+```
 
 #### `name`
 
@@ -149,6 +168,14 @@ Click the pencil, pick a style and step through avatars; the saved recipe shows 
 
 ```example
 ui-library/avatar/editable
+```
+
+### Example: Uploaded picture
+
+A picture in place of the generated avatar. Edit it to go back to the generated one, or to upload it again.
+
+```example
+ui-library/avatar/uploaded-picture
 ```
 
 ### Example: Background and transforms

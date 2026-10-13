@@ -15,6 +15,8 @@ export type NavbarUser = {
   name: string;
   /** Their avatar's recipe. Default: initials from the name. */
   avatar?: AvatarRecipe;
+  /** An uploaded picture shown instead of the recipe, which stays as its fallback. */
+  image?: { src: string };
 };
 
 export type NavbarProps = NavbarSerializableProps &
@@ -244,7 +246,7 @@ export function Navbar({
                 aria-expanded={menuOpen}
                 onClick={() => setMenuOpen(true)}
               >
-                <Avatar width={36} height={36} name={user.name} value={user.avatar ?? { style: 'initials', seed: user.name }} />
+                <Avatar width={36} height={36} name={user.name} value={user.avatar ?? { style: 'initials', seed: user.name }} image={user.image} />
               </button>
             ) : wide ? (
               <Button color={color} onClick={() => go(loginHref)}>

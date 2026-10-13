@@ -54,6 +54,8 @@ Under **Environment**, add:
 
 Render provides `PORT`. The full list, with optional variables, is on [Environment variables](../backend/environment-variables.md).
 
+**Uploaded files** go to the site's database by default (`STORAGE_MODE=database`), so nothing else is needed. To store them in Cloudflare R2 instead, set `STORAGE_MODE` to `cloud-staff` or `cloud-all` and add the `R2_*` variables; [Cloudflare R2](../backend/assets.md#cloudflare-r2) has the steps. The log then shows `[ storage ] r2`, or the startup stops saying what's wrong with the bucket.
+
 ## 3. Deploy and check
 
 Create the service. The build takes a few minutes. When it's live, the log ends with:

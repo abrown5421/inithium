@@ -27,6 +27,10 @@ export type UploadFormProps = {
 
 const STAFF_PURPOSES: readonly AssetPurpose[] = ['content', 'logo', 'favicon', 'font', 'document'];
 
+/** Members' own pictures: raster images only (decision 0098), described by the profile's name rather than alt text. */
+const MEMBER_PURPOSES = new Set<AssetPurpose>(['avatar', 'banner']);
+const MEMBER_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
+
 /**
  * Uploads one file (decision 0098): choose or drop it, then, for images, crop or fit it to a shape suited to its
  * purpose (a circle for avatars, a strip for banners), describe it, and for fonts confirm the licence. Images are
@@ -60,6 +64,7 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
   const shape = shapes.find((candidate) => candidate.value === shapeValue) ?? shapes[0];
   const aspect = shape?.aspect ?? (natural ? natural.width / natural.height : 1);
   const isFont = purpose === 'font';
+  const memberPicture = MEMBER_PURPOSES.has(purpose);
   const isImage = Boolean(file?.type.startsWith('image/'));
 
   const fail = (message: string, title = 'We couldn’t upload this file') => {
@@ -112,7 +117,7 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
         body = await renderCrop(previewUrl, crop.current, { background: fill });
         filename = file.name.replace(/\.[^.]+$/, '') + (body.type === 'image/webp' ? '.webp' : '.png');
       }
-      const asset = await uploadAsset({ file: body, filename, purpose, alt: isImage ? alt.trim() : undefined, fontLicence: isFont && licence }).unwrap();
+      const asset = await uploadAsset({ file: body, filename, purpose, alt: isImage && !memberPicture ? alt.trim() : undefined, fontLicence: isFont && licence }).unwrap();
       if (lastAlert.current) dismissAlert(lastAlert.current);
       lastAlert.current = showAlert({ color: 'green', icon: 'circle-check', title: 'Uploaded', message: `${asset.filename} (${formatBytes(asset.size)}) is ready.` });
       onUploaded(asset);
@@ -145,7 +150,7 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
           ref={picker}
           type="file"
           hidden
-          accept={acceptedExtensions(kinds).join(',')}
+          accept={(memberPicture ? MEMBER_EXTENSIONS : acceptedExtensions(kinds)).join(',')}
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             choose(event.target.files?.[0]);
             event.target.value = '';
@@ -169,7 +174,9 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
             {file ? 'Choose another file' : 'Choose a file'}
           </Button>
           <Text as="p" fontSize={12} align="center" textColor={{ color: 'surface', intensity: 700 }}>
-            {kinds.includes('image') && kinds.length === 1
+            {memberPicture
+              ? 'A PNG, JPEG, WebP, GIF or AVIF picture. It’s shrunk to fit 2 MB.'
+              : kinds.includes('image') && kinds.length === 1
               ? 'Images are shrunk to fit 2 MB. SVG and ICO files are kept as they are.'
               : 'Images are shrunk to fit 2 MB; other files must be under 2 MB.'}
           </Text>
@@ -215,7 +222,7 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
           </Container>
         )}
 
-        {file && isImage && (
+        {file && isImage && !memberPicture && (
           <Input
             label="Description (alt text)"
             helperText="Describes the image for people who can’t see it. Each use can change it."

@@ -10,6 +10,9 @@ const profileSchema = new Schema(
     bio: { type: String, trim: true },
     avatar: { type: Schema.Types.Mixed },
     banner: { type: Schema.Types.Mixed },
+    // Uploaded pictures shown instead of the generated ones, which stay as their fallbacks (decision 0098).
+    avatarAssetId: { type: String },
+    bannerAssetId: { type: String },
   },
   { _id: false },
 );

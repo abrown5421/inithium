@@ -16,6 +16,13 @@ export type PolyBannerProps = PolyBannerSerializableProps &
     onChange?: (pattern: PolyPattern) => void;
     /** Anything drawn over the pattern, e.g. a name or an avatar. */
     children?: ReactNode;
+    /**
+     * An uploaded picture to show instead of the pattern (decision 0098), covering the banner. If it fails to load,
+     * the pattern is drawn instead, so the banner is never blank.
+     */
+    image?: { src: string };
+    /** Adds 'Upload a picture' to the editor, which closes it and calls this; the app does the uploading. */
+    onUpload?: () => void;
   };
 
 /**
@@ -27,6 +34,8 @@ export function PolyBanner({
   value,
   defaultValue,
   onChange,
+  image,
+  onUpload,
   editable = false,
   label,
   children,
@@ -47,6 +56,9 @@ export function PolyBanner({
   const [own, setOwn] = useState(() => defaultValue ?? createPolyPattern());
   const pattern = value ?? own;
   const [editing, setEditing] = useState(false);
+  // The address that failed to load, if any: the pattern shows in its place.
+  const [failed, setFailed] = useState<string | null>(null);
+  const picture = image && image.src !== failed ? image.src : undefined;
 
   // The pattern is drawn for the banner's real size, so it's measured, and again whenever it changes.
   const root = useRef<HTMLElement>(null);
@@ -94,7 +106,12 @@ export function PolyBanner({
         onEntranceEnd={onEntranceEnd}
         onExitEnd={onExitEnd}
       >
-        <PolyPatternCanvas pattern={pattern} width={size.width} height={size.height} label={label} />
+        {picture ? (
+          // A plain <img>: it fills the banner behind its content, which is this composite's internals (decision 0092).
+          <img className="ui-poly-photo" src={picture} alt={label ?? ''} aria-hidden={label ? undefined : true} onError={() => setFailed(picture)} />
+        ) : (
+          <PolyPatternCanvas pattern={pattern} width={size.width} height={size.height} label={label} />
+        )}
         {children !== undefined && <div className="ui-poly-content">{children}</div>}
         {editable && (
           <>
@@ -116,6 +133,8 @@ export function PolyBanner({
               width={size.width}
               height={size.height}
               onSave={save}
+              hasImage={Boolean(picture)}
+              onUpload={onUpload}
             />
           </>
         )}
