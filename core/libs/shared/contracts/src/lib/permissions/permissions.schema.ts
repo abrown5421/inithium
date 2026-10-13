@@ -13,6 +13,10 @@ export const permissions = [
   'settings.edit',
   'assets.upload',
   'assets.delete',
+  'users.view',
+  'users.create',
+  'users.edit',
+  'users.delete',
 ] as const;
 
 export const permissionSchema = z.enum(permissions);

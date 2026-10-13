@@ -18,6 +18,7 @@ The `api` app is an Express server and the only thing that talks to MongoDB. It 
 | [Database](database.md) | MongoDB, the connection lifecycle, connection strings and collections |
 | [Authentication](authentication.md) | Sign-in, cookies, roles, permissions and the dev account |
 | [Users](users.md) | The users collection, roles and service functions |
+| [User management](user-management.md) | Creating, changing and deleting accounts from the CMS, and plugins' deletion hooks |
 | [Pages](pages.md) | The pages collection, its endpoints and edit rules, and seeded pages |
 | [Site settings](site-settings.md) | The site title, logo and copyright record |
 | [Profiles](profiles.md) | Profile data, generated avatars and banners, the profile API, and the Profile page with its viewers and slots |

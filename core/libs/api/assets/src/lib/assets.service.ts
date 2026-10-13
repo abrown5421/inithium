@@ -209,6 +209,18 @@ export async function checkProfileImage(userId: string, assetId: string, purpose
   }
 }
 
+/**
+ * Deletes the avatars and banners these accounts uploaded, for deleting the accounts (decision 0100). Files staff
+ * uploaded for the site (logos, page images and so on) are site content and stay.
+ */
+export async function deleteMemberUploads(userIds: string[]): Promise<void> {
+  const uploads = await AssetModel.find({ uploadedBy: { $in: userIds }, purpose: { $in: MEMBER_PURPOSES } });
+  for (const asset of uploads) {
+    await driverFor(asset.driver).remove(asset.key);
+    await asset.deleteOne();
+  }
+}
+
 /** Deletes a member's replaced or removed profile picture. Its own deletion never blocks, so this doesn't either. */
 export async function releaseProfileImage(assetId: string): Promise<void> {
   const asset = await AssetModel.findById(assetId);

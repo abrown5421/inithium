@@ -43,6 +43,7 @@ Every API route is under `/api`, on one router:
 | `/api/profiles/*` | `profilesRouter` from `@inithium/api-profiles`. See [Profiles](profiles.md). |
 | `/api/settings` | `settingsRouter` from `@inithium/api-settings`. See [Site settings](site-settings.md). |
 | `/api/assets/*` | `assetsRouter` from `@inithium/api-assets`; `GET /api/assets/:id` serves files to anyone. See [Assets](assets.md). |
+| `/api/users/*` | `createUsersRouter({ deletionHooks })` from `@inithium/api-user-management`, given the api registry's `registeredUserDeletionHooks` (`apps/api/src/app/plugins.registry.ts`, shipped empty). See [User management](user-management.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 
 The router parses JSON bodies (`express.json()`, up to 1 MB, since content drafts are saved whole) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).

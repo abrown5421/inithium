@@ -8,6 +8,8 @@ const accessTokenPayloadSchema = z.object({
   role: roleSchema,
   /** Set while the account must change its password before doing anything else (decision 0088). */
   pcr: z.literal(true).optional(),
+  /** When it was issued, in seconds, so revoked sessions can be refused (decision 0100). */
+  iat: z.number().optional(),
 });
 
 /** What an access token carries: who the user is and their role. Everything else comes from /api/auth/me. */

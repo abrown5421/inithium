@@ -6,6 +6,7 @@ export * from './lib/form-errors.service';
 export * from './lib/modals.slice';
 export * from './lib/pages.api';
 export * from './lib/profiles.api';
+export * from './lib/users.api';
 export * from './lib/settings.api';
 export * from './lib/site.api';
 export * from './lib/store.config';

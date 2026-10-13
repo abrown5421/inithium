@@ -4,7 +4,7 @@ description: Step by step, deploying Inithium (or a client's copy) as one Render
 scope: core
 tags: [deployment, render, hosting]
 order: 4
-decisions: ["0006", "0089"]
+decisions: ["0006", "0089", "0100"]
 ---
 
 # Deploying to Render
@@ -53,6 +53,8 @@ Under **Environment**, add:
 | `SEED_DEV_PASSWORD` | The temporary password |
 
 Render provides `PORT`. The full list, with optional variables, is on [Environment variables](../backend/environment-variables.md).
+
+**Creating accounts** in the CMS (owners, admins, editors and members) needs `USER_TEMP_PASSWORD`, the temporary password every new account starts with; set a strong one, unique to this site ([User management](../backend/user-management.md#the-temporary-password)).
 
 **Uploaded files** go to the site's database by default (`STORAGE_MODE=database`), so nothing else is needed. To store them in Cloudflare R2 instead, set `STORAGE_MODE` to `cloud-staff` or `cloud-all` and add the `R2_*` variables; [Cloudflare R2](../backend/assets.md#cloudflare-r2) has the steps. The log then shows `[ storage ] r2`, or the startup stops saying what's wrong with the bucket.
 

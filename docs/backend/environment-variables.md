@@ -4,7 +4,7 @@ description: Every environment variable the api reads, its default and how it's 
 scope: core
 tags: [environment, config, mongodb, auth]
 order: 2
-decisions: ["0009", "0010", "0005", "0020", "0023", "0098", "0099"]
+decisions: ["0009", "0010", "0005", "0020", "0023", "0098", "0099", "0100"]
 ---
 
 # Environment variables
@@ -22,6 +22,7 @@ Only `@inithium/api-config` reads `process.env`. Everything else calls `loadEnv(
 | `JWT_REFRESH_TTL_DAYS` | No | `30` | Refresh token and cookie lifetime. |
 | `SEED_DEV_EMAIL` | Yes | | Email of the dev account created on startup when no dev user exists. Trimmed and lowercased. |
 | `SEED_DEV_PASSWORD` | Yes | | That account's temporary password. Use a different one for every client. |
+| `USER_TEMP_PASSWORD` | No | | The temporary password of accounts created in the CMS and of password resets there; they must change it on first sign-in. Must meet the password policy (the api won't start otherwise). Unset, creating accounts and resets are off. Shared by every new account, so use a strong value unique to the site ([User management](user-management.md#the-temporary-password)). |
 | `STORAGE_MODE` | No | `database` | Where uploaded files go ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `database` (MongoDB, staff uploads only), `cloud-staff` (R2, staff uploads only) or `cloud-all` (R2, members' avatars and banners too). The cloud modes need the `R2_*` settings below. |
 | `STORAGE_DATABASE_QUOTA_MB` | No | `250` | In `database` mode, the most space uploaded files may take, in MB. Uploads past it are refused. |
 | `R2_ACCOUNT_ID` | In cloud modes | | The Cloudflare account id, shown on the R2 overview page. Builds the endpoint; not needed with `R2_ENDPOINT`. See [Cloudflare R2](assets.md#cloudflare-r2) ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). |

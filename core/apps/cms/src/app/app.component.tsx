@@ -4,6 +4,7 @@ import { ContentEditorScreen } from '@inithium/cms-content-editor';
 import { PagesScreen } from '@inithium/cms-pages';
 import { MediaScreen } from '@inithium/cms-media';
 import { SettingsScreen } from '@inithium/cms-settings';
+import { UsersScreen } from '@inithium/cms-users';
 import { CmsAlerts, CmsShell, CmsTheme, DashboardPage, type CmsScreen } from '@inithium/cms-shell';
 
 // The CMS's screens, in sidebar order (decision 0086).
@@ -21,6 +22,7 @@ const screens: CmsScreen[] = [
     fill: true,
   },
   { path: '/media', label: 'Media', icon: 'images', element: <MediaScreen />, permission: 'assets.upload' },
+  { path: '/users', label: 'Users', icon: 'users', element: <UsersScreen />, permission: 'users.view' },
   { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },
 ];
 

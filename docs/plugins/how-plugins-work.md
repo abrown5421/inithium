@@ -4,7 +4,7 @@ description: How a plugin is laid out, installed as libs, wired in through slot 
 scope: ecosystem
 tags: [plugins, architecture, seeding]
 order: 1
-decisions: ["0002", "0015", "0016", "0019", "0026", "0029"]
+decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100"]
 ---
 
 # How plugins work
@@ -46,7 +46,12 @@ Core defines **slot points**: typed extension contracts such as API route mounts
 - **The install/eject tooling owns the registries.** Don't hand-edit them, and core never adds entries itself. With empty registries, the apps build and run with no plugin code at all.
 - **New extension points are slot contracts.** When core needs one, it adds a new slot contract and wires it in through the registry; core never looks for a particular plugin.
 
-The first registry exists: `apps/web/src/app/plugins.registry.ts`, where plugins (and `libs/client/`) register `web` page templates ([Pages and routing](../architecture/pages-and-routing.md#writing-a-template)) and profile tabs, sidebar sections and header actions ([Profiles](../backend/profiles.md#adding-to-the-profile)). The rest of the slot catalogue, and every other contract's exact shape, is still open ([0015](../decisions/0015-slot-catalogue.md)). Known candidates include a "user deleted" hook and a storage-driver slot.
+Two registries exist:
+
+- `apps/web/src/app/plugins.registry.ts`, where plugins (and `libs/client/`) register `web` page templates ([Pages and routing](../architecture/pages-and-routing.md#writing-a-template)) and profile tabs, sidebar sections and header actions ([Profiles](../backend/profiles.md#adding-to-the-profile)).
+- `apps/api/src/app/plugins.registry.ts`, where they register **user deletion hooks**, which remove a plugin's data when accounts are deleted ([User management](../backend/user-management.md#plugin-deletion-hooks), [0100](../decisions/0100-manage-accounts-from-the-cms.md)). Any plugin that keeps per-user data needs one.
+
+The rest of the slot catalogue, and every other contract's exact shape, is still open ([0015](../decisions/0015-slot-catalogue.md)).
 
 ## Seeding and unseeding
 

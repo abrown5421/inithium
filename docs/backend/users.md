@@ -4,7 +4,7 @@ description: The users collection, covering its fields and roles, the user servi
 scope: core
 tags: [users, roles, mongodb, backend]
 order: 5
-decisions: ["0022", "0024", "0025", "0026", "0074", "0075", "0090", "0098", "0099"]
+decisions: ["0022", "0024", "0025", "0026", "0074", "0075", "0090", "0098", "0099", "0100"]
 ---
 
 # Users
@@ -53,16 +53,20 @@ From `@inithium/api-users`:
 | `userExistsWithEmail(email)` | `boolean` |
 | `userExistsWithRole(role)` | `boolean` |
 | `findUserByIdWithPassword(id)` | The user including `passwordHash`, for checking the current password |
-| `createUser({ email, passwordHash, role, passwordChangeRequired?, names? })` | The new user, always with a generated avatar and banner ([Profiles](profiles.md#generated-on-creation)) |
+| `createUser({ email, passwordHash, role, passwordChangeRequired?, names?, createdBy? })` | The new user, always with a generated avatar and banner ([Profiles](profiles.md#generated-on-creation)) |
 | `toUser(document)` | The `User` shape the API returns |
 | `toPublicProfile(document, { owner })` | The `PublicProfile` shape, with the email only for its owner |
+| `toManagedUser(document)` | The `ManagedUser` shape the CMS's Users screen gets |
+| `listUsers({ skip, limit, search?, role?, excludeRoles? })` | A page of users, newest first, and the total; every word of `search` must appear in the email or names |
+| `findUsersByIds(ids)`, `countUsersWithRole(role)` | For bulk deletion and the last-owner check |
+| `deleteUserRecords(ids)` | Deletes the records only; use user management's deletion, which removes everything else first |
 | `updateUserProfile(document, changes)` | The user with a validated profile edit applied |
 | `backfillUserProfiles()` | Gives accounts without a stored avatar or banner their generated ones; runs on every api start |
 
 ## Creating accounts
 
 - **The dev account** is created automatically on startup ([Authentication](authentication.md#the-dev-account)).
-- **Owner, admin and editor accounts** will be created from the CMS once user management exists. That's blocked on deciding who may assign which roles ([0025](../decisions/0025-role-assignment-rules.md)). Until then, other accounts can only be created directly in MongoDB, and their `passwordHash` must be a valid scrypt hash.
+- **Any account, including owners, admins and editors,** can be created from the CMS's Users screen, on the site's temporary password ([User management](user-management.md), [0100](../decisions/0100-manage-accounts-from-the-cms.md)). Created accounts record `createdBy`.
 - **`user` accounts** are created by signing up on `web` ([Authentication](authentication.md#sign-up-and-the-password-policy)).
 - **Accounts with `passwordChangeRequired`** must choose their own password, meeting the policy ([0024](../decisions/0024-password-policy.md)), before doing anything else ([Authentication](authentication.md#temporary-passwords)).
 

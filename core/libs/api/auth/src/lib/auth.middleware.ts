@@ -2,6 +2,7 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import type { Permission } from '@inithium/shared-contracts';
 import { hasPermission } from '@inithium/shared-permissions';
 import { ACCESS_COOKIE } from './cookies.service';
+import { isSessionRevoked } from './sessions.service';
 import { verifyAccessToken, type AccessTokenPayload } from './tokens.service';
 
 const AUTH_LOCAL = 'auth';
@@ -18,8 +19,7 @@ export function getAuth(res: Response): AccessTokenPayload {
  * make that change possible (/auth/me and /auth/change-password). Everything else uses requireAuth.
  */
 export const requireSession: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
-  const token: unknown = req.cookies?.[ACCESS_COOKIE];
-  const payload = typeof token === 'string' ? verifyAccessToken(token) : null;
+  const payload = readAuth(req);
   if (!payload) {
     res.status(401).send({ message: 'Not authenticated' });
     return;
@@ -30,11 +30,12 @@ export const requireSession: RequestHandler = (req: Request, res: Response, next
 
 /**
  * The request's session, if it carries a valid access token, without requiring one: for public routes that answer
- * differently to a signed-in user (e.g. a profile shows its owner their email).
+ * differently to a signed-in user (e.g. a profile shows its owner their email). Revoked sessions count as none.
  */
 export function readAuth(req: Request): AccessTokenPayload | null {
   const token: unknown = req.cookies?.[ACCESS_COOKIE];
-  return typeof token === 'string' ? verifyAccessToken(token) : null;
+  const payload = typeof token === 'string' ? verifyAccessToken(token) : null;
+  return payload && !isSessionRevoked(payload.sub, payload.iat) ? payload : null;
 }
 
 /**

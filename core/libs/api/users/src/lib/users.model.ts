@@ -27,6 +27,8 @@ const usersSchema = new Schema(
     passwordChangeRequired: { type: Boolean, required: true, default: false },
     // Every account gets one, with a generated avatar and banner, when it's created (decision 0090).
     profile: { type: profileSchema, required: false },
+    // The account that created this one in the CMS (decision 0100); missing for sign-ups and the seeded dev account.
+    createdBy: { type: String },
   },
   { timestamps: true },
 );
