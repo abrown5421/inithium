@@ -1,11 +1,11 @@
 ---
 id: "0029"
 title: Decide which plugin uploads require a scalable storage driver
-status: proposed
-date: "2026-10-07"
+status: accepted
+date: "2026-10-13"
 scope: ecosystem
 tags: [assets, storage, plugins]
-related: ["0027", "0028"]
+related: ["0027", "0028", "0098"]
 supersedes: []
 ---
 
@@ -17,12 +17,17 @@ In core, only avatar and banner image uploads require a scalable (object-storage
 
 ## Decision
 
-Undecided. Open questions: does each plugin decide whether its uploads require a scalable driver, or is there an ecosystem-wide rule (e.g. by who uploads, or by expected volume)? Does an image field without a scalable driver fall back to generated images only, as avatars and banners do?
+Settled by the storage modes in [0098](0098-store-assets-by-storage-mode-with-a-2-mb-limit.md): the rule depends on **who uploads**, not on the plugin.
+
+- **Staff uploads** (anyone uploading with `assets.upload`, e.g. blog post banners, staff cards, product images) work in every mode, the database included, within the 2 MB limit and the database quota.
+- **Member uploads** (end users with the `user` role) work only in `cloud-all`. In the other modes a plugin offers members generated images only, as profiles do.
+- Plugins check the storage info the api reports (`memberUploads`), never the mode or a driver's name.
 
 ## Alternatives considered
 
-None recorded yet.
+- **Each plugin deciding for itself**: not chosen; the storage modes give one ecosystem-wide rule. No further rationale recorded.
 
 ## Consequences
 
-Plugins with uploads can't be built until this is decided.
+- Plugins with staff uploads can be built now; plugins with member uploads need the R2 driver (0098's step B) to be useful.
+- A plugin's member-upload field needs a generated or empty fallback for the modes without member uploads.

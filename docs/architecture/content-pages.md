@@ -57,11 +57,14 @@ Every block has an `id`, and can be hidden on phones or on wider screens with `h
 | Rich text | `rich-text` | A rich text `doc`, `align`, `textColor` |
 | Buttons | `buttons` | 1–4 buttons (`label`, `link`, `variant`, `color`, `icon`), `align` |
 | Feature | `feature` | `icon`, `title`, `text`, `align` (`start` or `center`), `iconColor` |
+| Image | `image` | `assetId`, `alt` (required unless `decorative`), `caption`, `width` (`full` or a px cap), `align`, `radius`, optional `link` |
 | Banner | `banner` | A PolyBanner `pattern`, `height`, optional `heading` and `text`, `align`, `textColor` |
 | Divider | `divider` | `color`, `thickness`, `lineStyle` |
 | Spacer | `spacer` | `height` in px |
 
-**Image** arrives with assets. Video embed, accordion, tabs, card grid, form and map come later, and plugins will add their own block types through a slot.
+The Image block shows an uploaded image by its asset id ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)); a missing image (deleted, or not chosen yet) shows a placeholder. In the editor, an Image block starts empty and holds the draft back from saving until an image is chosen; choosing one copies its default description, which the block may change.
+
+Video embed, accordion, tabs, card grid, form and map come later, and plugins will add their own block types through a slot.
 
 ### Rich text
 
@@ -161,4 +164,4 @@ Admins edit it like any content page. The seed never touches it again, so their 
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
 3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). Drag-and-drop, revision history and reusable sections come later.
 4. **The privacy policy (built):** seeded at `/privacy-policy` in the secondary footer, protected, with starter wording ([above](#the-privacy-policy)).
-5. **Assets and the Image block.** Not built.
+5. **Assets and the Image block (built):** the [Media library](cms.md#media), the picker and the Image block ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).

@@ -3,6 +3,7 @@ import { Button, Container, Divider, Icon, Text, type IconName } from '@inithium
 import { PolyBanner } from '@inithium/shared-ui-composites';
 import { useContentDecorators } from './content-decorators.context';
 import { useContentLinks } from './content-links.context';
+import { ImageBlockView } from './image-block.component';
 import { RichText } from './rich-text.component';
 
 const HEADING_SIZES = {
@@ -78,6 +79,8 @@ function BlockBody({ block }: { block: ContentBlock }) {
           })}
         </Container>
       );
+    case 'image':
+      return <ImageBlockView block={block} />;
     case 'divider':
       return <Divider color={block.color} thickness={block.thickness} lineStyle={block.lineStyle} decorative />;
     case 'spacer':

@@ -21,5 +21,5 @@ The `api` app is an Express server and the only thing that talks to MongoDB. It 
 | [Pages](pages.md) | The pages collection, its endpoints and edit rules, and seeded pages |
 | [Site settings](site-settings.md) | The site title, logo and copyright record |
 | [Profiles](profiles.md) | Profile data, generated avatars and banners, the profile API, and the Profile page with its viewers and slots |
-| [Assets](assets.md) | Stored files behind storage drivers (designed, not built) |
+| [Assets](assets.md) | Uploaded files: storage modes, accepted types, processing, the assets API and serving |
 | [Calling the API](calling-the-api.md) | How `web` and `cms` call the API with RTK Query |

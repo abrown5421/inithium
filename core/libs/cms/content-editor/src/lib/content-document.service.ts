@@ -153,7 +153,7 @@ function move<T>(items: T[], index: number, by: -1 | 1): T[] {
   return next;
 }
 
-/** A new block of a type, with starting content that's valid as it is. */
+/** A new block of a type, with starting content that's valid as it is (except an image, which waits for one to be chosen). */
 export function createBlock(type: ContentBlockType): ContentBlock {
   const id = createContentId();
   switch (type) {
@@ -161,6 +161,8 @@ export function createBlock(type: ContentBlockType): ContentBlock {
       return { id, type, level: 2, text: 'A heading' };
     case 'rich-text':
       return { id, type, doc: richTextFromPlainText('Write something here.') };
+    case 'image':
+      return { id, type, assetId: '' };
     case 'buttons':
       return { id, type, buttons: [{ id: createContentId(), label: 'Find out more', link: { type: 'url', href: 'https://example.com' } }] };
     case 'feature':
@@ -196,9 +198,10 @@ export function createBlock(type: ContentBlockType): ContentBlock {
 export const BLOCK_TYPES: Record<ContentBlockType, { label: string; icon: string; description: string }> = {
   heading: { label: 'Heading', icon: 'heading', description: 'A title for a part of the page' },
   'rich-text': { label: 'Text', icon: 'text', description: 'Paragraphs, lists, quotes and links' },
+  image: { label: 'Image', icon: 'image', description: 'A picture from the Media library' },
   buttons: { label: 'Buttons', icon: 'mouse-pointer-click', description: 'One to four links as buttons' },
   feature: { label: 'Feature', icon: 'sparkles', description: 'An icon with a title and a line of text' },
-  banner: { label: 'Banner', icon: 'image', description: 'A patterned banner with a heading' },
+  banner: { label: 'Banner', icon: 'rectangle-horizontal', description: 'A patterned banner with a heading' },
   divider: { label: 'Divider', icon: 'minus', description: 'A line between things' },
   spacer: { label: 'Spacer', icon: 'move-vertical', description: 'Empty space' },
 };
@@ -223,6 +226,8 @@ export function blockSummary(block: ContentBlock): string {
       const text = first && 'content' in first ? (first.content ?? []).map((part) => (part.type === 'text' ? part.text : ' ')).join('') : '';
       return text || 'Empty text';
     }
+    case 'image':
+      return block.caption || block.alt || (block.assetId ? 'Image' : 'No image chosen');
     case 'buttons':
       return block.buttons.map((button) => button.label).join(', ');
     case 'feature':

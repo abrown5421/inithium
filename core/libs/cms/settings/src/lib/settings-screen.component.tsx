@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
+import { logoImage, siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
 import {
   fieldErrorsFrom,
   focusFirstError,
@@ -9,13 +9,14 @@ import {
   useUpdateSettingsMutation,
   type FieldErrors,
 } from '@inithium/shared-data-access';
-import { Button, Container, Input, Loader, Text } from '@inithium/shared-ui-components';
+import { AssetField } from '@inithium/cms-media';
+import { Button, Container, Image, Input, Loader, Text } from '@inithium/shared-ui-components';
 import { defaultLogo, defaultTheme, themeColorProblem } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 
 type Draft = {
   siteTitle: string;
-  logoSrc: string;
+  logoAssetId: string;
   logoAlt: string;
   copyright: string;
   colors: Record<ThemeColor, string>;
@@ -23,12 +24,12 @@ type Draft = {
   customTheme: boolean;
 };
 
-const FIELDS = ['siteTitle', 'logo.src', 'logo.alt', 'copyright', ...themeColors.map((token) => `theme.colors.${token}` as const)] as const;
+const FIELDS = ['siteTitle', 'logo.assetId', 'logo.alt', 'copyright', ...themeColors.map((token) => `theme.colors.${token}` as const)] as const;
 type Field = (typeof FIELDS)[number];
 
 const draftOf = (settings: SiteSettings): Draft => ({
   siteTitle: settings.siteTitle,
-  logoSrc: settings.logo?.src ?? '',
+  logoAssetId: settings.logo?.assetId ?? '',
   logoAlt: settings.logo?.alt ?? '',
   copyright: settings.copyright ?? '',
   colors: { ...(settings.theme ?? defaultTheme).colors },
@@ -110,7 +111,7 @@ export function SettingsScreen() {
 
     const input: SiteSettingsInput = {
       siteTitle: draft.siteTitle,
-      ...(draft.logoSrc.trim() ? { logo: { src: draft.logoSrc.trim(), alt: draft.logoAlt.trim() } } : {}),
+      ...(draft.logoAssetId ? { logo: { assetId: draft.logoAssetId, alt: draft.logoAlt.trim() } } : {}),
       ...(draft.copyright.trim() ? { copyright: draft.copyright.trim() } : {}),
       ...(draft.customTheme
         ? { theme: { colors: Object.fromEntries(themeColors.map((token) => [token, normalizeHex(draft.colors[token])])) as Draft['colors'] } }
@@ -151,13 +152,16 @@ export function SettingsScreen() {
         <Section title="Site" description="Shown in the navigation bar, the footer and browser tabs.">
           <Input name="siteTitle" label="Site title" required value={draft.siteTitle} onValueChange={(siteTitle) => change({ siteTitle })} error={errors.siteTitle} />
           <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }}>
-            <Input
-              name="logo.src"
-              label="Logo address"
-              helperText="A link to the logo image. Uploads come later."
-              value={draft.logoSrc}
-              onValueChange={(logoSrc) => change({ logoSrc })}
-              error={errors['logo.src']}
+            <AssetField
+              label="Logo"
+              kind="image"
+              purpose="logo"
+              helperText="Shown in the navigation bar. Remove it to use Inithium’s default logo."
+              value={draft.logoAssetId || undefined}
+              onChange={(asset) =>
+                change(asset ? { logoAssetId: asset.id, logoAlt: draft.logoAlt.trim() || asset.alt || '' } : { logoAssetId: '', logoAlt: '' })
+              }
+              error={errors['logo.assetId']}
             />
             <Input
               name="logo.alt"
@@ -169,13 +173,14 @@ export function SettingsScreen() {
             />
           </Container>
           <Container flex={{ align: 'center', gap: 12 }}>
-            <img
-              src={draft.logoSrc.trim() || defaultLogo.src}
-              alt={draft.logoSrc.trim() ? draft.logoAlt : defaultLogo.alt}
-              style={{ height: 40, width: 'auto' }}
+            <Image
+              {...(draft.logoAssetId ? logoImage({ assetId: draft.logoAssetId, alt: draft.logoAlt }) : defaultLogo)}
+              height={40}
+              width="auto"
+              loading="eager"
             />
             <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-              {draft.logoSrc.trim() ? 'Preview of your logo.' : 'No logo set, so Inithium’s default logo is used.'}
+              {draft.logoAssetId ? 'Preview of your logo.' : 'No logo set, so Inithium’s default logo is used.'}
             </Text>
           </Container>
           <Input

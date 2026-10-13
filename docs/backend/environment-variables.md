@@ -4,7 +4,7 @@ description: Every environment variable the api reads, its default and how it's 
 scope: core
 tags: [environment, config, mongodb, auth]
 order: 2
-decisions: ["0009", "0010", "0005", "0020", "0023"]
+decisions: ["0009", "0010", "0005", "0020", "0023", "0098"]
 ---
 
 # Environment variables
@@ -22,6 +22,8 @@ Only `@inithium/api-config` reads `process.env`. Everything else calls `loadEnv(
 | `JWT_REFRESH_TTL_DAYS` | No | `30` | Refresh token and cookie lifetime. |
 | `SEED_DEV_EMAIL` | Yes | | Email of the dev account created on startup when no dev user exists. Trimmed and lowercased. |
 | `SEED_DEV_PASSWORD` | Yes | | That account's temporary password. Use a different one for every client. |
+| `STORAGE_MODE` | No | `database` | Where uploaded files go ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)): `database` (MongoDB, staff uploads only), `cloud-staff` or `cloud-all` (R2; the api refuses to start in these until the R2 driver is built). |
+| `STORAGE_DATABASE_QUOTA_MB` | No | `250` | In `database` mode, the most space uploaded files may take, in MB. Uploads past it are refused. |
 
 `NODE_VERSION=22` is also set on Render, but only to select the Node runtime; the app doesn't read it.
 

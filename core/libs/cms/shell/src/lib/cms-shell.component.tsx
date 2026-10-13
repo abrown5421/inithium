@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { matchPath, Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
-import { userDisplayName } from '@inithium/shared-contracts';
+import { logoImage, userDisplayName } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Container, Text } from '@inithium/shared-ui-components';
@@ -49,7 +49,7 @@ export function CmsShell({ screens }: CmsShellProps) {
     <SidebarLayout
       fill={fill}
       title={site?.settings.siteTitle ?? 'CMS'}
-      logo={site ? (site.settings.logo ?? defaultLogo) : undefined}
+      logo={site ? (site.settings.logo ? logoImage(site.settings.logo) : defaultLogo) : undefined}
       homeHref={toHref('/')}
       items={items}
       currentPath={toHref(location.pathname)}

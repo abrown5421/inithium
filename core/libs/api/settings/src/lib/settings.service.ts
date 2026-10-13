@@ -8,7 +8,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'Inithium' 
 export function toSiteSettings(doc: SettingsDocument): SiteSettings {
   return {
     siteTitle: doc.siteTitle,
-    ...(doc.logo ? { logo: { src: doc.logo.src, alt: doc.logo.alt ?? '' } } : {}),
+    ...(doc.logo?.assetId ? { logo: { assetId: doc.logo.assetId, alt: doc.logo.alt ?? '' } } : {}),
     ...(doc.copyright ? { copyright: doc.copyright } : {}),
     ...(doc.theme?.colors ? { theme: { colors: doc.theme.colors as ThemeConfig['colors'] } } : {}),
     updatedAt: doc.updatedAt.toISOString(),

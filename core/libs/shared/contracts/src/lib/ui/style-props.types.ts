@@ -5,6 +5,7 @@ import type {
   checkboxStylePropsSchema,
   containerStylePropsSchema,
   dividerStylePropsSchema,
+  imageStylePropsSchema,
   iconStylePropsSchema,
   inputStylePropsSchema,
   loaderStylePropsSchema,
@@ -28,5 +29,6 @@ export type TextStyleProps = z.infer<typeof textStylePropsSchema>;
 export type InputStyleProps = z.infer<typeof inputStylePropsSchema>;
 export type LoaderStyleProps = z.infer<typeof loaderStylePropsSchema>;
 export type DividerStyleProps = z.infer<typeof dividerStylePropsSchema>;
+export type ImageStyleProps = z.infer<typeof imageStylePropsSchema>;
 export type RadioGroupStyleProps = z.infer<typeof radioGroupStylePropsSchema>;
 export type IconStyleProps = z.infer<typeof iconStylePropsSchema>;

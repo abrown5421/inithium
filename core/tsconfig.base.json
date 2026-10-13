@@ -58,6 +58,9 @@
       "@inithium/api-profiles": [
         "./libs/api/profiles/src/index.ts"
       ],
+      "@inithium/api-assets": [
+        "./libs/api/assets/src/index.ts"
+      ],
       "@inithium/api-pages": [
         "./libs/api/pages/src/index.ts"
       ],
@@ -76,6 +79,9 @@
       "@inithium/cms-pages": [
         "./libs/cms/pages/src/index.ts"
       ],
+      "@inithium/cms-media": [
+        "./libs/cms/media/src/index.ts"
+      ],
       "@inithium/cms-content-editor": [
         "./libs/cms/content-editor/src/index.ts"
       ],
@@ -87,6 +93,9 @@
       ],
       "@inithium/shared-content": [
         "./libs/shared/content/src/index.ts"
+      ],
+      "@inithium/shared-media": [
+        "./libs/shared/media/src/index.ts"
       ]
     }
   },

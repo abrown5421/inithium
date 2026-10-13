@@ -120,6 +120,24 @@ export const switchStylePropsSchema = sharedStylePropsSchema
   .strict();
 
 /** Divider's style props (decision 0060): orientation, the line's colour, thickness and style, and spacing. */
+/** Image's style props (decision 0098): its size, spacing, corners, border and shadow. Colours don't apply. */
+export const imageStylePropsSchema = sharedStylePropsSchema
+  .pick({
+    margin: true,
+    width: true,
+    height: true,
+    minWidth: true,
+    maxWidth: true,
+    minHeight: true,
+    maxHeight: true,
+    radius: true,
+    shadow: true,
+    borderWidth: true,
+    borderColor: true,
+    borderStyle: true,
+  })
+  .strict();
+
 export const dividerStylePropsSchema = sharedStylePropsSchema
   .pick({ margin: true, padding: true })
   .extend({

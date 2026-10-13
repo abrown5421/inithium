@@ -4,11 +4,11 @@ import type { Permission, Role } from '@inithium/shared-contracts';
  * The permission matrix: which permissions each role holds.
  * `dev` is not listed because it holds every permission.
  * Pages (decisions 0078, 0093): editors create and edit pages; owners and admins also publish and delete them and edit
- * site settings.
+ * site settings. Assets (decision 0098): editors upload; owners and admins also delete.
  */
 export const rolePermissions: Record<Exclude<Role, 'dev'>, readonly Permission[]> = {
-  owner: ['cms.access', 'pages.create', 'pages.edit', 'pages.publish', 'pages.delete', 'settings.edit'],
-  admin: ['cms.access', 'pages.create', 'pages.edit', 'pages.publish', 'pages.delete', 'settings.edit'],
-  editor: ['cms.access', 'pages.create', 'pages.edit'],
+  owner: ['cms.access', 'pages.create', 'pages.edit', 'pages.publish', 'pages.delete', 'settings.edit', 'assets.upload', 'assets.delete'],
+  admin: ['cms.access', 'pages.create', 'pages.edit', 'pages.publish', 'pages.delete', 'settings.edit', 'assets.upload', 'assets.delete'],
+  editor: ['cms.access', 'pages.create', 'pages.edit', 'assets.upload'],
   user: [],
 };

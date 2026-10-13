@@ -66,6 +66,8 @@ Each refresh revokes the old refresh token and issues a new one. If an already-r
 | `pages.create`, `pages.edit` | `owner`, `admin`, `editor` (and `dev`) |
 | `pages.publish`, `pages.delete` | `owner`, `admin` (and `dev`) |
 | `settings.edit` | `owner`, `admin` (and `dev`) |
+| `assets.upload` | `owner`, `admin`, `editor` (and `dev`) |
+| `assets.delete` | `owner`, `admin` (and `dev`) |
 
 The permission names are in `permissions.schema.ts` in `@inithium/shared-contracts`, and the role-to-permission matrix is in `@inithium/shared-permissions`. See [0022](../decisions/0022-store-all-users-in-one-collection-with-roles.md).
 

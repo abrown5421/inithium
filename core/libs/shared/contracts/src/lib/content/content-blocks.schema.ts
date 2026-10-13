@@ -119,9 +119,37 @@ export const bannerBlockSchema = z
   })
   .strict();
 
-/** Every block a content page can hold (decision 0093). Images arrive with assets. */
+/**
+ * An image from the site's assets (decisions 0093, 0098), stored by id. It must be described (alt text) unless it's
+ * marked decorative; the editor fills the alt in from the asset's own when the image is chosen.
+ */
+export const imageBlockSchema = z
+  .object({
+    ...blockBase,
+    type: z.literal('image'),
+    assetId: z.string().min(1, { error: 'Choose an image' }),
+    alt: z.string().trim().max(300, { error: 'Use 300 characters or fewer' }).optional(),
+    /** Purely visual: hidden from screen readers, and needs no alt text. */
+    decorative: z.boolean().optional(),
+    caption: z.string().trim().max(300, { error: 'Use 300 characters or fewer' }).optional(),
+    /** 'full' fills the column; a number caps the width in px. Default 'full'. */
+    width: z.union([z.literal('full'), z.number().int().min(40).max(4000)]).optional(),
+    align: contentAlignSchema.optional(),
+    /** Corner rounding, in px. */
+    radius: z.number().int().min(0).max(64).optional(),
+    /** Makes the image a link. */
+    link: contentLinkSchema.optional(),
+  })
+  .strict()
+  .refine((block) => block.decorative || Boolean(block.alt), {
+    error: 'Describe the image, or mark it decorative',
+    path: ['alt'],
+  });
+
+/** Every block a content page can hold (decision 0093). */
 export const contentBlockSchema = z.discriminatedUnion('type', [
   headingBlockSchema,
+  imageBlockSchema,
   richTextBlockSchema,
   buttonsBlockSchema,
   dividerBlockSchema,
@@ -131,4 +159,4 @@ export const contentBlockSchema = z.discriminatedUnion('type', [
 ]);
 
 /** The block types, in the order the editor offers them. */
-export const contentBlockTypes = ['heading', 'rich-text', 'buttons', 'feature', 'banner', 'divider', 'spacer'] as const;
+export const contentBlockTypes = ['heading', 'rich-text', 'image', 'buttons', 'feature', 'banner', 'divider', 'spacer'] as const;

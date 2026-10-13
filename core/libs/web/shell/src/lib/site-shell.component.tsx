@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
+import { logoImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
@@ -210,7 +210,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
       <Container ref={frame} minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
         <Navbar
           title={bundle.settings.siteTitle}
-          logo={bundle.settings.logo ?? defaultLogo}
+          logo={bundle.settings.logo ? logoImage(bundle.settings.logo) : defaultLogo}
           links={menus.primary}
           userLinks={menus.profile}
           user={user ? { name: userDisplayName(user), avatar: user.profile.avatar } : undefined}

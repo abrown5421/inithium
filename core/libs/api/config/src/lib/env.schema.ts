@@ -36,4 +36,11 @@ export const envSchema = z.object({
   SEED_DEV_PASSWORD: z
     .string({ error: "SEED_DEV_PASSWORD is required: the dev account's temporary password." })
     .min(1, { error: "SEED_DEV_PASSWORD is required: the dev account's temporary password." }),
+
+  // Where uploaded files live (decision 0098): the site's own database, or Cloudflare R2 for staff only or for everyone.
+  STORAGE_MODE: z
+    .enum(['database', 'cloud-staff', 'cloud-all'], { error: 'STORAGE_MODE must be database, cloud-staff or cloud-all' })
+    .default('database'),
+  // The database driver's total cap for uploaded files, in MB; it shares the database with everything else.
+  STORAGE_DATABASE_QUOTA_MB: z.coerce.number().int().positive().default(250),
 });

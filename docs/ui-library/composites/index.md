@@ -21,6 +21,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
 | [Footer](footer.md) | The site footer: main links over the copyright and secondary links |
 | [IconPicker](icon-picker.md) | Choosing a Lucide icon from a searchable grid |
+| [ImageCropper](image-cropper.md) | Cropping or fitting an image to a shape before it is uploaded |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
 | [Navbar](navbar.md) | The main navigation bar, collapsing into a drawer by width and sign-in state |
 | [Pagination](pagination.md) | Paging through long lists |

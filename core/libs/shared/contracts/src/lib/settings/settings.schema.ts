@@ -1,21 +1,32 @@
 import { z } from 'zod';
-import { navbarLogoSchema } from '../ui/navbar.schema';
+import { assetUrl } from '../assets/assets.schema';
 import { publicPageSchema } from '../pages/pages.schema';
 import { themeConfigSchema } from '../ui/theme.schema';
+
+/** The site's logo (decisions 0082, 0098): an uploaded image, by its asset id, and its description. */
+export const siteLogoSchema = z
+  .object({
+    assetId: z.string().min(1, { error: 'Choose a logo' }),
+    alt: z.string().trim().max(200, { error: 'Use 200 characters or fewer' }),
+  })
+  .strict();
 
 /** The site-wide settings the CMS edits (decision 0082). */
 export const siteSettingsInputSchema = z
   .object({
     /** The site's name: the Navbar title and the end of every document title. */
     siteTitle: z.string().trim().min(1, { error: "Enter the site's title" }).max(100, { error: 'Use 100 characters or fewer' }),
-    /** The Navbar logo: a URL until assets exist. */
-    logo: navbarLogoSchema.optional(),
+    /** The Navbar logo, an uploaded image. Leave it out for Inithium's default logo. */
+    logo: siteLogoSchema.optional(),
     /** The copyright holder in the Footer. */
     copyright: z.string().min(1).max(100).optional(),
     /** The theme's colours (decision 0087): five brand 500s and the surface 100, as hex. Leave it out for Inithium's defaults. */
     theme: themeConfigSchema.optional(),
   })
   .strict();
+
+/** The site logo as the Navbar takes it: the image's address and description. */
+export const logoImage = (logo: { assetId: string; alt: string }) => ({ src: assetUrl(logo.assetId), alt: logo.alt });
 
 /** Site settings as the API returns them. */
 export const siteSettingsSchema = siteSettingsInputSchema.extend({ updatedAt: z.iso.datetime() }).strict();

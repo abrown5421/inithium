@@ -10,6 +10,7 @@ import {
   type Page,
   type SectionLayout,
 } from '@inithium/shared-contracts';
+import { AssetField } from '@inithium/cms-media';
 import { Container, Input, Select, Slider, Switch, Text, type IconName } from '@inithium/shared-ui-components';
 import { AutoIncrementingList, IconPicker, PolyBanner } from '@inithium/shared-ui-composites';
 import { BLOCK_TYPES, LAYOUT_LABELS } from './content-document.service';
@@ -187,6 +188,54 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
           </Text>
           <AlignField value={block.align} onChange={(align) => onChange({ ...block, align })} />
           <ColorField label="Colour" value={block.textColor} onChange={(textColor) => onChange({ ...block, textColor })} initial={{ color: 'surface', intensity: 800 }} helperText="Off uses the section’s text colour." />
+        </>
+      );
+    case 'image':
+      return (
+        <>
+          <AssetField
+            label="Image"
+            kind="image"
+            purpose="content"
+            required
+            value={block.assetId || undefined}
+            onChange={(asset) => asset && onChange({ ...block, assetId: asset.id, alt: block.alt || asset.alt || undefined })}
+            error={problems['assetId']}
+          />
+          <Switch
+            label="Decorative"
+            helperText="Purely visual, so screen readers skip it and it needs no description."
+            checked={Boolean(block.decorative)}
+            onCheckedChange={(decorative) => onChange({ ...block, decorative: decorative || undefined })}
+          />
+          {!block.decorative && (
+            <Input
+              label="Description (alt text)"
+              helperText="Starts as the file’s own description; change it to suit this page."
+              value={block.alt ?? ''}
+              onValueChange={(alt) => onChange({ ...block, alt: alt || undefined })}
+              error={problems['alt']}
+            />
+          )}
+          <Input label="Caption" value={block.caption ?? ''} onValueChange={(caption) => onChange({ ...block, caption: caption || undefined })} error={problems['caption']} />
+          <Switch
+            label="Fill the column"
+            checked={block.width === undefined || block.width === 'full'}
+            onCheckedChange={(full) => onChange({ ...block, width: full ? undefined : 480 })}
+          />
+          {typeof block.width === 'number' && (
+            <Slider label="Largest width" min={40} max={1600} step={20} value={block.width} formatValue={(value) => `${value}px`} onValueChange={(width) => onChange({ ...block, width })} />
+          )}
+          <AlignField value={block.align ?? 'center'} onChange={(align) => onChange({ ...block, align })} />
+          <Slider label="Rounded corners" min={0} max={64} step={2} value={block.radius ?? 0} formatValue={(value) => `${value}px`} onValueChange={(radius) => onChange({ ...block, radius: radius || undefined })} />
+          <Switch
+            label="Link the image"
+            checked={block.link !== undefined}
+            onCheckedChange={(on) => onChange({ ...block, link: on ? { type: 'url', href: 'https://' } : undefined })}
+          />
+          {block.link && (
+            <LinkField value={block.link} onChange={(link) => onChange({ ...block, link })} pages={pages} error={problems['link.href'] ?? problems['link.pageId']} />
+          )}
         </>
       );
     case 'buttons':

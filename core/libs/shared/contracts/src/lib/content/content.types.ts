@@ -9,6 +9,7 @@ import type {
   dividerBlockSchema,
   featureBlockSchema,
   headingBlockSchema,
+  imageBlockSchema,
   richTextBlockSchema,
   spacerBlockSchema,
 } from './content-blocks.schema';
@@ -23,6 +24,7 @@ import type {
 export type ContentAlign = z.infer<typeof contentAlignSchema>;
 export type ContentVisibility = z.infer<typeof contentVisibilitySchema>;
 export type HeadingBlock = z.infer<typeof headingBlockSchema>;
+export type ImageBlock = z.infer<typeof imageBlockSchema>;
 export type RichTextBlock = z.infer<typeof richTextBlockSchema>;
 export type ContentButton = z.infer<typeof contentButtonSchema>;
 export type ButtonsBlock = z.infer<typeof buttonsBlockSchema>;
