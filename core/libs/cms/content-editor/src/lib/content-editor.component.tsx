@@ -42,7 +42,7 @@ import { useContentHistory } from './use-content-history.hook';
  */
 const CANVAS = { color: 'surface', intensity: 950 } as const;
 const PANEL = { color: 'surface', intensity: 200 } as const;
-const DIVIDER = { color: 'surface', intensity: 500, opacity: 80 } as const;
+const DIVIDER = { color: 'surface', intensity: 500, opacity: 30 } as const;
 
 type Device = 'desktop' | 'tablet' | 'phone';
 const DEVICES: { value: Device; label: string; icon: IconName; width: number | 'full' }[] = [
@@ -336,9 +336,9 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
         bgColor={PANEL}
         borderWidth={{ bottom: 1 }}
         borderColor={DIVIDER}
-        shadow="2xl"
-        // Below the panels, so its shadow falls only on the canvas; over the panels the border divides them.
-        position={{ type: 'relative', z: 1 }}
+        // Above the panels: a short shadow (about 20px) falls onto them under the border.
+        shadow="lg"
+        position={{ type: 'relative', z: 2 }}
       >
         <Tooltip content="Back to Pages">
           <Button leadingIcon="arrow-left" aria-label="Back to Pages" padding={{ x: 6 }} onClick={() => navigate('/pages')} />
@@ -414,7 +414,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           borderWidth={{ right: 1 }}
           borderColor={DIVIDER}
           shadow="2xl"
-          position={{ type: 'relative', z: 2 }}
+          position={{ type: 'relative', z: 1 }}
         >
           <StructurePanel
             doc={doc}
@@ -501,7 +501,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           borderWidth={{ left: 1 }}
           borderColor={DIVIDER}
           shadow="2xl"
-          position={{ type: 'relative', z: 2 }}
+          position={{ type: 'relative', z: 1 }}
         >
           <Container flex={{ direction: 'column', gap: 16 }}>
             <Text as="h2" fontSize={13} fontWeight={600} letterSpacing={0.5} textColor={{ color: 'surface', intensity: 700 }}>
