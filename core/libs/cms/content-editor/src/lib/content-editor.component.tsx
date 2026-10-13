@@ -36,9 +36,13 @@ import { StructurePanel } from './structure-panel.component';
 import { useAutosave, type SaveStatus } from './use-autosave.hook';
 import { useContentHistory } from './use-content-history.hook';
 
-/** The editor's colours (decision 0094): a surface 200 toolbar and surface 300 panels around a surface 950 canvas. */
+/**
+ * The editor's colours (decision 0094): the toolbar and both panels are surface 200, divided from each other and from
+ * the surface 950 canvas by a thin border and a shadow.
+ */
 const CANVAS = { color: 'surface', intensity: 950 } as const;
-const PANEL = { color: 'surface', intensity: 300 } as const;
+const PANEL = { color: 'surface', intensity: 200 } as const;
+const DIVIDER = { color: 'surface', intensity: 500, opacity: 30 } as const;
 
 type Device = 'desktop' | 'tablet' | 'phone';
 const DEVICES: { value: Device; label: string; icon: IconName; width: number | 'full' }[] = [
@@ -329,13 +333,16 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
         role="region"
         flex={{ direction: 'row', align: 'center', gap: 12, wrap: 'wrap' }}
         padding={{ x: 16, y: 10 }}
-        bgColor={{ color: 'surface', intensity: 200 }}
-        shadow="2xl"
+        bgColor={PANEL}
+        borderWidth={{ bottom: 1 }}
+        borderColor={DIVIDER}
+        // Above the panels: a short shadow (about 20px) falls onto them under the border.
+        shadow="lg"
         position={{ type: 'relative', z: 2 }}
       >
-        <Button variant="ghost" leadingIcon="arrow-left" onClick={() => navigate('/pages')}>
-          Pages
-        </Button>
+        <Tooltip content="Back to Pages">
+          <Button leadingIcon="arrow-left" aria-label="Back to Pages" padding={{ x: 6 }} onClick={() => navigate('/pages')} />
+        </Tooltip>
         <Container flex={{ direction: 'column' }} minWidth={0} flexItem={{ grow: 1, basis: 0 }}>
           <Text as="h1" fontFamily="display" fontSize={18} truncate={1}>
             {page.title}
@@ -404,6 +411,8 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           overflow={{ y: 'auto' }}
           padding={{ all: 16 }}
           bgColor={PANEL}
+          borderWidth={{ right: 1 }}
+          borderColor={DIVIDER}
           shadow="2xl"
           position={{ type: 'relative', z: 1 }}
         >
@@ -489,6 +498,8 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
           overflow={{ y: 'auto' }}
           padding={{ all: 16 }}
           bgColor={PANEL}
+          borderWidth={{ left: 1 }}
+          borderColor={DIVIDER}
           shadow="2xl"
           position={{ type: 'relative', z: 1 }}
         >
