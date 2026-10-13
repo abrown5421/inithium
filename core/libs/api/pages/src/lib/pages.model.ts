@@ -31,6 +31,8 @@ const pagesSchema = new Schema(
     navigation: { type: navigationSchema, required: true, default: () => ({}) },
     seo: { type: seoSchema, required: true, default: () => ({}) },
     protected: { type: Boolean, required: true, default: false },
+    // Identifies a page a seed created from a reusable template (e.g. 'privacy-policy'); never shown or edited.
+    seedKey: { type: String, index: { unique: true, sparse: true } },
     // Content pages' blocks (decision 0093): { draft, published }, read through readContentDocument().
     content: { type: Schema.Types.Mixed },
   },

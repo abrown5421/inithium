@@ -62,7 +62,7 @@ Authentication for the API: the `/api/auth` routes, the `requireAuth` / `require
 
 ### `@inithium/api-pages`
 
-The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)): `PageModel`, `toPage()` / `toPublicPage()`, `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` (the edit rules), `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`; `reusableTemplates` / `listReusableTemplates()`; `pagesRouter` (`/api/pages`) and `siteRouter` (`/api/site`); and `seedPages()` / `seedCorePages()` / `corePageSeeds`. See [Pages](../backend/pages.md).
+The `pages` collection ([0078](../decisions/0078-store-pages-as-records-rendered-by-code-templates.md)): `PageModel`, `toPage()` / `toPublicPage()`, `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()` (the edit rules), `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`; `reusableTemplates` / `listReusableTemplates()`; `pagesRouter` (`/api/pages`) and `siteRouter` (`/api/site`); and `seedPages()` / `seedCorePages()` / `corePageSeeds` (with `seedKey`s for content pages) and `privacyPolicyContent()`. See [Pages](../backend/pages.md).
 
 ### `@inithium/api-profiles`
 

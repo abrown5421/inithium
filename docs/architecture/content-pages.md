@@ -4,7 +4,7 @@ description: Pages clients build in the CMS from sections, columns and blocks, s
 scope: core
 tags: [pages, content, cms, blocks]
 order: 7
-decisions: ["0078", "0091", "0092", "0093", "0094"]
+decisions: ["0078", "0091", "0092", "0093", "0094", "0097"]
 ---
 
 # Content pages
@@ -142,6 +142,15 @@ Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, w
 - **Discard changes** returns the draft to what's published.
 - **Undo and redo** (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y) cover the session. Quick changes to one field are one step. While typing in a text block, TipTap's own undo applies.
 
+## The privacy policy
+
+Core seeds a **Privacy policy** content page at `/privacy-policy` on first start ([0097](../decisions/0097-seed-a-starter-privacy-policy-as-a-content-page.md)):
+- published, in the secondary footer;
+- protected: it can't be deleted or moved;
+- with starter wording covering what core collects (account details, the public profile, sign-in sessions) and its only cookies (the two essential sign-in cookies, with their real lifetimes).
+
+Admins edit it like any content page. The seed never touches it again, so their changes stay. The wording is a starting point, not legal advice; each site's owner should make it match their site. How seeded content pages work is in [Pages](../backend/pages.md#seeded-content-pages).
+
 ## Build status
 
 1. **Contracts and renderer (built):**
@@ -151,5 +160,5 @@ Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, w
    - the `content` template in `@inithium/web-pages`.
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
 3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). Drag-and-drop, revision history and reusable sections come later.
-4. **The privacy policy,** seeded at `/privacy-policy` in the secondary footer: protected, with placeholder blocks. Not built.
+4. **The privacy policy (built):** seeded at `/privacy-policy` in the secondary footer, protected, with starter wording ([above](#the-privacy-policy)).
 5. **Assets and the Image block.** Not built.
