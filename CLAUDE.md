@@ -110,7 +110,7 @@ Provisioning a client:
 
 Switching an app between databases or clusters is only ever a change to `MONGODB_URI`. Nothing in code is tied to a specific cluster.
 
-**Render web service settings** (set in the Render dashboard; verified in a fresh clone and a production-mode run, not yet on Render itself; step by step in `docs/getting-started/deploying-to-render.md`, 0089):
+**Render web service settings** (set in the Render dashboard; verified in a fresh clone, a production-mode run and a first Render deploy; step by step in `docs/getting-started/deploying-to-render.md`, 0089):
 - Root directory: `core`
 - Build command: `npm ci --include=dev && npx nx run-many -t build --projects=api,web,cms` (`NODE_ENV=production` makes plain `npm ci` skip the devDependencies that hold Nx and the build tools; the docs app is never deployed)
 - Start command: `node dist/apps/api/main.js`
@@ -408,7 +408,7 @@ The repo has not caught up with these guidelines yet. Known pending work:
 
 - [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
 - [ ] **Slot contracts and registry files:** only the web page-template registry exists (`apps/web/src/app/plugins.registry.ts`); the other apps' registries and slots don't yet.
-- [ ] **First Render deploy** hasn't happened yet. The settings in [Accounts & provisioning](#accounts--provisioning) are verified locally (fresh clone, production-mode run); still to confirm on Render: Express `trust proxy = 1` against Render's proxy, and the build's memory use.
+- [ ] **Render:** the first deploy works (build, sign-in, assets in `database` mode). Still to confirm: Express `trust proxy = 1` against Render's proxy (login rate limiting sees visitors' own addresses).
 - [ ] **User management** (creating owner/admin/editor accounts from the CMS) isn't built; blocked on role assignment rules (0025). Until then, other accounts can only be created directly in MongoDB.
 - [ ] **Page system** (0078–0082), in phases: (1, built) page and settings contracts, permissions, API endpoints, seeded core pages and settings; (2, built) `web` shell: template registry, routes, layouts lib (`default`, `bare`), audiences, transitions, `usePageReady`, Navbar and Footer from records, placeholder pages; (3, built) CMS sidebar layout, Dashboard, Pages list and edit dialog, Settings screen with theme colours; (4) real profile page (built, 0090); content pages (0093, built: contracts, renderer and template; creating, duplicating and deleting; the editor, 0094; the seeded privacy policy, 0097; the Image block, 0098); later: collection layouts.
 - [ ] **`web` end-user auth:** sign-up and sign-in are built (0083). Still missing: password reset, email verification and a voluntary password change (the endpoint exists; it needs a screen, e.g. in the profile).

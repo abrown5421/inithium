@@ -11,7 +11,7 @@ decisions: ["0006", "0089"]
 
 Each site runs as **one Render web service**: the api serves the API under `/api`, `web` at `/` and the CMS at `/cms`, all from the same origin ([0006](../decisions/0006-serve-each-client-from-one-origin.md)). Inithium's own deploys use your personal Render and Atlas accounts; each client's use theirs ([Client repositories](../architecture/client-repositories.md#provisioning-a-client)).
 
-The settings below have been verified in a fresh clone and a production-mode local run ([0089](../decisions/0089-build-for-render-with-dev-dependencies-and-a-health-check.md)), but not yet on Render itself.
+The settings below have been verified in a fresh clone, a production-mode local run ([0089](../decisions/0089-build-for-render-with-dev-dependencies-and-a-health-check.md)) and a first deploy on Render, where the build completed and sign-in, uploads and the Media library worked.
 
 ## Before you start
 
@@ -74,10 +74,15 @@ Then check, on the service's URL:
 4. In the CMS, set the site's title, logo and colours under **Settings**, and check them on `/` after a reload.
 5. On `/sign-up`, create an end-user account. Reload the page and you should stay signed in, which shows the cookies work.
 
-## Still to confirm on the first deploy
+## If sign-in fails with 401
+
+`SEED_DEV_EMAIL` and `SEED_DEV_PASSWORD` only create the dev account when the database has **no dev user yet**; an existing account is never changed. If `MONGODB_URI` points at a database that already has one (e.g. the one you use locally, or an earlier deploy's), the log has no `[ seed ] created dev user` line and the env var's password doesn't work. Sign in with that account's own password, or give the deploy its own database (change the name in `MONGODB_URI`) and redeploy.
+
+Also check the password in Render's field has no trailing space or quotes: it's used exactly as entered.
+
+## Still to confirm
 
 - **Proxy:** Express `trust proxy` is `1`, assuming one proxy in front of the api. Check that login rate limiting sees visitors' own addresses, not the proxy's: after 10 failed sign-ins from one browser, the 11th is refused, while another network can still sign in.
-- **Memory:** check the build fits in the plan's memory. If it runs out, try a larger plan for the build.
 
 ## Updating
 
