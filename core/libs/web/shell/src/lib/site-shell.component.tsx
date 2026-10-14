@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { logoImage, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
+import { assetUrl, logoImage, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
 import { BareLayout, DefaultLayout, FullWidthLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
-import { defaultLogo, ThemeStyles } from '@inithium/shared-ui-theme';
+import { defaultLogo, ThemeStyles, useFavicon } from '@inithium/shared-ui-theme';
 import { buildMenus } from './menus.service';
 import { PageSlot, type PageEntry, type PageLayout } from './page-slot.component';
 import type { PageTemplate } from './page-template.types';
@@ -151,6 +151,9 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
     const back = navigation.current === 'POP' ? scrollPositions.current.get(next.locationKey) : undefined;
     setCurrent({ ...next, scrollTo: back ?? 0 });
   }, []);
+
+  // The site's favicon (decision 0101), or the default one.
+  useFavicon(bundle.settings.favicon ? assetUrl(bundle.settings.favicon.assetId) : undefined);
 
   // The document title and description follow the page on screen.
   const shown = current?.resolved.page;

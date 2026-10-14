@@ -4,7 +4,7 @@ description: Uploaded files - storage modes and Cloudflare R2, the 2 MB limit, a
 scope: core
 tags: [assets, storage, backend, uploads]
 order: 8
-decisions: ["0098", "0099", "0029"]
+decisions: ["0098", "0099", "0101", "0029"]
 ---
 
 # Assets
@@ -70,7 +70,7 @@ Every upload says what it's for. The purpose limits which kinds are accepted and
 | --- | --- | --- |
 | `content` | Images, documents, audio, video | A choice, or the image's own shape |
 | `logo` | Images | Its own shape, square or 16:9 |
-| `favicon` | Images | Square |
+| `favicon` | Images: ICO and SVG kept; others become a PNG up to 512 px ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)) | Square |
 | `font` | Fonts | — |
 | `document` | Documents | — |
 | `avatar` | Raster images | Circle |
@@ -99,7 +99,7 @@ Mounted at `/api/assets`:
 | `GET /` | `assets.upload` | Staff files, newest first (at most 500); `group=members` lists members' avatars and banners instead. Query also: `purpose`, `kind`, `q` (words in the filename or alt text). |
 | `POST /` | Signed in | Multipart upload: `file` (at most 25 MB before processing), `purpose`, `alt?`, `fontLicence?` (`'true'`). `avatar` and `banner` need `memberUploads` and are rate-limited for members; other purposes need `assets.upload`. Returns 201 with the asset. |
 | `GET /:id/info` | `assets.upload` | One asset's record. |
-| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site logo (blocking), pages whose content (draft or published) uses it, and profiles showing it. |
+| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site logo and favicon (blocking), pages whose content (draft or published) uses it, and profiles showing it. |
 | `PATCH /:id` | `assets.upload` | `{ filename?, alt? }`. |
 | `DELETE /:id` | `assets.delete` | 204, or 409 while a blocking use remains. |
 | `GET /:id` | Anyone | The file itself, or a redirect to the bucket's public address with `R2_PUBLIC_URL`. |
@@ -119,6 +119,7 @@ Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 4
 ## Where assets are used
 
 - **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)). Its asset can't be deleted while it's the logo.
+- **Favicon**: `settings.favicon` is `{ assetId }`. Its asset can't be deleted while it's the favicon.
 - **Image block** in content pages ([Content pages](../architecture/content-pages.md)). Deleting its asset warns first; the page then shows a "missing image" placeholder.
 - **Profiles**: `profile.avatarAssetId` and `profile.bannerAssetId`. Deleting the asset clears them, so the profile shows its generated picture. Deleting an account deletes the avatars and banners it uploaded (`deleteMemberUploads()`); files staff uploaded stay ([User management](user-management.md#deleting-accounts)).
 

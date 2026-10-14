@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in, the 
 scope: core
 tags: [cms, architecture, permissions]
 order: 6
-decisions: ["0083", "0086", "0087", "0098", "0099", "0100"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101"]
 ---
 
 # The CMS
@@ -92,12 +92,12 @@ The editor is a Modal over a draft, with five tabs:
 - **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video). **Member uploads** shows members' avatars and banners instead, which are otherwise kept apart from the site's files; owners and admins can delete one, and that profile goes back to its generated picture ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)).
 - **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it).
 - **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
-- **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo, with a note saying to choose another logo first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
+- **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo or favicon, with a note saying to choose another in Settings first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
 
 Other screens use the library through two components:
 
-- **`AssetPicker`**: a Modal with the library's grid (filtered by `kind`), search and **Upload new**, which uploads in place (with `purpose`) and picks the result.
-- **`AssetField`**: a form field showing the chosen file's thumbnail, name and size, with Choose/Change (opening the picker) and Remove (hidden when `required`). It hands back the whole asset, so a form can copy its default description. The Settings logo and the content editor's Image block use it.
+- **`AssetPicker`**: a Modal with the library's grid (filtered by `kind`, or by `purpose` with `onlyPurpose`), search and **Upload new**, which uploads in place (with `purpose`) and picks the result.
+- **`AssetField`**: a form field showing the chosen file's thumbnail, name and size, with Choose/Change (opening the picker) and Remove (hidden when `required`). It hands back the whole asset, so a form can copy its default description. `onlyPurpose` makes its picker list only files uploaded for its `purpose`. The Settings logo and favicon and the content editor's Image block use it.
 
 ## Users
 
@@ -113,7 +113,7 @@ Other screens use the library through two components:
 
 `SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
 
-- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview (Inithium's logo when none is set), and the copyright holder.
+- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview (Inithium's logo when none is set), the favicon (an `AssetField` listing only favicon uploads: ICO, PNG or SVG, previewed at 16 and 32 px, [0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)), and the copyright holder.
 - **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. A surface too dark for readable text shows why on the field instead of a preview, and Save refuses it. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
 
 Saving updates the CMS at once: `CmsTheme` renders the client's theme at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.

@@ -9,6 +9,7 @@ export function toSiteSettings(doc: SettingsDocument): SiteSettings {
   return {
     siteTitle: doc.siteTitle,
     ...(doc.logo?.assetId ? { logo: { assetId: doc.logo.assetId, alt: doc.logo.alt ?? '' } } : {}),
+    ...(doc.favicon?.assetId ? { favicon: { assetId: doc.favicon.assetId } } : {}),
     ...(doc.copyright ? { copyright: doc.copyright } : {}),
     ...(doc.theme?.colors ? { theme: { colors: doc.theme.colors as ThemeConfig['colors'] } } : {}),
     updatedAt: doc.updatedAt.toISOString(),
@@ -28,6 +29,7 @@ export async function updateSiteSettings(input: SiteSettingsInput): Promise<Sett
   const doc = await getSiteSettings();
   doc.siteTitle = input.siteTitle;
   doc.set('logo', input.logo ?? undefined);
+  doc.set('favicon', input.favicon ?? undefined);
   doc.set('copyright', input.copyright ?? undefined);
   doc.set('theme', input.theme ?? undefined);
   return doc.save();

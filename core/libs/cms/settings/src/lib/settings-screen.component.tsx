@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { logoImage, siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
+import { assetUrl, logoImage, siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
 import {
   fieldErrorsFrom,
   focusFirstError,
@@ -18,19 +18,21 @@ type Draft = {
   siteTitle: string;
   logoAssetId: string;
   logoAlt: string;
+  faviconAssetId: string;
   copyright: string;
   colors: Record<ThemeColor, string>;
   /** Whether the site has its own theme; false saves no theme, so it follows Inithium's defaults. */
   customTheme: boolean;
 };
 
-const FIELDS = ['siteTitle', 'logo.assetId', 'logo.alt', 'copyright', ...themeColors.map((token) => `theme.colors.${token}` as const)] as const;
+const FIELDS = ['siteTitle', 'logo.assetId', 'logo.alt', 'favicon.assetId', 'copyright', ...themeColors.map((token) => `theme.colors.${token}` as const)] as const;
 type Field = (typeof FIELDS)[number];
 
 const draftOf = (settings: SiteSettings): Draft => ({
   siteTitle: settings.siteTitle,
   logoAssetId: settings.logo?.assetId ?? '',
   logoAlt: settings.logo?.alt ?? '',
+  faviconAssetId: settings.favicon?.assetId ?? '',
   copyright: settings.copyright ?? '',
   colors: { ...(settings.theme ?? defaultTheme).colors },
   customTheme: Boolean(settings.theme),
@@ -61,7 +63,7 @@ function Section({ title, description, children }: { title: string; description:
 }
 
 /**
- * The CMS's Settings screen (decisions 0082 and 0087, needs settings.edit): the site's title, logo and copyright
+ * The CMS's Settings screen (decisions 0082, 0087 and 0101, needs settings.edit): the site's title, logo, favicon and copyright
  * holder, and its theme colours as hex codes, each previewing the scale generated from it. Save reports problems
  * like every CMS form; the CMS takes on a new theme as soon as it's saved.
  */
@@ -112,6 +114,7 @@ export function SettingsScreen() {
     const input: SiteSettingsInput = {
       siteTitle: draft.siteTitle,
       ...(draft.logoAssetId ? { logo: { assetId: draft.logoAssetId, alt: draft.logoAlt.trim() } } : {}),
+      ...(draft.faviconAssetId ? { favicon: { assetId: draft.faviconAssetId } } : {}),
       ...(draft.copyright.trim() ? { copyright: draft.copyright.trim() } : {}),
       ...(draft.customTheme
         ? { theme: { colors: Object.fromEntries(themeColors.map((token) => [token, normalizeHex(draft.colors[token])])) as Draft['colors'] } }
@@ -182,6 +185,26 @@ export function SettingsScreen() {
             <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
               {draft.logoAssetId ? 'Preview of your logo.' : 'No logo set, so Inithium’s default logo is used.'}
             </Text>
+          </Container>
+          <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }}>
+            <AssetField
+              label="Favicon"
+              kind="image"
+              purpose="favicon"
+              onlyPurpose
+              helperText="The icon in browser tabs and bookmarks, for the site and the CMS: an ICO, PNG or SVG, ideally square. Remove it to use Inithium’s default."
+              value={draft.faviconAssetId || undefined}
+              onChange={(asset) => change({ faviconAssetId: asset?.id ?? '' })}
+              error={errors['favicon.assetId']}
+            />
+            <Container flex={{ align: 'center', gap: 12 }}>
+              {/* Tab icons are drawn small: preview the sizes browsers use. */}
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={16} height={16} fit="contain" loading="eager" />
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={32} height={32} fit="contain" loading="eager" />
+              <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
+                {draft.faviconAssetId ? 'Preview at 16 and 32 pixels.' : 'No favicon set, so Inithium’s default is used.'}
+              </Text>
+            </Container>
           </Container>
           <Input
             name="copyright"

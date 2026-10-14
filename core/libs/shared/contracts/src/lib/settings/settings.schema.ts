@@ -11,6 +11,9 @@ export const siteLogoSchema = z
   })
   .strict();
 
+/** The site's favicon (decision 0101): an uploaded ICO, PNG or SVG, by its asset id. */
+export const siteFaviconSchema = z.object({ assetId: z.string().min(1, { error: 'Choose a favicon' }) }).strict();
+
 /** The site-wide settings the CMS edits (decision 0082). */
 export const siteSettingsInputSchema = z
   .object({
@@ -18,6 +21,8 @@ export const siteSettingsInputSchema = z
     siteTitle: z.string().trim().min(1, { error: "Enter the site's title" }).max(100, { error: 'Use 100 characters or fewer' }),
     /** The Navbar logo, an uploaded image. Leave it out for Inithium's default logo. */
     logo: siteLogoSchema.optional(),
+    /** The browser-tab icon of `web` and the CMS. Leave it out for Inithium's default. */
+    favicon: siteFaviconSchema.optional(),
     /** The copyright holder in the Footer. */
     copyright: z.string().min(1).max(100).optional(),
     /** The theme's colours (decision 0087): five brand 500s and the surface 100, as hex. Leave it out for Inithium's defaults. */

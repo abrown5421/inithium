@@ -69,6 +69,22 @@ async function detect(data: Buffer, originalName: string): Promise<string | null
   return null;
 }
 
+/** A favicon's largest side: browsers ask for at most 512px (e.g. for installed web apps). */
+const MAX_FAVICON_SIDE = 512;
+
+/**
+ * A raster favicon as a PNG (decision 0101): browsers don't all take WebP favicons. Oriented, its first frame only,
+ * shrunk to 512px and metadata stripped.
+ */
+async function processFaviconRaster(data: Buffer): Promise<{ data: Buffer; width: number; height: number }> {
+  const output = await sharp(data, { limitInputPixels: 100_000_000 })
+    .rotate()
+    .resize({ width: MAX_FAVICON_SIDE, height: MAX_FAVICON_SIDE, fit: 'inside', withoutEnlargement: true })
+    .png({ compressionLevel: 9 })
+    .toBuffer({ resolveWithObject: true });
+  return { data: output.data, width: output.info.width, height: output.info.height };
+}
+
 /** A raster image as WebP: oriented, shrunk to 2560px, metadata stripped, and squeezed under 2 MB. */
 async function processRaster(data: Buffer): Promise<{ data: Buffer; width: number; height: number }> {
   let side = MAX_IMAGE_SIDE;
@@ -100,7 +116,7 @@ function cleanSvg(data: Buffer): Buffer {
 
 /**
  * Checks and prepares an upload for storage (decision 0098): only allowed types (by contents), the right kind for its
- * purpose, members only images for avatars and banners, images re-encoded as WebP under 2 MB, SVGs cleaned, TTF and
+ * purpose, members only images for avatars and banners, images re-encoded as WebP under 2 MB (favicons as PNG), SVGs cleaned, TTF and
  * OTF fonts converted to WOFF2, and every stored file at most 2 MB.
  */
 export async function processUpload(data: Buffer, originalName: string, options: ProcessOptions): Promise<ProcessedFile> {
@@ -127,6 +143,10 @@ export async function processUpload(data: Buffer, originalName: string, options:
     throw failure(415, `A ${options.purpose} can’t be a ${type.label.toLowerCase()}`, 'file');
   }
 
+  if (RASTER.has(detected) && options.purpose === 'favicon') {
+    const image = await processFaviconRaster(data);
+    return { ...image, contentType: 'image/png', kind: 'image', filename: cleanName(originalName, 'png') };
+  }
   if (RASTER.has(detected)) {
     const image = await processRaster(data);
     return { ...image, contentType: 'image/webp', kind: 'image', filename: cleanName(originalName, 'webp') };

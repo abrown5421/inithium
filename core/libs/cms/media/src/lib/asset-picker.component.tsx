@@ -15,6 +15,8 @@ export type AssetPickerProps = {
   kind?: AssetKind;
   /** What a new upload is for. Default 'content'. */
   purpose?: AssetPurpose;
+  /** Lists only files uploaded for `purpose`, e.g. favicons. */
+  onlyPurpose?: boolean;
   /** The asset already chosen, marked in the grid. */
   selectedId?: string;
   title?: string;
@@ -24,10 +26,10 @@ export type AssetPickerProps = {
  * Chooses a file from the Media library in a Modal (decision 0098), with search, or uploads a new one in place (with
  * the crop or fit step) and picks it.
  */
-export function AssetPicker({ open, onClose, onPick, kind, purpose = 'content', selectedId, title = 'Choose a file' }: AssetPickerProps) {
+export function AssetPicker({ open, onClose, onPick, kind, purpose = 'content', onlyPurpose = false, selectedId, title = 'Choose a file' }: AssetPickerProps) {
   const [search, setSearch] = useState('');
   const [uploading, setUploading] = useState(false);
-  const { data: assets, isLoading } = useGetAssetsQuery({ kind, q: search.trim() || undefined }, { skip: !open });
+  const { data: assets, isLoading } = useGetAssetsQuery({ kind, purpose: onlyPurpose ? purpose : undefined, q: search.trim() || undefined }, { skip: !open });
   const close = () => {
     setUploading(false);
     onClose();
