@@ -12,6 +12,8 @@ const settingsSchema = new Schema(
       type: new Schema({ assetId: { type: String }, alt: { type: String, default: '' } }, { _id: false }),
       required: false,
     },
+    // The favicon's asset id (decision 0101).
+    favicon: { type: new Schema({ assetId: { type: String } }, { _id: false }), required: false },
     copyright: { type: String, required: false, trim: true },
     // Hex colours, validated by the contract (decision 0087). Missing means Inithium's default theme.
     theme: {

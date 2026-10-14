@@ -176,6 +176,8 @@ export function UploadForm({ purpose: fixedPurpose, purposes = STAFF_PURPOSES, o
           <Text as="p" fontSize={12} align="center" textColor={{ color: 'surface', intensity: 700 }}>
             {memberPicture
               ? 'A PNG, JPEG, WebP, GIF or AVIF picture. It’s shrunk to fit 2 MB.'
+              : purpose === 'favicon'
+                ? 'An ICO, PNG or SVG works best. ICO and SVG are kept as they are; other images become a PNG of up to 512 pixels.'
               : kinds.includes('image') && kinds.length === 1
               ? 'Images are shrunk to fit 2 MB. SVG and ICO files are kept as they are.'
               : 'Images are shrunk to fit 2 MB; other files must be under 2 MB.'}

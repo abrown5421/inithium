@@ -162,13 +162,14 @@ function imageIds(doc: ContentDocument | undefined): Set<string> {
 }
 
 /**
- * Where an asset is used. Blocking uses (the site logo) stop it being deleted; others only warn, and the page shows
+ * Where an asset is used. Blocking uses (the site logo and favicon) stop it being deleted; others only warn, and the page shows
  * a placeholder once it's gone.
  */
 export async function assetUsage(id: string): Promise<AssetUsage> {
   const places: AssetUsage['places'] = [];
   const settings = await getSiteSettings();
   if (settings.logo?.assetId === id) places.push({ label: 'Site settings: the logo', blocking: true });
+  if (settings.favicon?.assetId === id) places.push({ label: 'Site settings: the favicon', blocking: true });
 
   const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
   for (const page of pages) {

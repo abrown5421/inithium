@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { createUserRequestSchema, type ManagedUser, type Role } from '@inithium/shared-contracts';
 import { fieldErrorsFrom, focusFirstError, readApiFailure, useAlerts, useCreateUserMutation, type FieldErrors } from '@inithium/shared-data-access';
-import { Button, Container, Input, Select, Text } from '@inithium/shared-ui-components';
+import { Button, Container, Input, Select } from '@inithium/shared-ui-components';
 import { Modal } from '@inithium/shared-ui-composites';
 import { ROLE_HELP, ROLE_LABELS } from './user-roles.config';
 

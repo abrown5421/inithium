@@ -1,10 +1,10 @@
 ---
 title: Site settings
-description: The single settings record that holds the site's title, logo and copyright holder, and its endpoints.
+description: The single settings record that holds the site's title, logo, favicon and copyright holder, and its endpoints.
 scope: core
 tags: [api, settings, cms, branding]
 order: 7
-decisions: ["0082", "0087", "0098"]
+decisions: ["0082", "0087", "0098", "0101"]
 ---
 
 # Site settings
@@ -19,6 +19,7 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | --- | --- | --- |
 | `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `Inithium`. |
 | `logo` | `{ assetId, alt }`, optional | An uploaded image, by its [asset](assets.md) id, and its description ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). `logoImage(logo)` gives the Navbar's `{ src, alt }`. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). Its asset can't be deleted while it's the logo. |
+| `favicon` | `{ assetId }`, optional | The browser-tab icon of `web` and the CMS: an uploaded ICO, PNG or SVG ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). Without one, both show Inithium's default `favicon.ico`. Its asset can't be deleted while it's the favicon. |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
@@ -31,7 +32,7 @@ Fonts and SEO defaults come later. Logos saved as URLs before assets existed are
 | --- | --- | --- |
 | `GET /api/site` | Anyone | Returns the settings with the published pages; see [Pages](pages.md#endpoints). |
 | `GET /api/settings` | `settings.edit` | The settings. |
-| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `copyright`, `theme`) are cleared, so leaving out `theme` returns the site to core's default colours. 400 with Zod `issues` if invalid. |
+| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `favicon`, `copyright`, `theme`) are cleared, so leaving out `theme` returns the site to core's default colours. 400 with Zod `issues` if invalid. |
 
 ## Seeding
 

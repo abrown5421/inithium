@@ -19,13 +19,15 @@ export type AssetFieldProps = {
   error?: boolean | string;
   /** Hides Remove, for fields that must keep a file. */
   required?: boolean;
+  /** The picker lists only files uploaded for `purpose` (e.g. favicons), not every file of the kind. */
+  onlyPurpose?: boolean;
 };
 
 /**
  * A form field holding one asset (decision 0098): its thumbnail, name and size, and buttons to choose another from the
  * Media library (or upload one) and to remove it.
  */
-export function AssetField({ label, value, onChange, kind, purpose, helperText, error, required }: AssetFieldProps) {
+export function AssetField({ label, value, onChange, kind, purpose, helperText, error, required, onlyPurpose }: AssetFieldProps) {
   const [picking, setPicking] = useState(false);
   const { data: asset, isError } = useGetAssetQuery(value ?? '', { skip: !value });
 
@@ -70,6 +72,7 @@ export function AssetField({ label, value, onChange, kind, purpose, helperText, 
         onClose={() => setPicking(false)}
         kind={kind}
         purpose={purpose}
+        onlyPurpose={onlyPurpose}
         selectedId={value}
         title={`Choose the ${label.toLowerCase()}`}
         onPick={(picked) => {

@@ -4,7 +4,7 @@ description: The six colour tokens, how their scales are generated, surface role
 scope: core
 tags: [ui, theme, colour, typography]
 order: 2
-decisions: ["0031", "0032", "0041", "0046"]
+decisions: ["0031", "0032", "0041", "0046", "0101"]
 ---
 
 # Theme
@@ -97,6 +97,7 @@ From `@inithium/shared-ui-theme`:
 | --- | --- |
 | `defaultTheme` | Core's default `ThemeConfig` (the table above). |
 | `ThemeStyles` | Renders the theme's `--color-*` variables. `UiProvider` renders it for you. Prop: `theme?: ThemeConfig`. |
+| `useFavicon(href?)` | Points the page's icon link at the site's favicon, or back at the app's default without one ([0101](../../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). `web`'s shell and the CMS's `CmsTheme` call it. |
 | `generateBrandScale(hex500)` | A brand token's 11-step scale, as hex values. |
 | `generateSurfaceScale(hex100)` | The surface scale. Throws if no text band could meet the contrast guarantee. |
 | `generateThemeScales(theme)` | All six scales. |

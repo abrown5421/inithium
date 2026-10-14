@@ -43,7 +43,7 @@ function SectionTitle({ children }: { children: string }) {
 /**
  * One asset in a Modal (decision 0098): a preview (audio and video play), its name and default alt text, its details
  * and where it's used, with Save, Copy address, Open and Delete in the footer. Delete asks for confirmation in the
- * footer, and is refused while the site logo uses the file.
+ * footer, and is refused while the site logo or favicon uses the file.
  */
 export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
   // Keep the last asset while the Modal animates out, and start the form afresh for each one.
@@ -195,7 +195,7 @@ export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
             )}
             {canDelete && blocked && (
               <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-                It can’t be deleted while it’s the site logo. Choose another logo in Settings first.
+                It can’t be deleted while it’s the site’s {blocked.label.includes('favicon') ? 'favicon' : 'logo'}. Choose another in Settings first.
               </Text>
             )}
           </Container>
