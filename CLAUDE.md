@@ -28,9 +28,13 @@ inithium/
 - No plugins exist yet. Core comes first.
 
 ### sandbox/
-- An exact replica of core **with every plugin installed**, used to test plugins in the browser. Start the sandbox instead of core when working on plugins.
-- The sandbox is **rebuilt on demand, never committed**. The `sandbox/` folder holds tooling only; generated workspaces go in `sandbox/workspaces/`, which is git-ignored. Because it is always regenerated from `core/` + `plugins/`, it cannot drift from core.
-- The tooling must support adding and ejecting individual plugins so that installation, seeding, unseeding and ejection can each be verified.
+- The **local development environment for plugins** (0106): a generated copy of core's apps (`api`, `web`, `cms`, `docs`) where plugins are installed, activated, deactivated, ejected and reinstalled one at a time through the same install tool clients use, and checked in the browser. Never hosted.
+- **Generated, never committed or maintained.** The `sandbox/` folder holds tooling only; generated workspaces go in `sandbox/workspaces/`, which is git-ignored, and can be kept between sessions and regenerated when core moves. Because it is always generated from `core/` + `plugins/`, it cannot drift from core.
+- **Runs beside core** on its own ports (with its Vite proxies pointed at its own api) and its own database on the shared cluster, so the two can be compared. Its docs app shows the core manual plus installed plugins' manuals.
+- Plugins are edited in `plugins/`, never in the workspace (it gets copies, like clients). The same tooling generates the **showcase** and pushes it for Render.
+
+### Environments (0104)
+Core development (local), the sandbox (local), the **showcase** (`inithium.onrender.com`, Inithium's marketing site for prospects: core plus plugins with demo data), and per client **staging** and **production** (two Render services on the client's account, two databases on the client's cluster). Each hosted environment is one Render service; the docs app is never deployed. Every client gets staging; the client and their staff review changes there and production stays untouched until they approve. Inithium never pays for client staging. Staging mechanics (repo/branches, data, access) are open (0108), and so are hosting plans and backups (0109) and the showcase's content and access (0110). The manual's `architecture/environments.md` has the detail.
 
 ### docs/
 - The **developer manual**: a front-to-back guide to using Inithium, one folder per section, kept current with every change. Plus the decision records. See [section 9](#9-documentation-protocol).
@@ -80,14 +84,23 @@ A plugin may depend on core libs and on its own layers.
 - **Plugins never add fields to `users`** (or to the core user schema or contract). A plugin keeps per-user data in its own collections, each document carrying a `userId` (e.g. `ecom` owns `addresses`).
 - Plugin data the UI needs comes from the plugin's own endpoints, never from `GET /api/auth/me`.
 
+### Lifecycle, activation and versions (0105)
+- **Plugin source lives only in `plugins/`**; every workspace (sandbox, showcase, client repos) gets **copies**, installed by **one CLI** that also owns the registries and the manifest. No npm packaging, no linking.
+- **Four verbs:** install (copy, register, seed; then build and deploy), **activate/deactivate** (a runtime flag in the database, toggled on a CMS **Plugins** screen by **owners and dev**: a new permission; instant, data kept), and eject (= uninstall).
+- **Inactive means switched off:** every slot contract must let core leave an inactive plugin out at runtime (0015); the user deletion hook still runs while its data exists. Per-slot behaviour is open (0107).
+- **Plugin settings** live on the Plugins screen, so plugins vary per client without forking; the developer decides when a difference becomes a setting or needs a separate plugin.
+- **Versions:** every plugin has a version and a minimum core version; each workspace's **manifest** records its core and plugin versions; clients stay on their installed version until they ask to upgrade; upgrades copy the new version in and run the plugin's **migrations** (kept forever). Client repos never edit plugin files. Plugin updates don't travel through core's upstream merges.
+- **Demo data:** a plugin may ship optional demo data, separate from its seed, for the showcase and sandbox.
+- How seeds and migrations run against a hosted database (suggested: on api startup, from the manifest and a `plugins` collection), the export format and demo data's shape are open (0107).
+
 ### Ejecting
-Ejecting a plugin = unseed → remove its registry entries → delete `libs/plugins/<name>/`. After an eject, the workspace must type-check and build exactly as it did before the plugin was installed.
+Ejecting a plugin (= uninstalling it) takes two steps, because unseed is the plugin's own code: (1) unseed from the running site while the code is still installed, then (2) remove its registry entries, delete `libs/plugins/<name>/` and deploy. After an eject, the workspace must type-check and build exactly as it did before the plugin was installed. Nice to have: before the unseed, warn what data will be lost and offer export first / eject anyway / cancel.
 
 ---
 
 ## 3. Client repositories
 
-- A client app is created by cloning core. It receives core plus only the plugins that client uses.
+- A client app is created by cloning core. It receives core plus copies of only the plugins that client uses, at the versions in its manifest (0105).
 - **Core updates reach clients via git upstream merges.** Each client repo keeps Inithium core as an upstream remote and merges improvements.
 - To keep those merges clean, **client repos must not edit core files.** Anything client-specific goes in one of three places:
   - **Configuration** stored through the CMS (preferred).
@@ -96,18 +109,19 @@ Ejecting a plugin = unseed → remove its registry entries → delete `libs/plug
 - If a client needs a change to core behaviour, make it in Inithium core (generalised for every client) and merge it upstream. Do not patch it in the client repo.
 
 ### Accounts & provisioning
-Every client owns their own infrastructure, so their usage and any paid upgrades never land on the Inithium/personal accounts:
+Every client owns their own infrastructure, so their usage and any paid upgrades never land on the Inithium/personal accounts (0104, superseding 0005):
 
-| | Inithium, sandbox, plugins, personal projects | Each client |
+| | Inithium: core, sandbox, showcase, plugins, personal projects | Each client |
 | --- | --- | --- |
 | GitHub | Personal account | Client's own GitHub account and repo |
-| MongoDB | One shared Atlas cluster; a separate database per project | Client's own Atlas account and cluster, with a single database |
-| Render | Personal Render account | Client's own Render account (signed in with their GitHub) |
+| MongoDB | One shared Atlas cluster; a separate database per project or environment | Client's own Atlas account and cluster, with two databases: production and staging |
+| Render | Personal Render account: the showcase | Client's own Render account (signed in with their GitHub): two web services, production and staging |
+| Cloudflare R2 (if needed) | Personal account | Client's own account |
 
 Provisioning a client:
 1. Clone core, install the client's plugins, and push one initial commit to a new repo on the client's GitHub.
-2. Create the client's Atlas account, cluster and database.
-3. Create the client's Render account through their GitHub, deploy the repo, and set the env vars (see [Environment & database](#environment--database)).
+2. Create the client's Atlas account and cluster, with a production and a staging database.
+3. Create the client's Render account through their GitHub, deploy the repo, and set the env vars (see [Environment & database](#environment--database)). The staging service is planned; its repo/branch set-up and data handling are open (0108), and so are paid tiers and backups (0109). Free tiers as reported in Oct 2026: Render 750 instance hours/workspace/month with sleep after 15 min idle; Atlas free cluster ~512 MB, no backups (production and staging share it; `database` storage mode's 250 MB quota is per database).
 
 Switching an app between databases or clusters is only ever a change to `MONGODB_URI`. Nothing in code is tied to a specific cluster.
 
@@ -423,7 +437,9 @@ npm run check   # structure, frontmatter, decisions, links, and coverage of comp
 
 The repo has not caught up with these guidelines yet. Known pending work:
 
-- [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, a "rebuild with all plugins" command, and running each plugin's tests and lifecycle check (0103).
+- [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt per 0106 and 0105: generated workspaces with their own ports and database, run beside core; the one install tool (copy into `libs/plugins/<name>/`, registry wiring, manifest, versions) for all four layers; install/activate/deactivate/two-step eject; re-copying a plugin while it's developed; demo data; installed plugins' manuals in the docs app; each plugin's tests and lifecycle check (0103); and generating and pushing the showcase.
+- [ ] **Plugin lifecycle in core** (0105): the runtime plugin-state store, the CMS Plugins screen (activation toggles and plugin settings, a new permission for owners), activation honoured by every slot, and the manifest. Not built; mechanics open (0107).
+- [ ] **Environments** (0104): the showcase at `inithium.onrender.com` (today it runs plain core) and client staging services are planned, not built (0108–0110).
 - [ ] **Slot contracts and registry files:** the web registry (`apps/web/src/app/plugins.registry.ts`: page templates, profile slots) and the api registry (`apps/api/src/app/plugins.registry.ts`: user deletion hooks, 0100) exist; the cms registry and the other slots don't yet.
 - [ ] **Needs testing by the user (merged untested):** (1) assets step B on a real Cloudflare R2 bucket on Render (`STORAGE_MODE=cloud-all`; steps in `docs/backend/assets.md#cloudflare-r2`), only tested against a local S3 stand-in; (2) Express `trust proxy = 1` behind Render's proxy (10 failed sign-ins from one browser, the 11th refused, another network still allowed). The first Render deploy otherwise works (build, sign-in, assets in `database` mode).
 - [ ] **Page system** (0078–0082), in phases: (1, built) page and settings contracts, permissions, API endpoints, seeded core pages and settings; (2, built) `web` shell: template registry, routes, layouts lib (`default`, `bare`), audiences, transitions, `usePageReady`, Navbar and Footer from records, placeholder pages; (3, built) CMS sidebar layout, Dashboard, Pages list and edit dialog, Settings screen with theme colours; (4) real profile page (built, 0090); content pages (0093, built: contracts, renderer and template; creating, duplicating and deleting; the editor, 0094; the seeded privacy policy, 0097; the Image block, 0098); later: collection layouts.
@@ -544,10 +560,14 @@ CLAUDE.md is the source of truth for the architecture, so keep it current. When 
 
 These haven't been decided. **Ask before doing work that depends on them.** Each has a `proposed` record in `docs/decisions/`, which is updated when the decision is made.
 
-- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): partly settled (web page templates, Navbar ancillary, profile tabs/sidebar/actions, whose shapes 0090 settles). Also settled: the "user deleted" hook (`UserDeletionHook`, api registry, 0100). Still open: API routes, models, CMS screens and sidebar entries, and every other contract shape (no storage driver slot: R2 ships in core, 0098).
-- **Plugin-to-plugin dependencies** ([0016](docs/decisions/0016-plugin-to-plugin-dependencies.md)): can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order and boundaries handle it?
-- **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided.
-- **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): where it lives and how it's run against a real client repo, as opposed to the sandbox.
-- **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created.
+- **Slot catalogue** ([0015](docs/decisions/0015-slot-catalogue.md)): partly settled (web page templates, Navbar ancillary, profile tabs/sidebar/actions, whose shapes 0090 settles). Also settled: the "user deleted" hook (`UserDeletionHook`, api registry, 0100), and that every slot must honour runtime activation (0105). Still open: API routes, models, CMS screens and sidebar entries, plugin settings, and every other contract shape (no storage driver slot: R2 ships in core, 0098).
+- **Plugin-to-plugin dependencies** ([0016](docs/decisions/0016-plugin-to-plugin-dependencies.md)): can a plugin depend on another (e.g. `ecom` using `storage`), and how would install/eject order, boundaries, versions and deactivation handle it?
+- **Upstream mechanism** ([0017](docs/decisions/0017-upstream-mechanism.md)): core lives in `core/` inside the Inithium repo next to `plugins/`, `sandbox/` and `docs/`. Client upstream merges must bring in core **only**, never plugin source or docs, but how (separate core repo, subtree split, etc.) is undecided. Settled around it: plugin updates don't travel by upstream (0105). Also open: how the manifest's core version is updated, CI workflows for client repos, and core updates reaching staging first.
+- **Install/eject tooling for client repos** ([0018](docs/decisions/0018-install-eject-tooling-for-client-repos.md)): partly settled by 0105 (one copying tool for every workspace, owning registries and the manifest). Still open: where it lives and how it's run against a real client repo, which has no `plugins/`.
+- **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created. Settle with 0107's startup step (a `plugins` collection could serve both).
+- **Plugin lifecycle mechanics** ([0107](docs/decisions/0107-plugin-lifecycle-mechanics.md)): how seeds/migrations/unseeds run against a hosted database (suggested: on api startup), what each slot does while inactive, the activation permission's name, a sandbox `sync`/`watch` command, the eject export format, demo data's shape, and the manifest/version format.
+- **Client staging** ([0108](docs/decisions/0108-client-staging-workflow-and-data.md)): one repo with `staging`/`main` branches (suggested) or two repos; staging data (suggested: copy to production once at launch, then refresh staging from production before reviews); access and isolation; uploads; what's scripted.
+- **Client hosting plans and backups** ([0109](docs/decisions/0109-client-hosting-plans-and-backups.md)): free baseline vs paid production (Render instance, Atlas with backups), backups on free clusters, upload storage limits.
+- **Showcase** ([0110](docs/decisions/0110-showcase-content-and-access.md)): which plugins and demo content, demo accounts, resetting, a showcase staging service, and how it's generated and pushed.
 - **Password policy leftovers** ([0024](docs/decisions/0024-password-policy.md)): the rules are decided; still open are breached-password checks and whether `SEED_DEV_PASSWORD` must meet the policy.
 - **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): other effects (transitions, opacity, transforms), an inline Container (`as="span"`), size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.

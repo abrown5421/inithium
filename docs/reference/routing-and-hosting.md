@@ -4,7 +4,7 @@ description: How api, web and cms share one origin in production and in developm
 scope: core
 tags: [hosting, routing, render, vite]
 order: 4
-decisions: ["0006", "0005"]
+decisions: ["0006", "0104"]
 ---
 
 # Routing and hosting

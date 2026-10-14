@@ -3,7 +3,7 @@ title: The core workspace
 description: The apps, the libs, the UI layers and the rules that keep them apart.
 scope: core
 tags: [architecture, nx, libs]
-order: 2
+order: 3
 decisions: ["0006", "0007", "0008", "0035", "0038", "0039"]
 ---
 

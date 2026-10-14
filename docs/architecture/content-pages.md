@@ -3,7 +3,7 @@ title: Content pages
 description: Pages clients build in the CMS from sections, columns and blocks, stored as data and drawn by one core template.
 scope: core
 tags: [pages, content, cms, blocks]
-order: 7
+order: 8
 decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102"]
 ---
 

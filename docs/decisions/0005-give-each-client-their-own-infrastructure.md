@@ -1,12 +1,13 @@
 ---
 id: "0005"
 title: Give each client their own GitHub, Atlas and Render accounts
-status: accepted
-date: "2026-10-07"
+status: superseded
+date: "2026-10-14"
 scope: ecosystem
 tags: [clients, hosting, mongodb, render]
 related: ["0004", "0006"]
 supersedes: []
+supersededBy: "0104"
 ---
 
 # 0005. Give each client their own GitHub, Atlas and Render accounts

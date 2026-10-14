@@ -4,7 +4,7 @@ description: How a plugin is laid out, installed as libs, wired in through slot 
 scope: ecosystem
 tags: [plugins, architecture, seeding]
 order: 1
-decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100", "0103"]
+decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100", "0103", "0105"]
 ---
 
 # How plugins work
@@ -71,8 +71,10 @@ How unseed identifies exactly what its seed created is still open ([0019](../dec
 ## Ejecting
 
 Ejecting a plugin is:
-1. run its unseed;
+1. run its unseed, from the running site while its code is still installed;
 2. remove its registry entries;
-3. delete `libs/plugins/<name>/`.
+3. delete `libs/plugins/<name>/`, and deploy.
+
+An installed plugin can also be **deactivated** instead: switched off on the CMS Plugins screen, keeping its code and data. See [Plugin lifecycle](plugin-lifecycle.md) ([0105](../decisions/0105-manage-plugins-with-one-install-tool-activation-and-versions.md)) for activation, versions and upgrades.
 
 Afterwards the workspace must type-check and build exactly as it did before the plugin was installed.

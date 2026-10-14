@@ -3,7 +3,7 @@ title: Pages and routing
 description: How web pages are stored as records, drawn by code templates, routed, restricted, animated and placed in menus.
 scope: core
 tags: [pages, routing, navigation, cms, plugins]
-order: 5
+order: 6
 decisions: ["0078", "0079", "0080", "0081", "0082"]
 ---
 
