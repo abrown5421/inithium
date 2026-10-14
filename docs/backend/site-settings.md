@@ -19,7 +19,7 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | --- | --- | --- |
 | `siteTitle` | string, 1–100 | The Navbar title and the end of every document title. Default `Inithium`. |
 | `logo` | `{ assetId, alt }`, optional | An uploaded image, by its [asset](assets.md) id, and its description ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). `logoImage(logo)` gives the Navbar's `{ src, alt }`. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). Its asset can't be deleted while it's the logo. |
-| `favicon` | `{ assetId }`, optional | The browser-tab icon of `web` and the CMS: an uploaded ICO, PNG or SVG ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). Without one, both show Inithium's default `favicon.ico`. Its asset can't be deleted while it's the favicon. |
+| `favicon` | `{ assetId }`, optional | The browser-tab icon of `web` and the CMS: an uploaded ICO, PNG or SVG ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). Without one, both show Inithium's default `favicon.ico` (the Inithium logo, bundled in each app). Its asset can't be deleted while it's the favicon. |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
