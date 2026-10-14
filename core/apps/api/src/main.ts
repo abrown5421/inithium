@@ -1,11 +1,12 @@
 import cookieParser from 'cookie-parser';
-import express, { type NextFunction, type Request, type Response } from 'express';
+import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { assetsRouter, startStorage } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
+import { apiErrorHandler, apiNotFound } from '@inithium/api-http';
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { profilesRouter } from '@inithium/api-profiles';
 import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
@@ -36,15 +37,8 @@ api.use('/settings', settingsRouter);
 api.use('/users', createUsersRouter({ deletionHooks: registeredUserDeletionHooks }));
 
 app.use('/api', api);
-app.use('/api', (_req, res) => {
-  res.status(404).send({ message: 'Not found' });
-});
-app.use('/api', (error: Error & { status?: number; field?: string }, _req: Request, res: Response, _next: NextFunction) => {
-  const status = error.status && error.status < 500 ? error.status : 500;
-  if (status === 500) console.error('[ error ]', error);
-  // A 4xx may name the form field it's about, so the form can mark it.
-  res.status(status).send(status === 500 ? { message: 'Something went wrong' } : { message: error.message, ...(error.field ? { field: error.field } : {}) });
-});
+app.use('/api', apiNotFound);
+app.use('/api', apiErrorHandler);
 
 // When the frontends have been built, serve them from this same origin:
 // cms at /cms and web at /. The api is always started from the workspace root.

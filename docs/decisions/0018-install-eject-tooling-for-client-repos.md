@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-07"
 scope: ecosystem
 tags: [plugins, tooling, clients]
-related: ["0002", "0003", "0016"]
+related: ["0002", "0003", "0016", "0103"]
 supersedes: []
 ---
 
@@ -21,6 +21,8 @@ Undecided. Open questions:
 
 - Where does the install/eject tooling live?
 - How is it run against a real client repo, as opposed to the sandbox?
+
+Already required, whatever the answer: installing copies a plugin's libs without their `*.spec.ts(x)` files, which run only in the Inithium repo and the sandbox ([0103](0103-test-with-vitest-and-a-plugin-contract-kit.md)).
 
 ## Alternatives considered
 

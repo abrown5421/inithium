@@ -45,7 +45,7 @@ See [Environment variables](../backend/environment-variables.md) and [Routing an
 
 Core improvements reach clients through **git upstream merges**: each client repo keeps Inithium core as an upstream remote and merges updates ([0004](../decisions/0004-deliver-core-changes-via-upstream-merges.md)).
 
-How upstream merges bring in core *only*, without plugin source or the docs, is still open ([0017](../decisions/0017-upstream-mechanism.md)), and so is the tooling that installs plugins into a real client repo ([0018](../decisions/0018-install-eject-tooling-for-client-repos.md)). Both must also leave out `core/apps/docs` ([0053](../decisions/0053-view-the-manual-in-a-docs-app.md)).
+How upstream merges bring in core *only*, without plugin source or the docs, is still open ([0017](../decisions/0017-upstream-mechanism.md)), and so is the tooling that installs plugins into a real client repo ([0018](../decisions/0018-install-eject-tooling-for-client-repos.md)). Both must also leave out `core/apps/docs` ([0053](../decisions/0053-view-the-manual-in-a-docs-app.md)). Installing a plugin also leaves out its `*.spec.ts(x)` files. Core's own tests and test kits do reach clients, and `libs/client/` code tests itself against those kits ([0103](../decisions/0103-test-with-vitest-and-a-plugin-contract-kit.md)).
 
 ## Customising a client
 

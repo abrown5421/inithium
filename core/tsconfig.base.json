@@ -102,6 +102,15 @@
       ],
       "@inithium/cms-users": [
         "./libs/cms/users/src/index.ts"
+      ],
+      "@inithium/api-http": [
+        "./libs/api/http/src/index.ts"
+      ],
+      "@inithium/api-testing": [
+        "./libs/api/testing/src/index.ts"
+      ],
+      "@inithium/api-testing-accounts": [
+        "./libs/api/testing-accounts/src/index.ts"
       ]
     }
   },

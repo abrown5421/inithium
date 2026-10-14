@@ -22,9 +22,9 @@ decisions: ["0012", "0007", "0031", "0032", "0038"]
 | Decision records | `NNNN-kebab-title.md` | `0006-serve-each-client-from-one-origin.md` |
 
 - **Plurality:** module-level files use the plural entity (`users.model.ts`, `use-users.hook.ts`). A unit that concerns a single instance uses the singular (`user-avatar.component.tsx`).
-- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`. A new suffix is added to this list in the same change that first uses it.
+- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`, `spec` (tests, e.g. `pages.spec.ts`), `setup` (Vitest setup files in the test kit). A new suffix is added to this list in the same change that first uses it.
 - **Unused parameters:** prefix a parameter with `_` when its position is required but its value isn't (e.g. `_req`, or `_next` in an Express error handler, which Express only recognises by its four parameters). ESLint ignores `_`-prefixed parameters.
-- Files whose names a tool requires (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep those names.
+- Files whose names a tool requires (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `vitest.config.mts`, `tsconfig*.json`) keep those names. `core/vitest.preset.mts` is the shared Vitest preset.
 
 ## Building UI
 
@@ -55,7 +55,7 @@ Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also
 | Group | Values | Meaning |
 | --- | --- | --- |
 | `scope:` | `api`, `web`, `cms`, `docs`, `shared` | Which app(s) may consume it. `shared` is usable by all; `docs` is the manual viewer. |
-| `type:` | `feature`, `data-access`, `ui`, `util` | Its role in the layering. |
+| `type:` | `feature`, `data-access`, `ui`, `util`, `testing` | Its role in the layering. `testing` marks a test kit, for spec files only ([0103](../decisions/0103-test-with-vitest-and-a-plugin-contract-kit.md)). |
 | `origin:` | `core`, `plugin`, `client` | Where it came from. |
 | `ui:` | `theme`, `component`, `composite`, `layout` | UI libs only: the UI layer ([0038](../decisions/0038-split-the-ui-library-into-four-libs-with-layer-tags.md)). |
 
@@ -65,12 +65,13 @@ Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also
 | `scope:docs` | `scope:docs`, `scope:shared` |
 | `scope:shared` | `scope:shared` |
 | `type:feature` | Any type |
-| `type:data-access` | `data-access`, `util` |
-| `type:ui` | `ui`, `util` |
-| `type:util` | `util` |
+| `type:data-access` | `data-access`, `util` (and `testing`, from its specs) |
+| `type:ui` | `ui`, `util` (and `testing`, from its specs) |
+| `type:util` | `util` (and `testing`, from its specs) |
+| `type:testing` | Any type |
 | `origin:core` | Never `origin:plugin` or `origin:client` |
 | `ui:theme` | No other `ui:` lib |
 | `ui:component` | `ui:theme` (not composites or layouts) |
 | `ui:composite` | `ui:component`, `ui:theme` (not layouts) |
 
-Only app registry files import plugin or client libs. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.
+Only app registry files import plugin or client libs. Only `*.spec.ts(x)` files import test kits (`@inithium/*-testing*`), which `no-restricted-imports` enforces; the kits' own configs turn the rule off. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.

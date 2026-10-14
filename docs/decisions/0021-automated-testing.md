@@ -1,12 +1,13 @@
 ---
 id: "0021"
 title: Decide when and how to add automated tests
-status: proposed
-date: "2026-10-07"
+status: superseded
+date: "2026-10-14"
 scope: ecosystem
 tags: [testing, verification]
 related: []
 supersedes: []
+supersededBy: "0103"
 ---
 
 # 0021. Decide when and how to add automated tests

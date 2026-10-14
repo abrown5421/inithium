@@ -4,7 +4,7 @@ description: The libs core ships, what each owns, and how to create a new one.
 scope: core
 tags: [nx, libs]
 order: 3
-decisions: ["0007", "0009", "0010", "0020", "0022"]
+decisions: ["0007", "0009", "0010", "0020", "0022", "0103"]
 ---
 
 # Core libs
@@ -16,6 +16,9 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 | Lib | Path | Tags | Exports |
 | --- | --- | --- | --- |
 | `@inithium/api-config` | `libs/api/config` | `scope:api`, `type:util`, `origin:core` | `loadEnv()`, `envSchema`, `Env` |
+| `@inithium/api-http` | `libs/api/http` | `scope:api`, `type:util`, `origin:core` | `apiErrorHandler`, `apiNotFound`, `HttpError` |
+| `@inithium/api-testing` | `libs/api/testing` | `scope:api`, `type:testing`, `origin:core` | `createTestApi()`, `TestClient`, `testClient()`, `snapshotDatabase()`, `describeChanges()`, `clearDatabase()`, `TEST_ENV`, `expectSeedIsIdempotent()`, `expectUnseedRestores()`, `expectUserDeletionHook()` |
+| `@inithium/api-testing-accounts` | `libs/api/testing-accounts` | `scope:api`, `type:testing`, `origin:core` | `createTestAccount()`, `createTestApiWithAuth()`, `signIn()`, `signedInClient()`, `TEST_PASSWORD` |
 | `@inithium/api-database` | `libs/api/database` | `scope:api`, `type:data-access`, `origin:core` | `connectDatabase(uri)`, `disconnectDatabase()`, `isDatabaseConnected()`, `healthRouter` |
 | `@inithium/api-users` | `libs/api/users` | `scope:api`, `type:data-access`, `origin:core` | `UserModel`, `toUser()`, `toPublicProfile()`, user queries, `createUser()`, `updateUserProfile()`, `backfillUserProfiles()`, `createProfileAvatar()`, `createProfileBanner()`, `findUsersWithProfileImage()`, `clearProfileImage()`, `toManagedUser()`, `listUsers()`, `findUsersByIds()`, `countUsersWithRole()`, `deleteUserRecords()` |
 | `@inithium/api-auth` | `libs/api/auth` | `scope:api`, `type:feature`, `origin:core` | `authRouter`, `requireAuth`, `requireSession`, `requirePermission()`, `getAuth()`, `readAuth()`, `seedDevUser()`, `hashPassword()`, `revokeSessions()`, `endSessionsOfDeletedUsers()` |
@@ -47,6 +50,19 @@ Apps are thin orchestrators. Business logic lives in libs, one lib per concern. 
 ### `@inithium/api-config`
 
 The only code that reads `process.env`. `loadEnv()` validates the environment once against `envSchema`, caches the result and returns it typed as `Env`. It throws a readable error listing every invalid variable. See [Environment variables](../backend/environment-variables.md).
+
+### `@inithium/api-http`
+
+The api's error handling for `/api`, used by `main.ts` and by the test app. `apiNotFound` answers unknown paths with a JSON 404; `apiErrorHandler` turns a thrown `HttpError` (an `Error` with a `status` and an optional `field`) into its response, and hides anything 500 or above behind a generic message. See [The api app](../backend/api-app.md#errors).
+
+### `@inithium/api-testing` and `@inithium/api-testing-accounts`
+
+The test kits ([0103](../decisions/0103-test-with-vitest-and-a-plugin-contract-kit.md)), tagged `type:testing`. Only spec files import them, and they have only a `tsconfig.spec.json`, so no build includes them.
+
+- `api-testing` holds the test app and HTTP client, database snapshots, the environment tests run with, and the plugin contract checks. Its folder also holds the Vitest setup files that `core/vitest.preset.mts` loads for `database: true` projects: the in-memory MongoDB server, a database per test file, and the test environment.
+- `api-testing-accounts` creates accounts and signs clients in.
+
+See [Testing](../getting-started/testing.md) and [Testing plugins](../plugins/testing-plugins.md).
 
 ### `@inithium/api-database`
 
@@ -159,11 +175,17 @@ npx nx g @nx/node:library --directory=libs/<scope>/<name> --name=<scope>-<name> 
   --buildable=false --unitTestRunner=none --linter=eslint --strict --useProjectJson --no-interactive
 ```
 
+Keep `--unitTestRunner=none`: the generator's Vitest option also rewrites the root ESLint config and adds files Inithium doesn't use. Tests are added by hand in step 4.
+
 For React libs, use `@nx/react:library` with `--bundler=none --style=none --component=false` instead of `--buildable=false --strict`. Then:
 
 1. Delete the generated placeholder file and README, and a React lib's `.babelrc` (unused, because Vite compiles the lib as part of the app).
 2. Check the lib has an `eslint.config.mjs` that spreads the root config.
    - Tailwind classes in libs are picked up because each app's `styles.css` contains `@source "../../../libs";`. Without that line, Tailwind only scans the app's own folder.
 3. Add the lib to the table above.
+4. Give it tests ([Testing](../getting-started/testing.md)):
+   - `vitest.config.mts`: `export default projectTestConfig(import.meta.dirname)`, importing `projectTestConfig` from `<root>/vitest.preset.mts`. Pass `{ database: true }` for api code or `{ environment: 'jsdom' }` for React components.
+   - `tsconfig.spec.json`: extends `./tsconfig.json`, with `types: ["node"]` and `include: ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/**/*.d.ts"]`. Add it to `tsconfig.json`'s `references`, and exclude spec files from `tsconfig.lib.json`.
+   - A `typecheck` target in `project.json`: `nx:run-commands` running `tsc --noEmit -p tsconfig.spec.json` in `{projectRoot}`, cached, with inputs `default` and `^production`. Copy it from an existing lib, e.g. `libs/api/pages/project.json`.
 
 Tags and the boundary rules they enforce are listed in [Conventions](conventions.md#tags-and-module-boundaries).

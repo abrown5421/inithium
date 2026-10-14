@@ -4,7 +4,7 @@ description: How a change goes from request to main, including branches, verific
 scope: ecosystem
 tags: [process, git, docs]
 order: 3
-decisions: ["0052"]
+decisions: ["0052", "0103"]
 ---
 
 # Working on Inithium
@@ -15,7 +15,7 @@ Every change follows the same path. The rules behind it are in `CLAUDE.md`; this
 
 1. **Clarify first.** If a request depends on something undecided, settle it before writing code. Open questions are tracked as `proposed` decision records.
 2. **Branch.** Check for an existing branch that fits (`git branch -a`). Otherwise branch from `main` as `<type>/<kebab-name>`: `feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/` or `docs/`, e.g. `feat/user-collection`. Never work on `main`.
-3. **Build it** following [Conventions](../reference/conventions.md).
+3. **Build it** following [Conventions](../reference/conventions.md), with tests ([Testing](testing.md)).
 4. **Verify** (below).
 5. **Document it** (below). A change isn't done until the manual describes it.
 6. **Commit** with a Conventional Commit message whose type matches the branch prefix, e.g. `feat: add user collection`.
@@ -39,12 +39,15 @@ Everything must pass before a change is handed over:
 
 ```bash
 cd core
-npx nx run-many -t lint typecheck build
+npx nx run-many -t lint typecheck test build
 
 cd ../docs
 npm run check
 ```
 
+- **Tests** run with Vitest, the api's against an in-memory MongoDB. See [Testing](testing.md) for what each change should test.
+- **Type-check** includes every tested project's spec files (`tsconfig.spec.json`).
+- **CI** runs the same checks and the docs check on every pull request (`.github/workflows/verify.yml`).
 - **Lint** includes the module-boundary rules. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.
 - **The docs check** validates the manual's structure, links and decision records, and fails when the docs fall behind the code:
   - a UI component without a page;
@@ -68,6 +71,7 @@ The manual is written alongside the code, in the same commit ([0052](../decision
 | Changes commands, ports, URLs or routes | [Commands](../reference/commands.md), [Routing and hosting](../reference/routing-and-hosting.md), and [Local setup](local-setup.md) if setup changed |
 | Changes conventions, tags or boundaries | [Conventions](../reference/conventions.md) |
 | Changes how core, plugins, the sandbox or client repos work | [Architecture](../architecture/index.md) |
+| Adds or changes logic, routes or seeds | Its tests, beside the code ([Testing](testing.md)) |
 | Makes or changes a decision | A record in `docs/decisions/`. A changed decision gets a new record that supersedes the old one. |
 
 **How pages are organised:**

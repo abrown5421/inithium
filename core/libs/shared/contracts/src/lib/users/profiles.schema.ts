@@ -52,6 +52,6 @@ export const updateProfileRequestSchema = z
   .strict();
 
 /** The name others see on a profile: its first and last name, or 'Member' when it has none (never the email). */
-export function publicProfileName(profile: { firstName?: string; lastName?: string }): string {
+export function publicProfileName(profile: { firstName?: string | null; lastName?: string | null }): string {
   return profileName(profile) ?? 'Member';
 }

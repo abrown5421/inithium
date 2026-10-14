@@ -4,7 +4,7 @@ description: Commands for running, verifying and building core, plus known envir
 scope: core
 tags: [nx, commands, tooling]
 order: 1
-decisions: ["0013", "0052"]
+decisions: ["0013", "0052", "0103"]
 ---
 
 # Commands
@@ -14,7 +14,9 @@ Run Nx from inside `core/`.
 | Command | What it does |
 | --- | --- |
 | `npm install` | Install dependencies. `core/.npmrc` sets `legacy-peer-deps=true`. |
-| `npx nx run-many -t lint typecheck build` | Verify everything. The api's esbuild build also type-checks. |
+| `npx nx run-many -t lint typecheck test build` | Verify everything: lint, type-check (spec files included), tests and builds. The api's esbuild build also type-checks. |
+| `npx nx run-many -t test` | Run every project's tests ([Testing](../getting-started/testing.md)) |
+| `npx nx test <project>` | Run one project's tests, e.g. `npx nx test api-pages` |
 | `npx nx serve api` | API at `http://localhost:3000/api`, loading `core/.env` |
 | `npx nx serve web` | End-user site at `http://localhost:5173/`. Needs the api running: it loads its pages from `/api/site`. |
 | `npx nx serve cms` | Client portal at `http://localhost:5174/cms/` |
@@ -43,6 +45,7 @@ Nx 23 generators produce some outdated output. After generating a project:
 - Delete generated placeholder files and READMEs.
 - Add an `eslint.config.mjs` that spreads the root config. React projects also add `nx.configs['flat/react']`.
 - For new React apps or libs, wire in Tailwind v4 with `@tailwindcss/vite`; the generator no longer does it.
+- Generate libs with `--unitTestRunner=none` and add the test files by hand ([Creating a lib](libs.md#creating-a-lib)). The generator's Vitest option also rewrites the root `eslint.config.mjs`, adds a root `vitest.config.mts` and installs a coverage package, none of which Inithium uses.
 
 ## Troubleshooting
 
@@ -51,4 +54,5 @@ Nx 23 generators produce some outdated output. After generating a project:
 | Nx can't find the workspace when run from VS Code | Nx Console sets `NX_WORKSPACE_ROOT_PATH` to the repo root. In Git Bash, from `core/`: `export NX_WORKSPACE_ROOT_PATH="$(pwd -W)"` |
 | The Nx daemon misbehaves | Run with `NX_DAEMON=false` |
 | `querySrv ECONNREFUSED` at startup | Use a standard `mongodb://` connection string locally. See [Environment variables](../backend/environment-variables.md#connection-strings). |
+| The first api test run is slow, or fails offline | It downloads a MongoDB binary for `mongodb-memory-server` once (about 100 MB). Run it once with network access; later runs reuse it. |
 | Vite exits because a port is in use | Ports are fixed with `strictPort`. Stop whatever is using 5173, 5174 or 5175. |

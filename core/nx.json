@@ -35,6 +35,15 @@
           ]
         }
       ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/vitest.preset.mts",
+        "{workspaceRoot}/libs/api/testing/src/**/*"
+      ]
     }
   },
   "plugins": [
@@ -55,6 +64,13 @@
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "test",
+        "testMode": "run"
       }
     }
   ],
