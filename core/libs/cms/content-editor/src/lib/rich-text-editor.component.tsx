@@ -3,7 +3,7 @@ import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { toCssColor } from '@inithium/shared-ui-components';
 import type { ColorValue, ContentAlign, RichTextDocument } from '@inithium/shared-contracts';
-import { PAGE_LINK_SCHEME, richTextToTiptap, tiptapToRichText } from './rich-text-convert.service';
+import { PAGE_LINK_SCHEME, richTextToTiptap, tiptapToRichText } from '@inithium/shared-ui-composites';
 
 /**
  * The editable text's look, matching RichText (shared-content) so editing in place looks like the page. TipTap

@@ -16,3 +16,6 @@ export * from './lib/tabs/tabs.component';
 export { createPolyPattern, createPolySeed, DEFAULT_POLY_PATTERN } from './lib/poly-banner/poly-pattern.service';
 export { avatarStyleName, createAvatarRecipe, createAvatarSeed } from './lib/avatar/avatar.service';
 export { renderCrop, type CropArea, type ImageCrop, type RenderCropOptions } from './lib/image-cropper/image-crop.service';
+export * from './lib/rich-text/rich-text-convert.service';
+export * from './lib/rich-text/rich-text-field.component';
+export * from './lib/rich-text/rich-text-view.component';

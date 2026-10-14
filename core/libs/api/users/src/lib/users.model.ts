@@ -7,7 +7,8 @@ const profileSchema = new Schema(
   {
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
-    bio: { type: String, trim: true },
+    // Rich text (decision 0102), validated by bioSchema before it's stored; plain-text bios from before are read as one paragraph.
+    bio: { type: Schema.Types.Mixed },
     avatar: { type: Schema.Types.Mixed },
     banner: { type: Schema.Types.Mixed },
     // Uploaded pictures shown instead of the generated ones, which stay as their fallbacks (decision 0098).

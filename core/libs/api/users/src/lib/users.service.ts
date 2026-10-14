@@ -1,5 +1,16 @@
 import { isValidObjectId } from 'mongoose';
-import type { ManagedUser, PublicProfile, Role, UpdateProfileRequest, User, UserProfile } from '@inithium/shared-contracts';
+import {
+  richTextDocumentSchema,
+  richTextFromPlainText,
+  richTextIsEmpty,
+  type ManagedUser,
+  type PublicProfile,
+  type RichTextDocument,
+  type Role,
+  type UpdateProfileRequest,
+  type User,
+  type UserProfile,
+} from '@inithium/shared-contracts';
 import { createProfileAvatar, createProfileBanner, readAvatar, readBanner } from './profiles.service';
 import { UserModel, type UserDocument } from './users.model';
 
@@ -16,14 +27,22 @@ const fallbackBanner = (seed: string) => ({
   seed: seed.slice(0, 64),
 }) satisfies UserProfile['banner'];
 
+/** A stored bio as rich text (decision 0102): older plain-text bios become paragraphs; anything unreadable is dropped. */
+function readBio(stored: unknown): RichTextDocument | undefined {
+  if (typeof stored === 'string') return stored.trim() ? richTextFromPlainText(stored.trim()) : undefined;
+  const parsed = richTextDocumentSchema.safeParse(stored);
+  return parsed.success && !richTextIsEmpty(parsed.data) ? parsed.data : undefined;
+}
+
 /** A stored user's profile in the shape the contracts use, with only the names and bio it has. */
 function toProfile(doc: UserDocument): UserProfile {
   const id = doc._id.toString();
   const stored = doc.profile;
+  const bio = readBio(stored?.bio);
   return {
     ...(stored?.firstName ? { firstName: stored.firstName } : {}),
     ...(stored?.lastName ? { lastName: stored.lastName } : {}),
-    ...(stored?.bio ? { bio: stored.bio } : {}),
+    ...(bio ? { bio } : {}),
     avatar: readAvatar(stored?.avatar) ?? createProfileAvatar(id),
     banner: readBanner(stored?.banner) ?? fallbackBanner(id),
     ...(stored?.avatarAssetId ? { avatarAssetId: stored.avatarAssetId } : {}),
@@ -161,11 +180,14 @@ export async function updateUserProfile(user: UserDocument, changes: UpdateProfi
   const profile = toProfile(user);
   const next: UserProfile = { ...profile };
   if (changes.firstName !== undefined) next.firstName = changes.firstName;
-  for (const key of ['lastName', 'bio'] as const) {
-    const value = changes[key];
-    if (value === undefined) continue;
-    if (value) next[key] = value;
-    else delete next[key];
+  if (changes.lastName !== undefined) {
+    if (changes.lastName) next.lastName = changes.lastName;
+    else delete next.lastName;
+  }
+  // A bio of null, or with no text, removes it.
+  if (changes.bio !== undefined) {
+    if (changes.bio && !richTextIsEmpty(changes.bio)) next.bio = changes.bio;
+    else delete next.bio;
   }
   if (changes.avatar) next.avatar = changes.avatar;
   if (changes.banner) next.banner = changes.banner;

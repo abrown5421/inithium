@@ -4,7 +4,7 @@ description: Pages clients build in the CMS from sections, columns and blocks, s
 scope: core
 tags: [pages, content, cms, blocks]
 order: 7
-decisions: ["0078", "0091", "0092", "0093", "0094", "0097"]
+decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102"]
 ---
 
 # Content pages
@@ -72,7 +72,9 @@ Rich text is the editor's (TipTap's) JSON document, limited to:
 - **marks:** bold, italic, underline, link;
 - **nodes:** paragraph, heading (h2–h4; the page's title is its h1), bulleted and numbered lists (nested), quote and line break.
 
-Anything else is rejected by `richTextDocumentSchema`. It's drawn with Text and Container, never as HTML. `richTextFromPlainText(text)` builds a document of plain paragraphs.
+Anything else is rejected by `richTextDocumentSchema`. It's drawn by [RichTextView](../ui-library/composites/rich-text-view.md) (content's `RichText` adds page links), never as HTML. `richTextFromPlainText(text)` builds a document of plain paragraphs.
+
+The same document is what [RichTextField](../ui-library/composites/rich-text-field.md) saves everywhere else (bios, and later blog posts or product descriptions), with each field allowing only some of it ([0102](../decisions/0102-edit-rich-text-fields-with-tiptap-and-store-json.md)). The converters between it and TipTap's own JSON, `richTextToTiptap()` and `tiptapToRichText()`, live in `@inithium/shared-ui-composites` and are shared by the page editor and the field.
 
 ### Links
 

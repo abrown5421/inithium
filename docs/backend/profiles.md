@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0090", "0091", "0098", "0099"]
+decisions: ["0074", "0075", "0081", "0090", "0091", "0098", "0099", "0102"]
 ---
 
 # Profiles
@@ -19,7 +19,7 @@ The user's `profile` subdocument ([Users](users.md#profiles)), validated by `use
 | --- | --- | --- |
 | `firstName` | string, optional | Required at sign-up; missing on accounts created without one (e.g. the dev account) until their owner adds it. Up to 50 characters. |
 | `lastName` | string, optional | Up to 50 characters |
-| `bio` | string, optional | Up to 280 characters (`profileLimits.bio`) |
+| `bio` | `RichTextDocument`, optional | Rich text with bold, italic and web-address links, up to 280 characters (`bioSchema`, `bioFeatures`, `profileLimits.bio`) ([0102](../decisions/0102-edit-rich-text-fields-with-tiptap-and-store-json.md)). Older plain-text bios are read as paragraphs. |
 | `avatar` | `AvatarRecipe` | An [Avatar](../ui-library/composites/avatar.md) recipe. Always present. |
 | `banner` | `PolyPattern` | A [PolyBanner](../ui-library/composites/poly-banner.md) recipe. Always present. |
 | `avatarAssetId` | string, optional | An uploaded picture shown instead of the generated avatar ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). |
@@ -55,7 +55,7 @@ No account is ever without a saved avatar and banner. `createUser()` in `@inithi
 Both are in `profilesRouter` from `@inithium/api-profiles`, mounted at `/api/profiles`.
 
 - **`PublicProfile`** (`publicProfileSchema`): `id`, `firstName?`, `lastName?`, `bio?`, `avatar`, `banner`, `avatarAssetId?`, `bannerAssetId?`, `joinedAt` (ISO), and `email` only when the viewer is the profile's owner. The route reads the session with `readAuth(req)` from `@inithium/api-auth`, which never rejects a request.
-- **`UpdateProfileRequest`** (`updateProfileRequestSchema`): any of `firstName` (1–50), `lastName` (up to 50), `bio` (up to 280), `avatar`, `banner`, `avatarAssetId`, `bannerAssetId`; unknown keys are rejected. Fields left out stay as they are; an empty `lastName` or `bio` removes it. Text is trimmed. An asset id must be the user's own upload of that kind (`400` with `field` otherwise); `null` goes back to the generated picture. A picture that's replaced or removed is deleted.
+- **`UpdateProfileRequest`** (`updateProfileRequestSchema`): any of `firstName` (1–50), `lastName` (up to 50), `bio` (a `bioSchema` document, or `null`), `avatar`, `banner`, `avatarAssetId`, `bannerAssetId`; unknown keys are rejected. Fields left out stay as they are; an empty `lastName`, or a `bio` that's `null` or has no text, removes it. Names are trimmed. An asset id must be the user's own upload of that kind (`400` with `field` otherwise); `null` goes back to the generated picture. A picture that's replaced or removed is deleted.
 
 From the frontends, use `useGetProfileQuery(id)` and `useUpdateMyProfileMutation()` from `@inithium/shared-data-access` ([Calling the API](calling-the-api.md)). A saved edit goes straight into that profile's cache entry, and the current user refetches so the Navbar's name and avatar follow.
 
@@ -79,8 +79,8 @@ Staff accounts have profiles like everyone else, and no role is shown.
 
 | Slot | Entry | Viewers | Order |
 | --- | --- | --- | --- |
-| Sidebar section | **About**: the bio, the join date, and the email for its owner | everyone | 0 |
-| Tab | **Account**: the editable form, with names, bio, the email (read-only) and a password change (`PasswordChangeForm`) | owner | 1000 |
+| Sidebar section | **About**: the bio (drawn with [RichTextView](../ui-library/composites/rich-text-view.md)), the join date, and the email for its owner | everyone | 0 |
+| Tab | **Account**: the editable form, with names, the bio (a [RichTextField](../ui-library/composites/rich-text-field.md) with bold, italic, links and a 280 count), the email (read-only) and a password change (`PasswordChangeForm`: current password, new one meeting the policy; signs out other sessions, keeps this one) | owner | 1000 |
 
 Core has no other tabs and no header actions: the owner never has to press a button to start editing, because the form is already there.
 

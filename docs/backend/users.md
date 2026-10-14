@@ -72,7 +72,7 @@ From `@inithium/api-users`:
 
 ## Profiles
 
-The `profile` subdocument holds profile data, kept apart from the authentication fields: optional `firstName`, `lastName` (set at sign-up, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)) and `bio`, plus the `avatar` and `banner` recipes every account gets when it's created. [Profiles](profiles.md) covers them, the profile API and the Profile page.
+The `profile` subdocument holds profile data, kept apart from the authentication fields: optional `firstName`, `lastName` (set at sign-up, [0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)) and `bio` (rich text, [0102](../decisions/0102-edit-rich-text-fields-with-tiptap-and-store-json.md)), plus the `avatar` and `banner` recipes every account gets when it's created. [Profiles](profiles.md) covers them, the profile API and the Profile page.
 
 `userDisplayName(user)` from `@inithium/shared-contracts` gives the name to show a user for themselves: first and last name, or their email when they have none. Others see `publicProfileName(profile)`, which says "Member" instead of ever showing the email.
 
