@@ -59,7 +59,9 @@ The Vite dev servers proxy `/api` to port 3000, so both frontends reach the API 
 ## 4. Verify before committing
 
 ```sh
-npx nx run-many -t lint typecheck build
+npx nx run-many -t lint typecheck test build
 ```
+
+The first run downloads a MongoDB binary for the api tests (about 100 MB, cached afterwards). See [Testing](testing.md).
 
 If something fails to start, see [Commands: Troubleshooting](../reference/commands.md#troubleshooting).

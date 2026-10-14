@@ -48,7 +48,8 @@ export const userSchema = z.object({
   createdAt: z.iso.datetime(),
 });
 
-type Named = { firstName?: string; lastName?: string };
+// Stored records may hold null for a missing name, so the name helpers accept it too.
+type Named = { firstName?: string | null; lastName?: string | null };
 
 /** An uploaded profile picture as components take it (`{ src }`), or undefined without one (decision 0098). */
 export function profileImage(assetId: string | undefined): { src: string } | undefined {

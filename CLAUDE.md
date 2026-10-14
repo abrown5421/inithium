@@ -74,6 +74,7 @@ A plugin may depend on core libs and on its own layers.
 - Every plugin ships an **idempotent seed**, run on install: default CMS pages, settings, nav entries and any required data. Running it twice must not duplicate anything.
 - Every plugin ships an **unseed**, run on eject, which removes **only** what that plugin's seed created.
 - Seed/unseed live in the plugin's `api` lib.
+- **Every plugin's tests prove these rules** with the contract checks in `@inithium/api-testing` (`expectSeedIsIdempotent`, `expectUnseedRestores`, `expectUserDeletionHook`), plus its routes' permission checks (0103). Plugin spec files are never installed into client repos; they run in the Inithium repo and the sandbox.
 
 ### Plugin data
 - **Plugins never add fields to `users`** (or to the core user schema or contract). A plugin keeps per-user data in its own collections, each document carrying a `userId` (e.g. `ecom` owns `addresses`).
@@ -165,17 +166,18 @@ Each client deploys as a **single Render web service**: the `api` process serves
     --buildable=false --unitTestRunner=none --linter=eslint --strict --useProjectJson --no-interactive
   ```
   For React libs, use `@nx/react:library` with `--bundler=none --style=none --component=false` in place of `--buildable=false --strict`. Delete the generated placeholder file, README and (React) `.babelrc`.
+  Keep `--unitTestRunner=none` (the generator's Vitest option rewrites the root `eslint.config.mjs`, adds a root `vitest.config.mts` and a coverage package) and add tests by hand: `vitest.config.mts` calling `projectTestConfig(import.meta.dirname, { database?, environment? })` from `core/vitest.preset.mts`, a `tsconfig.spec.json` (referenced from `tsconfig.json`, specs excluded from `tsconfig.lib.json`), and a cached `typecheck` target running `tsc --noEmit -p tsconfig.spec.json` (copy `libs/api/pages`).
 - Every lib is tagged with all three groups below, and boundaries are enforced with ESLint `@nx/enforce-module-boundaries` (rules in `core/eslint.config.mjs`). Apps carry **only** their `scope:` tag (`scope:api|web|cms`); the `type:` and `origin:` rules apply to libs, and apps must stay free to import plugin/client libs through their registries.
 
 | Tag group | Values | Meaning |
 | --- | --- | --- |
 | `scope:` | `api`, `web`, `cms`, `docs`, `shared` | Which app(s) may consume it. `shared` = usable by all (e.g. contracts). `docs` is the manual viewer, which uses shared libs only. |
-| `type:` | `feature`, `data-access`, `ui`, `util` | Its role in the layering. |
+| `type:` | `feature`, `data-access`, `ui`, `util`, `testing` | Its role in the layering. `testing` = a test kit, imported only by spec files (0103). |
 | `origin:` | `core`, `plugin`, `client` | Where it came from. |
 
 Boundary rules:
 - `scope:web` / `scope:cms` / `scope:api` libs may depend only on their own scope and `scope:shared`. Frontend libs never import `api` code, and `api` never imports frontend code.
-- `type:util` → nothing but other utils; `type:ui` → `ui`, `util`; `type:data-access` → `data-access`, `util`; `type:feature` → anything.
+- `type:util` → nothing but other utils; `type:ui` → `ui`, `util`; `type:data-access` → `data-access`, `util`; `type:feature` → anything. Every type may also depend on `type:testing`, but only `*.spec.ts(x)` files may import a test kit (`no-restricted-imports` on `@inithium/*-testing*`; the kits' own eslint configs turn it off).
 - `origin:core` libs must **never** depend on `origin:plugin` or `origin:client` libs. Plugin and client libs may depend on core libs. Only the app registry files import plugin/client libs.
 
 ### Environment & database
@@ -305,6 +307,15 @@ Profiles are built (0090). Assets are built in steps (0098): (A, built) database
 - **Members' pictures** (0099, `cloud-all` only, `memberUploads`): `profile.avatarAssetId` / `bannerAssetId` beside the always-kept recipes (fallback when absent or failing to load; `profileImage(id)` gives `{ src }`). Set via `PATCH /api/profiles/me` (must be the member's own upload of that kind: `checkProfileImage()`; `null` goes back to generated); a replaced/removed picture is deleted (`releaseProfileImage()`). Avatar/PolyBanner/ProfileLayout/Navbar take `image` (+ `onUpload` for the editors' Upload a picture). Members: raster only, no alt, 10 uploads/hour per account. Media lists member uploads only under `group=members`; deleting one clears the profile (`clearProfileImage()`). Editors still can't delete files (owner/admin only).
 - **Permissions:** `assets.upload` (owner, admin, editor), `assets.delete` (owner, admin).
 
+### Testing
+Vitest everywhere (0103), with mongodb-memory-server for api tests; the manual's `getting-started/testing.md` and `plugins/testing-plugins.md` have the detail.
+- **Specs** are `*.spec.ts(x)` beside the code. Each tested project has `vitest.config.mts` (shared preset `core/vitest.preset.mts`: `database: true` gives each test file its own in-memory database, emptied before every test, and the `TEST_ENV` environment; `environment: 'jsdom'` for components), a `tsconfig.spec.json` and a `typecheck` target over it.
+- **Test kits** (`type:testing`): `@inithium/api-testing` (`createTestApi()`, `TestClient`, snapshots, the plugin contract checks, `TEST_ENV`, and the Vitest setup files) and `@inithium/api-testing-accounts` (`createTestAccount()`, `createTestApiWithAuth()`, `signIn()`, `signedInClient()`). A kit has only a `tsconfig.spec.json`: the api's esbuild build compiles every lib in its project graph, spec imports included, and would otherwise emit the kits.
+- **No kit-dependency cycles:** `api-http`, `api-users` and `api-auth` sit below the kits, so their specs don't import `api-testing-accounts` (and `api-http`'s don't import `api-testing`).
+- **What to test:** logic when it's added or changed; api routes' permissions (401/403), refusals (400/409 with `field`) and results; seeds with `expectSeedIsIdempotent`; components only where behaviour is subtle. No coverage threshold. Every plugin: seed/unseed contract checks, its user deletion hook, its routes' permission checks.
+- **The api's error handling** is `apiErrorHandler`/`apiNotFound` in `@inithium/api-http`, so tests use the real handler.
+- **Browser tests (Playwright) are deferred** until the rebuilt sandbox installs its first plugin with `web`/`cms` slots, or until asked; then a smoke suite of 3–4 journeys.
+
 ### Contracts: Zod is the source of truth
 - Every data shape shared between `api`, `web` and `cms` is defined as a **Zod schema** in a shared contracts lib (`scope:shared`).
 - TypeScript types are **inferred** with `z.infer`, never hand-written in parallel.
@@ -333,8 +344,8 @@ export type User = z.infer<typeof userSchema>;
 | Docs pages | `kebab-title.md` | `environment-variables.md` |
 
 - **Plurality:** files at the module level use the **plural** entity (`users.model.ts`, `users.types.ts`, `use-users.hook.ts`). A unit that concerns a **single instance** uses the **singular** (`user-avatar.component.tsx`, `user-search-input.component.tsx`).
-- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`. When you need a new suffix, add it to this list in the same change.
-- Filenames that tools require (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `tsconfig*.json`) keep the names the tool expects.
+- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`, `spec`, `setup` (Vitest setup files). When you need a new suffix, add it to this list in the same change.
+- Filenames that tools require (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `vitest.config.mts`, `tsconfig*.json`) keep the names the tool expects.
 
 ---
 
@@ -344,8 +355,8 @@ Claude implements and verifies that things compile. **The user does all browser 
 
 1. **Read the prompt.** If it hits a gap or an open decision, ask before writing code.
 2. **Pick a branch.** Run `git branch -a` and check for an existing branch that fits the work. Reuse it if one fits; otherwise create one from `main` named `<type>/<kebab-name>` (`feat/`, `fix/`, `chore/`, `refactor/`, `hotfix/`, `docs/`, …). Never work directly on `main`.
-3. **Implement** following the conventions above.
-4. **Verify.** Everything must lint, type-check and build, and the docs check must pass (see [Commands](#7-commands)). Fix failures before handing off. Never silence a module-boundary error with an `eslint-disable` comment; fix the dependency, or raise it if the rules themselves seem wrong.
+3. **Implement** following the conventions above, with tests (see [Testing](#testing)).
+4. **Verify.** Everything must lint, type-check (spec files included), pass its tests and build, and the docs check must pass (see [Commands](#7-commands)). Fix failures before handing off. Never silence a module-boundary error with an `eslint-disable` comment; fix the dependency, or raise it if the rules themselves seem wrong.
 5. **Document it.** Update the manual for everything the change touched, as the [Documentation protocol](#9-documentation-protocol) requires. This isn't optional and isn't deferred: a change without its docs isn't done. Update CLAUDE.md too if the work uncovered something worth persisting (see [section 10](#10-maintaining-this-file)).
 6. **Commit** to the branch: stage the changes and commit with a Conventional Commit message whose type matches the branch prefix (e.g. `feat: add user collection`).
 7. **Hand off.** Report what changed, the branch and commit, the verification result, **which manual pages were added or updated** (and any CLAUDE.md edits), and **step-by-step browser-testing instructions** (which apps to start, URLs, what to click, what to expect).
@@ -373,7 +384,8 @@ Run Nx from inside `core/`:
 ```bash
 cd core
 npm install
-npx nx run-many -t lint typecheck build   # verification (api's esbuild build type-checks)
+npx nx run-many -t lint typecheck test build   # verification (api's esbuild build type-checks)
+npx nx test <project>                     # one project's tests, e.g. api-pages
 npx nx serve api                          # http://localhost:3000/api
 npx nx serve web                          # http://localhost:5173/
 npx nx serve docs                         # http://localhost:5175/ (developer manual, dev only)
@@ -401,6 +413,8 @@ npm run check   # structure, frontmatter, decisions, links, and coverage of comp
 - Tailwind only scans the app's own folder unless told otherwise. Each app's `styles.css` has `@source "../../../libs";` so classes used in libs are generated. Keep it when editing styles.
 - The docs app's build isn't cached (`cache: false` in `apps/docs/project.json`): it reads the manual from `../docs`, outside the Nx workspace, so Nx can't see Markdown changes and would replay a stale build.
 - `tsconfig.base.json` sets `resolveJsonModule` so JSON (e.g. DiceBear style definitions) can be imported with types.
+- The first api test run downloads a MongoDB binary for mongodb-memory-server (~100 MB, cached in `~/.cache/mongodb-binaries`); after that tests need no network. CI (`.github/workflows/verify.yml`) caches it via `MONGOMS_DOWNLOAD_DIR`.
+- Spec type-checks compile lib code under each lib's strict tsconfig, which the api build doesn't; untyped packages need real typings (e.g. `@types/wawoff2`), not a `.d.ts` inside one lib.
 - Prefix a required-but-unused parameter with `_` (e.g. `_next` in an Express error handler, which needs all four parameters); ESLint ignores those.
 
 ---
@@ -409,7 +423,7 @@ npm run check   # structure, frontmatter, decisions, links, and coverage of comp
 
 The repo has not caught up with these guidelines yet. Known pending work:
 
-- [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, and a "rebuild with all plugins" command.
+- [ ] **Sandbox tooling** still uses the old model. It copies plugin `api/`/`web/` folders into `apps/*/src/plugins/`, clones one named workspace, and has no seeding. It needs to be rebuilt for: libs under `libs/plugins/<name>/`, registry wiring, the `cms` and `contracts` layers, seed/unseed, single-plugin add/eject, a "rebuild with all plugins" command, and running each plugin's tests and lifecycle check (0103).
 - [ ] **Slot contracts and registry files:** the web registry (`apps/web/src/app/plugins.registry.ts`: page templates, profile slots) and the api registry (`apps/api/src/app/plugins.registry.ts`: user deletion hooks, 0100) exist; the cms registry and the other slots don't yet.
 - [ ] **Needs testing by the user (merged untested):** (1) assets step B on a real Cloudflare R2 bucket on Render (`STORAGE_MODE=cloud-all`; steps in `docs/backend/assets.md#cloudflare-r2`), only tested against a local S3 stand-in; (2) Express `trust proxy = 1` behind Render's proxy (10 failed sign-ins from one browser, the 11th refused, another network still allowed). The first Render deploy otherwise works (build, sign-in, assets in `database` mode).
 - [ ] **Page system** (0078–0082), in phases: (1, built) page and settings contracts, permissions, API endpoints, seeded core pages and settings; (2, built) `web` shell: template registry, routes, layouts lib (`default`, `bare`), audiences, transitions, `usePageReady`, Navbar and Footer from records, placeholder pages; (3, built) CMS sidebar layout, Dashboard, Pages list and edit dialog, Settings screen with theme colours; (4) real profile page (built, 0090); content pages (0093, built: contracts, renderer and template; creating, duplicating and deleting; the editor, 0094; the seeded privacy policy, 0097; the Image block, 0098); later: collection layouts.
@@ -417,7 +431,8 @@ The repo has not caught up with these guidelines yet. Known pending work:
 - [ ] **Assets** (0098, 0099): steps A and B built (database and R2 drivers, cloud modes, Media screen, picker, logo, Image block, members' pictures). Still to build: (C) font families from uploaded fonts; a tool to move files between drivers if a client needs one.
 - [ ] **Profiles:** built (0090), with uploaded pictures in `cloud-all` (0099). Still missing: email changes, privacy settings and usernames. The bio is rich text (0102).
 - [ ] **UI library:** theme, Container, Text, Icon, Button, Input, Checkbox, Loader, Switch, Divider, RadioGroup, Select, Slider and Tooltip are built (every planned component, plus Image), and the composites ImageCropper, Modal, Alert, AlertStack, Tabs, ColorPicker, AutoIncrementingList, Drawer, Breadcrumbs, Pagination, PolyBanner, Avatar, Navbar, Footer, IconPicker, RichTextField and RichTextView (every planned composite), and the layouts DefaultLayout, BareLayout, FullWidthLayout, ProfileLayout and SidebarLayout. Remaining layouts: collection-list and collection-item. Ring/outline colours wait on width/style props (0033).
-- [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built.
+- [ ] **Clone exclusion:** the clone tooling and upstream mechanism (0017, 0018) must leave out `apps/docs` when they're built; the install tooling must also leave out plugin `*.spec.ts(x)` files (0103).
+- [ ] **Testing** (0103): Vitest, the test kits, CI and core's backfill (permissions, contracts, theme scales, rich text, content editing, config, auth, users, user management, pages and seeds, settings, profiles, health) are built. Not yet covered: `api-assets` (uploads, drivers, serving), the web shell and CMS screens. Still to build: the sandbox's per-plugin lifecycle check (install → build → seed ×2 → unseed → eject → build) with the sandbox rebuild; Playwright smoke tests when their trigger is reached.
 
 ---
 
@@ -536,4 +551,3 @@ These haven't been decided. **Ask before doing work that depends on them.** Each
 - **Seed tracking** ([0019](docs/decisions/0019-seed-tracking.md)): how unseed identifies exactly what its seed created.
 - **Password policy leftovers** ([0024](docs/decisions/0024-password-policy.md)): the rules are decided; still open are breached-password checks and whether `SEED_DEV_PASSWORD` must meet the policy.
 - **UI library design** ([0033](docs/decisions/0033-ui-library-design-open-questions.md)): other effects (transitions, opacity, transforms), an inline Container (`as="span"`), size/variant presets, ring/outline width and style, centring (`margin: 'auto'`), text on brand colours in dark mode, and whether lint should stop the api importing React UI libs.
-- **Testing** ([0021](docs/decisions/0021-automated-testing.md)): no automated tests for now (verification is typecheck, build and the docs check). Revisit when libs gain real logic.

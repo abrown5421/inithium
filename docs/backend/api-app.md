@@ -4,7 +4,7 @@ description: How the api starts, how its routes are organised, how errors are re
 scope: core
 tags: [api, express, backend]
 order: 1
-decisions: ["0006", "0007", "0010", "0023"]
+decisions: ["0006", "0007", "0010", "0023", "0103"]
 ---
 
 # The api app
@@ -66,7 +66,7 @@ Protect routes with `requireAuth` and `requirePermission()` from `@inithium/api-
 
 ## Errors
 
-Errors thrown or rejected in a handler reach one error handler for `/api`, so async route handlers don't need their own `try`/`catch`:
+Errors thrown or rejected in a handler reach one error handler for `/api`, so async route handlers don't need their own `try`/`catch`. It's `apiErrorHandler` from `@inithium/api-http`, mounted after `apiNotFound`, and api tests use the same handler through `createTestApi()` ([Testing](../getting-started/testing.md#api-tests)).
 
 | Error | Response |
 | --- | --- |

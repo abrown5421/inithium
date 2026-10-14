@@ -36,4 +36,5 @@ npm run inject -- demo blog gallery
 - Register them in each app's slot registry, and unregister them on eject.
 - Run each plugin's seed on install and its unseed on eject. How unseed identifies what its seed created is still open ([0019](../decisions/0019-seed-tracking.md)).
 - Add and eject single plugins, and regenerate with every plugin installed.
+- Check each plugin's whole lifecycle, as its acceptance gate: install, build, seed, seed again, unseed, eject, then type-check and build again exactly as before the install. Each plugin's tests run here too, since they aren't installed into client repos ([Testing plugins](../plugins/testing-plugins.md), [0103](../decisions/0103-test-with-vitest-and-a-plugin-contract-kit.md)).
 - Keep `apps/docs`: unlike client clones, the sandbox is for development.

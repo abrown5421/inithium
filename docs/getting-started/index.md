@@ -25,5 +25,6 @@ Inithium is a template-and-plugins ecosystem for building client web application
 | [Repository layout](repository-layout.md) | What lives where in the repo and in core |
 | [Working on Inithium](working-on-inithium.md) | How a change goes from request to `main`: branches, verification, documentation, review |
 | [Deploying to Render](deploying-to-render.md) | Putting a site live as one Render web service, and checking it works |
+| [Testing](testing.md) | Running the tests, and writing unit, api and component tests with the test kits |
 
 Read this manual in the docs app (`npx nx serve docs`, then http://localhost:5175): a sidebar of sections, search, and live examples with their code.

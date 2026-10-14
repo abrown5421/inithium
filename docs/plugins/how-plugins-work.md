@@ -4,7 +4,7 @@ description: How a plugin is laid out, installed as libs, wired in through slot 
 scope: ecosystem
 tags: [plugins, architecture, seeding]
 order: 1
-decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100"]
+decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100", "0103"]
 ---
 
 # How plugins work
@@ -59,13 +59,13 @@ The rest of the slot catalogue, and every other contract's exact shape, is still
 - **Unseed:** every plugin ships an unseed, run on eject, which removes **only** what its own seed created.
 - **Where they live:** both live in the plugin's `api` lib.
 
-How unseed identifies exactly what its seed created is still open ([0019](../decisions/0019-seed-tracking.md)).
+How unseed identifies exactly what its seed created is still open ([0019](../decisions/0019-seed-tracking.md)). Either way, every plugin proves both rules with the contract checks in [Testing plugins](testing-plugins.md).
 
 ## A plugin's data
 
 - **Plugins never add fields to `users`,** or to the core user schema or contract. A plugin keeps per-user data in its own collections, each document carrying a `userId`. For example, `ecom` would own `addresses` ([0026](../decisions/0026-plugins-keep-user-data-in-their-own-collections.md)).
 - **Data comes from the plugin's own endpoints.** Anything a frontend needs is served there, never added to `GET /api/auth/me`.
-- **Deleting a user** will need the "user deleted" slot, so plugins can remove that user's data without core knowing which plugins exist.
+- **Deleting a user:** a plugin with per-user data registers a user deletion hook in the api registry, so its data goes when the account does, without core knowing which plugins exist. Its tests prove the hook with `expectUserDeletionHook()` ([Testing plugins](testing-plugins.md)).
 - **Uploads:** staff uploads work in every storage mode; member uploads only in `cloud-all`. Check `memberUploads` from `GET /api/assets/storage`, never the mode or driver ([0029](../decisions/0029-storage-requirements-for-plugin-uploads.md)).
 
 ## Ejecting

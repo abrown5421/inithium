@@ -4,7 +4,7 @@ description: Optional features installed into a core clone, and how plugins are 
 scope: ecosystem
 tags: [plugins]
 order: 5
-decisions: ["0002", "0026"]
+decisions: ["0002", "0026", "0103"]
 ---
 
 # Plugins
@@ -14,5 +14,6 @@ Plugins add optional features to a core clone: their API routes and models, `web
 | Page | Covers |
 | --- | --- |
 | [How plugins work](how-plugins-work.md) | Layout, installing as libs, slots, seeding, data ownership and ejecting |
+| [Testing plugins](testing-plugins.md) | The tests every plugin ships, and the contract checks for seeds, unseeds and deletion hooks |
 
 No plugins exist yet. Each plugin will document itself in `plugins/plugin-<name>/docs/`, using the same section structure as this manual. To test plugins, see [The sandbox](../architecture/sandbox.md).
