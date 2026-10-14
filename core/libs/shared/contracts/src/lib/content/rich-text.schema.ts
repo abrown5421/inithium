@@ -103,3 +103,72 @@ export function richTextFromPlainText(text: string): RichTextDocument {
       .map((line): Paragraph => (line ? { type: 'paragraph', content: [{ type: 'text', text: line }] } : { type: 'paragraph' })),
   };
 }
+
+/** The formatting a rich text field can allow (decision 0102). Paragraphs and line breaks are always allowed. */
+export const richTextFeatures = ['bold', 'italic', 'underline', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'] as const;
+export type RichTextFeature = (typeof richTextFeatures)[number];
+
+/** Every text run and line break in a document, nested lists and quotes included. */
+function inlineParts(doc: RichTextDocument): RichTextInline[] {
+  const parts: RichTextInline[] = [];
+  const fromList = (list: RichTextList): void => {
+    for (const item of list.content) {
+      for (const child of item.content) {
+        if (child.type === 'paragraph') parts.push(...(child.content ?? []));
+        else fromList(child);
+      }
+    }
+  };
+  for (const node of doc.content) {
+    if (node.type === 'paragraph' || node.type === 'heading') parts.push(...(node.content ?? []));
+    else if (node.type === 'blockquote') for (const paragraph of node.content) parts.push(...(paragraph.content ?? []));
+    else fromList(node);
+  }
+  return parts;
+}
+
+/**
+ * A document's length as people count it: its visible characters, each line break counting as one. Matches TipTap's
+ * character count, so the editor's limit and the api's agree.
+ */
+export function richTextLength(doc: RichTextDocument): number {
+  return inlineParts(doc).reduce((total, part) => total + (part.type === 'text' ? [...part.text].length : 1), 0);
+}
+
+/** Whether a document has no visible text. */
+export const richTextIsEmpty = (doc: RichTextDocument) => inlineParts(doc).every((part) => part.type === 'hardBreak' || !part.text.trim());
+
+/** The features a document uses, e.g. to check it against what a field allows. */
+export function richTextFeaturesUsed(doc: RichTextDocument): Set<RichTextFeature> {
+  const used = new Set<RichTextFeature>();
+  const visitList = (list: RichTextList): void => {
+    used.add(list.type);
+    for (const item of list.content) for (const child of item.content) if (child.type !== 'paragraph') visitList(child);
+  };
+  for (const node of doc.content) {
+    if (node.type === 'heading' || node.type === 'blockquote') used.add(node.type);
+    else if (node.type !== 'paragraph') visitList(node);
+  }
+  for (const part of inlineParts(doc)) for (const mark of part.type === 'text' ? (part.marks ?? []) : []) used.add(mark.type);
+  return used;
+}
+
+/**
+ * A rich text field's contract (decision 0102): a document using only the given features, at most `maxLength`
+ * characters (counted as `richTextLength`), and, with `urlLinksOnly`, links to addresses but never to the site's
+ * pages. Use it wherever such a field is saved, so the api enforces what the editor allows.
+ */
+export function restrictedRichTextSchema(options: { features: readonly RichTextFeature[]; maxLength?: number; urlLinksOnly?: boolean }) {
+  const allowed = new Set(options.features);
+  return richTextDocumentSchema.superRefine((doc, ctx) => {
+    const refused = [...richTextFeaturesUsed(doc)].filter((feature) => !allowed.has(feature));
+    if (refused.length) ctx.addIssue({ code: 'custom', message: `This text can’t use: ${refused.join(', ')}` });
+    if (options.maxLength !== undefined && richTextLength(doc) > options.maxLength) {
+      ctx.addIssue({ code: 'custom', message: `Use ${options.maxLength} characters or fewer` });
+    }
+    if (options.urlLinksOnly) {
+      const pageLink = inlineParts(doc).some((part) => part.type === 'text' && part.marks?.some((mark) => mark.type === 'link' && mark.attrs.link.type === 'page'));
+      if (pageLink) ctx.addIssue({ code: 'custom', message: 'Links here must be web addresses' });
+    }
+  });
+}

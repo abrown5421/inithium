@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { assetUrl } from '../assets/assets.schema';
+import { restrictedRichTextSchema, richTextDocumentSchema, type RichTextFeature } from '../content/rich-text.schema';
 import { avatarRecipeSchema } from '../ui/avatar.schema';
 import { polyPatternSchema } from '../ui/poly-pattern.schema';
 
@@ -11,6 +12,12 @@ export const roleSchema = z.enum(roles);
 /** The limits of a profile's text fields. */
 export const profileLimits = { name: 50, bio: 280 } as const;
 
+/** What a bio's rich text may use (decision 0102): bold, italic and links to web addresses, with line breaks. */
+export const bioFeatures: readonly RichTextFeature[] = ['bold', 'italic', 'link'];
+
+/** A bio as it's saved: rich text with only the bio's features, at most 280 characters. */
+export const bioSchema = restrictedRichTextSchema({ features: bioFeatures, maxLength: profileLimits.bio, urlLinksOnly: true });
+
 /**
  * Profile data, kept apart from authentication fields (decisions 0074, 0083, 0090). Every account has an avatar and
  * a banner recipe from the moment it's created; names are missing on accounts created without them (e.g. the
@@ -20,7 +27,8 @@ export const userProfileSchema = z
   .object({
     firstName: z.string().optional(),
     lastName: z.string().optional(),
-    bio: z.string().optional(),
+    /** Rich text (decision 0102). */
+    bio: richTextDocumentSchema.optional(),
     avatar: avatarRecipeSchema,
     banner: polyPatternSchema,
     /** An uploaded picture shown instead of the generated avatar, which stays as its fallback (decision 0098). */

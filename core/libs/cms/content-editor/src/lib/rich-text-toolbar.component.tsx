@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useEditorState, type Editor } from '@tiptap/react';
 import { contentLinkSchema, type ContentLink, type Page, type SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Tooltip, type IconName } from '@inithium/shared-ui-components';
-import { Modal } from '@inithium/shared-ui-composites';
+import { attrsToLink, linkToAttrs, Modal } from '@inithium/shared-ui-composites';
 import { LinkField } from './editor-fields.component';
-import { attrsToLink, linkToAttrs } from './rich-text-convert.service';
 
 export type RichTextToolbarProps = {
   editor: Editor;

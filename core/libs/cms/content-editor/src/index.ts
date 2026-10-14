@@ -4,7 +4,6 @@ export * from './lib/content-editor.component';
 export * from './lib/editor-fields.component';
 export * from './lib/preview-frame.component';
 export * from './lib/properties-panel.component';
-export * from './lib/rich-text-convert.service';
 export * from './lib/rich-text-editor.component';
 export * from './lib/rich-text-toolbar.component';
 export * from './lib/structure-panel.component';

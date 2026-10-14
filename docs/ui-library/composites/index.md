@@ -26,6 +26,8 @@ Composites combine components into larger pieces, for example a modal built from
 | [Navbar](navbar.md) | The main navigation bar, collapsing into a drawer by width and sign-in state |
 | [Pagination](pagination.md) | Paging through long lists |
 | [PolyBanner](poly-banner.md) | Low-poly pattern banners from a storable recipe, with an editor |
+| [RichTextField](rich-text-field.md) | Multi-line text with formatting (TipTap), saved as rich text JSON |
+| [RichTextView](rich-text-view.md) | Drawing saved rich text, never as HTML |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
 Every composite planned for the first version is built. Layouts come next.

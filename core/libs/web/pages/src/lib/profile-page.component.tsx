@@ -4,7 +4,7 @@ import { profileImage, publicProfileName, type ProfileViewer, type UpdateProfile
 import { readApiFailure, useAlerts, useGetProfileQuery, useGetStorageInfoQuery, useUpdateMyProfileMutation } from '@inithium/shared-data-access';
 import { UploadDialog } from '@inithium/shared-media';
 import { Container, Icon, Text } from '@inithium/shared-ui-components';
-import { Alert, Tabs } from '@inithium/shared-ui-composites';
+import { Alert, RichTextView, Tabs } from '@inithium/shared-ui-composites';
 import { ProfileLayout } from '@inithium/shared-ui-layouts';
 import { usePageReady, useSite, type PageTemplateProps } from '@inithium/web-shell';
 import { NotFoundPage } from './not-found-page.component';
@@ -26,11 +26,7 @@ function ProfileAbout({ profile }: ProfileSlotProps) {
   );
   return (
     <Container flex={{ direction: 'column', gap: 16 }}>
-      {profile.bio && (
-        <Text as="p" lineHeight={1.6}>
-          {profile.bio}
-        </Text>
-      )}
+      {profile.bio && <RichTextView doc={profile.bio} gap={8} />}
       <Container as="ul" flex={{ direction: 'column', gap: 10 }}>
         <Container as="li">{row('calendar', `Joined ${joined}`)}</Container>
         {profile.email && <Container as="li">{row('mail', profile.email)}</Container>}

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { avatarRecipeSchema } from '../ui/avatar.schema';
 import { polyPatternSchema } from '../ui/poly-pattern.schema';
-import { profileLimits, profileName } from './users.schema';
+import { richTextDocumentSchema } from '../content/rich-text.schema';
+import { bioSchema, profileLimits, profileName } from './users.schema';
 
 /** Who is looking at a profile (decision 0081): signed out, signed in as someone else, or its owner. */
 export const profileViewers = ['visitor', 'member', 'owner'] as const;
@@ -16,7 +17,7 @@ export const publicProfileSchema = z.object({
   id: z.string(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  bio: z.string().optional(),
+  bio: richTextDocumentSchema.optional(),
   avatar: avatarRecipeSchema,
   banner: polyPatternSchema,
   /** Uploaded pictures shown instead of the generated avatar and banner (decision 0098). */
@@ -28,8 +29,8 @@ export const publicProfileSchema = z.object({
 });
 
 /**
- * `PATCH /api/profiles/me`: the fields to change. Fields left out stay as they are; an empty last name or bio
- * removes it. The first name can be changed but not removed. `avatarAssetId` / `bannerAssetId` show one of the
+ * `PATCH /api/profiles/me`: the fields to change. Fields left out stay as they are; an empty last name, or a bio that's
+ * `null` or has no text, removes it. The first name can be changed but not removed. `avatarAssetId` / `bannerAssetId` show one of the
  * user's own uploads (decision 0098); `null` goes back to the generated one. Either way the old upload is deleted.
  */
 export const updateProfileRequestSchema = z
@@ -40,7 +41,8 @@ export const updateProfileRequestSchema = z
       .min(1, { error: 'Enter your first name' })
       .max(profileLimits.name, { error: `Use ${profileLimits.name} characters or fewer` }),
     lastName: z.string().trim().max(profileLimits.name, { error: `Use ${profileLimits.name} characters or fewer` }),
-    bio: z.string().trim().max(profileLimits.bio, { error: `Use ${profileLimits.bio} characters or fewer` }),
+    /** Rich text with the bio's features (decision 0102); `null`, or a document with no text, removes it. */
+    bio: bioSchema.nullable(),
     avatar: avatarRecipeSchema,
     banner: polyPatternSchema,
     avatarAssetId: z.string().min(1).nullable(),
