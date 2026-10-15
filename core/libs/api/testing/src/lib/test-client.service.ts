@@ -50,19 +50,22 @@ export class TestClient {
     this.cookies.clear();
   }
 
-  async request<T = Json>(method: Method, path: string, body?: unknown): Promise<TestResponse<T>> {
+  /** Sends a request; `headers` adds to the client's own (e.g. `range` or `if-none-match`). */
+  async request<T = Json>(method: Method, path: string, body?: unknown, extraHeaders: Record<string, string> = {}): Promise<TestResponse<T>> {
     // A fresh server per request on a free port, so nothing is left listening after the test.
     const server = this.app.listen(0, '127.0.0.1');
     await new Promise<void>((resolve) => server.once('listening', resolve));
     try {
       const { port } = server.address() as AddressInfo;
-      const headers: Record<string, string> = {};
-      if (body !== undefined) headers['content-type'] = 'application/json';
+      const headers: Record<string, string> = { ...extraHeaders };
+      // FormData (multipart uploads) is sent as it is, with fetch's own boundary; anything else as JSON.
+      const multipart = body instanceof FormData;
+      if (body !== undefined && !multipart) headers['content-type'] = 'application/json';
       if (this.cookies.size) headers['cookie'] = [...this.cookies].map(([name, value]) => `${name}=${value}`).join('; ');
       const response = await fetch(`http://127.0.0.1:${port}${path}`, {
         method,
         headers,
-        body: body === undefined ? undefined : JSON.stringify(body),
+        body: body === undefined ? undefined : multipart ? body : JSON.stringify(body),
         redirect: 'manual',
       });
       this.storeCookies(response.headers.getSetCookie());

@@ -112,7 +112,7 @@ describe('/api/settings', () => {
 | Export | What it does |
 | --- | --- |
 | `createTestApi(mount)` | An Express app shaped like the api's own: JSON bodies up to 1 MB, cookies, your routers under `/api`, then the JSON 404 and the real error handler from `@inithium/api-http` |
-| `testClient(app)` / `TestClient` | Calls the app over real HTTP and keeps the cookies it sets, like one browser. `get`, `post`, `put`, `patch`, `delete` return `{ status, body, headers }`; `cookie(name)`, `setCookie()`, `clearCookies()` |
+| `testClient(app)` / `TestClient` | Calls the app over real HTTP and keeps the cookies it sets, like one browser. `get`, `post`, `put`, `patch`, `delete` return `{ status, body, headers }`; a `FormData` body is sent as a multipart upload (anything else as JSON); `request(method, path, body?, headers?)` adds request headers such as `range` or `if-none-match`; `cookie(name)`, `setCookie()`, `clearCookies()` |
 | `snapshotDatabase()`, `describeChanges()` | The whole database as comparable JSON, and the documents added, removed and changed between two snapshots |
 | `clearDatabase()` | Empties every collection (runs before each test anyway) |
 | `TEST_ENV` | The environment api tests run with |
