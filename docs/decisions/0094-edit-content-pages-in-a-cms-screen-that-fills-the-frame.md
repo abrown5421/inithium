@@ -1,12 +1,13 @@
 ---
 id: "0094"
 title: Edit content pages in a CMS screen that fills the frame, with a framed preview
-status: accepted
-date: "2026-10-12"
+status: superseded
+date: "2026-10-15"
 scope: core
 tags: [pages, content, cms, editor]
-related: ["0086", "0092", "0093"]
+related: ["0086", "0092", "0093", "0116"]
 supersedes: []
+supersededBy: "0116"
 ---
 
 # 0094. Edit content pages in a CMS screen that fills the frame, with a framed preview
