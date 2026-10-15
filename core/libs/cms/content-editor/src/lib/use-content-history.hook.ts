@@ -1,26 +1,25 @@
 import { useCallback, useReducer } from 'react';
-import type { ContentDocumentV1 } from '@inithium/shared-contracts';
 
 /** How many steps undo can go back. */
 const LIMIT = 100;
 /** Changes with the same key within this many ms (e.g. typing in one field) become one undo step. */
 const MERGE_MS = 1000;
 
-type History = {
-  past: ContentDocumentV1[];
-  present: ContentDocumentV1;
-  future: ContentDocumentV1[];
+type History<Doc> = {
+  past: Doc[];
+  present: Doc;
+  future: Doc[];
   lastKey: string | null;
   lastAt: number;
 };
 
-type Action =
-  | { type: 'change'; doc: ContentDocumentV1; key?: string; at: number }
+type Action<Doc> =
+  | { type: 'change'; doc: Doc; key?: string; at: number }
   | { type: 'undo' }
   | { type: 'redo' }
-  | { type: 'reset'; doc: ContentDocumentV1 };
+  | { type: 'reset'; doc: Doc };
 
-function reducer(state: History, action: Action): History {
+function reducer<Doc>(state: History<Doc>, action: Action<Doc>): History<Doc> {
   switch (action.type) {
     case 'change': {
       if (action.doc === state.present) return state;
@@ -49,15 +48,15 @@ function reducer(state: History, action: Action): History {
 }
 
 /**
- * The editor's document with undo and redo for this session (decision 0093). `change(doc, key)` records a change;
- * changes sharing a key in quick succession (typing in one field) merge into one step.
+ * The editor's document with undo and redo for this session (decisions 0093, 0116). `change(doc, key)` records a
+ * change; changes sharing a key in quick succession (typing in one field) merge into one step.
  */
-export function useContentHistory(initial: ContentDocumentV1) {
-  const [state, dispatch] = useReducer(reducer, { past: [], present: initial, future: [], lastKey: null, lastAt: 0 });
-  const change = useCallback((doc: ContentDocumentV1, key?: string) => dispatch({ type: 'change', doc, key, at: Date.now() }), []);
+export function useContentHistory<Doc>(initial: Doc) {
+  const [state, dispatch] = useReducer(reducer<Doc>, { past: [], present: initial, future: [], lastKey: null, lastAt: 0 });
+  const change = useCallback((doc: Doc, key?: string) => dispatch({ type: 'change', doc, key, at: Date.now() }), []);
   const undo = useCallback(() => dispatch({ type: 'undo' }), []);
   const redo = useCallback(() => dispatch({ type: 'redo' }), []);
-  const reset = useCallback((doc: ContentDocumentV1) => dispatch({ type: 'reset', doc }), []);
+  const reset = useCallback((doc: Doc) => dispatch({ type: 'reset', doc }), []);
   return {
     doc: state.present,
     change,

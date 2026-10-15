@@ -241,20 +241,4 @@ export function blockSummary(block: ContentBlock): string {
   }
 }
 
-/** JSON with every object's keys sorted, so the same content always gives the same text whatever its key order. */
-function canonical(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonical);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([, entry]) => entry !== undefined)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, entry]) => [key, canonical(entry)]),
-    );
-  }
-  return value;
-}
-
-/** Whether two content documents say the same thing (e.g. the draft and what's published). */
-export const sameContent = (a: ContentDocumentV1 | null | undefined, b: ContentDocumentV1 | null | undefined) =>
-  JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+export { sameContent } from './content-tree.service';
