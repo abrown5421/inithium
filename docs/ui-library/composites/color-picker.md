@@ -18,7 +18,7 @@ ColorPicker lets the user choose a colour ([0069](../../decisions/0069-pick-colo
 
 Its value is a [colour value](../style-props.md#colour-value), `{ color, intensity }`, so a picked colour goes straight into any colour prop: `bgColor={picked}`. Theme colours are stored as references, so they follow the theme when it changes ([0067](../../decisions/0067-colour-values-with-the-full-palette-in-cms-controls.md)).
 
-Use it in the web app (e.g. an avatar or banner colour) and in the CMS's page editor. The theme's own colours aren't picked here; they're set as hex codes in the theme settings.
+Use it in the web app (e.g. an avatar or banner colour) and in the CMS's page builder. The theme's own colours aren't picked here; they're set as hex codes in the theme settings.
 
 ## Import
 

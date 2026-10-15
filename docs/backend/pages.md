@@ -44,9 +44,9 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |
 | `POST /api/pages/:id/duplicate` | `pages.create` | Copies a page made from a reusable template, with a `pageDuplicateSchema` body (`title`, `path`). `201` with the copy. |
 | `GET /api/pages/:id` | `pages.edit` | One page, or 404. |
-| `PUT /api/pages/:id/content` | `pages.edit` | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 for a page without blocks. |
+| `PUT /api/pages/:id/content` | `pages.edit` | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 for a page that isn't a content page. |
 | `POST /api/pages/:id/content/publish` | `pages.publish` | Copies the draft to `published` and sets the page's `status` to `published`. |
-| `POST /api/pages/:id/content/discard` | `pages.edit` | Sets the draft back to the published version (or one empty section if it was never published). |
+| `POST /api/pages/:id/content/discard` | `pages.edit` | Sets the draft back to the published version (or an empty page if it was never published). |
 | `PATCH /api/pages/:id` | `pages.edit` | Edits a page with a `pageUpdateSchema` body (any of `title`, `status`, `layout`, `bgColor`, `textColor`, `animation`, `audience`, `navigation`, `seo`, `path`). `null` for `bgColor`, `textColor` or `animation` clears it, so the page falls back to its template's or the site's default. |
 | `DELETE /api/pages/:id` | `pages.delete` | Deletes a page that isn't protected. |
 
@@ -57,7 +57,7 @@ Pages are created from **reusable** templates ([0093](../decisions/0093-build-co
 A new page starts:
 - **unpublished,** so it isn't on the site until someone with `pages.publish` publishes it;
 - **out of every menu,** visible to everyone, unprotected, with no colours, animation or SEO;
-- with **one empty section** in its draft content and nothing published, for content pages.
+- with an **empty** draft (no elements) and nothing published, for content pages.
 
 A duplicate copies the source's template, layout, colours, animation, audience, SEO and draft content. It starts unpublished, out of menus, unprotected and with nothing published. Pages drawn by their own code (Home, Login and so on) can't be duplicated.
 
@@ -71,7 +71,7 @@ A duplicate copies the source's template, layout, colours, animation, audience, 
 
 `pathFromTitle(title)` from `@inithium/shared-contracts` suggests a path, e.g. `'Our Café & Team!'` → `'/our-cafe-team'`. A static path beats a parameterised one, so `/profile/settings` would win over `/profile/:id`.
 
-Content pages carry `content`: `{ draft, published }` content documents ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions. `content` also records `draftSavedAt` / `draftSavedBy` and `publishedAt` / `publishedBy` (ISO dates and user ids). The CMS editor saves and publishes through the endpoints above ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)).
+Content pages carry `content`: `{ draft, published }` content documents, trees of elements ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions (stored version 1 content is returned as version 2 and stays stored as it was until it's next saved or published). `content` also records `draftSavedAt` / `draftSavedBy` and `publishedAt` / `publishedBy` (ISO dates and user ids). The page builder saves and publishes through the endpoints above ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md), [0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)).
 
 ### Edit rules
 
@@ -106,7 +106,7 @@ New pages are published and protected. On later starts the seed **never touches 
 
 A seed for a reusable template, such as a content page, carries a **`seedKey`** stored on the page, and is found by it on later starts; other seeds are found by their template ([0097](../decisions/0097-seed-a-starter-privacy-policy-as-a-content-page.md)).
 
-- **Starting blocks:** its `content()` gives the page's blocks. They're written once, as both draft and published, when the page is created, and later starts never touch them, so admins edit the page freely in the [content editor](../architecture/content-pages.md#editing).
+- **Starting content:** its `content()` gives the page's elements. They're written once, as both draft and published, when the page is created, and later starts never touch them, so admins edit the page freely in the [page builder](../architecture/content-pages.md#editing).
 - **An address already in use:** if another page already uses the address, the seed leaves it alone and logs `[ seed ] page '<key>' not created: another page already uses <path>`. Move or delete that page, and the next start creates the seeded one.
 
 **The privacy policy.** `privacyPolicyContent()` writes a starter policy in plain English covering what core itself collects and its cookies. It covers:

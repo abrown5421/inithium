@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is now a tree of library elements, and the site draws it. The editor is being rebuilt in steps: until it edits the new format, it still edits and saves drafts in version 1 (sections, columns and blocks), which the site upgrades as it reads them. [What exists today](#build-status) is listed at the end.
+> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (the Add picker and the rest of the interface, the edit lock, accessibility warnings, plugin elements) are listed in the [build status](#build-status).
 
 Pages come in three kinds:
 
@@ -99,7 +99,7 @@ A link (`contentLinkSchema`) is one of:
 
 A content page's record `status` (published or unpublished) still decides whether the page is on the site at all.
 
-Stored content carries a `schemaVersion`. Read it through `readContentDocument()`, which upgrades older versions, so changes to the format never break saved pages. Until the editor edits version 2, drafts are still saved as version 1 (`pageContentSchema`, `readContentDocumentV1()`), and `web` upgrades the published version as it draws it.
+Stored content carries a `schemaVersion`. Read it through `readContentDocument()`, which upgrades older versions, so changes to the format never break saved pages. The api upgrades both versions as it reads a page, so the CMS and `web` only ever see version 2; content stays stored in version 1 until it's next saved or published.
 
 ### Version 1 and its upgrade
 
@@ -132,7 +132,7 @@ const content = readContentDocument(page.content);
 <ContentRenderer content={content} links={{ pagePath: (id) => paths.get(id), onNavigate: navigate }} />
 ```
 
-Containers pad themselves, so content pages default to the `full-width` layout. The editor's preview still draws version 1 with `ContentRendererV1` until the editor is rebuilt.
+Containers pad themselves, so content pages default to the `full-width` layout.
 
 ### Example: A content page
 
@@ -142,16 +142,43 @@ A hero band, then a row of three cards built once and duplicated: each card is a
 architecture/content-pages/sample
 ```
 
-## The page builder (being built)
+## Editing
 
-The new editor ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)) is being built in steps. Until it can save, it lives at its own address, `/cms/pages/:id/builder`, with no link to it, and works on a copy of the page's draft (upgraded to version 2): **nothing it does is saved**. "Open the current editor" goes back to the editor below. It needs `pages.edit` and a window at least 1024px wide.
+Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content` ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), which fills the space under the CMS's top bar ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide. Its toolbar and side panels are `surface-200`, divided by thin borders and shadows ([0096](../decisions/0096-divide-the-content-editors-panels-with-borders.md)), around a `surface-950` canvas.
 
 | Part | Does |
 | --- | --- |
-| Top bar | Back to Pages, the page's title (with a reminder that nothing is saved yet), **Preview width** (desktop, tablet 768px, phone 390px), **Undo** and **Redo**, **Open the current editor** |
+| Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Desktop**, **Tablet** and **Phone**; **Undo** and **Redo**; **Page settings** (the page editor); **Discard changes**; **Publish** |
 | Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens a [Menu](../ui-library/composites/menu.md) of the six elements; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle and a "⋯" menu. |
-| Preview (middle) | The draft drawn by the site's renderer in an iframe at the chosen width. Click an element to select it; the one under the pointer is outlined dashed, the selected one solid. Empty Containers show a dashed box. Click a selected Text to type in it, with the formatting toolbar above the preview (which adds Heading 1). An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. |
-| Properties (right) | For now, where the selection sits: a trail from the page through its Containers (click one to select it), and its type. Its settings come in the next step. |
+| Preview (middle) | The draft drawn by the site's renderer in an iframe at the device's width (1280px, 768px or 390px), scaled down to fit when the canvas is narrower, so each device shows its own layout. Click an element to select it; the one under the pointer is outlined dashed, the selected one solid. Empty Containers show a dashed box. Click a selected Text to type in it, with the formatting toolbar above the preview. An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. Links go nowhere in the preview. |
+| Properties (right) | Where the selection sits (a trail from the page through its Containers; click one to select it), its name in the Layers, then its properties in tabs (below). |
+
+### Properties
+
+Each element's properties are in tabs, in plain language, over its component's style props:
+
+| Element | Content | Layout | Style | Advanced |
+| --- | --- | --- | --- | --- |
+| Container | (none) | Arranged stacked, in a row or in a grid (columns per device); space between; lining up; spreading out; its width in a row, or the columns it spans in a grid; width, widest and shortest sizes; space inside and outside; which devices show it | Background, text colour, border, corners, shadow | What it is (section, article, nav …), anchor, entrance animation, bringing children in one after another, background on hover, height, narrowest and tallest sizes, shadow colour |
+| Text | Typed in the preview | Space outside, which devices show it | Alignment, colour, the running text's and the headings' font, weight and size | Entrance animation |
+| Image | The image, decorative or its description, caption, link | Where it sits, width, height, shape (aspect ratio) and fitting, space outside, devices | Border, corners, shadow, the caption's colour and type | Entrance animation |
+| Icon | The icon, its description | Space outside, devices | Size, colour, space around it, background, border, corners, shadow | Entrance animation |
+| Button | Text, link, icons before and after | Width, space outside, devices | Style (filled, outlined, text only, link), colour | Entrance animation |
+| Divider | Text in the line and where it sits | Direction, space around the line, space outside, devices | Thickness, line, colour | Entrance animation |
+
+**Spacing** is chosen in named steps, with Custom for any number of pixels (negative for space outside):
+
+| Step | None | XS | S | M | L | XL | 2XL |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| px | 0 | 4 | 8 | 16 | 24 | 48 | 96 |
+
+Space inside and outside take one step for every side, or one per side with **Each side its own**.
+
+**Per device.** Desktop, Tablet and Phone in the top bar choose what the preview shows and what the properties edit. A value set on Desktop applies at every size. Set it on Tablet or Phone and that device gets its own value, marked "Tablet only" or "Phone only" under the field, with a link back to the larger size's; a tablet value also applies to phones until they have their own. A new row Container stacks its children on phones, and a new grid has three columns, and one on phones. Underneath, the builder stores breakpoint variants mobile first (`device-values.service.ts`): phones are `base`, tablets `md` and desktops `lg`, e.g. `{ base: 8, md: 24 }`; a value set on one device only is a plain value. Hover and other state keys are left alone. Which devices show an element is three switches, stored as `hidden` the same way. Alignment, text and button colours and typography apply to every device.
+
+**Not editable yet:** per-corner radius and per-side borders (a slider sets them all), state values other than a Container's background on hover, gaps split into across and down, and fractions of the space other than halves, thirds and quarters. Values set some other way are kept, and show as the nearest choice.
+
+### Moving, copying and the keyboard
 
 **Each element's ⋯ menu:** Duplicate, Copy, Cut, Paste inside (a Container) or Paste after (anything else), Move up, Move down, **Move to…** (a list of the page and every Container it could go into; it lands at the end), Rename, Delete.
 
@@ -159,7 +186,7 @@ The new editor ([0116](../decisions/0116-build-content-pages-from-a-tree-of-libr
 
 **Copying** works within the page: Copy or Cut, then Paste puts a copy (with new ids, and without its anchor) where new elements go. Duplicate puts the copy just after the original: build one card, duplicate it twice, and there's a row of cards.
 
-**Keyboard**, anywhere in the builder except while typing:
+**Keyboard**, in the Layers and the preview (in the properties and the top bar, keys belong to the controls, except undo and redo):
 
 | Keys | Does |
 | --- | --- |
@@ -173,46 +200,24 @@ The new editor ([0116](../decisions/0116-build-content-pages-from-a-tree-of-libr
 | Escape | Select the parent |
 | Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y | Undo, redo |
 
-Anything that would break the page's limits (250 elements, 10 deep) is refused with an alert.
+Anything that would break the page's limits (250 elements, 10 deep) is refused with an alert. The tree operations are pure functions in `content-tree.service.ts` (`findElement`, `insertElement`, `moveElement`, `copyElement`, `insertionTarget`, `limitProblem`, …), tested on their own.
 
-The operations are pure functions in `content-tree.service.ts` (`findElement`, `insertElement`, `moveElement`, `copyElement`, `insertionTarget`, `limitProblem`, …), tested on their own.
+### Text
 
-## Editing
-
-> This is the version 1 editor, which edits sections, columns and blocks. It's being replaced ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)).
-
-Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, which fills the space under the CMS's top bar, with its own toolbar first ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide. Its toolbar and side panels are `surface-200`, divided by thin borders and shadows ([0096](../decisions/0096-divide-the-content-editors-panels-with-borders.md)), around a `surface-950` canvas, the same backdrop pages animate over on the site.
-
-| Part | Does |
-| --- | --- |
-| Top bar | Back to Pages (the arrow button); the page's title, address and whether it's live (and has unpublished changes); the save status; **Preview width** (desktop, tablet 768px, phone 390px); **Undo** and **Redo**; **Settings** (the page editor); **Discard changes**; **Publish** |
-| Structure (left) | The sections, their columns (a row each, with how many blocks they hold, in multi-column sections) and blocks as a tree. Click to select; move up or down, duplicate or delete sections and blocks. Problems are marked with a red icon. Below it, **Add a block** goes into the selected column, or after the selected block, or into a one-column section (a section of several columns asks you to pick a column first), and **Add a section** takes a layout. |
-| Preview (middle) | The draft drawn by the site's renderer, in an iframe at the chosen width, so phone and tablet widths really stack the columns. Click a block, column or section to select it; empty columns show a dashed box to click; the selected rich text block becomes editable in place, with the formatting toolbar above the preview. Links go nowhere in the preview. |
-| Properties (right) | The selection's settings. A section: layout, background colour or pattern, text colour, spacing, width limit, column alignment and stacking, entrance animation, anchor. A block: its own settings (below), then hiding on phones or wider screens, and which column it's in. |
-
-**Block settings:**
-- **Heading:** text, level, alignment and colour.
-- **Text:** alignment and colour; the words themselves are edited in the preview.
-- **Buttons:** up to four buttons, each with a label, a link (a page, or an address with "open in a new tab"), a style and an icon, plus the row's alignment.
-- **Feature:** icon, title, text, alignment and icon colour.
-- **Banner:** the pattern (its own editor), height, heading, text, alignment and text colour.
-- **Divider:** thickness, line and colour.
-- **Spacer:** height.
-
-**Text style** (in the Properties panel of headings, rich text, features, banners and image captions): each text part's colour, then `TypographyFields`. These are the font (a FontField with "Default"), the weight (only the weights the font has, from `useFontWeights()`), and **Custom size**, with a size for phones and, optionally, one for wider screens. A rich text block's fields style its running text.
-
-**Rich text toolbar:**
+**Rich text toolbar** (above the preview, while a Text is being typed in):
 - bold, italic, underline;
 - **Text style** (`TextStyleDialog`, 0115): the selected words' font, weight (it wins over bold), size (presets relative to the text around them) and colour, each "Same as the text" until chosen, plus **Clear style**. With the cursor inside restyled words it changes those words. Styling pasted from elsewhere is dropped;
-- link (to a page or an address), paragraph, headings 2–4;
+- link (to a page or an address), paragraph, headings 1–4;
 - bulleted list, numbered list, quote.
 
-**Saving.** The draft autosaves 1.2 seconds after the last change. A draft with problems (e.g. an empty heading) isn't saved: the field shows its problem, the tree marks the block, and the status says to fix it. Leaving the page with unsaved changes asks first.
+**Typography** (in a Text's Style tab, and an image's caption): `TypographyFields`, the font (a FontField with "Default"), the weight (only the weights the font has, from `useFontWeights()`), and **Custom size**, with a size for phones and, optionally, one for wider screens.
 
-**Publishing.**
+### Saving and publishing
+
+- **Autosave:** the draft (version 2) saves 1.2 seconds after the last change. A draft with problems (e.g. a button without text) isn't saved: the field shows its problem, the Layers mark the element, and the status says to fix it. Leaving the page with unsaved changes asks first.
 - **Publish** (`pages.publish`) saves anything pending, copies the draft to the published version and makes the page live if it wasn't. Editors without the permission see it disabled; their draft waits for someone who has it.
 - **Discard changes** returns the draft to what's published.
-- **Undo and redo** (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y) cover the session. Quick changes to one field are one step. While typing in a text block, TipTap's own undo applies.
+- **Undo and redo** cover the session. Quick changes to one field are one step. While typing in a Text, TipTap's own undo applies.
 
 ## The privacy policy
 
@@ -227,13 +232,13 @@ Admins edit it like any content page. The seed never touches it again, so their 
 
 1. **Contracts and renderer (built):** the content contracts in `@inithium/shared-contracts`; `content` on page records (the CMS gets both versions, `web` only the published one); `ContentRenderer` in `@inithium/shared-content`; the `content` template in `@inithium/web-pages`.
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
-3. **Editor v1 (built, being replaced):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)).
+3. **Editor v1 (built, then replaced by the page builder):** the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)) remain.
 4. **The privacy policy (built):** seeded at `/privacy-policy` in the secondary footer, protected, with starter wording ([above](#the-privacy-policy)).
 5. **Assets and the Image block (built):** the [Media library](cms.md#media), the picker and the Image block ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 6. **The element tree** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), in steps:
    1. **Model (built):** the element contracts and limits, version 2 with the upgrade from version 1, and the renderer, which the site uses.
-   2. **Editor model and Layers (built, not saving yet):** the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts, at `/cms/pages/:id/builder` ([above](#the-page-builder-being-built)); the [Menu](../ui-library/composites/menu.md) composite.
-   3. Properties: the panels, spacing steps and responsive overrides. Drafts are saved as version 2 from here, and the builder replaces the version 1 editor at `/cms/pages/:id/content`.
+   2. **Editor model and Layers (built):** the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts ([above](#moving-copying-and-the-keyboard)); the [Menu](../ui-library/composites/menu.md) composite.
+   3. **Properties (built):** the tabs, spacing steps and per-device values ([above](#properties)); drafts saved as version 2; the builder replaced the version 1 editor at `/cms/pages/:id/content`.
    4. Interface: the Add picker, toolbar, empty state and canvas outlines.
    5. The edit lock.
    6. Accessibility warnings, and usage checks walking the tree.

@@ -1,6 +1,9 @@
 import {
+  contentDocumentSchema,
   contentDocumentV1Schema,
   createContentId,
+  upgradeContentV1,
+  type ContentDocument,
   type ContentDocumentV1,
   type RichTextInline,
   type RichTextNode,
@@ -30,7 +33,14 @@ export type PrivacyPolicyOptions = {
  * (account and profile details, sign-in sessions) and its only cookies (the two essential sign-in cookies). It's a
  * starting point each site's owner edits in the CMS, not legal advice.
  */
-export function privacyPolicyContent({ accessMinutes, refreshDays, today }: PrivacyPolicyOptions): ContentDocumentV1 {
+export function privacyPolicyContent(options: PrivacyPolicyOptions): ContentDocument {
+  // Written as version 1 content, the format it was first written in, and upgraded: the policy looks as it always did.
+  // A mistake here should fail loudly at startup.
+  return contentDocumentSchema.parse(upgradeContentV1(privacyPolicyContentV1(options)));
+}
+
+/** The policy as version 1 content (decision 0093): one section of a title, an introduction, a rule and the policy. */
+export function privacyPolicyContentV1({ accessMinutes, refreshDays, today }: PrivacyPolicyOptions): ContentDocumentV1 {
   const updated = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const doc: ContentDocumentV1 = {
     schemaVersion: 1,
@@ -138,6 +148,5 @@ export function privacyPolicyContent({ accessMinutes, refreshDays, today }: Priv
       },
     ],
   };
-  // The policy must always be valid content; a mistake here should fail loudly at startup.
   return contentDocumentV1Schema.parse(doc);
 }

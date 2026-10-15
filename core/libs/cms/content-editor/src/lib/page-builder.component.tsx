@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
 import {
@@ -12,9 +12,10 @@ import {
   type Page,
 } from '@inithium/shared-contracts';
 import { ContentRenderer, type ContentDecorators, type ContentLinks } from '@inithium/shared-content';
-import { useAlerts } from '@inithium/shared-data-access';
+import { readApiFailure, useAlerts, useDiscardContentDraftMutation, usePublishContentMutation, useSaveContentDraftMutation } from '@inithium/shared-data-access';
+import { PageEditor } from '@inithium/cms-pages';
 import { Button, Container, Icon, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
-import type { MenuItem } from '@inithium/shared-ui-composites';
+import { Modal, type MenuItem } from '@inithium/shared-ui-composites';
 import {
   copyElement,
   createElement,
@@ -29,14 +30,18 @@ import {
   moveElement,
   moveElementBy,
   removeElement,
+  sameContent,
   updateElement,
   type InsertTarget,
 } from './content-tree.service';
+import { DEVICE_LABELS, DEVICE_WIDTHS, type EditDevice } from './device-values.service';
+import { ElementProperties, type FieldProblems, type PropertiesTab } from './element-properties.component';
 import { LayersPanel, type DropPosition } from './layers-panel.component';
 import { MoveToDialog } from './move-to-dialog.component';
 import { PreviewFrame } from './preview-frame.component';
 import { RichTextEditor } from './rich-text-editor.component';
 import { RichTextToolbar } from './rich-text-toolbar.component';
+import { useAutosave, type SaveStatus } from './use-autosave.hook';
 import { useContentHistory } from './use-content-history.hook';
 
 /** The editor's colours (decisions 0094, 0096): surface 200 panels and toolbar around a surface 950 canvas. */
@@ -44,12 +49,69 @@ const CANVAS = { color: 'surface', intensity: 950 } as const;
 const PANEL = { color: 'surface', intensity: 200 } as const;
 const DIVIDER = { color: 'surface', intensity: 500, opacity: 30 } as const;
 
-type Device = 'desktop' | 'tablet' | 'phone';
-const DEVICES: { value: Device; label: string; icon: IconName; width: number | 'full' }[] = [
-  { value: 'desktop', label: 'Desktop', icon: 'monitor', width: 'full' },
-  { value: 'tablet', label: 'Tablet (768px)', icon: 'tablet', width: 768 },
-  { value: 'phone', label: 'Phone (390px)', icon: 'smartphone', width: 390 },
+const DEVICES: { value: EditDevice; icon: IconName }[] = [
+  { value: 'desktop', icon: 'monitor' },
+  { value: 'tablet', icon: 'tablet' },
+  { value: 'phone', icon: 'smartphone' },
 ];
+
+const STATUS: Record<SaveStatus, { label: string; icon: IconName; color: 'surface' | 'red' | 'amber' }> = {
+  saved: { label: 'Draft saved', icon: 'cloud-check', color: 'surface' },
+  pending: { label: 'Unsaved changes', icon: 'cloud', color: 'surface' },
+  saving: { label: 'Saving…', icon: 'cloud-upload', color: 'surface' },
+  error: { label: 'Couldn’t save. Retrying on the next change', icon: 'cloud-alert', color: 'red' },
+  invalid: { label: 'Fix the marked problems to save', icon: 'circle-alert', color: 'amber' },
+};
+
+/** Each problem in the draft, keyed by the element it's in, then by the field's path within it (e.g. 'props.label'). */
+function problemsOf(doc: ContentDocument): Map<string, FieldProblems> {
+  const parsed = contentDocumentSchema.safeParse(doc);
+  const problems = new Map<string, FieldProblems>();
+  for (const issue of parsed.error?.issues ?? []) {
+    // The path runs elements.i.children.j…: the problem belongs to the deepest element on it.
+    let elements = doc.elements;
+    let owner: ContentElement | undefined;
+    let rest: PropertyKey[] = [];
+    for (let step = 0; step < issue.path.length; step += 2) {
+      const next = elements[Number(issue.path[step + 1])];
+      if (!next) break;
+      owner = next;
+      rest = issue.path.slice(step + 2);
+      if (rest[0] !== 'children' || next.type !== 'container') break;
+      elements = next.children;
+    }
+    if (!owner) continue;
+    const found = problems.get(owner.id) ?? {};
+    const field = rest.map(String).join('.');
+    if (!(field in found)) found[field] = issue.message;
+    problems.set(owner.id, found);
+  }
+  return problems;
+}
+
+/**
+ * The preview at a device's width, scaled down to fit when the canvas is narrower, so Desktop always shows the
+ * desktop layout. The frame's breakpoints follow its own width, not the scaled size.
+ */
+function ScaledPreview({ width, children }: { width: number; children: ReactNode }) {
+  const [box, setBox] = useState<HTMLElement | null>(null);
+  const [space, setSpace] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    if (!box) return;
+    const observer = new ResizeObserver(([entry]) => entry && setSpace({ width: entry.contentRect.width, height: entry.contentRect.height }));
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, [box]);
+  const scale = space.width ? Math.min(1, space.width / width) : 1;
+  return (
+    <Container ref={setBox} flex={{ direction: 'column', align: 'center', gap: 6 }} flexItem={{ grow: 1, basis: 0 }} minHeight={0} width="full">
+      {/* Plain divs: the frame keeps the device's width and is scaled to fit, which no component's props can do (decision 0092). */}
+      <div style={{ width: width * scale, height: '100%', flexShrink: 0, borderRadius: 6, overflow: 'hidden', boxShadow: 'var(--shadow-2xl)' }}>
+        <div style={{ width, height: space.height / scale, transform: `scale(${scale})`, transformOrigin: 'top left' }}>{children}</div>
+      </div>
+    </Container>
+  );
+}
 
 /**
  * Outlines in the preview (decision 0092: the editor's internals; Container has no outline props yet, 0033): the
@@ -75,15 +137,17 @@ export type PageBuilderProps = {
   page: Page & { content: NonNullable<Page['content']> };
   /** Every page, for links. */
   pages: Page[];
+  canPublish: boolean;
 };
 
 /**
- * The page builder (decision 0116), being built in steps: the element tree in Layers on the left (select, add,
- * duplicate, copy, cut, paste, move by dragging or "Move to…", rename, delete, all with shortcuts), and the preview
- * in the middle, where elements are selected and Text is typed in place. Until properties and saving arrive, it
- * works on a copy of the draft: nothing is saved.
+ * The page builder (decision 0116), filling the space under the CMS's top bar: the element tree in Layers on the
+ * left (select, add, duplicate, copy, cut, paste, move by dragging or "Move to…", rename, delete, all with
+ * shortcuts), the preview in the middle at a device's width (where elements are selected and Text is typed in
+ * place), and the selection's properties on the right, edited for the device previewed. The draft autosaves;
+ * Publish puts it live and Discard goes back to what's published. Undo and redo work for the session.
  */
-export function PageBuilder({ page, pages }: PageBuilderProps) {
+export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
   const navigate = useNavigate();
   const { show: showAlert } = useAlerts();
   const history = useContentHistory<ContentDocument>(readContentDocument(page.content.draft) ?? emptyContentDocument());
@@ -93,32 +157,54 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
   const [clipboard, setClipboard] = useState<ContentElement | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [movingId, setMovingId] = useState<string | null>(null);
-  const [device, setDevice] = useState<Device>('desktop');
+  const [device, setDevice] = useState<EditDevice>('desktop');
+  const [tab, setTab] = useState<PropertiesTab>('content');
   const [richEditor, setRichEditor] = useState<Editor | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [discarding, setDiscarding] = useState(false);
   const hovered = useRef<Element | null>(null);
+
+  const [saveDraft] = useSaveContentDraftMutation();
+  const [publish, publishing] = usePublishContentMutation();
+  const [discard, discardState] = useDiscardContentDraftMutation();
 
   // A selection that no longer exists (e.g. after undo) is dropped.
   const selected = selectedState ? findElement(doc, selectedState) : undefined;
   const selectedId = selected ? selectedState : null;
 
-  const invalid = useMemo(() => {
-    const parsed = contentDocumentSchema.safeParse(doc);
-    const ids = new Set<string>();
-    for (const issue of parsed.error?.issues ?? []) {
-      // The path runs elements.i.children.j…: the problem belongs to the deepest element on it.
-      let elements = doc.elements;
-      let owner: ContentElement | undefined;
-      for (let step = 0; step < issue.path.length; step += 2) {
-        const next = elements[Number(issue.path[step + 1])];
-        if (!next) break;
-        owner = next;
-        if (issue.path[step + 2] !== 'children' || next.type !== 'container') break;
-        elements = next.children;
-      }
-      if (owner) ids.add(owner.id);
+  const problems = useMemo(() => problemsOf(doc), [doc]);
+  const invalid = useMemo(() => new Set(problems.keys()), [problems]);
+  const save = useCallback((draft: ContentDocument) => saveDraft({ id: page.id, draft }).unwrap(), [saveDraft, page.id]);
+  const autosave = useAutosave({ doc, valid: invalid.size === 0, save });
+  const published = page.content.published;
+  const unpublishedChanges = !published || !sameContent(published, doc);
+
+  const handlePublish = async () => {
+    if (!(await autosave.flush())) {
+      showAlert({ color: 'red', icon: 'circle-alert', title: 'We couldn’t publish yet', message: 'Fix the marked problems first, so the draft can save.', urgent: true });
+      return;
     }
-    return ids;
-  }, [doc]);
+    try {
+      await publish(page.id).unwrap();
+      showAlert({ color: 'green', icon: 'circle-check', title: 'Published', message: `${page.title} is live at ${page.path}.` });
+    } catch (error) {
+      showAlert({ color: 'red', icon: 'circle-alert', title: 'We couldn’t publish', message: readApiFailure(error).message ?? 'Something went wrong. Please try again.', urgent: true });
+    }
+  };
+
+  const handleDiscard = async () => {
+    try {
+      const result = await discard(page.id).unwrap();
+      const draft = readContentDocument(result.content?.draft) ?? emptyContentDocument();
+      history.reset(draft);
+      autosave.markSaved(draft);
+      setSelected(null);
+      setDiscarding(false);
+      showAlert({ color: 'green', icon: 'undo-2', title: 'Changes discarded', message: published ? 'The draft is back to what’s published.' : 'The draft is empty again.' });
+    } catch (error) {
+      showAlert({ color: 'red', icon: 'circle-alert', title: 'We couldn’t discard the changes', message: readApiFailure(error).message ?? 'Something went wrong.', urgent: true });
+    }
+  };
 
   const links = useMemo<ContentLinks>(() => {
     const paths = new Map(pages.filter((entry) => !pathHasParams(entry.path)).map((entry) => [entry.id, entry.path]));
@@ -237,8 +323,11 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
     if (target.closest('input, textarea, [contenteditable="true"], [role="menu"], [role="dialog"]')) return;
     const mod = event.ctrlKey || event.metaKey;
     const key = event.key.toLowerCase();
+    // In the properties and the toolbar, keys belong to their controls (Backspace in a field mustn't delete), except undo.
+    const inControls = Boolean(target.closest('[data-builder-controls]'));
     if (mod && key === 'z' && !event.shiftKey) history.undo();
     else if (mod && ((key === 'z' && event.shiftKey) || key === 'y')) history.redo();
+    else if (inControls) return;
     else if (mod && key === 'v') paste();
     else if (!selectedId) return;
     else if (mod && key === 'd') duplicate(selectedId);
@@ -341,7 +430,7 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
 
   let panel: ReactNode = (
     <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-      Select an element, in the preview or the Layers, to see where it sits.
+      Select an element, in the preview or the Layers, to change it.
     </Text>
   );
   if (selected) {
@@ -373,9 +462,31 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
             {elementType(selected.element).label}
           </Text>
         </Container>
-        <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-          Its settings come in the next step of the new builder.
-        </Text>
+        {device !== 'desktop' && (
+          <Container padding={{ x: 12, y: 8 }} radius={{ all: 6 }} bgColor={{ color: 'primary', intensity: 100 }} textColor={{ color: 'primary', intensity: 800 }}>
+            <Text as="p" fontSize={13}>
+              Editing for {DEVICE_LABELS[device].toLowerCase()}s: changes to sizes, space, layout and colours apply to {DEVICE_LABELS[device].toLowerCase()}s
+              {device === 'tablet' ? ' (and phones, until they have their own)' : ''}.
+            </Text>
+          </Container>
+        )}
+        {selected.element.type.startsWith('plugin-') ? (
+          <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
+            This comes from a plugin. Its settings arrive with the plugin.
+          </Text>
+        ) : (
+          <ElementProperties
+            key={`${selected.element.id}:${device}`}
+            element={selected.element as Parameters<typeof ElementProperties>[0]['element']}
+            parent={selected.parent}
+            onChange={(element) => change(updateElement(doc, element), `props:${element.id}`)}
+            device={device}
+            pages={pages}
+            problems={problems.get(selected.element.id) ?? {}}
+            tab={tab}
+            onTabChange={setTab}
+          />
+        )}
       </Container>
     );
   }
@@ -384,6 +495,7 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
     <Container flex={{ direction: 'column' }} flexItem={{ grow: 1 }} minHeight={0} bgColor={CANVAS} onKeyDown={handleKeyDown}>
       <Container
         aria-label="Page builder"
+        data-builder-controls=""
         role="region"
         flex={{ direction: 'row', align: 'center', gap: 12, wrap: 'wrap' }}
         padding={{ x: 16, y: 10 }}
@@ -400,21 +512,32 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
           <Text as="h1" fontFamily="display" fontSize={18} truncate={1}>
             {page.title}
           </Text>
-          <Text as="span" fontSize={12} textColor={{ color: 'amber', intensity: 700 }}>
-            Trying the new page builder: changes here aren’t saved yet.
+          <Text as="span" fontSize={12} textColor={{ color: 'surface', intensity: 700 }}>
+            {page.path} · {page.status === 'published' ? (unpublishedChanges ? 'Live, with unpublished changes' : 'Live') : 'Not published'}
           </Text>
         </Container>
-        <Container flex={{ direction: 'row', gap: 2 }} role="group" aria-label="Preview width">
+        <Container
+          flex={{ direction: 'row', align: 'center', gap: 6 }}
+          textColor={{ color: STATUS[autosave.status].color, intensity: STATUS[autosave.status].color === 'surface' ? 700 : 600 }}
+          role="status"
+        >
+          <Icon name={STATUS[autosave.status].icon} size={18} />
+          <Text as="span" fontSize={13}>
+            {STATUS[autosave.status].label}
+          </Text>
+        </Container>
+        <Container flex={{ direction: 'row', gap: 2 }} role="group" aria-label="Device">
           {DEVICES.map((entry) => (
-            <Tooltip key={entry.value} content={entry.label}>
+            <Tooltip key={entry.value} content={`See and edit it as on a ${DEVICE_LABELS[entry.value].toLowerCase()} (${DEVICE_WIDTHS[entry.value]}px)`}>
               <Button
                 variant={device === entry.value ? 'filled' : 'ghost'}
                 leadingIcon={entry.icon}
-                aria-label={`Preview: ${entry.label}`}
                 aria-pressed={device === entry.value}
-                padding={{ x: 6 }}
+                padding={{ x: 8 }}
                 onClick={() => setDevice(entry.value)}
-              />
+              >
+                {DEVICE_LABELS[entry.value]}
+              </Button>
             </Tooltip>
           ))}
         </Container>
@@ -426,9 +549,23 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
             <Button variant="ghost" leadingIcon="redo-2" aria-label="Redo" padding={{ x: 6 }} disabled={!history.canRedo} onClick={history.redo} />
           </Tooltip>
         </Container>
-        <Button variant="outlined" leadingIcon="square-pen" onClick={() => navigate(`/pages/${page.id}/content`)}>
-          Open the current editor
+        <Button variant="outlined" leadingIcon="settings" onClick={() => setSettingsOpen(true)}>
+          Page settings
         </Button>
+        <Button variant="outlined" leadingIcon="undo-2" disabled={!unpublishedChanges || !published} onClick={() => setDiscarding(true)}>
+          Discard changes
+        </Button>
+        {canPublish ? (
+          <Button leadingIcon="send" loading={publishing.isLoading} disabled={!unpublishedChanges && page.status === 'published'} onClick={() => void handlePublish()}>
+            Publish
+          </Button>
+        ) : (
+          <Tooltip content="Publishing needs an admin or the owner. Your draft is saved for them.">
+            <Button leadingIcon="send" disabled>
+              Publish
+            </Button>
+          </Tooltip>
+        )}
       </Container>
 
       <Container hidden={{ base: false, lg: true }} padding={{ all: 24 }}>
@@ -492,8 +629,8 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
               </Text>
             )}
           </Container>
-          <Container flex={{ direction: 'row', justify: 'center' }} flexItem={{ grow: 1, basis: 0 }} minHeight={0} padding={{ all: 16 }}>
-            <Container height="full" width={DEVICES.find((entry) => entry.value === device)?.width ?? 'full'} maxWidth="full" shadow="2xl" radius={{ all: 6 }} overflow={{ all: 'hidden' }}>
+          <Container flex={{ direction: 'column' }} flexItem={{ grow: 1, basis: 0 }} minHeight={0} padding={{ x: 16, bottom: 16 }}>
+            <ScaledPreview width={DEVICE_WIDTHS[device]}>
               <PreviewFrame width="full" title={`Preview of ${page.title}`}>
                 <Container
                   minHeight="screen"
@@ -515,13 +652,14 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
                   )}
                 </Container>
               </PreviewFrame>
-            </Container>
+            </ScaledPreview>
           </Container>
         </Container>
 
         <Container
           as="aside"
           aria-label="Properties"
+          data-builder-controls=""
           width={340}
           flexItem={{ shrink: 0 }}
           overflow={{ y: 'auto' }}
@@ -541,6 +679,17 @@ export function PageBuilder({ page, pages }: PageBuilderProps) {
         </Container>
       </Container>
 
+      <PageEditor page={settingsOpen ? page : null} onClose={() => setSettingsOpen(false)} canPublish={canPublish} />
+      <Modal open={discarding} onOpenChange={setDiscarding} title="Discard your changes?" description="The draft goes back to what’s published. This can’t be undone." maxWidth={460}>
+        <Container flex={{ justify: 'end', gap: 8 }}>
+          <Button variant="outlined" onClick={() => setDiscarding(false)}>
+            Keep editing
+          </Button>
+          <Button color="red" leadingIcon="undo-2" loading={discardState.isLoading} onClick={() => void handleDiscard()}>
+            Discard changes
+          </Button>
+        </Container>
+      </Modal>
       <MoveToDialog
         doc={doc}
         elementId={movingId}

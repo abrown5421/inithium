@@ -11,22 +11,12 @@ import { CmsAlerts, CmsShell, CmsTheme, DashboardPage, type CmsScreen } from '@i
 const screens: CmsScreen[] = [
   { path: '/', label: 'Dashboard', icon: 'layout-dashboard', element: <DashboardPage /> },
   { path: '/pages', label: 'Pages', icon: 'file-text', element: <PagesScreen />, permission: 'pages.edit' },
-  // Reached from Pages: full screen under the top bar, with no sidebar entry of its own (decision 0094).
+  // Reached from Pages: the page builder, full screen under the top bar, with no sidebar entry of its own (0094, 0116).
   {
     path: '/pages/:id/content',
-    label: 'Page editor',
-    icon: 'layout-template',
-    element: <ContentEditorScreen />,
-    permission: 'pages.edit',
-    inSidebar: false,
-    fill: true,
-  },
-  // The new page builder while it's built (decision 0116): reached by its address only, and it doesn't save yet.
-  {
-    path: '/pages/:id/builder',
     label: 'Page builder',
     icon: 'layout-template',
-    element: <ContentEditorScreen builder />,
+    element: <ContentEditorScreen />,
     permission: 'pages.edit',
     inSidebar: false,
     fill: true,

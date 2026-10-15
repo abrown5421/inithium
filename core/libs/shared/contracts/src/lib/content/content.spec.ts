@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createContentId } from './content-common.schema';
 import { emptyContentDocument, readContentDocument } from './content.schema';
-import { contentDocumentV1Schema, emptyContentDocumentV1, readContentDocumentV1 } from './v1/content-v1.schema';
+import { contentDocumentV1Schema } from './v1/content-v1.schema';
 import {
   richTextDocumentSchema,
   richTextFeaturesUsed,
@@ -12,32 +12,22 @@ import {
   type RichTextDocument,
 } from './rich-text.schema';
 
-describe('version 1 content documents (decision 0093)', () => {
-  it('starts empty pages with one single-column section', () => {
-    let next = 0;
-    const doc = emptyContentDocumentV1(() => `id-${++next}`);
-    expect(doc).toEqual({ schemaVersion: 1, sections: [{ id: 'id-1', layout: 'one', columns: [{ id: 'id-2', blocks: [] }] }] });
-    expect(contentDocumentV1Schema.safeParse(doc).success).toBe(true);
-  });
+/** An empty version 1 document: one single-column section. */
+const emptyV1 = (id: () => string = createContentId) => ({ schemaVersion: 1 as const, sections: [{ id: id(), layout: 'one' as const, columns: [{ id: id(), blocks: [] }] }] });
 
+describe('version 1 content documents (decision 0093)', () => {
   it('makes ids the contract accepts', () => {
     for (let i = 0; i < 50; i++) expect(createContentId()).toMatch(/^[a-zA-Z0-9_-]{1,40}$/);
   });
 
   it('requires a section’s columns to match its layout', () => {
-    const doc = emptyContentDocumentV1(createContentId);
+    const doc = emptyV1();
     const section = doc.sections[0];
     if (!section) throw new Error('expected a section');
+    expect(contentDocumentV1Schema.safeParse(doc).success).toBe(true);
     expect(contentDocumentV1Schema.safeParse({ ...doc, sections: [{ ...section, layout: 'halves' }] }).success).toBe(false);
     const halves = { ...section, layout: 'halves', columns: [...section.columns, { id: 'second', blocks: [] }] };
     expect(contentDocumentV1Schema.safeParse({ ...doc, sections: [halves] }).success).toBe(true);
-  });
-
-  it('reads valid stored version 1 content and refuses anything else', () => {
-    const doc = emptyContentDocumentV1(createContentId);
-    expect(readContentDocumentV1(doc)).toEqual(doc);
-    expect(readContentDocumentV1(emptyContentDocument())).toBeUndefined();
-    expect(readContentDocumentV1('<p>html</p>')).toBeUndefined();
   });
 });
 
@@ -47,7 +37,7 @@ describe('readContentDocument (decision 0116)', () => {
   });
 
   it('upgrades version 1', () => {
-    const upgraded = readContentDocument(emptyContentDocumentV1(() => 'only'));
+    const upgraded = readContentDocument(emptyV1(() => 'only'));
     expect(upgraded?.schemaVersion).toBe(2);
     expect(upgraded?.elements).toHaveLength(1);
   });

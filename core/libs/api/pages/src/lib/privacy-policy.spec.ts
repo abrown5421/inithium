@@ -1,13 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { readContentDocument, upgradeContentV1 } from '@inithium/shared-contracts';
-import { privacyPolicyContent } from './privacy-policy.seed';
+import { privacyPolicyContent, privacyPolicyContentV1 } from './privacy-policy.seed';
 
-const policy = () => privacyPolicyContent({ accessMinutes: 15, refreshDays: 30, today: new Date('2026-10-13T00:00:00Z') });
+const options = { accessMinutes: 15, refreshDays: 30, today: new Date('2026-10-13T00:00:00Z') };
+const policy = () => privacyPolicyContentV1(options);
 
 describe('the privacy policy in version 2 content (decisions 0097, 0116)', () => {
   it('upgrades to valid content', () => {
     const v1 = policy();
     expect(readContentDocument(v1)).toEqual(upgradeContentV1(v1));
+  });
+
+  it('is seeded as version 2', () => {
+    const seeded = privacyPolicyContent(options);
+    expect(seeded.schemaVersion).toBe(2);
+    expect(readContentDocument(seeded)).toEqual(seeded);
   });
 
   it('draws the same page: one padded band of its title, introduction, a rule and the policy', () => {

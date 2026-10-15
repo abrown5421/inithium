@@ -9,13 +9,14 @@ import {
   assetUrl,
   fontFileInfoSchema,
   publicProfileName,
-  readContentDocumentV1,
+  flattenContentElements,
+  readContentDocument,
   type Asset,
   type AssetKind,
   type AssetPurpose,
   type AssetUpdate,
   type AssetUsage,
-  type ContentDocumentV1,
+  type ContentDocument,
   type FontFileInfo,
   type StorageInfo,
 } from '@inithium/shared-contracts';
@@ -163,15 +164,9 @@ export async function updateAsset(doc: AssetDocument, update: AssetUpdate): Prom
   return saved;
 }
 
-/** Every image block's asset id in a content document. */
-function imageIds(doc: ContentDocumentV1 | undefined): Set<string> {
-  const ids = new Set<string>();
-  for (const section of doc?.sections ?? []) {
-    for (const column of section.columns) {
-      for (const block of column.blocks) if (block.type === 'image') ids.add(block.assetId);
-    }
-  }
-  return ids;
+/** Every Image element's asset id in a content document. */
+function imageIds(doc: ContentDocument | undefined): Set<string> {
+  return new Set(flattenContentElements(doc?.elements ?? []).flatMap((element) => (element.type === 'image' ? [element.props.assetId] : [])));
 }
 
 /**
@@ -198,8 +193,8 @@ export async function assetUsage(id: string): Promise<AssetUsage> {
   const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
   for (const page of pages) {
     const content = page.content as { draft?: unknown; published?: unknown } | undefined;
-    const draft = imageIds(readContentDocumentV1(content?.draft));
-    const published = imageIds(readContentDocumentV1(content?.published));
+    const draft = imageIds(readContentDocument(content?.draft));
+    const published = imageIds(readContentDocument(content?.published));
     if (published.has(id)) places.push({ label: `Page: ${page.title}`, blocking: false });
     else if (draft.has(id)) places.push({ label: `Page: ${page.title} (unpublished changes)`, blocking: false });
   }
