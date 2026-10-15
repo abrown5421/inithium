@@ -45,8 +45,11 @@ function ElementBox({ element }: { element: LeafElement }) {
   const decorators = useContentDecorators();
   const { hidden, margin, animation } = element.props;
   const body = elementBody(element);
+  // A line has no width (or, upright, no height) of its own: a Divider's box spans its space, even where the
+  // Container around it centres what it holds.
+  const line = element.type === 'divider' ? (element.props.orientation === 'vertical' ? { flex: { direction: 'row' as const }, flexItem: { alignSelf: 'stretch' as const } } : { width: 'full' as const }) : {};
   return (
-    <Container hidden={hidden} margin={margin} animation={animation} minWidth={0} data-element={element.type} data-element-id={element.id}>
+    <Container {...line} hidden={hidden} margin={margin} animation={animation} minWidth={0} data-element={element.type} data-element-id={element.id}>
       {decorators.body ? decorators.body(element, body) : body}
     </Container>
   );
