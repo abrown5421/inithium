@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
-import { contentDocumentSchema, pathHasParams, type ContentBlock, type ContentDocument, type Page } from '@inithium/shared-contracts';
-import { ContentRenderer, type ContentDecorators, type ContentLinks } from '@inithium/shared-content';
+import { contentDocumentV1Schema, pathHasParams, type ContentBlock, type ContentDocumentV1, type Page } from '@inithium/shared-contracts';
+import { ContentRendererV1, type ContentDecoratorsV1, type ContentLinks } from '@inithium/shared-content';
 import { readApiFailure, useAlerts, useDiscardContentDraftMutation, usePublishContentMutation, useSaveContentDraftMutation } from '@inithium/shared-data-access';
 import { PageEditor } from '@inithium/cms-pages';
 import { Button, Container, Icon, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
@@ -80,8 +80,8 @@ const previewStyles = `
 `;
 
 /** Each problem in the draft, keyed by the id of the section or block it's in, then by the field's path within it. */
-function problemsOf(doc: ContentDocument): Map<string, FieldProblems> {
-  const parsed = contentDocumentSchema.safeParse(doc);
+function problemsOf(doc: ContentDocumentV1): Map<string, FieldProblems> {
+  const parsed = contentDocumentV1Schema.safeParse(doc);
   const problems = new Map<string, FieldProblems>();
   if (parsed.success) return problems;
   for (const issue of parsed.error.issues) {
@@ -129,7 +129,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
 
   const problems = useMemo(() => problemsOf(doc), [doc]);
   const invalid = useMemo(() => new Set(problems.keys()), [problems]);
-  const save = useCallback((draft: ContentDocument) => saveDraft({ id: page.id, draft }).unwrap(), [saveDraft, page.id]);
+  const save = useCallback((draft: ContentDocumentV1) => saveDraft({ id: page.id, draft }).unwrap(), [saveDraft, page.id]);
   const autosave = useAutosave({ doc, valid: invalid.size === 0, save });
 
   // A selection that no longer exists (e.g. after undo) is dropped.
@@ -161,7 +161,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
 
   const editBlock = useCallback((block: ContentBlock) => change(updateBlock(doc, block), `block:${block.id}`), [change, doc]);
 
-  const decorators = useMemo<ContentDecorators>(
+  const decorators = useMemo<ContentDecoratorsV1>(
     () => ({
       section: (section, drawn) => (
         <Container
@@ -483,7 +483,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
                       </Text>
                     </Container>
                   ) : (
-                    <ContentRenderer content={doc} links={links} decorators={decorators} />
+                    <ContentRendererV1 content={doc} links={links} decorators={decorators} />
                   )}
                 </Container>
               </PreviewFrame>

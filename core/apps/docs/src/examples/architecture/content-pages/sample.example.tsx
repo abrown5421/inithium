@@ -1,110 +1,74 @@
-import type { ContentDocument } from '@inithium/shared-contracts';
+import type { ContainerElement, ContentDocument, RichTextDocument } from '@inithium/shared-contracts';
 import { ContentRenderer } from '@inithium/shared-content';
 import { Container } from '@inithium/shared-ui-components';
 
+const heading = (level: 1 | 2 | 3, text: string): RichTextDocument => ({
+  type: 'doc',
+  content: [{ type: 'heading', attrs: { level }, content: [{ type: 'text', text }] }],
+});
+const paragraph = (text: string): RichTextDocument => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text }] }] });
+
+/** One card: a bordered Container holding an icon, a heading, a line of text and a button. Duplicated for the row. */
+const card = (id: string, icon: string, title: string, text: string): ContainerElement => ({
+  id,
+  type: 'container',
+  label: 'Card',
+  props: {
+    flex: { direction: 'column', gap: 12 },
+    flexItem: { grow: 1, basis: 0 },
+    padding: { all: 24 },
+    radius: { all: 12 },
+    borderWidth: { all: 1 },
+    borderColor: { color: 'surface', intensity: 500, opacity: 40 },
+    bgColor: { color: 'surface', intensity: 50 },
+    shadow: 'md',
+  },
+  children: [
+    { id: `${id}-icon`, type: 'icon', props: { name: icon, size: 28, textColor: { color: 'primary', intensity: 500 } } },
+    { id: `${id}-title`, type: 'text', props: { doc: heading(3, title) } },
+    { id: `${id}-text`, type: 'text', props: { doc: paragraph(text), textColor: { color: 'surface', intensity: 700 } } },
+    { id: `${id}-divider`, type: 'divider', props: {} },
+    { id: `${id}-button`, type: 'button', props: { label: 'Find out more', variant: 'outlined', link: { type: 'url', href: 'https://example.com' } } },
+  ],
+});
+
 const content: ContentDocument = {
-  schemaVersion: 1,
-  sections: [
+  schemaVersion: 2,
+  elements: [
     {
       id: 'hero',
-      layout: 'one',
-      padding: { y: 24 },
-      columns: [
+      type: 'container',
+      label: 'Hero',
+      props: {
+        as: 'section',
+        padding: { y: 56, x: 24 },
+        bgColor: { color: 'primary', intensity: 700 },
+        textColor: { color: 'surface', intensity: 50 },
+        flex: { direction: 'column', align: 'center', gap: 16 },
+      },
+      children: [
+        { id: 'hero-title', type: 'text', props: { doc: heading(1, 'Classes for every level'), align: 'center' } },
+        { id: 'hero-text', type: 'text', props: { doc: paragraph('Small groups, friendly coaches.'), align: 'center' } },
         {
-          id: 'hero-1',
-          blocks: [
-            {
-              id: 'banner',
-              type: 'banner',
-              height: 220,
-              heading: 'Classes for every level',
-              text: 'Small groups, friendly coaches.',
-              pattern: {
-                cellSize: 90,
-                variance: 0.7,
-                xColors: [
-                  { color: 'primary', intensity: 700 },
-                  { color: 'secondary', intensity: 500 },
-                ],
-                yColors: [
-                  { color: 'tertiary', intensity: 600 },
-                  { color: 'primary', intensity: 800 },
-                ],
-                seed: 'sample',
-              },
-            },
-          ],
+          id: 'hero-button',
+          type: 'button',
+          props: { label: 'Book a class', color: { color: 'secondary', intensity: 500 }, link: { type: 'page', pageId: 'not-on-this-site' } },
         },
       ],
     },
     {
-      id: 'features',
-      layout: 'thirds',
-      bgColor: { color: 'surface', intensity: 100 },
-      columns: [
-        { id: 'f1', blocks: [{ id: 'f1b', type: 'feature', icon: 'calendar', title: 'Book online', text: 'Pick a time that suits you.', align: 'center' }] },
-        { id: 'f2', blocks: [{ id: 'f2b', type: 'feature', icon: 'users', title: 'Small groups', text: 'Never more than eight.', align: 'center' }] },
-        { id: 'f3', blocks: [{ id: 'f3b', type: 'feature', icon: 'heart', title: 'All welcome', text: 'Beginners especially.', align: 'center' }] },
-      ],
-    },
-    {
-      id: 'about',
-      layout: 'two-thirds-one-third',
-      columns: [
-        {
-          id: 'about-text',
-          blocks: [
-            { id: 'h', type: 'heading', level: 2, text: 'About us' },
-            {
-              id: 'rt',
-              type: 'rich-text',
-              doc: {
-                type: 'doc',
-                content: [
-                  {
-                    type: 'paragraph',
-                    content: [
-                      { type: 'text', text: 'We teach ' },
-                      { type: 'text', text: 'everything', marks: [{ type: 'bold' }] },
-                      { type: 'text', text: ' from the basics to ' },
-                      { type: 'text', text: 'competition level', marks: [{ type: 'italic' }] },
-                      { type: 'text', text: '. Read the ' },
-                      {
-                        type: 'text',
-                        text: 'timetable',
-                        marks: [{ type: 'link', attrs: { link: { type: 'url', href: 'https://example.com', newTab: true } } }],
-                      },
-                      { type: 'text', text: '.' },
-                    ],
-                  },
-                  { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'What to bring' }] },
-                  {
-                    type: 'bulletList',
-                    content: [
-                      { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Comfortable clothes' }] }] },
-                      { type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'A water bottle' }] }] },
-                    ],
-                  },
-                  { type: 'blockquote', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'The best class I have ever taken.' }] }] },
-                ],
-              },
-            },
-          ],
-        },
-        {
-          id: 'about-cta',
-          blocks: [
-            { id: 'h2', type: 'heading', level: 3, text: 'Ready to start?' },
-            {
-              id: 'b',
-              type: 'buttons',
-              buttons: [
-                { id: 'b1', label: 'Get in touch', icon: 'mail', link: { type: 'url', href: 'mailto:hello@example.com' } },
-                { id: 'b2', label: 'Prices', variant: 'outlined', link: { type: 'page', pageId: 'not-on-this-site' } },
-              ],
-            },
-          ],
-        },
+      id: 'cards',
+      type: 'container',
+      label: 'Row of cards',
+      props: {
+        as: 'section',
+        padding: { y: 48, x: 24 },
+        flex: { direction: { base: 'column', md: 'row' }, gap: 24 },
+      },
+      children: [
+        card('card-1', 'calendar', 'Book online', 'Pick a time that suits you.'),
+        card('card-2', 'users', 'Small groups', 'Never more than eight.'),
+        card('card-3', 'heart', 'All welcome', 'Beginners especially.'),
       ],
     },
   ],

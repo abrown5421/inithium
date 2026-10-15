@@ -8,13 +8,17 @@ export type RichTextProps = {
   textColor?: ColorValue;
   /** The running text's font, weight and size (decision 0115). */
   typography?: ContentTypography;
+  /** The headings' font, weight and size (decision 0116). */
+  headingTypography?: ContentTypography;
 };
 
 /**
- * Draws a content page's rich text (decision 0093): the UI library's RichTextView, with links to the site's pages
- * resolved and followed through the app's router (and inert in the CMS preview).
+ * Draws a content page's rich text (decisions 0093, 0116): the UI library's RichTextView, with links to the site's
+ * pages resolved and followed through the app's router (and inert in the CMS preview).
  */
-export function RichText({ doc, align, textColor, typography }: RichTextProps) {
+export function RichText({ doc, align, textColor, typography, headingTypography }: RichTextProps) {
   const resolve = useContentLinks();
-  return <RichTextView doc={doc} align={align} textColor={textColor} typography={typography} resolveLink={resolve} />;
+  return (
+    <RichTextView doc={doc} align={align} textColor={textColor} typography={typography} headingTypography={headingTypography} resolveLink={resolve} />
+  );
 }

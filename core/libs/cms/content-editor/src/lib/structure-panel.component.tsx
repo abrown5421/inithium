@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from 'react';
-import { contentBlockTypes, sectionLayouts, type ContentBlockType, type ContentDocument, type SectionLayout } from '@inithium/shared-contracts';
+import { contentBlockTypes, sectionLayouts, type ContentBlockType, type ContentDocumentV1, type SectionLayout } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Select, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
 import { BLOCK_TYPES, LAYOUT_LABELS, blockSummary, type EditorSelection } from './content-document.service';
 
 export type StructurePanelProps = {
-  doc: ContentDocument;
+  doc: ContentDocumentV1;
   selection: EditorSelection;
   onSelect: (selection: EditorSelection) => void;
   /** Ids of sections and blocks with problems, marked in the tree. */

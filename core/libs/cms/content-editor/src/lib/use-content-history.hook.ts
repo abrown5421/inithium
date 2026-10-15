@@ -1,5 +1,5 @@
 import { useCallback, useReducer } from 'react';
-import type { ContentDocument } from '@inithium/shared-contracts';
+import type { ContentDocumentV1 } from '@inithium/shared-contracts';
 
 /** How many steps undo can go back. */
 const LIMIT = 100;
@@ -7,18 +7,18 @@ const LIMIT = 100;
 const MERGE_MS = 1000;
 
 type History = {
-  past: ContentDocument[];
-  present: ContentDocument;
-  future: ContentDocument[];
+  past: ContentDocumentV1[];
+  present: ContentDocumentV1;
+  future: ContentDocumentV1[];
   lastKey: string | null;
   lastAt: number;
 };
 
 type Action =
-  | { type: 'change'; doc: ContentDocument; key?: string; at: number }
+  | { type: 'change'; doc: ContentDocumentV1; key?: string; at: number }
   | { type: 'undo' }
   | { type: 'redo' }
-  | { type: 'reset'; doc: ContentDocument };
+  | { type: 'reset'; doc: ContentDocumentV1 };
 
 function reducer(state: History, action: Action): History {
   switch (action.type) {
@@ -52,12 +52,12 @@ function reducer(state: History, action: Action): History {
  * The editor's document with undo and redo for this session (decision 0093). `change(doc, key)` records a change;
  * changes sharing a key in quick succession (typing in one field) merge into one step.
  */
-export function useContentHistory(initial: ContentDocument) {
+export function useContentHistory(initial: ContentDocumentV1) {
   const [state, dispatch] = useReducer(reducer, { past: [], present: initial, future: [], lastKey: null, lastAt: 0 });
-  const change = useCallback((doc: ContentDocument, key?: string) => dispatch({ type: 'change', doc, key, at: Date.now() }), []);
+  const change = useCallback((doc: ContentDocumentV1, key?: string) => dispatch({ type: 'change', doc, key, at: Date.now() }), []);
   const undo = useCallback(() => dispatch({ type: 'undo' }), []);
   const redo = useCallback(() => dispatch({ type: 'redo' }), []);
-  const reset = useCallback((doc: ContentDocument) => dispatch({ type: 'reset', doc }), []);
+  const reset = useCallback((doc: ContentDocumentV1) => dispatch({ type: 'reset', doc }), []);
   return {
     doc: state.present,
     change,

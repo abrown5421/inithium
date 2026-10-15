@@ -1,18 +1,15 @@
 import { z } from 'zod';
-import { buttonVariantSchema } from '../ui/button.schema';
-import { colorValueSchema, solidColorValueSchema } from '../ui/colors.schema';
-import { dividerLineStyleSchema } from '../ui/divider.schema';
-import { fontFamilySchema, fontWeightSchema } from '../ui/typography.schema';
-import { iconNameSchema } from '../ui/icon.schema';
-import { polyPatternSchema } from '../ui/poly-pattern.schema';
-import { contentLinkSchema } from './content-links.schema';
-import { richTextDocumentSchema } from './rich-text.schema';
+import { buttonVariantSchema } from '../../ui/button.schema';
+import { colorValueSchema, solidColorValueSchema } from '../../ui/colors.schema';
+import { dividerLineStyleSchema } from '../../ui/divider.schema';
+import { iconNameSchema } from '../../ui/icon.schema';
+import { polyPatternSchema } from '../../ui/poly-pattern.schema';
+import { contentAlignSchema, contentIdSchema, contentShortTextSchema as shortText, contentTypographySchema } from '../content-common.schema';
+import { contentLinkSchema } from '../content-links.schema';
+import { richTextDocumentSchema } from '../rich-text.schema';
 
-/** A stable id for a section, column, block or button, unique within its page (e.g. 'b7k2x9'). */
-export const contentIdSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/, 'Use up to 40 letters, numbers, - or _');
-
-/** Where a block's content sits across its column. */
-export const contentAlignSchema = z.enum(['start', 'center', 'end']);
+// Version 1 of the content format (decision 0093, superseded by 0116): sections, columns and blocks. Kept so stored
+// version 1 content can be read and upgraded (`readContentDocument`).
 
 /** Hides a block on phones (below the section's stacking breakpoint) or on wider screens. */
 export const contentVisibilitySchema = z
@@ -24,23 +21,6 @@ const blockBase = {
   id: contentIdSchema,
   hideOn: contentVisibilitySchema.optional(),
 };
-
-const fontSizePx = z.number().int().min(8, { error: 'Use 8px or more' }).max(160, { error: 'Use 160px or less' });
-
-/**
- * A text part's typography (decision 0115): its font, weight and size, each optional. Left out, the part keeps its
- * default. The size is in px, with `md` for the medium breakpoint and up. Colour is a separate field on each block.
- */
-export const contentTypographySchema = z
-  .object({
-    fontFamily: fontFamilySchema.optional(),
-    fontWeight: fontWeightSchema.optional(),
-    fontSize: z.object({ base: fontSizePx, md: fontSizePx.optional() }).strict().optional(),
-  })
-  .strict();
-
-const shortText = (max: number, what: string) =>
-  z.string().trim().min(1, { error: `Enter ${what}` }).max(max, { error: `Use ${max} characters or fewer` });
 
 /** A heading. Level 1 is for a page whose title isn't shown elsewhere; most use 2. */
 export const headingBlockSchema = z

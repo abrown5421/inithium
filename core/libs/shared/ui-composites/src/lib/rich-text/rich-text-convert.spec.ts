@@ -50,7 +50,8 @@ describe('rich text ⇄ TipTap (decision 0102)', () => {
       type: 'doc',
       content: [
         { type: 'codeBlock', content: [{ type: 'text', text: 'code', marks: [{ type: 'code' }, { type: 'strike' }] }] },
-        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Big' }] },
+        { type: 'heading', attrs: { level: 5 }, content: [{ type: 'text', text: 'Big' }] },
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Title' }] },
         // eslint-disable-next-line no-script-url -- checking that script addresses are dropped
         { type: 'paragraph', content: [{ type: 'text', text: 'bad', marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)' } }] }] },
       ],
@@ -60,6 +61,7 @@ describe('rich text ⇄ TipTap (decision 0102)', () => {
       content: [
         { type: 'paragraph', content: [{ type: 'text', text: 'code' }] },
         { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Big' }] },
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Title' }] },
         { type: 'paragraph', content: [{ type: 'text', text: 'bad' }] },
       ],
     });

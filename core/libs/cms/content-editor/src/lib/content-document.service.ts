@@ -5,7 +5,7 @@ import {
   type ContentBlock,
   type ContentBlockType,
   type ContentColumn,
-  type ContentDocument,
+  type ContentDocumentV1,
   type ContentSection,
   type SectionLayout,
 } from '@inithium/shared-contracts';
@@ -20,11 +20,11 @@ export type EditorSelection =
 /** Where a block sits. */
 export type BlockLocation = { section: ContentSection; column: ContentColumn; block: ContentBlock; index: number };
 
-export function findSection(doc: ContentDocument, sectionId: string): ContentSection | undefined {
+export function findSection(doc: ContentDocumentV1, sectionId: string): ContentSection | undefined {
   return doc.sections.find((section) => section.id === sectionId);
 }
 
-export function findBlock(doc: ContentDocument, blockId: string): BlockLocation | undefined {
+export function findBlock(doc: ContentDocumentV1, blockId: string): BlockLocation | undefined {
   for (const section of doc.sections) {
     for (const column of section.columns) {
       const index = column.blocks.findIndex((block) => block.id === blockId);
@@ -34,16 +34,16 @@ export function findBlock(doc: ContentDocument, blockId: string): BlockLocation 
   return undefined;
 }
 
-const mapSections = (doc: ContentDocument, map: (section: ContentSection) => ContentSection): ContentDocument => ({
+const mapSections = (doc: ContentDocumentV1, map: (section: ContentSection) => ContentSection): ContentDocumentV1 => ({
   ...doc,
   sections: doc.sections.map(map),
 });
 
-const mapColumns = (doc: ContentDocument, map: (column: ContentColumn, section: ContentSection) => ContentColumn) =>
+const mapColumns = (doc: ContentDocumentV1, map: (column: ContentColumn, section: ContentSection) => ContentColumn) =>
   mapSections(doc, (section) => ({ ...section, columns: section.columns.map((column) => map(column, section)) }));
 
 /** Replaces a section's settings (not its columns). */
-export function updateSection(doc: ContentDocument, sectionId: string, changes: Partial<Omit<ContentSection, 'id' | 'columns' | 'layout'>>) {
+export function updateSection(doc: ContentDocumentV1, sectionId: string, changes: Partial<Omit<ContentSection, 'id' | 'columns' | 'layout'>>) {
   return mapSections(doc, (section) => {
     if (section.id !== sectionId) return section;
     const next = { ...section, ...changes } as ContentSection & Record<string, unknown>;
@@ -54,7 +54,7 @@ export function updateSection(doc: ContentDocument, sectionId: string, changes: 
 }
 
 /** Replaces a block with an edited copy of itself. */
-export function updateBlock(doc: ContentDocument, block: ContentBlock): ContentDocument {
+export function updateBlock(doc: ContentDocumentV1, block: ContentBlock): ContentDocumentV1 {
   return mapColumns(doc, (column) => ({
     ...column,
     blocks: column.blocks.map((candidate) => (candidate.id === block.id ? block : candidate)),
@@ -65,7 +65,7 @@ export function updateBlock(doc: ContentDocument, block: ContentBlock): ContentD
  * Changes a section's layout. New columns start empty; when there are fewer columns, the blocks of the dropped ones
  * move to the end of the last one kept, so nothing is lost.
  */
-export function setSectionLayout(doc: ContentDocument, sectionId: string, layout: SectionLayout): ContentDocument {
+export function setSectionLayout(doc: ContentDocumentV1, sectionId: string, layout: SectionLayout): ContentDocumentV1 {
   return mapSections(doc, (section) => {
     if (section.id !== sectionId) return section;
     const count = sectionLayouts[layout].length;
@@ -85,19 +85,19 @@ export function createSection(layout: SectionLayout): ContentSection {
 }
 
 /** Inserts a section after another, or at the end. */
-export function insertSection(doc: ContentDocument, section: ContentSection, afterId?: string): ContentDocument {
+export function insertSection(doc: ContentDocumentV1, section: ContentSection, afterId?: string): ContentDocumentV1 {
   const index = afterId ? doc.sections.findIndex((candidate) => candidate.id === afterId) : -1;
   const sections = [...doc.sections];
   sections.splice(index >= 0 ? index + 1 : sections.length, 0, section);
   return { ...doc, sections };
 }
 
-export function removeSection(doc: ContentDocument, sectionId: string): ContentDocument {
+export function removeSection(doc: ContentDocumentV1, sectionId: string): ContentDocumentV1 {
   return { ...doc, sections: doc.sections.filter((section) => section.id !== sectionId) };
 }
 
 /** Moves a section one place up (-1) or down (1). */
-export function moveSection(doc: ContentDocument, sectionId: string, by: -1 | 1): ContentDocument {
+export function moveSection(doc: ContentDocumentV1, sectionId: string, by: -1 | 1): ContentDocumentV1 {
   return { ...doc, sections: move(doc.sections, doc.sections.findIndex((section) => section.id === sectionId), by) };
 }
 
@@ -119,7 +119,7 @@ export function copyBlock(block: ContentBlock): ContentBlock {
 }
 
 /** Inserts a block into a column, after another block or at the end. */
-export function insertBlock(doc: ContentDocument, columnId: string, block: ContentBlock, afterId?: string): ContentDocument {
+export function insertBlock(doc: ContentDocumentV1, columnId: string, block: ContentBlock, afterId?: string): ContentDocumentV1 {
   return mapColumns(doc, (column) => {
     if (column.id !== columnId) return column;
     const index = afterId ? column.blocks.findIndex((candidate) => candidate.id === afterId) : -1;
@@ -129,17 +129,17 @@ export function insertBlock(doc: ContentDocument, columnId: string, block: Conte
   });
 }
 
-export function removeBlock(doc: ContentDocument, blockId: string): ContentDocument {
+export function removeBlock(doc: ContentDocumentV1, blockId: string): ContentDocumentV1 {
   return mapColumns(doc, (column) => ({ ...column, blocks: column.blocks.filter((block) => block.id !== blockId) }));
 }
 
 /** Moves a block one place up (-1) or down (1) within its column. */
-export function moveBlock(doc: ContentDocument, blockId: string, by: -1 | 1): ContentDocument {
+export function moveBlock(doc: ContentDocumentV1, blockId: string, by: -1 | 1): ContentDocumentV1 {
   return mapColumns(doc, (column) => ({ ...column, blocks: move(column.blocks, column.blocks.findIndex((block) => block.id === blockId), by) }));
 }
 
 /** Moves a block to the end of another column (in any section). */
-export function moveBlockToColumn(doc: ContentDocument, blockId: string, columnId: string): ContentDocument {
+export function moveBlockToColumn(doc: ContentDocumentV1, blockId: string, columnId: string): ContentDocumentV1 {
   const found = findBlock(doc, blockId);
   if (!found || found.column.id === columnId) return doc;
   return insertBlock(removeBlock(doc, blockId), columnId, found.block);
@@ -256,5 +256,5 @@ function canonical(value: unknown): unknown {
 }
 
 /** Whether two content documents say the same thing (e.g. the draft and what's published). */
-export const sameContent = (a: ContentDocument | null | undefined, b: ContentDocument | null | undefined) =>
+export const sameContent = (a: ContentDocumentV1 | null | undefined, b: ContentDocumentV1 | null | undefined) =>
   JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));

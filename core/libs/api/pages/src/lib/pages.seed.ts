@@ -1,5 +1,5 @@
 import { loadEnv } from '@inithium/api-config';
-import type { ContentDocument, PageAudience, PageNavigation, PageSeo } from '@inithium/shared-contracts';
+import type { ContentDocumentV1, PageAudience, PageNavigation, PageSeo } from '@inithium/shared-contracts';
 import { PageModel } from './pages.model';
 import { privacyPolicyContent } from './privacy-policy.seed';
 
@@ -19,7 +19,7 @@ export type PageSeed = {
   navigation: PageNavigation;
   seo?: PageSeo;
   /** A content page's starting blocks, written once when the page is created and published as they are. */
-  content?: () => ContentDocument;
+  content?: () => ContentDocumentV1;
 };
 
 /** Core's pages: Home, Profile, Login, Sign up, Not Found, and the privacy policy (a content page). */

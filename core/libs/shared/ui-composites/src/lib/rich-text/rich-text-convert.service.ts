@@ -151,7 +151,7 @@ export function tiptapToRichText(json: JSONContent): RichTextDocument {
     if (node.type === 'heading') {
       const level = Number(node.attrs?.['level']);
       const inline = inlineFrom(node);
-      content.push({ type: 'heading', attrs: { level: level === 3 || level === 4 ? level : 2 }, ...(inline ? { content: inline } : {}) });
+      content.push({ type: 'heading', attrs: { level: level === 1 || level === 3 || level === 4 ? level : 2 }, ...(inline ? { content: inline } : {}) });
     } else if (node.type === 'blockquote') {
       const paragraphs = (node.content ?? []).map(paragraphFrom);
       content.push({ type: 'blockquote', content: paragraphs.length ? paragraphs : [{ type: 'paragraph' }] });

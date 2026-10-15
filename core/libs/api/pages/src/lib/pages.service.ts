@@ -1,10 +1,10 @@
 import { isValidObjectId } from 'mongoose';
 import {
   createContentId,
-  emptyContentDocument,
+  emptyContentDocumentV1,
   navigationAllowed,
-  readContentDocument,
-  type ContentDocument,
+  readContentDocumentV1,
+  type ContentDocumentV1,
   type NavLocation,
   type Page,
   type PageAnimation,
@@ -66,14 +66,14 @@ export function toPublicPage(doc: PageDocument): PublicPage {
 /** A stored content field as `{ content }`, upgraded to the current format; nothing when there's no valid draft. */
 function readPageContent(stored: unknown): { content?: PageContent } {
   const { draft, published, ...meta } = (stored ?? {}) as Record<string, unknown>;
-  const current = readContentDocument(draft);
+  const current = readContentDocumentV1(draft);
   if (!current) return {};
   const text = (key: string) => (typeof meta[key] === 'string' ? (meta[key] as string) : undefined);
   return {
     content: {
       draft: current,
       // Kept out of definedOnly(), which would drop the null that means "never published".
-      published: published ? (readContentDocument(published) ?? null) : null,
+      published: published ? (readContentDocumentV1(published) ?? null) : null,
       ...definedOnly({
         draftSavedAt: text('draftSavedAt'),
         draftSavedBy: text('draftSavedBy'),
@@ -144,7 +144,7 @@ async function saveNew(doc: PageDocument): Promise<PageDocument> {
 }
 
 /** A content page's starting content: one empty section in the draft, nothing published. */
-const startingContent = (): PageContent => ({ draft: emptyContentDocument(createContentId), published: null });
+const startingContent = (): PageContent => ({ draft: emptyContentDocumentV1(createContentId), published: null });
 
 /**
  * Creates a page from a reusable template (decision 0093). It starts unpublished, out of menus and unprotected;
@@ -210,7 +210,7 @@ function contentOf(doc: PageDocument): PageContent {
 }
 
 /** Saves a content page's draft (decision 0093). The body must already have passed `pageDraftSaveSchema`. */
-export async function saveContentDraft(doc: PageDocument, draft: ContentDocument, userId: string): Promise<PageDocument> {
+export async function saveContentDraft(doc: PageDocument, draft: ContentDocumentV1, userId: string): Promise<PageDocument> {
   const content = contentOf(doc);
   doc.set('content', { ...content, draft, draftSavedAt: new Date().toISOString(), draftSavedBy: userId });
   return doc.save();
@@ -230,7 +230,7 @@ export async function publishContent(doc: PageDocument, userId: string): Promise
 /** Throws away a content page's draft changes: the draft goes back to the published version (or empty). */
 export async function discardContentDraft(doc: PageDocument, userId: string): Promise<PageDocument> {
   const content = contentOf(doc);
-  const draft = content.published ?? emptyContentDocument(createContentId);
+  const draft = content.published ?? emptyContentDocumentV1(createContentId);
   doc.set('content', { ...content, draft, draftSavedAt: new Date().toISOString(), draftSavedBy: userId });
   return doc.save();
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { bioSchema } from '../users/users.schema';
-import { contentBlockSchema } from './content-blocks.schema';
+import { contentBlockSchema } from './v1/content-blocks-v1.schema';
 import { restrictedRichTextSchema, richTextDocumentSchema, richTextFeaturesUsed, type RichTextDocument } from './rich-text.schema';
 
 const FAMILY = '0123456789abcdef01234567';

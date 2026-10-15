@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ContentDocument } from '@inithium/shared-contracts';
+import type { ContentDocumentV1 } from '@inithium/shared-contracts';
 
 /** How long after the last change the draft saves, in ms. */
 const DELAY = 1200;
@@ -8,11 +8,11 @@ const DELAY = 1200;
 export type SaveStatus = 'saved' | 'pending' | 'saving' | 'error' | 'invalid';
 
 export type AutosaveOptions = {
-  doc: ContentDocument;
+  doc: ContentDocumentV1;
   /** Whether the draft passes its contract; an invalid draft isn't saved. */
   valid: boolean;
   /** Saves the draft; rejects on failure. */
-  save: (doc: ContentDocument) => Promise<unknown>;
+  save: (doc: ContentDocumentV1) => Promise<unknown>;
 };
 
 /**
@@ -76,7 +76,7 @@ export function useAutosave({ doc, valid, save }: AutosaveOptions) {
     };
   }, [run]);
 
-  const markSaved = useCallback((next: ContentDocument) => {
+  const markSaved = useCallback((next: ContentDocumentV1) => {
     const nextJson = JSON.stringify(next);
     latest.current = { ...latest.current, savedJson: nextJson };
     setSavedJson(nextJson);

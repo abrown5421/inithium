@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { assetUrl, type ImageBlock } from '@inithium/shared-contracts';
 import { Container, Icon, Image, Text } from '@inithium/shared-ui-components';
-import { useContentLinks } from './content-links.context';
-import { typographyProps } from './content-typography.service';
+import { typographyProps } from '../content-typography.service';
+import { useContentLinks } from '../content-links.context';
 
 const ALIGN_ITEMS = { start: 'start', center: 'center', end: 'end' } as const;
 
