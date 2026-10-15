@@ -1,6 +1,8 @@
 import type { z } from 'zod';
+import type { richTextStyleAttrsSchema } from './rich-text.schema';
 import type {
   bannerBlockSchema,
+  contentTypographySchema,
   buttonsBlockSchema,
   contentAlignSchema,
   contentBlockSchema,
@@ -39,3 +41,5 @@ export type ContentSection = z.infer<typeof contentSectionSchema>;
 export type ContentDocument = z.infer<typeof contentDocumentSchema>;
 export type PageContent = z.infer<typeof pageContentSchema>;
 export type PageDraftSave = z.infer<typeof pageDraftSaveSchema>;
+export type ContentTypography = z.infer<typeof contentTypographySchema>;
+export type RichTextStyleAttrs = z.infer<typeof richTextStyleAttrsSchema>;

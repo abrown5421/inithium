@@ -5,8 +5,10 @@ import { useContentDecorators } from './content-decorators.context';
 import { useContentLinks } from './content-links.context';
 import { ImageBlockView } from './image-block.component';
 import { RichText } from './rich-text.component';
+import { typographyProps } from './content-typography.service';
 
-const HEADING_SIZES = {
+/** Each heading level's default size, on phones and from md up (the editor's starting sizes match). */
+export const HEADING_SIZES = {
   1: { base: 36, md: 48 },
   2: { base: 28, md: 34 },
   3: { base: 22, md: 24 },
@@ -47,8 +49,7 @@ function BlockBody({ block }: { block: ContentBlock }) {
       return (
         <Text
           as={`h${block.level}`}
-          fontFamily="display"
-          fontSize={HEADING_SIZES[block.level]}
+          {...typographyProps(block.typography, { fontFamily: 'display', fontSize: HEADING_SIZES[block.level] })}
           lineHeight={1.2}
           align={textAlign(block.align)}
           textColor={block.textColor}
@@ -57,7 +58,7 @@ function BlockBody({ block }: { block: ContentBlock }) {
         </Text>
       );
     case 'rich-text':
-      return <RichText doc={block.doc} align={block.align} textColor={block.textColor} />;
+      return <RichText doc={block.doc} align={block.align} textColor={block.textColor} typography={block.typography} />;
     case 'buttons':
       return (
         <Container flex={{ direction: 'row', wrap: 'wrap', gap: 12, justify: block.align ? JUSTIFY[block.align] : 'start' }}>
@@ -90,11 +91,23 @@ function BlockBody({ block }: { block: ContentBlock }) {
       return (
         <Container flex={{ direction: 'column', align: center ? 'center' : 'start', gap: 10 }}>
           <Icon name={block.icon as IconName} size={32} textColor={block.iconColor ?? { color: 'primary', intensity: 500 }} />
-          <Text as="h3" fontSize={18} fontWeight={600} lineHeight={1.3} align={center ? 'center' : undefined}>
+          <Text
+            as="h3"
+            {...typographyProps(block.titleTypography, { fontSize: 18, fontWeight: 600 })}
+            lineHeight={1.3}
+            align={center ? 'center' : undefined}
+            textColor={block.titleColor}
+          >
             {block.title}
           </Text>
           {block.text && (
-            <Text as="p" lineHeight={1.6} align={center ? 'center' : undefined} textColor={{ color: 'surface', intensity: 700 }}>
+            <Text
+              as="p"
+              {...typographyProps(block.textTypography)}
+              lineHeight={1.6}
+              align={center ? 'center' : undefined}
+              textColor={block.textColor ?? { color: 'surface', intensity: 700 }}
+            >
               {block.text}
             </Text>
           )}
@@ -113,12 +126,17 @@ function BlockBody({ block }: { block: ContentBlock }) {
               textColor={block.textColor ?? { color: 'surface', intensity: 50 }}
             >
               {block.heading && (
-                <Text as="h2" fontFamily="display" fontSize={{ base: 28, md: 40 }} lineHeight={1.15} align={JUSTIFY[align]}>
+                <Text
+                  as="h2"
+                  {...typographyProps(block.headingTypography, { fontFamily: 'display', fontSize: { base: 28, md: 40 } })}
+                  lineHeight={1.15}
+                  align={JUSTIFY[align]}
+                >
                   {block.heading}
                 </Text>
               )}
               {block.text && (
-                <Text as="p" fontSize={{ base: 16, md: 18 }} lineHeight={1.5} align={JUSTIFY[align]}>
+                <Text as="p" {...typographyProps(block.textTypography, { fontSize: { base: 16, md: 18 } })} lineHeight={1.5} align={JUSTIFY[align]}>
                   {block.text}
                 </Text>
               )}

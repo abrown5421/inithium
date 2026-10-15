@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { colorValueSchema } from '../ui/colors.schema';
+import { fontFamilySchema, fontWeightSchema } from '../ui/typography.schema';
 import { contentLinkSchema } from './content-links.schema';
 
 /*
@@ -6,11 +8,35 @@ import { contentLinkSchema } from './content-links.schema';
  * drawn with the UI library's Text components, never as HTML. Anything outside this set is rejected.
  */
 
+/** The sizes the editor offers for restyled words, as ratios of the surrounding text (decision 0115). */
+export const richTextSizePresets = [
+  { value: 0.75, label: 'Small' },
+  { value: 0.875, label: 'A little smaller' },
+  { value: 1.25, label: 'A little larger' },
+  { value: 1.5, label: 'Large' },
+  { value: 2, label: 'Huge' },
+] as const;
+
+/**
+ * Restyled words (decision 0115): a font (a role or a library family), a weight, a size relative to the surrounding
+ * text, and a colour, at least one of them. A weight wins over bold.
+ */
+export const richTextStyleAttrsSchema = z
+  .object({
+    family: fontFamilySchema.optional(),
+    weight: fontWeightSchema.optional(),
+    size: z.number().min(0.5).max(3).optional(),
+    color: colorValueSchema.optional(),
+  })
+  .strict()
+  .refine((attrs) => Object.values(attrs).some((value) => value !== undefined), { error: 'Choose a font, weight, size or colour' });
+
 export const richTextMarkSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('bold') }).strict(),
   z.object({ type: z.literal('italic') }).strict(),
   z.object({ type: z.literal('underline') }).strict(),
   z.object({ type: z.literal('link'), attrs: z.object({ link: contentLinkSchema }).strict() }).strict(),
+  z.object({ type: z.literal('textStyle'), attrs: richTextStyleAttrsSchema }).strict(),
 ]);
 
 export const richTextTextSchema = z
@@ -105,7 +131,21 @@ export function richTextFromPlainText(text: string): RichTextDocument {
 }
 
 /** The formatting a rich text field can allow (decision 0102). Paragraphs and line breaks are always allowed. */
-export const richTextFeatures = ['bold', 'italic', 'underline', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'] as const;
+export const richTextFeatures = [
+  'bold',
+  'italic',
+  'underline',
+  'link',
+  'heading',
+  'bulletList',
+  'orderedList',
+  'blockquote',
+  // Restyled words (decision 0115), each allowed separately.
+  'fontFamily',
+  'fontWeight',
+  'fontSize',
+  'textColor',
+] as const;
 export type RichTextFeature = (typeof richTextFeatures)[number];
 
 /** Every text run and line break in a document, nested lists and quotes included. */
@@ -149,7 +189,18 @@ export function richTextFeaturesUsed(doc: RichTextDocument): Set<RichTextFeature
     if (node.type === 'heading' || node.type === 'blockquote') used.add(node.type);
     else if (node.type !== 'paragraph') visitList(node);
   }
-  for (const part of inlineParts(doc)) for (const mark of part.type === 'text' ? (part.marks ?? []) : []) used.add(mark.type);
+  for (const part of inlineParts(doc)) {
+    for (const mark of part.type === 'text' ? (part.marks ?? []) : []) {
+      if (mark.type !== 'textStyle') {
+        used.add(mark.type);
+        continue;
+      }
+      if (mark.attrs.family !== undefined) used.add('fontFamily');
+      if (mark.attrs.weight !== undefined) used.add('fontWeight');
+      if (mark.attrs.size !== undefined) used.add('fontSize');
+      if (mark.attrs.color !== undefined) used.add('textColor');
+    }
+  }
   return used;
 }
 

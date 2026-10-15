@@ -10,6 +10,7 @@ import {
   type RichTextNode,
   type RichTextParagraph,
 } from '@inithium/shared-contracts';
+import { checkedStyleAttrs, RICH_TEXT_STYLE_MARK } from './rich-text-style.extension';
 
 /** TipTap stores links as addresses; a link to a page is written as this scheme plus the page's id. */
 export const PAGE_LINK_SCHEME = 'inithium-page';
@@ -34,6 +35,12 @@ export function attrsToLink(attrs: Record<string, unknown> | undefined): Content
 
 // --- Ours → TipTap ---
 
+function markToTiptap(mark: RichTextMark): NonNullable<JSONContent['marks']>[number] {
+  if (mark.type === 'link') return { type: 'link', attrs: linkToAttrs(mark.attrs.link) };
+  if (mark.type === 'textStyle') return { type: RICH_TEXT_STYLE_MARK, attrs: { ...mark.attrs } };
+  return { type: mark.type };
+}
+
 function inlineToTiptap(parts: RichTextInline[] | undefined): JSONContent[] | undefined {
   if (!parts?.length) return undefined;
   return parts.map((part) =>
@@ -43,7 +50,7 @@ function inlineToTiptap(parts: RichTextInline[] | undefined): JSONContent[] | un
           type: 'text',
           text: part.text,
           ...(part.marks?.length
-            ? { marks: part.marks.map((mark) => (mark.type === 'link' ? { type: 'link', attrs: linkToAttrs(mark.attrs.link) } : { type: mark.type })) }
+            ? { marks: part.marks.map(markToTiptap) }
             : {}),
         },
   );
@@ -89,6 +96,10 @@ function marksFrom(marks: JSONContent['marks']): RichTextMark[] | undefined {
     if (mark.type === 'link') {
       const link = attrsToLink(mark.attrs);
       if (link) result.push({ type: 'link', attrs: { link } });
+    }
+    if (mark.type === RICH_TEXT_STYLE_MARK) {
+      const attrs = checkedStyleAttrs(mark.attrs);
+      if (attrs) result.push({ type: 'textStyle', attrs });
     }
   }
   return result.length ? result : undefined;

@@ -153,5 +153,5 @@ ui-library/rich-text-field/states
 ## Notes
 
 - **Not an HTML editor.** What's saved is JSON; HTML never reaches the database or the page.
-- The page editor's in-place text editing is the same TipTap setup with every feature and page links ([Content pages](../../architecture/content-pages.md)).
+- The page editor's in-place text editing is the same TipTap setup with every feature and page links ([Content pages](../../architecture/content-pages.md)), plus restyled words: the `RichTextStyle` mark (exported with the field, with `RICH_TEXT_STYLE_MARK`, `checkedStyleAttrs()`, `richTextStyleCss()` and `fontFamilyCss()`) and the toolbar's Text style ([0115](../../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)). RichTextField itself has no styling tools, so don't allow the `fontFamily`, `fontWeight`, `fontSize` or `textColor` features on a field built on it.
 - `focusFirstError()` can't focus it (it isn't a form element); show its error and the form's alert as usual.

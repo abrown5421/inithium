@@ -53,14 +53,16 @@ Every block has an `id`, and can be hidden on phones or on wider screens with `h
 
 | Block | `type` | Holds |
 | --- | --- | --- |
-| Heading | `heading` | `text`, `level` 1–4, `align`, `textColor` |
-| Rich text | `rich-text` | A rich text `doc`, `align`, `textColor` |
+| Heading | `heading` | `text`, `level` 1–4, `align`, `textColor`, `typography` |
+| Rich text | `rich-text` | A rich text `doc`, `align`, `textColor`, `typography` (the running text) |
 | Buttons | `buttons` | 1–4 buttons (`label`, `link`, `variant`, `color`, `icon`), `align` |
-| Feature | `feature` | `icon`, `title`, `text`, `align` (`start` or `center`), `iconColor` |
-| Image | `image` | `assetId`, `alt` (required unless `decorative`), `caption`, `width` (`full` or a px cap), `align`, `radius`, optional `link` |
-| Banner | `banner` | A PolyBanner `pattern`, `height`, optional `heading` and `text`, `align`, `textColor` |
+| Feature | `feature` | `icon`, `title`, `text`, `align` (`start` or `center`), `iconColor`, `titleColor`, `textColor`, `titleTypography`, `textTypography` |
+| Image | `image` | `assetId`, `alt` (required unless `decorative`), `caption`, `captionColor`, `captionTypography`, `width` (`full` or a px cap), `align`, `radius`, optional `link` |
+| Banner | `banner` | A PolyBanner `pattern`, `height`, optional `heading` and `text`, `align`, `textColor`, `headingTypography`, `textTypography` |
 | Divider | `divider` | `color`, `thickness`, `lineStyle` |
 | Spacer | `spacer` | `height` in px |
+
+**Typography** ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): each text part's `…typography` is an optional `contentTypographySchema` object, `{ fontFamily?, fontWeight?, fontSize?: { base, md? } }`. The font is a role or a library family (`{ familyId }`), the weight 100–900, and the size is in px (8–160), with `md` from the medium breakpoint up. Left out, each part keeps its default look (headings: the display font at their level's size). Colour is a separate field on each block. A rich text block's typography is for its running text: sub-headings inside keep the display font. Buttons have no typography: they keep Button's fixed size, the body font and their own colour.
 
 The Image block shows an uploaded image by its asset id ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)); a missing image (deleted, or not chosen yet) shows a placeholder. In the editor, an Image block starts empty and holds the draft back from saving until an image is chosen; choosing one copies its default description, which the block may change.
 
@@ -69,8 +71,10 @@ Video embed, accordion, tabs, card grid, form and map come later, and plugins wi
 ### Rich text
 
 Rich text is the editor's (TipTap's) JSON document, limited to:
-- **marks:** bold, italic, underline, link;
+- **marks:** bold, italic, underline, link, and `textStyle` for restyled words (below);
 - **nodes:** paragraph, heading (h2–h4; the page's title is its h1), bulleted and numbered lists (nested), quote and line break.
+
+**Restyled words** ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): the `textStyle` mark, `{ family?, weight?, size?, color? }` with at least one. `family` is a role or `{ familyId }`, `weight` 100–900 (it wins over bold), `size` a ratio of the surrounding text (0.5–3; the editor offers `richTextSizePresets`), and `color` a colour value. Each attribute is its own feature (`fontFamily`, `fontWeight`, `fontSize`, `textColor`) for `restrictedRichTextSchema`, so a field can allow some or none; the profile bio allows none. RichTextView draws the size with Text's `fontScale`.
 
 Anything else is rejected by `richTextDocumentSchema`. It's drawn by [RichTextView](../ui-library/composites/rich-text-view.md) (content's `RichText` adds page links), never as HTML. `richTextFromPlainText(text)` builds a document of plain paragraphs.
 
@@ -135,8 +139,11 @@ Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, w
 - **Divider:** thickness, line and colour.
 - **Spacer:** height.
 
+**Text style** (in the Properties panel of headings, rich text, features, banners and image captions): each text part's colour, then `TypographyFields`. These are the font (a FontField with "Default"), the weight (only the weights the font has, from `useFontWeights()`), and **Custom size**, with a size for phones and, optionally, one for wider screens. A rich text block's fields style its running text.
+
 **Rich text toolbar:**
 - bold, italic, underline;
+- **Text style** (`TextStyleDialog`, 0115): the selected words' font, weight (it wins over bold), size (presets relative to the text around them) and colour, each "Same as the text" until chosen, plus **Clear style**. With the cursor inside restyled words it changes those words. Styling pasted from elsewhere is dropped;
 - link (to a page or an address), paragraph, headings 2–4;
 - bulleted list, numbered list, quote.
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { assetUrl, type ImageBlock } from '@inithium/shared-contracts';
 import { Container, Icon, Image, Text } from '@inithium/shared-ui-components';
 import { useContentLinks } from './content-links.context';
+import { typographyProps } from './content-typography.service';
 
 const ALIGN_ITEMS = { start: 'start', center: 'center', end: 'end' } as const;
 
@@ -58,7 +59,13 @@ export function ImageBlockView({ block }: { block: ImageBlock }) {
         picture
       )}
       {block.caption && (
-        <Text as="span" fontSize={14} lineHeight={1.5} align={block.align ?? 'center'} textColor={{ color: 'surface', intensity: 700 }}>
+        <Text
+          as="span"
+          {...typographyProps(block.captionTypography, { fontSize: 14 })}
+          lineHeight={1.5}
+          align={block.align ?? 'center'}
+          textColor={block.captionColor ?? { color: 'surface', intensity: 700 }}
+        >
           {block.caption}
         </Text>
       )}

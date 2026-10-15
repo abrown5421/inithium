@@ -33,6 +33,7 @@ import { RichTextView } from '@inithium/shared-ui-composites';
 | [`textColor`](#textcolor) | `Colour` | inherited | The text's colour |
 | [`gap`](#gap) | `number` | `14` | Space between blocks, px |
 | [`resolveLink`](#resolvelink) | `(link) => RichTextResolvedLink` | `resolveUrlLink` | Turns links into addresses |
+| [`typography`](#typography) | `ContentTypography` | none | The running text's font, weight and size |
 
 ## Props
 
@@ -68,6 +69,14 @@ Turns each link into `{ href?, newTab, onClick? }`. A link without an `href` dra
 <RichTextView doc={doc} resolveLink={(link) => (link.type === 'url' ? { href: link.href, newTab: true } : { newTab: false })} />
 ```
 
+#### `typography`
+
+The running text's font, weight and size ([0115](../../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): paragraphs, list items and quotes take it, and sub-headings keep the display font and their sizes. `fontSize` is `{ base, md? }` in px. **Type:** `{ fontFamily?, fontWeight?, fontSize? }` (`ContentTypography`).
+
+```tsx
+<RichTextView doc={doc} typography={{ fontFamily: 'display', fontWeight: 300, fontSize: { base: 16, md: 18 } }} />
+```
+
 ## Examples
 
 ### Example: Basic
@@ -94,4 +103,5 @@ ui-library/rich-text-view/field-and-view
 
 ## Notes
 
+- **Restyled words** (the `textStyle` mark, 0115) draw as a Text inside any bold, italic or underline, with `fontFamily`, `fontWeight`, `fontScale` and `textColor`, so a chosen weight wins over bold.
 - To check a document before drawing, e.g. to hide an empty bio, use `richTextIsEmpty(doc)`.

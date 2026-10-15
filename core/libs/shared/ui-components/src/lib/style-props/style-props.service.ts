@@ -275,6 +275,8 @@ function applyText(builder: StyleBuilder, props: TextStyleProps): void {
     builder.set('font', key, typeof value === 'string' ? `var(--font-${value})` : `var(${fontFamilyVariable(value.familyId)}, var(--font-body))`),
   );
   builder.each(props.fontSize, (key, value) => builder.set('font-size', key, px(value)));
+  // Relative to the surrounding text (decision 0115); set after fontSize, so it wins when both are given.
+  builder.each(props.fontScale, (key, value) => builder.set('font-size', key, `${value}em`));
   builder.each(props.fontWeight, (key, value) => builder.set('font-weight', key, String(value)));
   builder.each(props.align, (key, value) => builder.set('text-align', key, value));
   builder.each(props.lineHeight, (key, value) => builder.set('leading', key, String(value)));

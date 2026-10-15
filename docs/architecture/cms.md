@@ -97,7 +97,7 @@ The editor is a Modal over a draft, with five tabs:
   - **Uploaded fonts not in a family:** a button for each, to add it.
   - A file covering a weight and style already in the list isn't added, and an alert says why.
   - **Name** (suggested from the first file's own family name) and **Fallback** (sans serif, serif or monospace).
-  - **Save** or **Add family**, Cancel, and **Remove family** (confirmed in the footer; the files stay in Media; refused while it's a theme font).
+  - **Save** or **Add family**, Cancel, and **Remove family**. It's confirmed in the footer, which lists the pages that use the family (their text falls back to the body font). The files stay in Media, and removal is refused while it's a theme font.
 - A family the theme uses says so on its card ("The site's display font").
 - **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
 - **Details modal:** a preview (audio and video play; fonts draw a sample) beside the name and default description to edit, its type, size, dimensions (fonts: their family name, weight and style), date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo or favicon, with a note saying to choose another in Settings first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
@@ -105,7 +105,7 @@ The editor is a Modal over a draft, with five tabs:
 Other screens use the library through two components:
 
 - **`AssetPicker`**: a Modal with the library's grid (filtered by `kind`, or by `purpose` with `onlyPurpose`), search and **Upload new**, which uploads in place (with `purpose`) and picks the result.
-- **`FontField`** ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)): a form field holding one font, a [FontPicker](../ui-library/composites/font-picker.md) offering the theme's roles and every library family with files, each drawn in its own font. Pass `roles={false}` or an `emptyLabel` as on FontPicker. Settings' theme fonts use it; the page builder will.
+- **`FontField`** ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)): a form field holding one font, a [FontPicker](../ui-library/composites/font-picker.md) offering the theme's roles and every library family with files, each drawn in its own font. Pass `roles={false}` or an `emptyLabel` as on FontPicker. Settings' theme fonts and the content editor's text style use it.
 - **`AssetField`**: a form field showing the chosen file's thumbnail, name and size, with Choose/Change (opening the picker) and Remove (hidden when `required`). It hands back the whole asset, so a form can copy its default description. `onlyPurpose` makes its picker list only files uploaded for its `purpose`. The Settings logo and favicon and the content editor's Image block use it.
 
 ## Users

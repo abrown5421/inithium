@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buttonVariantSchema } from '../ui/button.schema';
 import { colorValueSchema, solidColorValueSchema } from '../ui/colors.schema';
 import { dividerLineStyleSchema } from '../ui/divider.schema';
+import { fontFamilySchema, fontWeightSchema } from '../ui/typography.schema';
 import { iconNameSchema } from '../ui/icon.schema';
 import { polyPatternSchema } from '../ui/poly-pattern.schema';
 import { contentLinkSchema } from './content-links.schema';
@@ -24,6 +25,20 @@ const blockBase = {
   hideOn: contentVisibilitySchema.optional(),
 };
 
+const fontSizePx = z.number().int().min(8, { error: 'Use 8px or more' }).max(160, { error: 'Use 160px or less' });
+
+/**
+ * A text part's typography (decision 0115): its font, weight and size, each optional. Left out, the part keeps its
+ * default. The size is in px, with `md` for the medium breakpoint and up. Colour is a separate field on each block.
+ */
+export const contentTypographySchema = z
+  .object({
+    fontFamily: fontFamilySchema.optional(),
+    fontWeight: fontWeightSchema.optional(),
+    fontSize: z.object({ base: fontSizePx, md: fontSizePx.optional() }).strict().optional(),
+  })
+  .strict();
+
 const shortText = (max: number, what: string) =>
   z.string().trim().min(1, { error: `Enter ${what}` }).max(max, { error: `Use ${max} characters or fewer` });
 
@@ -36,6 +51,7 @@ export const headingBlockSchema = z
     level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
     align: contentAlignSchema.optional(),
     textColor: colorValueSchema.optional(),
+    typography: contentTypographySchema.optional(),
   })
   .strict();
 
@@ -47,6 +63,8 @@ export const richTextBlockSchema = z
     doc: richTextDocumentSchema,
     align: contentAlignSchema.optional(),
     textColor: colorValueSchema.optional(),
+    /** The running text's typography; sub-headings inside keep the display font unless words are restyled. */
+    typography: contentTypographySchema.optional(),
   })
   .strict();
 
@@ -102,6 +120,10 @@ export const featureBlockSchema = z
     text: z.string().trim().max(500, { error: 'Use 500 characters or fewer' }).optional(),
     align: z.enum(['start', 'center']).optional(),
     iconColor: colorValueSchema.optional(),
+    titleColor: colorValueSchema.optional(),
+    textColor: colorValueSchema.optional(),
+    titleTypography: contentTypographySchema.optional(),
+    textTypography: contentTypographySchema.optional(),
   })
   .strict();
 
@@ -116,6 +138,8 @@ export const bannerBlockSchema = z
     text: z.string().trim().max(300, { error: 'Use 300 characters or fewer' }).optional(),
     align: contentAlignSchema.optional(),
     textColor: colorValueSchema.optional(),
+    headingTypography: contentTypographySchema.optional(),
+    textTypography: contentTypographySchema.optional(),
   })
   .strict();
 
@@ -132,6 +156,8 @@ export const imageBlockSchema = z
     /** Purely visual: hidden from screen readers, and needs no alt text. */
     decorative: z.boolean().optional(),
     caption: z.string().trim().max(300, { error: 'Use 300 characters or fewer' }).optional(),
+    captionColor: colorValueSchema.optional(),
+    captionTypography: contentTypographySchema.optional(),
     /** 'full' fills the column; a number caps the width in px. Default 'full'. */
     width: z.union([z.literal('full'), z.number().int().min(40).max(4000)]).optional(),
     align: contentAlignSchema.optional(),

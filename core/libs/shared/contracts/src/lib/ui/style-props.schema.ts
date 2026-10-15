@@ -179,6 +179,8 @@ export const textStylePropsSchema = sharedStylePropsSchema
     as: textElementSchema.optional(),
     fontFamily: withVariants(fontFamilySchema).optional(),
     fontSize: withVariants(z.number().positive()).optional(),
+    /** A size relative to the surrounding text, e.g. 1.5 (decision 0115). Wins over fontSize when both are set. */
+    fontScale: withVariants(z.number().positive()).optional(),
     fontWeight: withVariants(fontWeightSchema).optional(),
     align: withVariants(textAlignSchema).optional(),
     lineHeight: withVariants(z.number().positive()).optional(),
