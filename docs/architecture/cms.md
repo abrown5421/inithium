@@ -3,7 +3,7 @@ title: The CMS
 description: How the CMS app is put together - its frame, screens, sign-in, the Pages editor, the Media library and the Users screen - and how to add a screen.
 scope: core
 tags: [cms, architecture, permissions]
-order: 6
+order: 7
 decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101"]
 ---
 

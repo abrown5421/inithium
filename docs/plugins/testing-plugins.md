@@ -3,7 +3,7 @@ title: Testing plugins
 description: The tests every plugin must ship, and the contract checks that prove its seed, unseed and user deletion hook follow the rules.
 scope: ecosystem
 tags: [plugins, testing, seeding]
-order: 2
+order: 3
 decisions: ["0103", "0019", "0026", "0100"]
 ---
 

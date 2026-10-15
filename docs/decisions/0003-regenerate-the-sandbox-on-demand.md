@@ -1,12 +1,13 @@
 ---
 id: "0003"
 title: Regenerate the sandbox on demand and never commit it
-status: accepted
-date: "2026-10-07"
+status: superseded
+date: "2026-10-14"
 scope: ecosystem
 tags: [sandbox, plugins, testing]
 related: ["0001", "0002"]
 supersedes: []
+supersededBy: "0106"
 ---
 
 # 0003. Regenerate the sandbox on demand and never commit it

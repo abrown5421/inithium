@@ -2,10 +2,10 @@
 id: "0015"
 title: Define the slot catalogue and contract shapes
 status: proposed
-date: "2026-10-12"
+date: "2026-10-14"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107"]
 supersedes: []
 ---
 
@@ -26,9 +26,11 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 
+Required of every slot, settled in [0105](0105-manage-plugins-with-one-install-tool-activation-and-versions.md): plugins can be installed but **inactive**, so every slot contract must let core leave out an inactive plugin's entries at runtime. The exception is the user deletion hook, which keeps running while the plugin's data exists. What each slot does while inactive is open in [0107](0107-plugin-lifecycle-mechanics.md). Core also gains a CMS Plugins screen holding activation toggles and each plugin's settings, so a **plugin settings** contract is needed too.
+
 Still open:
 
-- Which other slots core exposes. Raised so far: API route mounts, Mongoose models, CMS screens and CMS sidebar entries.
+- Which other slots core exposes. Raised so far: API route mounts, Mongoose models, CMS screens, CMS sidebar entries, and plugin settings on the CMS Plugins screen.
 - ~~A **storage driver slot**~~: no longer needed. The R2 driver ships in core, chosen by `STORAGE_MODE` ([0098](0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 - The contract shape of each slot.
 

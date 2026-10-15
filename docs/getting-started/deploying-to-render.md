@@ -4,7 +4,7 @@ description: Step by step, deploying Inithium (or a client's copy) as one Render
 scope: core
 tags: [deployment, render, hosting]
 order: 4
-decisions: ["0006", "0089", "0100"]
+decisions: ["0006", "0089", "0100", "0104"]
 ---
 
 # Deploying to Render
@@ -87,6 +87,10 @@ Also check the password in Render's field has no trailing space or quotes: it's 
 ## Still to confirm
 
 - **Proxy:** Express `trust proxy` is `1`, assuming one proxy in front of the api. Check that login rate limiting sees visitors' own addresses, not the proxy's: after 10 failed sign-ins from one browser, the 11th is refused, while another network can still sign in.
+
+## Planned: staging and the showcase
+
+Each client will also get a staging service on their own Render account, beside production, with its own database on the same cluster. `inithium.onrender.com` will become the showcase ([Environments](../architecture/environments.md)). This guide will gain those steps once staging's workflow and the hosting plans are decided ([0108](../decisions/0108-client-staging-workflow-and-data.md), [0109](../decisions/0109-client-hosting-plans-and-backups.md)).
 
 ## Updating
 

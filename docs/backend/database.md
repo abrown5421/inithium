@@ -4,7 +4,7 @@ description: MongoDB and Mongoose in core, covering the connection lifecycle, co
 scope: core
 tags: [mongodb, database, backend]
 order: 3
-decisions: ["0005", "0009", "0010"]
+decisions: ["0104", "0009", "0010"]
 ---
 
 # Database
@@ -31,8 +31,8 @@ The api connects **before** it starts listening and exits if it can't, so it nev
 
 | Who | Cluster | Database |
 | --- | --- | --- |
-| Inithium, the sandbox, plugins, personal projects | One shared Atlas cluster | A separate database per project, e.g. `/inithium` |
-| Each client | The client's own Atlas account and cluster ([0005](../decisions/0005-give-each-client-their-own-infrastructure.md)) | A single database |
+| Inithium: core, the sandbox, the showcase, plugins, personal projects | One shared Atlas cluster | A separate database per project or environment, e.g. `/inithium` |
+| Each client | The client's own Atlas account and cluster ([0104](../decisions/0104-separate-development-showcase-staging-and-production-environments.md)) | Two databases: production and staging |
 
 Moving an app to another database or cluster is only a change to `MONGODB_URI`.
 

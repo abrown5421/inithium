@@ -4,7 +4,7 @@ description: Every environment variable the api reads, its default and how it's 
 scope: core
 tags: [environment, config, mongodb, auth]
 order: 2
-decisions: ["0009", "0010", "0005", "0020", "0023", "0098", "0099", "0100"]
+decisions: ["0009", "0010", "0104", "0020", "0023", "0098", "0099", "0100"]
 ---
 
 # Environment variables

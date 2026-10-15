@@ -4,7 +4,7 @@ description: Core, plugins, the sandbox and the docs, and how they relate.
 scope: ecosystem
 tags: [architecture, plugins]
 order: 1
-decisions: ["0001", "0002", "0003", "0052", "0053"]
+decisions: ["0001", "0002", "0104", "0105", "0106", "0052", "0053"]
 ---
 
 # The ecosystem
@@ -15,7 +15,7 @@ The Inithium repo has four parts ([0001](../decisions/0001-split-core-plugins-an
 | --- | --- | --- |
 | `core/` | The Nx workspace every client app is cloned from: the `api`, `web` and `cms` apps, the UI library and the core libs | Yes: it **is** the client app |
 | `plugins/` | Optional features, each packaged end to end (API, `web` pages, `cms` screens, data) | Only the plugins that client installs |
-| `sandbox/` | Tooling that regenerates a copy of core with plugins installed, for testing | No |
+| `sandbox/` | Tooling that generates copies of core with plugins installed: the local plugin sandbox, and the showcase | No |
 | `docs/` | This manual and the decision records | No |
 
 ## Core
@@ -34,11 +34,11 @@ A plugin packages one optional capability end to end, e.g. ecommerce:
 - its pages in `web`;
 - its management screens in `cms`.
 
-A client that doesn't use a plugin has **none of its code**; a client that does gets it installed rather than rebuilt. No plugins exist yet. See [Plugins](../plugins/index.md).
+A client that doesn't use a plugin has **none of its code**; a client that does gets a copy installed rather than rebuilt. An installed plugin can be switched off on the CMS Plugins screen without removing it, and each client stays on its installed version until it upgrades ([0105](../decisions/0105-manage-plugins-with-one-install-tool-activation-and-versions.md)). No plugins exist yet. See [Plugins](../plugins/index.md) and [Plugin lifecycle](../plugins/plugin-lifecycle.md).
 
 ## The sandbox
 
-The sandbox is a copy of core with **every** plugin installed, for testing plugins in the browser. It's regenerated from `core/` and `plugins/` rather than committed, so it can't drift from core ([0003](../decisions/0003-regenerate-the-sandbox-on-demand.md)). See [The sandbox](sandbox.md).
+The sandbox is the local development environment for plugins: a copy of core's apps where plugins are installed, activated and ejected one at a time and checked in the browser, running beside core. It's generated from `core/` and `plugins/` rather than committed, so it can't drift from core ([0106](../decisions/0106-run-the-sandbox-as-a-local-generated-workspace-beside-core.md)). The same tooling generates the **showcase**, Inithium's hosted marketing site. See [The sandbox](sandbox.md) and [Environments](environments.md).
 
 ## The docs
 
