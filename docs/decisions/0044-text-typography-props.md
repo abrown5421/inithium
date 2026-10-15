@@ -1,12 +1,13 @@
 ---
 id: "0044"
 title: Give Text props for size, weight, alignment, line height, letter spacing, truncation and font family
-status: accepted
-date: "2026-10-07"
+status: superseded
+date: "2026-10-15"
 scope: core
 tags: [ui, components, props, typography]
 related: ["0030", "0042", "0046"]
 supersedes: []
+supersededBy: "0112"
 ---
 
 # 0044. Give Text props for size, weight, alignment, line height, letter spacing, truncation and font family

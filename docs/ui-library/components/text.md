@@ -4,7 +4,7 @@ description: All text content (headings, paragraphs, inline text and labels) wit
 scope: core
 tags: [ui, component, typography]
 order: 13
-decisions: ["0042", "0044", "0045", "0046", "0048"]
+decisions: ["0042", "0045", "0046", "0048", "0112"]
 component:
   name: Text
   layer: component
@@ -89,7 +89,7 @@ The text, which can include other components. **Type:** `ReactNode`.
 
 #### `fontFamily`
 
-One of the theme's two families ([Theme: fonts](../theme/index.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default.
+One of the theme's two families ([Theme: fonts](../theme/index.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default. Planned: library families as `{ familyId }` ([0112](../../decisions/0112-give-text-typography-props-with-library-font-families.md)).
 
 ```tsx
 <Text fontFamily="display">Brand heading</Text>
