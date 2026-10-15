@@ -1,12 +1,13 @@
 ---
 id: "0093"
 title: Build content pages from sections, columns and blocks
-status: accepted
-date: "2026-10-12"
+status: superseded
+date: "2026-10-15"
 scope: core
 tags: [pages, content, cms, blocks, rich-text, assets]
-related: ["0015", "0024", "0028", "0029", "0045", "0078", "0079", "0080", "0091", "0092"]
+related: ["0015", "0024", "0028", "0029", "0045", "0078", "0079", "0080", "0091", "0092", "0116"]
 supersedes: []
+supersededBy: "0116"
 ---
 
 # 0093. Build content pages from sections, columns and blocks

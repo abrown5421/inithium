@@ -4,12 +4,14 @@ description: Pages clients build in the CMS from sections, columns and blocks, s
 scope: core
 tags: [pages, content, cms, blocks]
 order: 8
-decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102"]
+decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 ---
 
 # Content pages
 
 > **Being built.** This page describes the agreed design ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). [What exists today](#build-status) is listed at the end.
+
+> **Redesign decided, not built.** [0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md) replaces sections, columns and blocks with a tree of library elements (nestable Containers, Text, Image, Icon, Button, Divider and plugin elements), and redesigns the editor (Layers, an Add picker, grouped properties, responsive overrides, an edit lock and accessibility warnings). Until its steps land, this page describes what's built today; it's rewritten as they do.
 
 Pages come in three kinds:
 

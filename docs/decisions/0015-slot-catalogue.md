@@ -2,10 +2,10 @@
 id: "0015"
 title: Define the slot catalogue and contract shapes
 status: proposed
-date: "2026-10-14"
+date: "2026-10-15"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116"]
 supersedes: []
 ---
 
@@ -23,6 +23,8 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
 - **Navbar ancillary:** extras before the Navbar's user section, e.g. a cart button ([0076](0076-navigate-with-a-navbar-that-collapses-into-a-drawer.md)).
 - **Profile tabs, sidebar sections and header actions,** each aware of who is viewing ([0081](0081-extend-the-profile-page-through-slots-by-viewer.md)). Their contract shapes are settled in [0090](0090-generate-and-show-user-profiles.md): entries `{ key, order, viewers, component }` registered as `registeredProfileSlots` in the web registry.
 - **User deleted:** `UserDeletionHook` `{ key, label, deleteUserData(userIds) }` from `@inithium/api-user-management`, registered as `registeredUserDeletionHooks` in the api's registry, `apps/api/src/app/plugins.registry.ts` ([0100](0100-manage-accounts-from-the-cms.md)). Hooks run before core deletes anything and must be safe to repeat.
+
+- **Content elements:** elements for the content page builder ([0116](0116-build-content-pages-from-a-tree-of-library-elements.md)), typed `plugin-<name>:<element>`. Each is defined across three registries: its contract (props schema, allowed children, and the props holding asset, font family or page ids) in the api's, its renderer in `web`'s, and its editor entry (label, icon, category, defaults, property form) in a new CMS registry. Core's own elements use the same definitions. An inactive or ejected plugin's elements stay in stored content, show as a placeholder in the editor and draw nothing on the site. The exact contract shape is settled when the slot is built.
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 
