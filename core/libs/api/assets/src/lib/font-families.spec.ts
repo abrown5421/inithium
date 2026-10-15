@@ -10,6 +10,8 @@ import { AssetModel } from './assets.model';
 import { assetsRouter } from './assets.routes';
 import { assetUsage, createAsset, deleteAsset, updateAsset } from './assets.service';
 import { fontFamiliesRouter } from './font-families.routes';
+import { backfillFontFamilyMetrics } from './font-families.service';
+import { updateSiteSettings } from '@inithium/api-settings';
 
 const app = createTestApiWithAuth((api) => {
   api.use('/assets', assetsRouter);
@@ -176,5 +178,45 @@ describe('font files in families', () => {
     });
     await updateAsset(font, { filename: 'Brand Regular.woff2' });
     expect((await FontFamilyModel.findById(family._id))?.files[0]?.filename).toBe('Brand Regular.woff2');
+  });
+});
+
+describe('font families the theme uses (decision 0111)', () => {
+  const themeFamily = async () => {
+    const font = await upload(displayFont, 'display.woff2');
+    const { client } = await signedInClient(app, 'admin');
+    const created = await client.post<FontFamilyRecord>('/api/fonts', { name: 'Brand', fallback: 'sans', assetIds: [font._id] });
+    await updateSiteSettings({ siteTitle: 'Acme', fonts: { display: created.body.id } });
+    return { client, font, family: created.body };
+  };
+
+  it('keep each file’s metrics, for the theme’s fallback sizing', async () => {
+    const { family } = await themeFamily();
+    expect(family.files[0]?.metrics).toMatchObject({ unitsPerEm: 1000, xAvgCharWidth: expect.any(Number) });
+  });
+
+  it('can’t be removed while the theme uses them', async () => {
+    const { client, family } = await themeFamily();
+    const response = await client.delete<{ message: string }>(`/api/fonts/${family.id}`);
+    expect(response.status).toBe(409);
+    expect(response.body.message).toContain('display font');
+  });
+
+  it('keep their only file from being deleted', async () => {
+    const { client, font } = await themeFamily();
+    expect((await assetUsage(font._id)).places).toContainEqual({ label: 'Font family: Brand (the site’s display font, and its only file)', blocking: true });
+    expect((await client.delete(`/api/assets/${font._id}`)).status).toBe(409);
+  });
+});
+
+describe('backfillFontFamilyMetrics (decision 0114)', () => {
+  it('copies missing metrics from each file’s asset, once', async () => {
+    const font = await fakeFont('regular.woff2', 400);
+    const family = await FontFamilyModel.create({
+      name: 'Old', fallback: 'sans', files: [{ assetId: font._id, filename: font.filename, contentType: font.contentType, weight: { min: 400, max: 400 }, style: 'normal' }],
+    });
+    await backfillFontFamilyMetrics();
+    expect((await FontFamilyModel.findById(family._id))?.files[0]?.metrics).toEqual(metrics);
+    await expect(backfillFontFamilyMetrics()).resolves.toBeUndefined();
   });
 });

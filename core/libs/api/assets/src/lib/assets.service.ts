@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { loadEnv } from '@inithium/api-config';
 import { findFontFamilyWithFile, removeFontFile, renameFontFile } from '@inithium/api-fonts';
 import { PageModel } from '@inithium/api-pages';
-import { getSiteSettings } from '@inithium/api-settings';
+import { fontRolesUsing, getSiteSettings } from '@inithium/api-settings';
 import { clearProfileImage, findUsersWithProfileImage } from '@inithium/api-users';
 import {
   assetFileTypes,
@@ -184,9 +184,16 @@ export async function assetUsage(id: string): Promise<AssetUsage> {
   if (settings.logo?.assetId === id) places.push({ label: 'Site settings: the logo', blocking: true });
   if (settings.favicon?.assetId === id) places.push({ label: 'Site settings: the favicon', blocking: true });
 
-  // A font family's file: deleting it takes it out of the family (decision 0111).
+  // A font family's file: deleting it takes it out of the family (decision 0111). A theme font's only file can't go.
   const family = await findFontFamilyWithFile(id);
-  if (family) places.push({ label: `Font family: ${family.name}`, blocking: false });
+  if (family) {
+    const roles = await fontRolesUsing(String(family._id));
+    const lastThemeFile = roles.length > 0 && family.files.length === 1;
+    places.push({
+      label: `Font family: ${family.name}${roles.length ? ` (the site’s ${roles.join(' and ')} font${lastThemeFile ? ', and its only file' : ''})` : ''}`,
+      blocking: lastThemeFile,
+    });
+  }
 
   const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
   for (const page of pages) {

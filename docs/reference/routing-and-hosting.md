@@ -32,7 +32,7 @@ Each client deploys as one Render web service. The `api` process serves the API 
 
 ## Production
 
-In production the api serves `dist/apps/cms` at `/cms` and `dist/apps/web` at `/`, each with an SPA fallback to its `index.html`. It resolves `dist/apps` from the working directory, so start it from `core/`:
+In production the api serves `dist/apps/cms` at `/cms` and `dist/apps/web` at `/`, each with an SPA fallback to its `index.html`, which the api sends with the theme's font rules written into its `<head>` and `Cache-Control: no-cache` ([0114](../decisions/0114-load-the-clients-fonts-without-a-flash.md)). It resolves `dist/apps` from the working directory, so start it from `core/`:
 
 ```sh
 node dist/apps/api/main.js

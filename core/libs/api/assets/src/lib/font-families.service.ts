@@ -1,4 +1,5 @@
-import { FontFamilyModel, findFontFamilyWithFile, type FontFamilyDocument } from '@inithium/api-fonts';
+import { FontFamilyModel, findFontFamilyWithFile, markFontsChanged, type FontFamilyDocument } from '@inithium/api-fonts';
+import { fontRolesUsing } from '@inithium/api-settings';
 import {
   fontFilesOverlap,
   fontWeightLabel,
@@ -12,7 +13,7 @@ import { readFontInfo } from './font-files.service';
 import { AssetModel } from './assets.model';
 import { fontInfo, readAssetBytes } from './assets.service';
 
-type FamilyFile = { assetId: string; filename: string; contentType: string; weight: FontFileInfo['weight']; style: FontFileInfo['style'] };
+type FamilyFile = Pick<FontFileInfo, 'weight' | 'style' | 'metrics'> & { assetId: string; filename: string; contentType: string };
 
 const describe = (file: Pick<FamilyFile, 'weight' | 'style'>) => `${fontWeightLabel(file.weight)}${file.style === 'italic' ? ' italic' : ''}`;
 
@@ -39,7 +40,7 @@ async function familyFiles(assetIds: string[], familyId?: string): Promise<Famil
     const holder = await findFontFamilyWithFile(assetId);
     if (holder && String(holder._id) !== familyId) throw failure(409, `${asset.filename} is already in the ${holder.name} family`, 'assetIds');
 
-    const file: FamilyFile = { assetId, filename: asset.filename, contentType: asset.contentType, weight: info.weight, style: info.style };
+    const file: FamilyFile = { assetId, filename: asset.filename, contentType: asset.contentType, weight: info.weight, style: info.style, metrics: info.metrics };
     const clash = files.find((other) => fontFilesOverlap(other, file));
     if (clash) throw failure(400, `${clash.filename} and ${file.filename} both cover ${describe(file)}. Keep one of them.`, 'assetIds');
     files.push(file);
@@ -54,7 +55,9 @@ export async function createFontFamily(input: FontFamilyCreate): Promise<FontFam
     throw failure(409, `The font library is full: it holds at most ${MAX_FONT_FAMILIES} families. Remove one first.`);
   }
   const files = await familyFiles(input.assetIds);
-  return FontFamilyModel.create({ name: input.name, fallback: input.fallback, files });
+  const created = await FontFamilyModel.create({ name: input.name, fallback: input.fallback, files });
+  markFontsChanged();
+  return created;
 }
 
 /** Changes a family's name, fallback or files. */
@@ -62,10 +65,34 @@ export async function updateFontFamily(doc: FontFamilyDocument, update: FontFami
   if (update.name !== undefined) doc.name = update.name;
   if (update.fallback !== undefined) doc.fallback = update.fallback;
   if (update.assetIds !== undefined) doc.set('files', await familyFiles(update.assetIds, String(doc._id)));
-  return doc.save();
+  const saved = await doc.save();
+  markFontsChanged();
+  return saved;
 }
 
-/** Removes a family from the library. Its files stay in Media as loose fonts. */
+/** Removes a family from the library, unless the theme uses it (409). Its files stay in Media as loose fonts. */
 export async function deleteFontFamily(doc: FontFamilyDocument): Promise<void> {
+  const roles = await fontRolesUsing(String(doc._id));
+  if (roles.length) throw failure(409, `${doc.name} is the site’s ${roles.join(' and ')} font. Choose another in Settings first.`);
   await doc.deleteOne();
+  markFontsChanged();
+}
+
+/**
+ * Copies each family file's metrics from its asset where the family doesn't have them (families saved before decision
+ * 0114), so their fallbacks are size-matched. Run on every start; does nothing once they're all there.
+ */
+export async function backfillFontFamilyMetrics(): Promise<void> {
+  const families = await FontFamilyModel.find({ files: { $elemMatch: { metrics: { $exists: false } } } });
+  for (const family of families) {
+    for (const file of family.files) {
+      if (file.metrics) continue;
+      const asset = await AssetModel.findById(file.assetId);
+      const info = asset ? fontInfo(asset) : undefined;
+      if (info) file.metrics = info.metrics;
+    }
+    family.markModified('files');
+    await family.save();
+  }
+  if (families.length) markFontsChanged();
 }

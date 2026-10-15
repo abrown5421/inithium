@@ -17,7 +17,7 @@ export type AssetUploadInput = { file: Blob; filename: string; purpose: AssetPur
 /** Filters for the asset list. `group: 'members'` lists members' avatars and banners instead of staff files. */
 export type AssetListFilter = { group?: 'members'; purpose?: AssetPurpose; kind?: AssetKind; q?: string };
 
-const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage', 'FontFamily'] }).injectEndpoints({
+const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage', 'FontFamily', 'Site'] }).injectEndpoints({
   endpoints: (build) => ({
     /** Where files go, the limits and how much is used (decision 0098). */
     getStorageInfo: build.query<StorageInfo, void>({
@@ -66,7 +66,7 @@ const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage', '
     deleteAsset: build.mutation<void, string>({
       query: (id) => ({ url: `/assets/${encodeURIComponent(id)}`, method: 'DELETE' }),
       // A deleted font leaves its family.
-      invalidatesTags: [{ type: 'Asset', id: 'LIST' }, 'Storage', 'FontFamily'],
+      invalidatesTags: [{ type: 'Asset', id: 'LIST' }, 'Storage', 'FontFamily', 'Site'],
     }),
     /** Where an asset is used. */
     getAssetUsage: build.query<AssetUsage, string>({

@@ -8,6 +8,8 @@ import type {
   fontFileInfoSchema,
   fontMetricsSchema,
   fontWeightRangeSchema,
+  siteFontFamilySchema,
+  themeFontsSchema,
 } from './fonts.schema';
 
 export type FontFallback = z.infer<typeof fontFallbackSchema>;
@@ -18,3 +20,5 @@ export type FontFamilyFile = z.infer<typeof fontFamilyFileSchema>;
 export type FontFamilyRecord = z.infer<typeof fontFamilyRecordSchema>;
 export type FontFamilyCreate = z.infer<typeof fontFamilyCreateSchema>;
 export type FontFamilyUpdate = z.infer<typeof fontFamilyUpdateSchema>;
+export type SiteFontFamily = z.infer<typeof siteFontFamilySchema>;
+export type ThemeFonts = z.infer<typeof themeFontsSchema>;

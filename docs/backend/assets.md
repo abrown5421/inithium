@@ -11,7 +11,7 @@ decisions: ["0098", "0099", "0101", "0029"]
 
 Assets are uploaded files: images, fonts, documents, audio and video. The api owns them in `@inithium/api-assets` ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). Staff manage them on the CMS's [Media screen](../architecture/cms.md#media) and pick them with `AssetField`.
 
-> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). Step C, font families ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), is being built in phases: the [font library](#font-families) is built; the theme's fonts, the font picker and fonts in the page builder are not built yet.
+> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). Step C, font families ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), is being built in phases: the [font library](#font-families) and the theme's fonts are built; the font picker and fonts in the page builder are not built yet.
 
 ## Rules
 
@@ -88,9 +88,13 @@ Font files are grouped into **families** in a font library ([0111](../decisions/
 - Font uploads from before files were read get read when they're first added to a family.
 - The library holds at most **six** families (`MAX_FONT_FAMILIES`; 409 after that). Inithium's two default fonts are built in and don't count.
 - Removing a family keeps its files, which go back to being loose fonts. Deleting a file takes it out of its family, and the family stays even if that leaves it empty.
-- Every family will be served under an internal name, `Inithium Font <familyId>` (`fontFamilyCssName()`), never the font's own name. `fontFaceCss()` writes its `@font-face` rules, and `fontStack()` its CSS `font-family` value.
+- Every family is served under an internal name, `Inithium Font <familyId>` (`fontFamilyCssName()`), never the font's own name. `fontFaceCss()` writes its `@font-face` rules, and `fontStack()` its CSS `font-family` value.
 
-Not built yet: pointing the theme's `display` and `body` at families, loading them without a flash ([0114](../decisions/0114-load-the-clients-fonts-without-a-flash.md)), the font picker, and fonts in the page builder ([0113](../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)).
+- Each family file keeps its file's metrics, for the theme's size-matched fallbacks.
+- **The theme's fonts:** Settings points `display` and `body` at families ([Site settings](site-settings.md)), and the api writes them into each app's page so they load without a flash ([Theme fonts in the page](site-settings.md#theme-fonts-in-the-page)). A family the theme uses can't be removed (409), and its only file can't be deleted (blocking usage). Add another file or choose another font in Settings first.
+- **With `R2_PUBLIC_URL`**, fonts come from the bucket's address, another origin, and browsers only use cross-origin fonts with CORS. Give the bucket a CORS policy allowing `GET` from the site's origin (Cloudflare dashboard → R2 → the bucket → Settings → CORS policy). Without `R2_PUBLIC_URL`, fonts are served from the site's own origin and need nothing.
+
+Not built yet: the font picker and fonts in the page builder ([0113](../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)).
 
 ## Members' pictures
 
@@ -125,7 +129,7 @@ The font library is mounted at `/api/fonts`, all routes needing `assets.upload`:
 | `GET /` | Every family, by name, each with its files (`assetId`, `filename`, `contentType`, `url`, `weight`, `style`). |
 | `POST /` | `{ name, fallback, assetIds }`: adds a family. 201; 400 for a file that isn't a font, no longer exists or overlaps another; 409 for a file in another family or a full library. |
 | `PATCH /:id` | Any of `{ name, fallback, assetIds }` (`assetIds` is the whole new list). |
-| `DELETE /:id` | 204. Its files stay. |
+| `DELETE /:id` | 204. Its files stay. 409 while the theme uses it. |
 
 Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 415 (type refused), 429 (member upload limit), 507 (database quota full). Errors carry `field` where a form field is at fault.
 
@@ -144,7 +148,7 @@ Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 4
 - **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)). Its asset can't be deleted while it's the logo.
 - **Favicon**: `settings.favicon` is `{ assetId }`. Its asset can't be deleted while it's the favicon.
 - **Image block** in content pages ([Content pages](../architecture/content-pages.md)). Deleting its asset warns first; the page then shows a "missing image" placeholder.
-- **Font families**: a font file's family. Deleting the file warns first, then takes it out of the family.
+- **Font families**: a font file's family. Deleting the file warns first, then takes it out of the family. If it's the only file of a family the theme uses, it can't be deleted.
 - **Profiles**: `profile.avatarAssetId` and `profile.bannerAssetId`. Deleting the asset clears them, so the profile shows its generated picture. Deleting an account deletes the avatars and banners it uploaded (`deleteMemberUploads()`); files staff uploaded stay ([User management](user-management.md#deleting-accounts)).
 
 ## Permissions

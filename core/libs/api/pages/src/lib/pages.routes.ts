@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { pageCreateSchema, pageDraftSaveSchema, pageDuplicateSchema, pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
 import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requirePermission } from '@inithium/api-auth';
+import { listFontFamilies, toSiteFontFamily } from '@inithium/api-fonts';
 import { getSiteSettings, toSiteSettings } from '@inithium/api-settings';
 import type { PageDocument } from './pages.model';
 import {
@@ -113,7 +114,7 @@ pagesRouter.delete('/:id', ...requirePermission('pages.delete'), async (req, res
 export const siteRouter = Router();
 
 siteRouter.get('/', async (_req, res) => {
-  const [settings, pages] = await Promise.all([getSiteSettings(), listPublishedPages()]);
-  const body: SiteBundle = { settings: toSiteSettings(settings), pages: pages.map(toPublicPage) };
+  const [settings, pages, fontFamilies] = await Promise.all([getSiteSettings(), listPublishedPages(), listFontFamilies()]);
+  const body: SiteBundle = { settings: toSiteSettings(settings), pages: pages.map(toPublicPage), fontFamilies: fontFamilies.map(toSiteFontFamily) };
   res.send(body);
 });

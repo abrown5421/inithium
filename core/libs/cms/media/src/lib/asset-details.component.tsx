@@ -216,7 +216,9 @@ export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
             )}
             {canDelete && blocked && (
               <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-                It can’t be deleted while it’s the site’s {blocked.label.includes('favicon') ? 'favicon' : 'logo'}. Choose another in Settings first.
+                {blocked.label.startsWith('Font family')
+                  ? 'It can’t be deleted while it’s the only file of one of the site’s fonts. Choose another font in Settings, or add another file to the family, first.'
+                  : `It can’t be deleted while it’s the site’s ${blocked.label.includes('favicon') ? 'favicon' : 'logo'}. Choose another in Settings first.`}
               </Text>
             )}
           </Container>

@@ -79,7 +79,7 @@ If the frontends have been built, the api serves them:
 - `dist/apps/cms` at `/cms`;
 - `dist/apps/web` at `/`.
 
-Each has an SPA fallback, so a deep link like `/cms/settings` reloads correctly. A frontend that hasn't been built is skipped. The api finds `dist/apps` from its working directory, so it must be started from `core/`:
+Each has an SPA fallback, so a deep link like `/cms/settings` reloads correctly. `index.html` is never sent as a static file: every page request gets it with the theme's fonts written into its `<head>` (`renderAppPage()`, [Site settings](site-settings.md#theme-fonts-in-the-page)). A frontend that hasn't been built is skipped. The api finds `dist/apps` from its working directory, so it must be started from `core/`:
 
 ```bash
 cd core

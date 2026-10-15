@@ -28,6 +28,8 @@ const settingsSchema = new Schema(
       ),
       required: false,
     },
+    // The theme's fonts (decision 0111): library family ids, checked against the library when saved.
+    fonts: { type: new Schema({ display: String, body: String }, { _id: false }), required: false },
   },
   { timestamps: true },
 );
