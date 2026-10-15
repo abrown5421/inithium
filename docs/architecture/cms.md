@@ -97,7 +97,8 @@ The editor is a Modal over a draft, with five tabs:
   - **Uploaded fonts not in a family:** a button for each, to add it.
   - A file covering a weight and style already in the list isn't added, and an alert says why.
   - **Name** (suggested from the first file's own family name) and **Fallback** (sans serif, serif or monospace).
-  - **Save** or **Add family**, Cancel, and **Remove family** (confirmed in the footer; the files stay in Media).
+  - **Save** or **Add family**, Cancel, and **Remove family** (confirmed in the footer; the files stay in Media; refused while it's a theme font).
+- A family the theme uses says so on its card ("The site's display font").
 - **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
 - **Details modal:** a preview (audio and video play; fonts draw a sample) beside the name and default description to edit, its type, size, dimensions (fonts: their family name, weight and style), date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo or favicon, with a note saying to choose another in Settings first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
 
@@ -121,9 +122,10 @@ Other screens use the library through two components:
 `SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
 
 - **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview (Inithium's logo when none is set), the favicon (an `AssetField` listing only favicon uploads: ICO, PNG or SVG, previewed at 16 and 32 px, [0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)), and the copyright holder.
+- **Theme fonts** ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)): `ThemeFontField`, a Select per role (**Display font**, **Body font**) listing **Inithium's default** and every family in the font library (families without files can't be chosen), with a sample drawn in the choice below it. The body font's note says it's used for all running text, so it should be easy to read.
 - **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. A surface too dark for readable text shows why on the field instead of a preview, and Save refuses it. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
 
-Saving updates the CMS at once: `CmsTheme` renders the client's theme at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
+Saving updates the CMS at once: `CmsTheme` renders the client's theme and fonts (`ThemeStyles`, `ThemeFonts`) at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
 
 ## Forms
 

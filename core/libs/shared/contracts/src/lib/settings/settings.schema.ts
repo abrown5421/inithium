@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { assetUrl } from '../assets/assets.schema';
+import { siteFontFamilySchema, themeFontsSchema } from '../fonts/fonts.schema';
 import { publicPageSchema } from '../pages/pages.schema';
 import { themeConfigSchema } from '../ui/theme.schema';
 
@@ -27,6 +28,8 @@ export const siteSettingsInputSchema = z
     copyright: z.string().min(1).max(100).optional(),
     /** The theme's colours (decision 0087): five brand 500s and the surface 100, as hex. Leave it out for Inithium's defaults. */
     theme: themeConfigSchema.optional(),
+    /** The theme's fonts (decision 0111): the library family for `display` and `body`. Leave one out for Inithium's default. */
+    fonts: themeFontsSchema.optional(),
   })
   .strict();
 
@@ -41,5 +44,7 @@ export const siteBundleSchema = z
   .object({
     settings: siteSettingsSchema,
     pages: z.array(publicPageSchema),
+    /** Every font family in the library, to declare them and draw the theme's fonts (decision 0114). */
+    fontFamilies: z.array(siteFontFamilySchema),
   })
   .strict();

@@ -55,6 +55,8 @@ export const fontFamilyFileSchema = z
     url: z.string(),
     weight: fontWeightRangeSchema,
     style: z.enum(['normal', 'italic']),
+    /** The file's measurements, for sizing the family's fallback (decision 0114). Missing on families saved before. */
+    metrics: fontMetricsSchema.optional(),
   })
   .strict();
 
@@ -68,6 +70,23 @@ export const fontFamilyRecordSchema = z
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
+  .strict();
+
+/** A family as the public site bundle carries it (decision 0114): enough to declare and draw it, nothing more. */
+export const siteFontFamilySchema = z
+  .object({
+    id: z.string(),
+    fallback: fontFallbackSchema,
+    files: z.array(fontFamilyFileSchema.pick({ url: true, contentType: true, weight: true, style: true, metrics: true })),
+  })
+  .strict();
+
+/**
+ * The theme's fonts (decision 0111): the library family each role uses, by id. A role left out uses Inithium's default
+ * (Bruno Ace SC for `display`, Merriweather Sans for `body`).
+ */
+export const themeFontsSchema = z
+  .object({ display: z.string().min(1).optional(), body: z.string().min(1).optional() })
   .strict();
 
 const familyNameSchema = z.string().trim().min(1, { error: 'Enter a name' }).max(80, { error: 'Use 80 characters or fewer' });
@@ -95,11 +114,24 @@ const FALLBACK_STACKS: Record<(typeof fontFallbacks)[number], string> = {
   mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 };
 
-/** A CSS `font-family` value: the quoted family name, then the generic families for its fallback type. */
-export const fontStack = (cssName: string, fallback: (typeof fontFallbacks)[number]) => `'${cssName}', ${FALLBACK_STACKS[fallback]}`;
+/**
+ * A CSS `font-family` value: the quoted family name, its size-matched fallback face if it has one (decision 0114), then
+ * the generic families for its fallback type.
+ */
+export const fontStack = (cssName: string, fallback: (typeof fontFallbacks)[number], fallbackFace?: string) =>
+  `'${cssName}', ${fallbackFace ? `'${fallbackFace}', ` : ''}${FALLBACK_STACKS[fallback]}`;
 
 /** One file of a family, as much as an `@font-face` rule needs. */
-export type FontFaceSource = { url: string; contentType: string; weight: { min: number; max: number }; style: 'normal' | 'italic' };
+export type FontFaceSource = {
+  url: string;
+  contentType: string;
+  weight: { min: number; max: number };
+  style: 'normal' | 'italic';
+  metrics?: { unitsPerEm: number; ascent: number; descent: number; lineGap: number; xAvgCharWidth?: number };
+};
+
+/** A family as the theme's CSS needs it: its id, fallback type and files. */
+export type ThemeFontFamily = { id: string; fallback: (typeof fontFallbacks)[number]; files: readonly FontFaceSource[] };
 
 /**
  * `@font-face` rules declaring files under one CSS family name. Browsers download a declared file only when text uses
@@ -113,6 +145,83 @@ export function fontFaceCss(cssName: string, files: readonly FontFaceSource[]): 
       return `@font-face{font-family:'${cssName}';src:url('${file.url}') format('${format}');font-weight:${weight};font-style:${file.style};font-display:swap;}`;
     })
     .join('\n');
+}
+
+/** A family's main file: the upright one covering 400 (regular), or else the one closest to it. */
+export function mainFontFile<File extends FontFaceSource>(files: readonly File[]): File | undefined {
+  const distance = (file: FontFaceSource) =>
+    (file.style === 'italic' ? 10_000 : 0) + (file.weight.min <= 400 && 400 <= file.weight.max ? 0 : Math.min(Math.abs(file.weight.min - 400), Math.abs(file.weight.max - 400)));
+  return [...files].sort((a, b) => distance(a) - distance(b))[0];
+}
+
+/**
+ * The system font each fallback type is size-matched against, with its metrics (font units), and the names it's
+ * installed under.
+ */
+const FALLBACK_FACES: Record<(typeof fontFallbacks)[number], { local: string[]; unitsPerEm: number; xAvgCharWidth: number }> = {
+  sans: { local: ['Arial', 'ArialMT'], unitsPerEm: 2048, xAvgCharWidth: 904 },
+  serif: { local: ['Times New Roman', 'TimesNewRomanPSMT'], unitsPerEm: 2048, xAvgCharWidth: 821 },
+  mono: { local: ['Courier New', 'CourierNewPSMT'], unitsPerEm: 2048, xAvgCharWidth: 1229 },
+};
+
+/** The CSS name of a family's size-matched fallback face. */
+export const fontFallbackFaceName = (familyId: string) => `${fontFamilyCssName(familyId)} Fallback`;
+
+const percent = (value: number) => `${(value * 100).toFixed(2)}%`;
+
+/**
+ * A size-matched fallback face for a family (decision 0114): a system font scaled to the family's average character
+ * width, with its ascent, descent and line gap, so text barely moves when the real font arrives. Empty when the
+ * family's main file has no metrics.
+ */
+export function fallbackFaceCss(family: ThemeFontFamily): string {
+  const metrics = mainFontFile(family.files)?.metrics;
+  if (!metrics) return '';
+  const face = FALLBACK_FACES[family.fallback];
+  const sizeAdjust = metrics.xAvgCharWidth ? metrics.xAvgCharWidth / metrics.unitsPerEm / (face.xAvgCharWidth / face.unitsPerEm) : 1;
+  const scale = metrics.unitsPerEm * sizeAdjust;
+  return (
+    `@font-face{font-family:'${fontFallbackFaceName(family.id)}';src:${face.local.map((name) => `local('${name}')`).join(',')};` +
+    `size-adjust:${percent(sizeAdjust)};ascent-override:${percent(metrics.ascent / scale)};descent-override:${percent(metrics.descent / scale)};` +
+    `line-gap-override:${percent(metrics.lineGap / scale)};}`
+  );
+}
+
+/** A library family's full CSS `font-family` value, with its fallback face when it has one. */
+export const familyFontStack = (family: ThemeFontFamily) =>
+  fontStack(fontFamilyCssName(family.id), family.fallback, mainFontFile(family.files)?.metrics ? fontFallbackFaceName(family.id) : undefined);
+
+/** The families the theme's roles use, if they exist and have files. */
+export function themeFontFamilies(families: readonly ThemeFontFamily[], fonts: { display?: string; body?: string } | undefined) {
+  const find = (id?: string) => (id ? families.find((family) => family.id === id && family.files.length > 0) : undefined);
+  return { display: find(fonts?.display), body: find(fonts?.body) };
+}
+
+/**
+ * The theme's font CSS (decisions 0111, 0114): `@font-face` rules for every library family and their fallback faces,
+ * then `--font-display` / `--font-body` pointed at the families the theme uses. A role without a usable family keeps
+ * Inithium's default. The api writes it into each app's page and the apps apply it again at runtime.
+ */
+export function themeFontsCss(families: readonly ThemeFontFamily[], fonts: { display?: string; body?: string } | undefined): string {
+  const faces = families.flatMap((family) => [fontFaceCss(fontFamilyCssName(family.id), family.files), fallbackFaceCss(family)]).filter(Boolean);
+  const roles = themeFontFamilies(families, fonts);
+  const variables = (['display', 'body'] as const)
+    .flatMap((role) => {
+      const family = roles[role];
+      return family ? [`--font-${role}:${familyFontStack(family)};`] : [];
+    })
+    .join('');
+  return [...faces, ...(variables ? [`:root{${variables}}`] : [])].join('\n');
+}
+
+/** The theme fonts' main files, for the page to preload (decision 0114). */
+export function themeFontPreloads(families: readonly ThemeFontFamily[], fonts: { display?: string; body?: string } | undefined): FontFaceSource[] {
+  const roles = themeFontFamilies(families, fonts);
+  const files = [roles.display, roles.body].flatMap((family) => {
+    const file = family ? mainFontFile(family.files) : undefined;
+    return file ? [file] : [];
+  });
+  return files.filter((file, index) => files.findIndex((other) => other.url === file.url) === index);
 }
 
 /** How the CMS names a weight, e.g. 'Bold 700' or 'Variable 300–800'. */

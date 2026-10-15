@@ -1,15 +1,15 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { assetsRouter, fontFamiliesRouter, startStorage } from '@inithium/api-assets';
+import { assetsRouter, backfillFontFamilyMetrics, fontFamiliesRouter, startStorage } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
 import { apiErrorHandler, apiNotFound } from '@inithium/api-http';
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { profilesRouter } from '@inithium/api-profiles';
-import { seedSiteSettings, settingsRouter } from '@inithium/api-settings';
+import { renderAppPage, seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
 import { registeredUserDeletionHooks } from './app/plugins.registry';
@@ -51,9 +51,11 @@ function serveSpa(mountPath: string, dir: string) {
   const indexHtml = join(dir, 'index.html');
   if (!existsSync(indexHtml)) return;
 
-  app.use(mountPath, express.static(dir));
-  app.get(mountPath === '/' ? '/{*splat}' : `${mountPath}{/*splat}`, (_req, res) => {
-    res.sendFile(indexHtml);
+  // index.html is never sent as a static file: every page gets the theme's fonts written into it (decision 0114).
+  const template = readFileSync(indexHtml, 'utf8');
+  app.use(mountPath, express.static(dir, { index: false }));
+  app.get(mountPath === '/' ? '/{*splat}' : `${mountPath}{/*splat}`, async (_req, res) => {
+    res.set('Cache-Control', 'no-cache').type('html').send(await renderAppPage(template));
   });
 }
 
@@ -65,6 +67,7 @@ async function start() {
   await connectDatabase(env.MONGODB_URI);
   await seedDevUser({ email: env.SEED_DEV_EMAIL, password: env.SEED_DEV_PASSWORD });
   await backfillUserProfiles();
+  await backfillFontFamilyMetrics();
   await seedSiteSettings();
   await seedCorePages();
 

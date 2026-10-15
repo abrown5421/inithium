@@ -13,6 +13,8 @@ const fontFamilyFileSchema = new Schema(
       required: true,
     },
     style: { type: String, enum: ['normal', 'italic'], required: true },
+    // The file's measurements, for its fallback face (decision 0114), validated by fontMetricsSchema.
+    metrics: { type: Schema.Types.Mixed },
   },
   { _id: false },
 );

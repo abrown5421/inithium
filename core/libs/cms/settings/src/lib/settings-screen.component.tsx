@@ -5,6 +5,7 @@ import {
   focusFirstError,
   readApiFailure,
   useAlerts,
+  useGetFontFamiliesQuery,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
   type FieldErrors,
@@ -13,6 +14,7 @@ import { AssetField } from '@inithium/cms-media';
 import { Button, Container, Image, Input, Loader, Text } from '@inithium/shared-ui-components';
 import { defaultLogo, defaultTheme, themeColorProblem } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
+import { DEFAULT_FONT, ThemeFontField } from './theme-font-field.component';
 
 type Draft = {
   siteTitle: string;
@@ -23,9 +25,21 @@ type Draft = {
   colors: Record<ThemeColor, string>;
   /** Whether the site has its own theme; false saves no theme, so it follows Inithium's defaults. */
   customTheme: boolean;
+  /** Each theme font's family id, or DEFAULT_FONT. */
+  fontDisplay: string;
+  fontBody: string;
 };
 
-const FIELDS = ['siteTitle', 'logo.assetId', 'logo.alt', 'favicon.assetId', 'copyright', ...themeColors.map((token) => `theme.colors.${token}` as const)] as const;
+const FIELDS = [
+  'siteTitle',
+  'logo.assetId',
+  'logo.alt',
+  'favicon.assetId',
+  'copyright',
+  ...themeColors.map((token) => `theme.colors.${token}` as const),
+  'fonts.display',
+  'fonts.body',
+] as const;
 type Field = (typeof FIELDS)[number];
 
 const draftOf = (settings: SiteSettings): Draft => ({
@@ -36,6 +50,8 @@ const draftOf = (settings: SiteSettings): Draft => ({
   copyright: settings.copyright ?? '',
   colors: { ...(settings.theme ?? defaultTheme).colors },
   customTheme: Boolean(settings.theme),
+  fontDisplay: settings.fonts?.display ?? DEFAULT_FONT,
+  fontBody: settings.fonts?.body ?? DEFAULT_FONT,
 });
 
 function Section({ title, description, children }: { title: string; description: string; children: ReactNode }) {
@@ -63,12 +79,14 @@ function Section({ title, description, children }: { title: string; description:
 }
 
 /**
- * The CMS's Settings screen (decisions 0082, 0087 and 0101, needs settings.edit): the site's title, logo, favicon and copyright
- * holder, and its theme colours as hex codes, each previewing the scale generated from it. Save reports problems
- * like every CMS form; the CMS takes on a new theme as soon as it's saved.
+ * The CMS's Settings screen (decisions 0082, 0087, 0101 and 0111, needs settings.edit): the site's title, logo, favicon and
+ * copyright holder, its theme colours as hex codes, each previewing the scale generated from it, and its display and
+ * body fonts from the font library. Save reports problems like every CMS form; the CMS takes on a new theme as soon as
+ * it's saved.
  */
 export function SettingsScreen() {
   const { data: settings, isLoading, isError, refetch } = useGetSettingsQuery();
+  const { data: families = [] } = useGetFontFamiliesQuery();
   const [updateSettings, { isLoading: saving }] = useUpdateSettingsMutation();
   const { show: showAlert } = useAlerts();
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -119,6 +137,14 @@ export function SettingsScreen() {
       ...(draft.customTheme
         ? { theme: { colors: Object.fromEntries(themeColors.map((token) => [token, normalizeHex(draft.colors[token])])) as Draft['colors'] } }
         : {}),
+      ...(draft.fontDisplay !== DEFAULT_FONT || draft.fontBody !== DEFAULT_FONT
+        ? {
+            fonts: {
+              ...(draft.fontDisplay !== DEFAULT_FONT ? { display: draft.fontDisplay } : {}),
+              ...(draft.fontBody !== DEFAULT_FONT ? { body: draft.fontBody } : {}),
+            },
+          }
+        : {}),
     };
     const parsed = siteSettingsInputSchema.safeParse(input);
     const found: FieldErrors<Field> = parsed.success ? {} : fieldErrorsFrom<Field>(parsed.error.issues);
@@ -136,7 +162,9 @@ export function SettingsScreen() {
     } catch (saveError) {
       const failure = readApiFailure(saveError);
       if (failure.issues) return fail(fieldErrorsFrom<Field>(failure.issues), "We couldn't save the settings", 'Check the highlighted fields.');
-      fail({}, "We couldn't save the settings", failure.message ?? 'Something went wrong. Please try again.');
+      const message = failure.message ?? 'Something went wrong. Please try again.';
+      const field = failure.field && (FIELDS as readonly string[]).includes(failure.field) ? (failure.field as Field) : undefined;
+      fail(field ? { [field]: message } : {}, "We couldn't save the settings", message);
     }
   };
 
@@ -148,7 +176,7 @@ export function SettingsScreen() {
             Settings
           </Text>
           <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-            Your site’s name, logo and colours.
+            Your site’s name, logo, colours and fonts.
           </Text>
         </Container>
 
@@ -243,6 +271,16 @@ export function SettingsScreen() {
             >
               Reset to defaults
             </Button>
+          </Container>
+        </Section>
+
+        <Section
+          title="Theme fonts"
+          description="The site’s two fonts, from the font library. Upload fonts and group them into families on the Media screen."
+        >
+          <Container grid={{ columns: { base: 1, md: 2 }, gap: 24 }}>
+            <ThemeFontField themeRole="display" value={draft.fontDisplay} onValueChange={(fontDisplay) => change({ fontDisplay })} families={families} error={errors['fonts.display']} />
+            <ThemeFontField themeRole="body" value={draft.fontBody} onValueChange={(fontBody) => change({ fontBody })} families={families} error={errors['fonts.body']} />
           </Container>
         </Section>
 

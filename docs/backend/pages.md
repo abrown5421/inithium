@@ -38,7 +38,7 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 
 | Endpoint | Who | Does |
 | --- | --- | --- |
-| `GET /api/site` | Anyone | The site bundle `web` loads at startup: `{ settings, pages }`, with every published page as a `PublicPage` (`siteBundleSchema`). |
+| `GET /api/site` | Anyone | The site bundle `web` loads at startup: `{ settings, pages, fontFamilies }`, with every published page as a `PublicPage` and every font family as a `SiteFontFamily` (its id, fallback type and files; [0114](../decisions/0114-load-the-clients-fonts-without-a-flash.md)) (`siteBundleSchema`). |
 | `GET /api/pages` | `pages.edit` | Every page, sorted by path. |
 | `GET /api/pages/templates` | `pages.create` | The reusable templates new pages can be made from: `ReusableTemplate[]` (`key`, `label`, `description`, `layouts`). Today only `content`. |
 | `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |

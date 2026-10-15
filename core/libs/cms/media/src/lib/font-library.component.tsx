@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fontFamilyCssName, fontWeightLabel, MAX_FONT_FAMILIES, type Asset, type FontFamilyRecord } from '@inithium/shared-contracts';
+import { useGetSiteQuery } from '@inithium/shared-data-access';
 import { Button, Container, Text } from '@inithium/shared-ui-components';
 import { FontFaces } from '@inithium/shared-ui-theme';
 import { AssetGrid } from './asset-grid.component';
@@ -28,6 +29,9 @@ export function FontLibrary({ families, looseFonts, onSelectFile }: FontLibraryP
   const [editing, setEditing] = useState<FontFamilyRecord | null>(null);
   const [creating, setCreating] = useState(false);
   const full = families.length >= MAX_FONT_FAMILIES;
+  // Which families the theme uses (decision 0111): they can't be removed until Settings chooses another.
+  const themeFonts = useGetSiteQuery().data?.settings.fonts;
+  const rolesOf = (family: FontFamilyRecord) => (['display', 'body'] as const).filter((role) => themeFonts?.[role] === family.id);
 
   return (
     <Container flex={{ direction: 'column', gap: 24 }}>
@@ -55,7 +59,7 @@ export function FontLibrary({ families, looseFonts, onSelectFile }: FontLibraryP
               {/* A plain <button> around the card: Button is a fixed-height row and can't hold a card (decision 0092). */}
               <button
                 type="button"
-                aria-label={`${family.name}, ${coverage(family)}`}
+                aria-label={`${family.name}, ${coverage(family)}${rolesOf(family).length ? `, the site’s ${rolesOf(family).join(' and ')} font` : ''}`}
                 onClick={() => setEditing(family)}
                 style={{ display: 'block', width: '100%', padding: 0, border: 0, background: 'none', font: 'inherit', color: 'inherit', textAlign: 'start', cursor: 'pointer', borderRadius: 8 }}
               >
@@ -75,6 +79,11 @@ export function FontLibrary({ families, looseFonts, onSelectFile }: FontLibraryP
                   <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }} truncate={2}>
                     {coverage(family)}
                   </Text>
+                  {rolesOf(family).length > 0 && (
+                    <Text as="span" fontSize={12} fontWeight={600} textColor={{ color: 'primary', intensity: 700 }}>
+                      The site’s {rolesOf(family).join(' and ')} font
+                    </Text>
+                  )}
                 </Container>
               </button>
             </Container>

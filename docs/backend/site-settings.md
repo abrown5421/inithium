@@ -22,9 +22,10 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | `favicon` | `{ assetId }`, optional | The browser-tab icon of `web` and the CMS: an uploaded ICO, PNG or SVG ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). Without one, both show Inithium's default `favicon.ico` (the Inithium logo, bundled in each app). Its asset can't be deleted while it's the favicon. |
 | `copyright` | string, 1–100, optional | The Footer's copyright holder. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
+| `fonts` | `{ display?, body? }`, optional | The theme's fonts (`themeFontsSchema`): the [font family](assets.md#font-families) id each role uses ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)). A role left out uses Inithium's default (Bruno Ace SC for `display`, Merriweather Sans for `body`). A family must be in the library and have at least one file (400 naming `fonts.display` or `fonts.body` otherwise). |
 | `updatedAt` | ISO date-time | |
 
-The theme's fonts come later (the `display` and `body` families, [0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), and so do SEO defaults. Logos saved as URLs before assets existed are dropped, so those sites show the default logo until one is chosen.
+SEO defaults come later. Logos saved as URLs before assets existed are dropped, so those sites show the default logo until one is chosen.
 
 ## Endpoints
 
@@ -32,7 +33,15 @@ The theme's fonts come later (the `display` and `body` families, [0111](../decis
 | --- | --- | --- |
 | `GET /api/site` | Anyone | Returns the settings with the published pages; see [Pages](pages.md#endpoints). |
 | `GET /api/settings` | `settings.edit` | The settings. |
-| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `favicon`, `copyright`, `theme`) are cleared, so leaving out `theme` returns the site to core's default colours. 400 with Zod `issues` if invalid. |
+| `PUT /api/settings` | `settings.edit` | Replaces them with a `siteSettingsInputSchema` body; fields left out (`logo`, `favicon`, `copyright`, `theme`, `fonts`) are cleared, so leaving out `theme` returns the site to core's default colours and leaving out `fonts` to its default fonts. 400 with Zod `issues` if invalid. |
+
+## Theme fonts in the page
+
+`web` and the CMS draw with the theme's fonts from the first paint ([0114](../decisions/0114-load-the-clients-fonts-without-a-flash.md)):
+
+- **The api writes the font rules into each app's `index.html`** when it serves it (`renderAppPage()`, `themeFontsHead()` in `@inithium/api-settings`): a `<link rel="preload" … crossorigin>` for each theme font's main file (the upright one covering 400), then a `<style id="inithium-theme-fonts">` holding `themeFontsCss()`. That's every library family's `@font-face` rules, a size-matched fallback face for each, and `--font-display` / `--font-body` pointed at the chosen families. Pages are sent with `Cache-Control: no-cache`. The head is cached until the library or the theme's fonts change (`markFontsChanged()` in `@inithium/api-fonts`). If it can't be built, the page goes out as built.
+- **Fallback faces** are a system font (Arial, Times New Roman or Courier New, by the family's fallback type) with `size-adjust` and ascent, descent and line-gap overrides computed from the main file's metrics (`fallbackFaceCss()`), so text barely moves when the real font arrives. Families saved before files kept their metrics get them on the next start (`backfillFontFamilyMetrics()`).
+- **The apps apply the same CSS again at runtime** with `ThemeFonts` (`@inithium/shared-ui-theme`), from the site bundle's `fontFamilies` and `settings.fonts`. That way a change saved in the CMS shows at once, and the Vite dev servers, which serve `index.html` themselves, still get the fonts (with a brief flash in development only).
 
 ## Seeding
 
