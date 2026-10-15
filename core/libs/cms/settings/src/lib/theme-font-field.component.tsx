@@ -1,8 +1,7 @@
-import { fontFamilyCssName, type FontFamilyRecord } from '@inithium/shared-contracts';
-import { FontSample } from '@inithium/cms-media';
-import { Container, Select, Text } from '@inithium/shared-ui-components';
+import { FontField, FontSample } from '@inithium/cms-media';
+import { Container, Text } from '@inithium/shared-ui-components';
 
-/** The Select's value for Inithium's default font (Radix selects can't hold an empty value). */
+/** The draft's value for Inithium's default font. */
 export const DEFAULT_FONT = 'default';
 
 const ROLES = {
@@ -29,41 +28,41 @@ export type ThemeFontFieldProps = {
   /** A family id, or DEFAULT_FONT. */
   value: string;
   onValueChange: (value: string) => void;
-  families: readonly FontFamilyRecord[];
   error?: string | true;
 };
 
 /**
- * Chooses the library family a theme role uses (decision 0111), or Inithium's default, with a sample drawn in it.
- * Families without files can't be chosen. The CMS declares every family (CmsTheme), so the sample draws at once.
+ * Chooses the library family a theme role uses (decision 0111), or Inithium's default, with a sample drawn in it. A
+ * FontField without the roles (a role can't point at a role); families without files aren't offered.
  */
-export function ThemeFontField({ themeRole, value, onValueChange, families, error }: ThemeFontFieldProps) {
+export function ThemeFontField({ themeRole, value, onValueChange, error }: ThemeFontFieldProps) {
   const config = ROLES[themeRole];
-  const family = families.find((candidate) => candidate.id === value);
+  const familyId = value === DEFAULT_FONT ? undefined : value;
   return (
     <Container flex={{ direction: 'column', gap: 12 }} minWidth={0}>
-      <Select
+      <FontField
         name={`fonts.${themeRole}`}
         label={config.label}
         helperText={config.helperText}
-        value={value}
-        onValueChange={onValueChange}
-        options={[
-          { value: DEFAULT_FONT, label: `Inithium’s default (${config.defaultName})` },
-          ...families.map((candidate) => ({
-            value: candidate.id,
-            label: candidate.files.length ? candidate.name : `${candidate.name} (no files)`,
-            disabled: !candidate.files.length,
-          })),
-        ]}
+        roles={false}
+        emptyLabel={`Inithium’s default (${config.defaultName})`}
+        value={familyId ? { familyId } : undefined}
+        onChange={(next) => onValueChange(next && typeof next === 'object' ? next.familyId : DEFAULT_FONT)}
         error={error}
       />
       <Container padding={{ all: 16 }} radius={{ all: 8 }} bgColor={{ color: 'surface', intensity: 100 }} minWidth={0}>
-        <FontSample cssName={family ? fontFamilyCssName(family.id) : config.defaultCssName} fallback={family?.fallback ?? 'sans'}>
-          <Text as="span" fontSize={config.size} lineHeight={1.3}>
+        {familyId ? (
+          <Text as="span" fontFamily={{ familyId }} fontSize={config.size} lineHeight={1.3}>
             {config.sample}
           </Text>
-        </FontSample>
+        ) : (
+          // Inithium's own font, not whatever the role currently uses: only FontSample can name it directly.
+          <FontSample cssName={config.defaultCssName} fallback="sans">
+            <Text as="span" fontSize={config.size} lineHeight={1.3}>
+              {config.sample}
+            </Text>
+          </FontSample>
+        )}
       </Container>
     </Container>
   );

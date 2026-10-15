@@ -31,7 +31,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 | [`as`](#as) | element name | `'p'` | The element to render |
 | [`htmlFor`](#htmlfor) | `string` | none | The input a label belongs to |
 | [`children`](#children) | `ReactNode` | none | The text |
-| [`fontFamily`](#fontfamily) | `Variants<'display' \| 'body'>` | `'body'` | Theme font family |
+| [`fontFamily`](#fontfamily) | `Variants<'display' \| 'body' \| { familyId }>` | `'body'` | A theme font or a library family |
 | [`fontSize`](#fontsize) | `Variants<number>` | inherited | px |
 | [`fontWeight`](#fontweight) | `Variants<100…900>` | inherited | Weight |
 | [`align`](#align) | `Variants<…>` | inherited | Text alignment |
@@ -89,11 +89,13 @@ The text, which can include other components. **Type:** `ReactNode`.
 
 #### `fontFamily`
 
-One of the theme's two families ([Theme: fonts](../theme/index.md#fonts)). **Type:** `Variants<'display' | 'body'>`. **Default:** `body`, the page default. Planned: library families as `{ familyId }` ([0112](../../decisions/0112-give-text-typography-props-with-library-font-families.md)).
+One of the theme's two families, or a family from the font library by its id ([Theme: fonts](../theme/index.md#fonts), [0112](../../decisions/0112-give-text-typography-props-with-library-font-families.md)). Prefer the roles: they follow a re-brand, while a library family stays that family. A library family reads `--font-family-<id>`, which the theme's font CSS sets; a family that no longer exists draws in the body font. Choose one in a form with [FontPicker](../composites/font-picker.md). **Type:** `Variants<'display' | 'body' | { familyId: string }>` (`FontFamilyValue`). **Default:** `body`, the page default.
 
 ```tsx
 <Text fontFamily="display">Brand heading</Text>
 <Text fontFamily="body">Body text</Text>
+<Text fontFamily={{ familyId: '6ad0ed20e70f1c3dfcbe376a' }}>In a library font</Text>
+<Text fontFamily={{ base: 'body', md: 'display' }}>Display from md up</Text>
 ```
 
 #### `fontSize`

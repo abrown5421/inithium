@@ -19,6 +19,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [Breadcrumbs](breadcrumbs.md) | The path from the top of a site to the current page |
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
+| [FontPicker](font-picker.md) | Choosing a theme font or a font library family, each shown in its own font |
 | [Footer](footer.md) | The site footer: main links over the copyright and secondary links |
 | [IconPicker](icon-picker.md) | Choosing a Lucide icon from a searchable grid |
 | [ImageCropper](image-cropper.md) | Cropping or fitting an image to a shape before it is uploaded |
@@ -30,4 +31,4 @@ Composites combine components into larger pieces, for example a modal built from
 | [RichTextView](rich-text-view.md) | Drawing saved rich text, never as HTML |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
-Every composite planned for the first version is built. Layouts come next.
+Every composite planned for the first version is built, plus FontPicker (0111). Layouts come next.

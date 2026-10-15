@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import type { fontFamilySchema } from '../ui/typography.schema';
 import type {
   fontFallbackSchema,
   fontFamilyCreateSchema,
@@ -22,3 +23,5 @@ export type FontFamilyCreate = z.infer<typeof fontFamilyCreateSchema>;
 export type FontFamilyUpdate = z.infer<typeof fontFamilyUpdateSchema>;
 export type SiteFontFamily = z.infer<typeof siteFontFamilySchema>;
 export type ThemeFonts = z.infer<typeof themeFontsSchema>;
+/** A font family value: a theme role or `{ familyId }` (decision 0112). */
+export type FontFamilyValue = z.infer<typeof fontFamilySchema>;

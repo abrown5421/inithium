@@ -5,7 +5,6 @@ import {
   focusFirstError,
   readApiFailure,
   useAlerts,
-  useGetFontFamiliesQuery,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
   type FieldErrors,
@@ -86,7 +85,6 @@ function Section({ title, description, children }: { title: string; description:
  */
 export function SettingsScreen() {
   const { data: settings, isLoading, isError, refetch } = useGetSettingsQuery();
-  const { data: families = [] } = useGetFontFamiliesQuery();
   const [updateSettings, { isLoading: saving }] = useUpdateSettingsMutation();
   const { show: showAlert } = useAlerts();
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -279,8 +277,8 @@ export function SettingsScreen() {
           description="The site’s two fonts, from the font library. Upload fonts and group them into families on the Media screen."
         >
           <Container grid={{ columns: { base: 1, md: 2 }, gap: 24 }}>
-            <ThemeFontField themeRole="display" value={draft.fontDisplay} onValueChange={(fontDisplay) => change({ fontDisplay })} families={families} error={errors['fonts.display']} />
-            <ThemeFontField themeRole="body" value={draft.fontBody} onValueChange={(fontBody) => change({ fontBody })} families={families} error={errors['fonts.body']} />
+            <ThemeFontField themeRole="display" value={draft.fontDisplay} onValueChange={(fontDisplay) => change({ fontDisplay })} error={errors['fonts.display']} />
+            <ThemeFontField themeRole="body" value={draft.fontBody} onValueChange={(fontBody) => change({ fontBody })} error={errors['fonts.body']} />
           </Container>
         </Section>
 

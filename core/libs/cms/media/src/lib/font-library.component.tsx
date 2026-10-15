@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { fontFamilyCssName, fontWeightLabel, MAX_FONT_FAMILIES, type Asset, type FontFamilyRecord } from '@inithium/shared-contracts';
+import { fontWeightLabel, MAX_FONT_FAMILIES, type Asset, type FontFamilyRecord } from '@inithium/shared-contracts';
 import { useGetSiteQuery } from '@inithium/shared-data-access';
 import { Button, Container, Text } from '@inithium/shared-ui-components';
-import { FontFaces } from '@inithium/shared-ui-theme';
 import { AssetGrid } from './asset-grid.component';
 import { FontFamilyDialog } from './font-family-dialog.component';
-import { FontSample } from './font-sample.component';
 
 export type FontLibraryProps = {
   families: readonly FontFamilyRecord[];
@@ -35,8 +33,6 @@ export function FontLibrary({ families, looseFonts, onSelectFile }: FontLibraryP
 
   return (
     <Container flex={{ direction: 'column', gap: 24 }}>
-      <FontFaces sets={families.map((family) => ({ cssName: fontFamilyCssName(family.id), files: family.files }))} />
-
       <Container flex={{ direction: { base: 'column', md: 'row' }, align: { base: 'start', md: 'center' }, justify: 'between', gap: 12 }}>
         <Container flex={{ direction: 'column', gap: 4 }}>
           <Text as="h2" fontSize={20} fontWeight={600}>
@@ -71,11 +67,10 @@ export function FontLibrary({ families, looseFonts, onSelectFile }: FontLibraryP
                   borderColor={{ base: 'transparent', hover: { color: 'primary', intensity: 500, opacity: 50 } }}
                   bgColor={{ base: { color: 'surface', intensity: 50 }, hover: { color: 'surface', intensity: 100 } }}
                 >
-                  <FontSample cssName={fontFamilyCssName(family.id)} fallback={family.fallback}>
-                    <Text as="span" fontSize={32} lineHeight={1.2} truncate={1}>
-                      Aa {family.name}
-                    </Text>
-                  </FontSample>
+                  {/* The CMS declares every family (CmsTheme), so Text can draw each in its own font (decision 0112). */}
+                  <Text as="span" fontFamily={{ familyId: family.id }} fontSize={32} lineHeight={1.2} truncate={1}>
+                    Aa {family.name}
+                  </Text>
                   <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }} truncate={2}>
                     {coverage(family)}
                   </Text>

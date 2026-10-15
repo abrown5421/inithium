@@ -12,6 +12,7 @@ import type {
   drawerPropsSchema,
   footerPropsSchema,
   iconPickerPropsSchema,
+  fontPickerPropsSchema,
   iconPropsSchema,
   inputPropsSchema,
   loaderPropsSchema,
@@ -85,6 +86,7 @@ export type FooterSerializableProps = z.infer<typeof footerPropsSchema>;
 
 /** An IconPicker's storable props: label, placeholder, helper text, required, input style props and animation. */
 export type IconPickerSerializableProps = z.infer<typeof iconPickerPropsSchema>;
+export type FontPickerSerializableProps = z.infer<typeof fontPickerPropsSchema>;
 
 /** A Navbar's storable props: logo, title, links, addresses, collapse point, alignment, colours, spacing and animation. */
 export type NavbarSerializableProps = z.infer<typeof navbarPropsSchema>;
