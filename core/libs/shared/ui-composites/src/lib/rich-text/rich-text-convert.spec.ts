@@ -1,6 +1,8 @@
+import type { JSONContent } from '@tiptap/react';
 import { describe, expect, it } from 'vitest';
 import { richTextDocumentSchema, type RichTextDocument } from '@inithium/shared-contracts';
 import { attrsToLink, linkToAttrs, PAGE_LINK_SCHEME, richTextToTiptap, tiptapToRichText } from './rich-text-convert.service';
+import { RICH_TEXT_STYLE_MARK, richTextStyleCss } from './rich-text-style.extension';
 
 const everything: RichTextDocument = {
   type: 'doc',
@@ -78,5 +80,44 @@ describe('links', () => {
   // eslint-disable-next-line no-script-url -- checking that script addresses are refused
   it.each(['javascript:alert(1)', 'data:text/html,hi', '/relative', '', `${PAGE_LINK_SCHEME}:`])('refuses %j', (href) => {
     expect(attrsToLink({ href })).toBeUndefined();
+  });
+});
+
+describe('restyled words (decision 0115)', () => {
+  const FAMILY = '0123456789abcdef01234567';
+  const doc: RichTextDocument = {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          { type: 'text', text: 'big', marks: [{ type: 'bold' }, { type: 'textStyle', attrs: { family: { familyId: FAMILY }, weight: 800, size: 1.5, color: 'accent' } }] },
+        ],
+      },
+    ],
+  };
+
+  it('travel through TipTap as our own mark and come back unchanged', () => {
+    const tiptap = richTextToTiptap(doc);
+    expect(tiptap.content?.[0]?.content?.[0]?.marks).toContainEqual({ type: RICH_TEXT_STYLE_MARK, attrs: { family: { familyId: FAMILY }, weight: 800, size: 1.5, color: 'accent' } });
+    expect(tiptapToRichText(tiptap)).toEqual(doc);
+  });
+
+  it('drop attributes left empty by the editor, and styles that fail the contract', () => {
+    const run = (marks: NonNullable<JSONContent['marks']>): JSONContent => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x', marks }] }] });
+    expect(tiptapToRichText(run([{ type: RICH_TEXT_STYLE_MARK, attrs: { family: 'display', weight: null, size: null, color: null } }]))).toEqual({
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x', marks: [{ type: 'textStyle', attrs: { family: 'display' } }] }] }],
+    });
+    const plain = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x' }] }] };
+    expect(tiptapToRichText(run([{ type: RICH_TEXT_STYLE_MARK, attrs: { family: { familyId: 'url(evil)' } } }]))).toEqual(plain);
+    // TipTap's own text style (raw CSS) isn't ours, so pasted fonts and colours are dropped.
+    expect(tiptapToRichText(run([{ type: 'textStyle', attrs: { fontFamily: 'Comic Sans MS', color: '#f00' } }]))).toEqual(plain);
+  });
+
+  it('draw through the theme’s variables in the editor', () => {
+    expect(richTextStyleCss({ family: { familyId: FAMILY }, weight: 800, size: 1.5, color: 'accent' })).toBe(
+      `font-family: var(--font-family-${FAMILY}, var(--font-body)); font-weight: 800; font-size: 1.5em; color: var(--color-accent-500)`,
+    );
   });
 });

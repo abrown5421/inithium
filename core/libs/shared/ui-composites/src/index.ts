@@ -19,4 +19,5 @@ export { avatarStyleName, createAvatarRecipe, createAvatarSeed } from './lib/ava
 export { renderCrop, type CropArea, type ImageCrop, type RenderCropOptions } from './lib/image-cropper/image-crop.service';
 export * from './lib/rich-text/rich-text-convert.service';
 export * from './lib/rich-text/rich-text-field.component';
+export * from './lib/rich-text/rich-text-style.extension';
 export * from './lib/rich-text/rich-text-view.component';

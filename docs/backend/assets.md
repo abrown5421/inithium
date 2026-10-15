@@ -11,7 +11,7 @@ decisions: ["0098", "0099", "0101", "0029"]
 
 Assets are uploaded files: images, fonts, documents, audio and video. The api owns them in `@inithium/api-assets` ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). Staff manage them on the CMS's [Media screen](../architecture/cms.md#media) and pick them with `AssetField`.
 
-> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). Step C, font families ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), is being built in phases: the [font library](#font-families) and the theme's fonts are built; the font picker and fonts in the page builder are not built yet.
+> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). Step C, font families ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), is being built in phases: the [font library](#font-families), the theme's fonts, the font picker and fonts in the page builder are all built ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)).
 
 ## Rules
 
@@ -94,7 +94,7 @@ Font files are grouped into **families** in a font library ([0111](../decisions/
 - **The theme's fonts:** Settings points `display` and `body` at families ([Site settings](site-settings.md)), and the api writes them into each app's page so they load without a flash ([Theme fonts in the page](site-settings.md#theme-fonts-in-the-page)). A family the theme uses can't be removed (409), and its only file can't be deleted (blocking usage). Add another file or choose another font in Settings first.
 - **With `R2_PUBLIC_URL`**, fonts come from the bucket's address, another origin, and browsers only use cross-origin fonts with CORS. Give the bucket a CORS policy allowing `GET` from the site's origin (Cloudflare dashboard → R2 → the bucket → Settings → CORS policy). Without `R2_PUBLIC_URL`, fonts are served from the site's own origin and need nothing.
 
-Not built yet: the font picker and fonts in the page builder ([0113](../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)).
+- **In page content:** blocks' typography and restyled words store `{ familyId }` ([Content pages](../architecture/content-pages.md#blocks)). Removing a family warns with the pages that use it (`GET /api/fonts/:id/usage`, `fontFamilyUsage()`), and that text then draws in the body font.
 
 ## Members' pictures
 
@@ -128,6 +128,7 @@ The font library is mounted at `/api/fonts`, all routes needing `assets.upload`:
 | --- | --- |
 | `GET /` | Every family, by name, each with its files (`assetId`, `filename`, `contentType`, `url`, `weight`, `style`). |
 | `POST /` | `{ name, fallback, assetIds }`: adds a family. 201; 400 for a file that isn't a font, no longer exists or overlaps another; 409 for a file in another family or a full library. |
+| `GET /:id/usage` | `{ places: [{ label, blocking }] }`: the theme's roles (blocking) and pages whose content, draft or published, uses it. |
 | `PATCH /:id` | Any of `{ name, fallback, assetIds }` (`assetIds` is the whole new list). |
 | `DELETE /:id` | 204. Its files stay. 409 while the theme uses it. |
 

@@ -1,9 +1,11 @@
 import { FontFamilyModel, findFontFamilyWithFile, markFontsChanged, type FontFamilyDocument } from '@inithium/api-fonts';
+import { PageModel } from '@inithium/api-pages';
 import { fontRolesUsing } from '@inithium/api-settings';
 import {
   fontFilesOverlap,
   fontWeightLabel,
   MAX_FONT_FAMILIES,
+  type AssetUsage,
   type FontFamilyCreate,
   type FontFamilyUpdate,
   type FontFileInfo,
@@ -68,6 +70,29 @@ export async function updateFontFamily(doc: FontFamilyDocument, update: FontFami
   const saved = await doc.save();
   markFontsChanged();
   return saved;
+}
+
+/** Whether a content document (draft or published) uses a family anywhere: a block's typography or restyled words. */
+function usesFamily(value: unknown, familyId: string): boolean {
+  if (Array.isArray(value)) return value.some((item) => usesFamily(item, familyId));
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  return record['familyId'] === familyId || Object.values(record).some((item) => usesFamily(item, familyId));
+}
+
+/**
+ * Where a family is used (decision 0111): the theme's roles, which stop it being removed, and pages whose content uses
+ * it, which only warn (that text then draws in the body font).
+ */
+export async function fontFamilyUsage(familyId: string): Promise<AssetUsage> {
+  const places: AssetUsage['places'] = (await fontRolesUsing(familyId)).map((role) => ({ label: `Site settings: the ${role} font`, blocking: true }));
+  const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
+  for (const page of pages) {
+    const content = page.content as { draft?: unknown; published?: unknown } | undefined;
+    if (usesFamily(content?.published, familyId)) places.push({ label: `Page: ${page.title}`, blocking: false });
+    else if (usesFamily(content?.draft, familyId)) places.push({ label: `Page: ${page.title} (unpublished changes)`, blocking: false });
+  }
+  return { places };
 }
 
 /** Removes a family from the library, unless the theme uses it (409). Its files stay in Media as loose fonts. */

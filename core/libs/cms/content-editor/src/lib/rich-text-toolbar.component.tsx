@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useEditorState, type Editor } from '@tiptap/react';
-import { contentLinkSchema, type ContentLink, type Page, type SolidColorValue } from '@inithium/shared-contracts';
+import { contentLinkSchema, type ContentLink, type Page, type RichTextStyleAttrs, type SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Tooltip, type IconName } from '@inithium/shared-ui-components';
-import { attrsToLink, linkToAttrs, Modal } from '@inithium/shared-ui-composites';
+import { attrsToLink, checkedStyleAttrs, linkToAttrs, Modal, RICH_TEXT_STYLE_MARK } from '@inithium/shared-ui-composites';
 import { LinkField } from './editor-fields.component';
+import { TextStyleDialog } from './text-style-dialog.component';
 
 export type RichTextToolbarProps = {
   editor: Editor;
@@ -17,7 +18,8 @@ type Tool = { label: string; icon: IconName; active: boolean; run: () => void };
 
 /**
  * The text formatting toolbar for the rich text block being edited (decision 0093): bold, italic, underline, link,
- * paragraph and sub-headings, lists and quote. It sits above the preview and drives the in-place editor.
+ * text style (font, weight, size and colour for the selected words, decision 0115), paragraph and sub-headings, lists
+ * and quote. It sits above the preview and drives the in-place editor.
  */
 export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) {
   const state = useEditorState({
@@ -27,6 +29,7 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
       italic: current.isActive('italic'),
       underline: current.isActive('underline'),
       link: current.isActive('link'),
+      styled: current.isActive(RICH_TEXT_STYLE_MARK),
       paragraph: current.isActive('paragraph') && !current.isActive('bulletList') && !current.isActive('orderedList'),
       h2: current.isActive('heading', { level: 2 }),
       h3: current.isActive('heading', { level: 3 }),
@@ -37,6 +40,7 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
     }),
   });
   const [linking, setLinking] = useState<ContentLink | null>(null);
+  const [styling, setStyling] = useState<RichTextStyleAttrs | null>(null);
   const chain = () => editor.chain().focus();
 
   const groups: Tool[][] = [
@@ -49,6 +53,13 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
         icon: 'link',
         active: state.link,
         run: () => setLinking(attrsToLink(editor.getAttributes('link')) ?? { type: 'url', href: 'https://' }),
+      },
+      {
+        label: 'Text style',
+        icon: 'type',
+        active: state.styled,
+        // The selection's current style, or none yet.
+        run: () => setStyling(checkedStyleAttrs(editor.getAttributes(RICH_TEXT_STYLE_MARK)) ?? {}),
       },
     ],
     [
@@ -63,6 +74,15 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
       { label: 'Quote', icon: 'text-quote', active: state.blockquote, run: () => chain().toggleBlockquote().run() },
     ],
   ];
+
+  // With nothing selected inside restyled words, the change covers those words; otherwise the selection.
+  const styleChain = () => (editor.state.selection.empty && state.styled ? chain().extendMarkRange(RICH_TEXT_STYLE_MARK) : chain());
+  const applyStyle = (attrs: Partial<RichTextStyleAttrs>) => {
+    const chosen = checkedStyleAttrs(attrs);
+    if (chosen) styleChain().setMark(RICH_TEXT_STYLE_MARK, { family: null, weight: null, size: null, color: null, ...chosen }).run();
+    else styleChain().unsetMark(RICH_TEXT_STYLE_MARK).run();
+    setStyling(null);
+  };
 
   const valid = linking ? contentLinkSchema.safeParse(linking) : null;
   const applyLink = () => {
@@ -93,6 +113,16 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
           ))}
         </Container>
       ))}
+      <TextStyleDialog
+        initial={styling}
+        styled={state.styled}
+        onApply={applyStyle}
+        onClear={() => {
+          styleChain().unsetMark(RICH_TEXT_STYLE_MARK).run();
+          setStyling(null);
+        }}
+        onClose={() => setStyling(null)}
+      />
       <Modal open={linking !== null} onOpenChange={(open) => !open && setLinking(null)} title="Link" description="Where the selected text links to." maxWidth={480}>
         {linking && (
           <Container flex={{ direction: 'column', gap: 20 }}>

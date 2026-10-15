@@ -17,6 +17,7 @@ import {
   useCreateFontFamilyMutation,
   useDeleteFontFamilyMutation,
   useGetAssetsQuery,
+  useGetFontFamilyUsageQuery,
   useUpdateFontFamilyMutation,
   useUploadAssetMutation,
   type FieldErrors,
@@ -80,6 +81,9 @@ export function FontFamilyDialog({ open, onClose, family, families }: FontFamily
   const [licence, setLicence] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const usage = useGetFontFamilyUsageQuery(family?.id ?? '', { skip: !family || !confirming });
+  const pagesUsing = usage.data?.places.filter((place) => !place.blocking) ?? [];
+  const themeUse = usage.data?.places.find((place) => place.blocking);
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
   if (open !== openedFor.open || family !== openedFor.family) {
     setOpenedFor({ open, family });
@@ -178,11 +182,17 @@ export function FontFamilyDialog({ open, onClose, family, families }: FontFamily
   // Save sits on the left: alerts appear bottom right and would cover it.
   const footer = confirming ? (
     <Container flex={{ direction: 'column', gap: 8 }}>
-      <Text as="p" fontSize={14}>
-        Remove {family?.name}? Its files stay in Media as loose fonts.
+      <Text as="p" fontSize={14} role="alert">
+        {themeUse
+          ? `${family?.name} can’t be removed while it’s one of the site’s fonts. Choose another in Settings first.`
+          : `Remove ${family?.name}? Its files stay in Media as loose fonts.${
+              pagesUsing.length
+                ? ` ${pagesUsing.length === 1 ? 'One page uses' : `${pagesUsing.length} pages use`} it (${pagesUsing.map((place) => place.label.replace(/^Page: /, '')).join(', ')}); that text will show in the body font.`
+                : ''
+            }`}
       </Text>
       <Container flex={{ direction: 'row', wrap: 'wrap', gap: 8 }}>
-        <Button color="red" leadingIcon="trash-2" loading={deleting.isLoading} onClick={() => void remove()}>
+        <Button color="red" leadingIcon="trash-2" loading={deleting.isLoading} disabled={usage.isFetching || Boolean(themeUse)} onClick={() => void remove()}>
           Remove family
         </Button>
         <Button variant="outlined" onClick={() => setConfirming(false)}>

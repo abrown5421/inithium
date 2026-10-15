@@ -12,6 +12,7 @@ import { assetUsage, createAsset, deleteAsset, updateAsset } from './assets.serv
 import { fontFamiliesRouter } from './font-families.routes';
 import { backfillFontFamilyMetrics } from './font-families.service';
 import { updateSiteSettings } from '@inithium/api-settings';
+import { PageModel } from '@inithium/api-pages';
 
 const app = createTestApiWithAuth((api) => {
   api.use('/assets', assetsRouter);
@@ -218,5 +219,27 @@ describe('backfillFontFamilyMetrics (decision 0114)', () => {
     await backfillFontFamilyMetrics();
     expect((await FontFamilyModel.findById(family._id))?.files[0]?.metrics).toEqual(metrics);
     await expect(backfillFontFamilyMetrics()).resolves.toBeUndefined();
+  });
+});
+
+describe('fontFamilyUsage (decision 0115)', () => {
+  it('lists the theme (blocking) and pages using the family in blocks or restyled words', async () => {
+    const font = await fakeFont('regular.woff2', 400);
+    const { client } = await signedInClient(app, 'admin');
+    const family = (await client.post<FontFamilyRecord>('/api/fonts', { name: 'Brand', fallback: 'sans', assetIds: [font._id] })).body;
+    const block = { id: 'h1', type: 'heading', text: 'Hi', level: 2, typography: { fontFamily: { familyId: family.id } } };
+    const words = { id: 'r1', type: 'rich-text', doc: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x', marks: [{ type: 'textStyle', attrs: { family: { familyId: family.id } } }] }] }] } };
+    const doc = (blocks: object[]) => ({ schemaVersion: 1, sections: [{ id: 's', layout: 'one', columns: [{ id: 'c', blocks }] }] });
+    await PageModel.create({ title: 'Home', path: '/', template: 'content', layout: 'default', layouts: ['default'], content: { draft: doc([block]), published: doc([block]) } });
+    await PageModel.create({ title: 'News', path: '/news', template: 'content', layout: 'default', layouts: ['default'], content: { draft: doc([words]) } });
+    await PageModel.create({ title: 'Other', path: '/other', template: 'content', layout: 'default', layouts: ['default'], content: { draft: doc([]) } });
+    await updateSiteSettings({ siteTitle: 'Acme', fonts: { body: family.id } });
+
+    const usage = await client.get<{ places: { label: string; blocking: boolean }[] }>(`/api/fonts/${family.id}/usage`);
+    expect(usage.body.places).toEqual([
+      { label: 'Site settings: the body font', blocking: true },
+      { label: 'Page: Home', blocking: false },
+      { label: 'Page: News (unpublished changes)', blocking: false },
+    ]);
   });
 });

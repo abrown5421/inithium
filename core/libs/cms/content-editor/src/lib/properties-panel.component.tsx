@@ -11,10 +11,12 @@ import {
   type SectionLayout,
 } from '@inithium/shared-contracts';
 import { AssetField } from '@inithium/cms-media';
+import { HEADING_SIZES } from '@inithium/shared-content';
 import { Container, Input, Select, Slider, Switch, Text, type IconName } from '@inithium/shared-ui-components';
 import { AutoIncrementingList, IconPicker, PolyBanner } from '@inithium/shared-ui-composites';
 import { BLOCK_TYPES, LAYOUT_LABELS } from './content-document.service';
 import { ColorField, LinkField } from './editor-fields.component';
+import { TypographyFields } from './typography-fields.component';
 
 /** Each field's problem, keyed by its path within the selected section or block, e.g. 'text' or 'buttons.0.label'. */
 export type FieldProblems = Record<string, string>;
@@ -178,6 +180,8 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
           />
           <AlignField value={block.align} onChange={(align) => onChange({ ...block, align })} />
           <ColorField label="Colour" value={block.textColor} onChange={(textColor) => onChange({ ...block, textColor })} initial={{ color: 'primary', intensity: 700 }} helperText="Off uses the section’s text colour." />
+          <Heading>Text style</Heading>
+          <TypographyFields value={block.typography} onChange={(typography) => onChange({ ...block, typography })} defaultSize={HEADING_SIZES[block.level]} />
         </>
       );
     case 'rich-text':
@@ -188,6 +192,11 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
           </Text>
           <AlignField value={block.align} onChange={(align) => onChange({ ...block, align })} />
           <ColorField label="Colour" value={block.textColor} onChange={(textColor) => onChange({ ...block, textColor })} initial={{ color: 'surface', intensity: 800 }} helperText="Off uses the section’s text colour." />
+          <Heading>Text style</Heading>
+          <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
+            For all the running text. Sub-headings keep the display font. To restyle some words, select them and use Text style in the toolbar.
+          </Text>
+          <TypographyFields value={block.typography} onChange={(typography) => onChange({ ...block, typography })} defaultSize={{ base: 16 }} />
         </>
       );
     case 'image':
@@ -218,6 +227,12 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
             />
           )}
           <Input label="Caption" value={block.caption ?? ''} onValueChange={(caption) => onChange({ ...block, caption: caption || undefined })} error={problems['caption']} />
+          {block.caption && (
+            <>
+              <ColorField label="Caption colour" value={block.captionColor} onChange={(captionColor) => onChange({ ...block, captionColor })} initial={{ color: 'surface', intensity: 700 }} helperText="Off uses a muted text colour." />
+              <TypographyFields part="Caption" value={block.captionTypography} onChange={(captionTypography) => onChange({ ...block, captionTypography })} defaultSize={{ base: 14 }} />
+            </>
+          )}
           <Switch
             label="Fill the column"
             checked={block.width === undefined || block.width === 'full'}
@@ -291,6 +306,16 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
             ]}
           />
           <ColorField label="Icon colour" value={block.iconColor} onChange={(iconColor) => onChange({ ...block, iconColor })} initial={{ color: 'primary', intensity: 500 }} helperText="Off uses primary." />
+          <Heading>Title style</Heading>
+          <ColorField label="Title colour" value={block.titleColor} onChange={(titleColor) => onChange({ ...block, titleColor })} initial={{ color: 'surface', intensity: 900 }} helperText="Off uses the section’s text colour." />
+          <TypographyFields part="Title" value={block.titleTypography} onChange={(titleTypography) => onChange({ ...block, titleTypography })} defaultSize={{ base: 18 }} />
+          {block.text && (
+            <>
+              <Heading>Text style</Heading>
+              <ColorField label="Text colour" value={block.textColor} onChange={(textColor) => onChange({ ...block, textColor })} initial={{ color: 'surface', intensity: 700 }} helperText="Off uses a muted text colour." />
+              <TypographyFields part="Text" value={block.textTypography} onChange={(textTypography) => onChange({ ...block, textTypography })} defaultSize={{ base: 16 }} />
+            </>
+          )}
         </>
       );
     case 'banner':
@@ -302,6 +327,18 @@ function BlockFields({ block, onChange, pages, problems }: Omit<BlockPropertiesP
           <Input label="Text" value={block.text ?? ''} onValueChange={(text) => onChange({ ...block, text: text || undefined })} error={problems['text']} />
           <AlignField value={block.align ?? 'center'} onChange={(align) => onChange({ ...block, align })} />
           <ColorField label="Text colour" value={block.textColor} onChange={(textColor) => onChange({ ...block, textColor })} initial={{ color: 'surface', intensity: 50 }} helperText="Off uses a light text colour." />
+          {block.heading && (
+            <>
+              <Heading>Heading style</Heading>
+              <TypographyFields part="Heading" value={block.headingTypography} onChange={(headingTypography) => onChange({ ...block, headingTypography })} defaultSize={{ base: 28, md: 40 }} />
+            </>
+          )}
+          {block.text && (
+            <>
+              <Heading>Text style</Heading>
+              <TypographyFields part="Text" value={block.textTypography} onChange={(textTypography) => onChange({ ...block, textTypography })} defaultSize={{ base: 16, md: 18 }} />
+            </>
+          )}
         </>
       );
     case 'divider':

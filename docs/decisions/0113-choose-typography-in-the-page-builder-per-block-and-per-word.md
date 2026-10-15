@@ -1,12 +1,13 @@
 ---
 id: "0113"
 title: Choose fonts, weights, sizes and colours in the page builder, per block and per word
-status: accepted
+status: superseded
 date: "2026-10-15"
 scope: core
 tags: [cms, content, rich-text, typography, fonts, editor]
 related: ["0067", "0093", "0094", "0102", "0111", "0112"]
 supersedes: []
+supersededBy: "0115"
 ---
 
 # 0113. Choose fonts, weights, sizes and colours in the page builder, per block and per word

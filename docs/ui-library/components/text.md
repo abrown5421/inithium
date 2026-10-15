@@ -4,7 +4,7 @@ description: All text content (headings, paragraphs, inline text and labels) wit
 scope: core
 tags: [ui, component, typography]
 order: 13
-decisions: ["0042", "0045", "0046", "0048", "0112"]
+decisions: ["0042", "0045", "0046", "0048", "0112", "0115"]
 component:
   name: Text
   layer: component
@@ -33,6 +33,7 @@ Type names such as `Colour`, `Sides`, `Size`, `Radius` and `Variants<T>` are def
 | [`children`](#children) | `ReactNode` | none | The text |
 | [`fontFamily`](#fontfamily) | `Variants<'display' \| 'body' \| { familyId }>` | `'body'` | A theme font or a library family |
 | [`fontSize`](#fontsize) | `Variants<number>` | inherited | px |
+| [`fontScale`](#fontscale) | `Variants<number>` | none | Size relative to the surrounding text |
 | [`fontWeight`](#fontweight) | `Variants<100…900>` | inherited | Weight |
 | [`align`](#align) | `Variants<…>` | inherited | Text alignment |
 | [`lineHeight`](#lineheight) | `Variants<number>` | inherited | Ratio of the font size |
@@ -124,6 +125,15 @@ Font size in px. **Type:** `Variants<number>`.
 ```tsx
 <Text align="center">Centred</Text>
 <Text align={{ base: 'center', md: 'left' }}>Centred on mobile, left from 768px</Text>
+```
+
+#### `fontScale`
+
+A size relative to the surrounding text, e.g. `1.5` for half as large again ([0115](../../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)), drawn as `em`. Restyled words in rich text use it, so they scale with a responsive heading. When both are set, it wins over `fontSize`. **Type:** `Variants<number>`.
+
+```tsx
+<Text as="span" fontScale={1.5}>Bigger words</Text>
+<Text as="span" fontScale={{ base: 1, md: 1.25 }}>Larger from md up</Text>
 ```
 
 #### `lineHeight`

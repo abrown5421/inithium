@@ -2,8 +2,8 @@ import { useEffect, useRef, type CSSProperties } from 'react';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { toCssColor } from '@inithium/shared-ui-components';
-import type { ColorValue, ContentAlign, RichTextDocument } from '@inithium/shared-contracts';
-import { PAGE_LINK_SCHEME, richTextToTiptap, tiptapToRichText } from '@inithium/shared-ui-composites';
+import type { ColorValue, ContentAlign, ContentTypography, RichTextDocument } from '@inithium/shared-contracts';
+import { fontFamilyCss, PAGE_LINK_SCHEME, richTextToTiptap, RichTextStyle, tiptapToRichText } from '@inithium/shared-ui-composites';
 
 /**
  * The editable text's look, matching RichText (shared-content) so editing in place looks like the page. TipTap
@@ -39,14 +39,35 @@ export type RichTextEditorProps = {
   onEditor: (editor: Editor | null) => void;
   align?: ContentAlign;
   textColor?: ColorValue;
+  /** The block's running-text typography (decision 0115). */
+  typography?: ContentTypography;
 };
+
+/** The md breakpoint: the preview is an iframe, so this follows the previewed device's width. */
+const MD = 768;
+
+/**
+ * The block's running-text typography as CSS for the editable text, matching RichTextView: paragraphs, lists and
+ * quotes take it; sub-headings keep the display font.
+ */
+function typographyCss(typography: ContentTypography | undefined): string {
+  if (!typography) return '';
+  const running = '[data-rich-text-editor] .ProseMirror :is(p, li)';
+  const rules = [
+    typography.fontFamily !== undefined ? `font-family: ${fontFamilyCss(typography.fontFamily)};` : '',
+    typography.fontWeight !== undefined ? `font-weight: ${typography.fontWeight};` : '',
+    typography.fontSize ? `font-size: ${typography.fontSize.base}px;` : '',
+  ].join(' ');
+  const wide = typography.fontSize?.md !== undefined ? `@media (min-width: ${MD}px) { ${running} { font-size: ${typography.fontSize.md}px; } }` : '';
+  return `${running} { ${rules} } ${wide}`;
+}
 
 /**
  * Edits a rich text block in place in the preview (decision 0093), with TipTap limited to what the contract allows:
- * paragraphs, h2–h4, lists, quotes, bold, italic, underline and links. Changes come out as our rich text document;
- * a document changed from outside (undo) is loaded back in.
+ * paragraphs, h2–h4, lists, quotes, bold, italic, underline, links and restyled words (decision 0115). Changes come
+ * out as our rich text document; a document changed from outside (undo) is loaded back in.
  */
-export function RichTextEditor({ doc, onChange, onEditor, align, textColor }: RichTextEditorProps) {
+export function RichTextEditor({ doc, onChange, onEditor, align, textColor, typography }: RichTextEditorProps) {
   const lastEmitted = useRef(JSON.stringify(doc));
   const change = useRef(onChange);
   useEffect(() => {
@@ -69,6 +90,7 @@ export function RichTextEditor({ doc, onChange, onEditor, align, textColor }: Ri
           isAllowedUri: (url, context) => url.startsWith(`${PAGE_LINK_SCHEME}:`) || context.defaultValidate(url),
         },
       }),
+      RichTextStyle,
     ],
     content: richTextToTiptap(doc),
     onUpdate: ({ editor: current }) => {
@@ -98,7 +120,7 @@ export function RichTextEditor({ doc, onChange, onEditor, align, textColor }: Ri
   };
   return (
     <div data-rich-text-editor="" style={style}>
-      <style>{editorStyles}</style>
+      <style>{editorStyles + typographyCss(typography)}</style>
       <EditorContent editor={editor} />
     </div>
   );

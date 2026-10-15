@@ -222,6 +222,7 @@ export function ContentEditor({ page, pages, canPublish }: ContentEditorProps) {
                 doc={block.doc}
                 align={block.align}
                 textColor={block.textColor}
+                typography={block.typography}
                 onChange={(next) => editBlock({ ...block, doc: next })}
                 onEditor={setRichEditor}
               />
