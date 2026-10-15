@@ -1,8 +1,7 @@
 import {
-  contentDocumentSchema,
+  contentDocumentV1Schema,
   createContentId,
-  CONTENT_SCHEMA_VERSION,
-  type ContentDocument,
+  type ContentDocumentV1,
   type RichTextInline,
   type RichTextNode,
 } from '@inithium/shared-contracts';
@@ -31,10 +30,10 @@ export type PrivacyPolicyOptions = {
  * (account and profile details, sign-in sessions) and its only cookies (the two essential sign-in cookies). It's a
  * starting point each site's owner edits in the CMS, not legal advice.
  */
-export function privacyPolicyContent({ accessMinutes, refreshDays, today }: PrivacyPolicyOptions): ContentDocument {
+export function privacyPolicyContent({ accessMinutes, refreshDays, today }: PrivacyPolicyOptions): ContentDocumentV1 {
   const updated = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const doc: ContentDocument = {
-    schemaVersion: CONTENT_SCHEMA_VERSION,
+  const doc: ContentDocumentV1 = {
+    schemaVersion: 1,
     sections: [
       {
         id: createContentId(),
@@ -140,5 +139,5 @@ export function privacyPolicyContent({ accessMinutes, refreshDays, today }: Priv
     ],
   };
   // The policy must always be valid content; a mistake here should fail loudly at startup.
-  return contentDocumentSchema.parse(doc);
+  return contentDocumentV1Schema.parse(doc);
 }

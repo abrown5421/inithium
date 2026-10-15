@@ -1,17 +1,15 @@
 ---
 title: Content pages
-description: Pages clients build in the CMS from sections, columns and blocks, stored as data and drawn by one core template.
+description: Pages clients build in the CMS from a tree of the UI library's elements, stored as data and drawn by one core template.
 scope: core
-tags: [pages, content, cms, blocks]
+tags: [pages, content, cms, elements]
 order: 8
 decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 ---
 
 # Content pages
 
-> **Being built.** This page describes the agreed design ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)). [What exists today](#build-status) is listed at the end.
-
-> **Redesign decided, not built.** [0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md) replaces sections, columns and blocks with a tree of library elements (nestable Containers, Text, Image, Icon, Button, Divider and plugin elements), and redesigns the editor (Layers, an Add picker, grouped properties, responsive overrides, an edit lock and accessibility warnings). Until its steps land, this page describes what's built today; it's rewritten as they do.
+> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is now a tree of library elements, and the site draws it. The editor is being rebuilt in steps: until it edits the new format, it still edits and saves drafts in version 1 (sections, columns and blocks), which the site upgrades as it reads them. [What exists today](#build-status) is listed at the end.
 
 Pages come in three kinds:
 
@@ -19,62 +17,66 @@ Pages come in three kinds:
 | --- | --- | --- |
 | Core pages | Core | Code templates: Home, Login, Sign up, Profile, Not Found |
 | Plugin pages | Plugins | Code templates for logic-heavy pages, e.g. a shop or a blog |
-| **Content pages** | **Clients, in the CMS** | **Blocks, stored on the page record and drawn by core's `content` template** |
+| **Content pages** | **Clients, in the CMS** | **Elements, stored on the page record and drawn by core's `content` template** |
 
 Content pages are for low-logic pages such as "About us" or a privacy policy. Anything with real logic belongs in a template.
 
 ## Structure
 
-A content page's `content` is a document of **sections**, each split into **columns**, each holding **blocks**:
+A content page's content (`contentDocumentSchema`, `schemaVersion` 2) is a list of **elements**. The page itself is the root, a vertical column the elements stack down. Each element is:
+
+```ts
+{ id, type, props, children?, label? }
+```
+
+- `id`: unique within the page (`contentIdSchema`; `createContentId()` makes one).
+- `type`: `container`, `text`, `image`, `icon`, `button` or `divider` (`contentElementTypes`), or a plugin's (below).
+- `props`: the element's stored props. For a library element these are its component's own stored props, style props with their breakpoint and state variants included, plus its content.
+- `children`: only Containers hold other elements.
+- `label`: an optional name for the editor's Layers, e.g. "Pricing card".
+
+Layout comes from nesting Containers. A row of three cards is a row Container holding three card Containers, each holding the card's elements:
 
 ```
 page
-└─ section            (background, padding, layout of 1–4 columns, anchor, entrance animation)
-   └─ column          (a share of the section's width)
-      └─ block        (heading, rich text, buttons, feature, banner, divider, spacer)
+├─ container            (as: section, padding, a background colour)
+│  ├─ text              (a Heading 1)
+│  └─ button
+└─ container            (flex: column on phones, row from md)
+   ├─ container         (a card: padding, radius, border, shadow)
+   │  ├─ icon
+   │  ├─ text
+   │  └─ button
+   ├─ container         (the same card, duplicated)
+   └─ container
 ```
 
-### Sections
+### Elements
 
-| Setting | Notes |
-| --- | --- |
-| `layout` | `one`, `halves`, `one-third-two-thirds`, `two-thirds-one-third`, `thirds` or `quarters`. The number of columns must match. |
-| `bgColor`, `banner` | A colour, or a PolyBanner pattern drawn over it |
-| `textColor` | Inherited by the section's blocks |
-| `padding` | `{ y, x }` in px; default 48 and 24 |
-| `maxWidth` | The widest the content gets, in px. Leave it out for full width ([0091](../decisions/0091-make-pages-full-width-by-default.md)). |
-| `gap` | Between columns, px; default 32 |
-| `verticalAlign` | `start` (default), `center`, `end` or `stretch` |
-| `stackBelow` | The breakpoint below which columns stack; default `md` |
-| `entrance` | An entrance animation |
-| `anchor` | An id, so `#anchor` links reach the section |
-
-### Blocks
-
-Every block has an `id`, and can be hidden on phones or on wider screens with `hideOn` (`{ phone?, desktop? }`, split at the section's `stackBelow`).
-
-| Block | `type` | Holds |
+| Element | `type` | Props |
 | --- | --- | --- |
-| Heading | `heading` | `text`, `level` 1–4, `align`, `textColor`, `typography` |
-| Rich text | `rich-text` | A rich text `doc`, `align`, `textColor`, `typography` (the running text) |
-| Buttons | `buttons` | 1–4 buttons (`label`, `link`, `variant`, `color`, `icon`), `align` |
-| Feature | `feature` | `icon`, `title`, `text`, `align` (`start` or `center`), `iconColor`, `titleColor`, `textColor`, `titleTypography`, `textTypography` |
-| Image | `image` | `assetId`, `alt` (required unless `decorative`), `caption`, `captionColor`, `captionTypography`, `width` (`full` or a px cap), `align`, `radius`, optional `link` |
-| Banner | `banner` | A PolyBanner `pattern`, `height`, optional `heading` and `text`, `align`, `textColor`, `headingTypography`, `textTypography` |
-| Divider | `divider` | `color`, `thickness`, `lineStyle` |
-| Spacer | `spacer` | `height` in px |
+| Container | `container` | Container's style props except `position` and `overflow` (they break layouts too easily): layout (`flex`, `grid`, `flexItem`, `gridItem`), spacing, sizing, `bgColor` (a colour; no images or patterns), `textColor`, borders, `radius`, `shadow`, `as`, `hidden`; plus `animation` (`{ entrance }`), `stagger` and `anchor` (an id for `#anchor` links) |
+| Text | `text` | A rich text `doc` (headings 1–4, paragraphs, lists, quotes), `align`, `textColor`, `typography` (the running text) and `headingTypography` (its headings) |
+| Image | `image` | `assetId`, `alt` (required unless `decorative`), `caption`, `captionColor`, `captionTypography`, `align`, optional `link`, and Image's style props (`width` defaults to the space it's in, `height`, `radius`, borders, `shadow`), `fit`, `aspectRatio` |
+| Icon | `icon` | `name`, optional `label` (otherwise decorative), and Icon's style props (`size`, `strokeWidth`, colours, padding, radius, borders, shadow) |
+| Button | `button` | `label`, `link`, `leadingIcon`, `trailingIcon` (default: an external-link icon when the link opens a new tab), and Button's style props (`variant`, `color`, colour overrides, width, padding) |
+| Divider | `divider` | `color`, `thickness` (1–8), `lineStyle`, `orientation`, padding, optional `label` and `labelAlign` (decorative unless labelled) |
 
-**Typography** ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): each text part's `…typography` is an optional `contentTypographySchema` object, `{ fontFamily?, fontWeight?, fontSize?: { base, md? } }`. The font is a role or a library family (`{ familyId }`), the weight 100–900, and the size is in px (8–160), with `md` from the medium breakpoint up. Left out, each part keeps its default look (headings: the display font at their level's size). Colour is a separate field on each block. A rich text block's typography is for its running text: sub-headings inside keep the display font. Buttons have no typography: they keep Button's fixed size, the body font and their own colour.
+Every element but Container also takes `margin`, `hidden` (e.g. `{ base: true, md: false }` shows it from tablets up) and `animation` (`{ entrance }`). The renderer applies those to a box around the element, so they work the same for components that don't take them, such as rich text.
 
-The Image block shows an uploaded image by its asset id ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)); a missing image (deleted, or not chosen yet) shows a placeholder. In the editor, an Image block starts empty and holds the draft back from saving until an image is chosen; choosing one copies its default description, which the block may change.
+**Typography** ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): each `…typography` is an optional `contentTypographySchema` object, `{ fontFamily?, fontWeight?, fontSize?: { base, md? } }`. The font is a role or a library family (`{ familyId }`), the weight 100–900, and the size is in px (8–160), with `md` from the medium breakpoint up. Left out, each part keeps its default look. A Text's `typography` styles its running text and `headingTypography` its headings, which otherwise use the display font at their level's size. Buttons have no typography: they keep Button's fixed size ([0054](../decisions/0054-style-buttons-by-variant-from-one-colour.md)).
 
-Video embed, accordion, tabs, card grid, form and map come later, and plugins will add their own block types through a slot.
+**Limits:** at most `MAX_CONTENT_ELEMENTS` (250) elements on a page, nested ones included, and at most `MAX_CONTENT_DEPTH` (10) deep. They're checked before the elements are parsed, along with every id being unique. Problems point at the field, e.g. `elements.0.children.2.props.label`, because each element is checked against its own type's contract only.
+
+**Plugin elements:** a plugin's element has the type `plugin-<name>:<element>`, e.g. `plugin-ecom:product-grid`. Core keeps any props it has, and its `children` if it holds some, so content still saves while the plugin is inactive or after it's ejected. On the site, an element no installed plugin draws draws nothing; plugins will draw theirs through the content elements slot ([0015](../decisions/0015-slot-catalogue.md)), which isn't built yet.
+
+Accordion, video, carousel, Modal, PolyBanner, Avatar and Tabs elements come later. Forms aren't planned.
 
 ### Rich text
 
 Rich text is the editor's (TipTap's) JSON document, limited to:
 - **marks:** bold, italic, underline, link, and `textStyle` for restyled words (below);
-- **nodes:** paragraph, heading (h2–h4; the page's title is its h1), bulleted and numbered lists (nested), quote and line break.
+- **nodes:** paragraph, heading (h1–h4; rich text fields offer h2–h4, and a content page's Text may hold its title as h1), bulleted and numbered lists (nested), quote and line break.
 
 **Restyled words** ([0115](../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): the `textStyle` mark, `{ family?, weight?, size?, color? }` with at least one. `family` is a role or `{ familyId }`, `weight` 100–900 (it wins over bold), `size` a ratio of the surrounding text (0.5–3; the editor offers `richTextSizePresets`), and `color` a colour value. Each attribute is its own feature (`fontFamily`, `fontWeight`, `fontSize`, `textColor`) for `restrictedRichTextSchema`, so a field can allow some or none; the profile bio allows none. RichTextView draws the size with Text's `fontScale`.
 
@@ -92,36 +94,57 @@ A link (`contentLinkSchema`) is one of:
 
 `content` on the page record is `{ draft, published }`:
 - the CMS edits the draft;
-- "Publish" will copy it to `published`, which is all `web` ever receives;
+- "Publish" copies it to `published`, which is all `web` ever receives;
 - `published` is `null` until the first publish.
 
 A content page's record `status` (published or unpublished) still decides whether the page is on the site at all.
 
-Stored content carries a `schemaVersion`. `readContentDocument()` upgrades older versions when the API reads them, so changes to the format never break saved pages.
+Stored content carries a `schemaVersion`. Read it through `readContentDocument()`, which upgrades older versions, so changes to the format never break saved pages. Until the editor edits version 2, drafts are still saved as version 1 (`pageContentSchema`, `readContentDocumentV1()`), and `web` upgrades the published version as it draws it.
+
+### Version 1 and its upgrade
+
+Version 1 ([0093](../decisions/0093-build-content-pages-from-sections-columns-and-blocks.md)) held sections (a layout of 1–4 columns, background, padding, width limit, anchor, entrance), each column holding blocks (heading, rich text, buttons, feature, banner, divider, spacer, image). Its contracts stay (`contentDocumentV1Schema`, the block schemas) so stored version 1 content can always be read. `upgradeContentV1()` turns it into elements drawing the same page:
+
+| Version 1 | Version 2 |
+| --- | --- |
+| A section | A full-width Container (`as: section`) with its padding, background, text colour, anchor and entrance. One column without a width limit holds its elements directly; otherwise a row Container holds a Container per column, sharing the width as the layout did and stacking below the section's breakpoint. |
+| Heading, rich text | Text. A heading block keeps its size in `headingTypography`; rich text starting with a heading gets 8px above it (rich text used to draw that space itself). |
+| Buttons | A row Container holding Buttons |
+| Feature | A Container holding an Icon and two Texts |
+| Spacer | An empty Container of its height |
+| Image, divider | Image, Divider |
+| Banner, a section's pattern | A Container on the pattern's first colour (with the banner's heading and text), until the PolyBanner element exists |
+| `hideOn` | `hidden` at the section's breakpoint |
+
+Ids are kept, and new elements get ids made from their source's (e.g. `<section id>-row`), so upgrading the same content always gives the same result. The seeded privacy policy upgrades to one band holding its title, introduction, a rule and the policy, and looks as it did.
 
 ## Rendering
 
-`ContentRenderer` (`@inithium/shared-content`) draws a content document with the UI library's components. `web`'s `content` template uses it, and the CMS editor's preview will too, so the preview always matches the site.
+`ContentRenderer` (`@inithium/shared-content`) draws a content document's elements with the UI library's components. `web`'s `content` template uses it, and the rebuilt editor's preview will too, so the preview always matches the site.
 
-It takes the content and `links` (`{ pagePath(pageId), onNavigate(path), preview? }`), which resolves page links against the site's pages and follows them through the app's router; with `preview`, links and buttons go nowhere. The CMS editor also passes `decorators` (`{ section?, block? }`), which wrap or replace each section and block as it's drawn:
+It takes the content and `links` (`{ pagePath(pageId), onNavigate(path), preview? }`), which resolves page links against the site's pages and follows them through the app's router; with `preview`, links and buttons go nowhere. A host can pass `decorators` (`{ element?, children? }`): `element` wraps or replaces each element as it's drawn (one the site can't draw arrives as `null`), and `children` gets each Container's children as drawn (none, when it's empty), e.g. for an empty Container's placeholder:
 
 ```tsx
+import { readContentDocument } from '@inithium/shared-contracts';
 import { ContentRenderer } from '@inithium/shared-content';
 
-<ContentRenderer content={page.content} links={{ pagePath: (id) => paths.get(id), onNavigate: navigate }} />
+const content = readContentDocument(page.content);
+<ContentRenderer content={content} links={{ pagePath: (id) => paths.get(id), onNavigate: navigate }} />
 ```
 
-Columns sit side by side, sharing the width by their layout's ratios, and stack below the section's breakpoint. Sections pad themselves, so content pages default to the `full-width` layout.
+Containers pad themselves, so content pages default to the `full-width` layout. The editor's preview still draws version 1 with `ContentRendererV1` until the editor is rebuilt.
 
 ### Example: A content page
 
-A banner, a row of three features and a two-thirds/one-third section with rich text and buttons. The "Prices" button links to a page that isn't on this site, so it's disabled.
+A hero band, then a row of three cards built once and duplicated: each card is a Container with padding, a radius, a border and a shadow, holding an Icon, a Heading 3, a line of text, a Divider and a Button. The cards stack on phones. The hero's button links to a page that isn't on this site, so it's disabled.
 
 ```example
 architecture/content-pages/sample
 ```
 
 ## Editing
+
+> This is the version 1 editor, which edits sections, columns and blocks. It's being replaced ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)).
 
 Content pages are edited in the CMS's page editor at `/cms/pages/:id/content`, which fills the space under the CMS's top bar, with its own toolbar first ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide. Its toolbar and side panels are `surface-200`, divided by thin borders and shadows ([0096](../decisions/0096-divide-the-content-editors-panels-with-borders.md)), around a `surface-950` canvas, the same backdrop pages animate over on the site.
 
@@ -167,12 +190,16 @@ Admins edit it like any content page. The seed never touches it again, so their 
 
 ## Build status
 
-1. **Contracts and renderer (built):**
-   - the content contracts in `@inithium/shared-contracts`;
-   - `content` on page records (the CMS gets both versions, `web` only the published one);
-   - `ContentRenderer` in `@inithium/shared-content`;
-   - the `content` template in `@inithium/web-pages`.
+1. **Contracts and renderer (built):** the content contracts in `@inithium/shared-contracts`; `content` on page records (the CMS gets both versions, `web` only the published one); `ContentRenderer` in `@inithium/shared-content`; the `content` template in `@inithium/web-pages`.
 2. **Creating pages (built):** `pages.create`, `POST /api/pages` and `POST /api/pages/:id/duplicate`, and New page, Duplicate and Delete on the CMS's Pages screen ([Creating pages](../backend/pages.md#creating-pages)).
-3. **Editor v1 (built):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). Drag-and-drop, revision history and reusable sections come later.
+3. **Editor v1 (built, being replaced):** `@inithium/cms-content-editor` and the content endpoints ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)).
 4. **The privacy policy (built):** seeded at `/privacy-policy` in the secondary footer, protected, with starter wording ([above](#the-privacy-policy)).
 5. **Assets and the Image block (built):** the [Media library](cms.md#media), the picker and the Image block ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
+6. **The element tree** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), in steps:
+   1. **Model (built):** the element contracts and limits, version 2 with the upgrade from version 1, and the renderer, which the site uses.
+   2. Editor model and Layers: the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts.
+   3. Properties: the panels, spacing steps and responsive overrides. Drafts are saved as version 2 from here.
+   4. Interface: the Add picker, toolbar, empty state and canvas outlines.
+   5. The edit lock.
+   6. Accessibility warnings, and usage checks walking the tree.
+   7. Plugin elements: the content elements slot through the api, web and cms registries.

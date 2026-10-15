@@ -20,6 +20,6 @@ Inithium is built so that every client gets the same well-maintained foundation,
 | [The sandbox](sandbox.md) | The local development environment for plugins: a generated copy of core run beside it |
 | [The CMS](cms.md) | The client portal: its frame, screens, sign-in and the Pages editor, and adding a screen |
 | [Pages and routing](pages-and-routing.md) | Page records, code templates, layouts, routing, transitions and menus in `web` |
-| [Content pages](content-pages.md) | Pages clients build in the CMS from sections, columns and blocks |
+| [Content pages](content-pages.md) | Pages clients build in the CMS from a tree of the UI library's elements |
 
 How plugins plug in is covered in [Plugins](../plugins/index.md).

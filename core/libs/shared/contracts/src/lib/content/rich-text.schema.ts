@@ -59,8 +59,8 @@ export const richTextParagraphSchema = z
 export const richTextHeadingSchema = z
   .object({
     type: z.literal('heading'),
-    /** h2 to h4: the page's own title is its h1. */
-    attrs: z.object({ level: z.union([z.literal(2), z.literal(3), z.literal(4)]) }).strict(),
+    /** h1 to h4. Rich text fields offer h2 to h4; a content page's Text may hold its title as h1 (decision 0116). */
+    attrs: z.object({ level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]) }).strict(),
     content: z.array(richTextInlineSchema).optional(),
   })
   .strict();

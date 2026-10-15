@@ -33,7 +33,7 @@ const pagesSchema = new Schema(
     protected: { type: Boolean, required: true, default: false },
     // Identifies a page a seed created from a reusable template (e.g. 'privacy-policy'); never shown or edited.
     seedKey: { type: String, index: { unique: true, sparse: true } },
-    // Content pages' blocks (decision 0093): { draft, published }, read through readContentDocument().
+    // Content pages' blocks (decision 0093): { draft, published }, read through readContentDocumentV1() until the editor saves version 2 (decision 0116).
     content: { type: Schema.Types.Mixed },
   },
   { timestamps: true, minimize: false },

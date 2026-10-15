@@ -11,7 +11,8 @@ import type {
 } from '@inithium/shared-contracts';
 import { Container, Text, type TextProps } from '@inithium/shared-ui-components';
 
-const HEADING_SIZES = { 2: 26, 3: 21, 4: 18 } as const;
+const HEADING_SIZES = { 1: { base: 36, md: 48 }, 2: 26, 3: 21, 4: 18 } as const;
+const HEADING_LINE_HEIGHTS = { 1: 1.2, 2: 1.25, 3: 1.25, 4: 1.25 } as const;
 const TEXT_ALIGN = { start: 'start', center: 'center', end: 'end' } as const;
 
 /** A link ready for an anchor: its address (none draws plain text), whether it opens a new tab, and a click handler. */
@@ -32,11 +33,13 @@ export type RichTextViewProps = {
   resolveLink?: (link: ContentLink) => RichTextResolvedLink;
   /** Space between paragraphs, in px. Default 14. */
   gap?: number;
-  /** The running text's font, weight and size (decision 0115). Sub-headings keep the display font and their sizes. */
+  /** The running text's font, weight and size (decision 0115). Headings keep the display font and their sizes. */
   typography?: ContentTypography;
+  /** The headings' font, weight and size (decision 0116). Left out, they use the display font at their level's size. */
+  headingTypography?: ContentTypography;
 };
 
-/** Text props for the running text from a block's typography. */
+/** Text props from a typography: for the running text, or the headings. */
 function runningText(typography: ContentTypography | undefined): Pick<TextProps, 'fontFamily' | 'fontWeight' | 'fontSize'> {
   if (!typography) return {};
   const size = typography.fontSize;
@@ -48,16 +51,17 @@ function runningText(typography: ContentTypography | undefined): Pick<TextProps,
 }
 
 /**
- * Draws a rich text document (decisions 0093, 0102) with Text and Container: paragraphs, sub-headings (h2–h4),
- * quotes, bulleted and numbered lists, and bold, italic, underlined, linked and restyled text (decision 0115). It
- * never renders HTML from the document, so whatever was saved can't run on the page.
+ * Draws a rich text document (decisions 0093, 0102) with Text and Container: paragraphs, headings (h1–h4), quotes,
+ * bulleted and numbered lists, and bold, italic, underlined, linked and restyled text (decision 0115). It never
+ * renders HTML from the document, so whatever was saved can't run on the page.
  */
-export function RichTextView({ doc, align, textColor, resolveLink = resolveUrlLink, gap = 14, typography }: RichTextViewProps) {
+export function RichTextView({ doc, align, textColor, resolveLink = resolveUrlLink, gap = 14, typography, headingTypography }: RichTextViewProps) {
   const base = runningText(typography);
+  const heading = runningText(headingTypography);
   return (
     <Container flex={{ direction: 'column', gap }} textColor={textColor}>
       {doc.content.map((node, index) => (
-        <Fragment key={index}>{renderNode(node, align, resolveLink, base)}</Fragment>
+        <Fragment key={index}>{renderNode(node, align, resolveLink, base, heading, index === 0)}</Fragment>
       ))}
     </Container>
   );
@@ -66,7 +70,7 @@ export function RichTextView({ doc, align, textColor, resolveLink = resolveUrlLi
 type Resolve = (link: ContentLink) => RichTextResolvedLink;
 type Base = ReturnType<typeof runningText>;
 
-function renderNode(node: RichTextNode, align: ContentAlign | undefined, resolve: Resolve, base: Base): ReactNode {
+function renderNode(node: RichTextNode, align: ContentAlign | undefined, resolve: Resolve, base: Base, heading: Base, first: boolean): ReactNode {
   const textAlign = align ? TEXT_ALIGN[align] : undefined;
   switch (node.type) {
     case 'paragraph':
@@ -79,11 +83,13 @@ function renderNode(node: RichTextNode, align: ContentAlign | undefined, resolve
       return (
         <Text
           as={`h${node.attrs.level}`}
-          fontFamily="display"
-          fontSize={HEADING_SIZES[node.attrs.level]}
-          lineHeight={1.25}
+          fontFamily={heading.fontFamily ?? 'display'}
+          fontWeight={heading.fontWeight}
+          fontSize={heading.fontSize ?? HEADING_SIZES[node.attrs.level]}
+          lineHeight={HEADING_LINE_HEIGHTS[node.attrs.level]}
           align={textAlign}
-          margin={{ top: 8 }}
+          // A little extra space above a heading, but not at the very start of the text.
+          margin={first ? undefined : { top: 8 }}
         >
           {renderInline(node.content, resolve)}
         </Text>

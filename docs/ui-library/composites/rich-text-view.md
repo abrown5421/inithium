@@ -14,7 +14,7 @@ component:
 
 # RichTextView
 
-RichTextView draws what a [RichTextField](rich-text-field.md) saves ([0102](../../decisions/0102-edit-rich-text-fields-with-tiptap-and-store-json.md)): paragraphs, sub-headings (h2–h4), quotes, bulleted and numbered lists (nested too), and bold, italic, underlined and linked text. It builds everything from [Text](../components/text.md) and [Container](../components/container.md) and never renders HTML from the document, so nothing saved can run on the page.
+RichTextView draws what a [RichTextField](rich-text-field.md) saves ([0102](../../decisions/0102-edit-rich-text-fields-with-tiptap-and-store-json.md)): paragraphs, headings (h1–h4; rich text fields offer h2–h4, content pages may use h1), quotes, bulleted and numbered lists (nested too), and bold, italic, underlined and linked text. It builds everything from [Text](../components/text.md) and [Container](../components/container.md) and never renders HTML from the document, so nothing saved can run on the page.
 
 Page content draws its rich text through it too, with links to the site's pages resolved by the content renderer ([Content pages](../../architecture/content-pages.md)).
 
@@ -34,6 +34,7 @@ import { RichTextView } from '@inithium/shared-ui-composites';
 | [`gap`](#gap) | `number` | `14` | Space between blocks, px |
 | [`resolveLink`](#resolvelink) | `(link) => RichTextResolvedLink` | `resolveUrlLink` | Turns links into addresses |
 | [`typography`](#typography) | `ContentTypography` | none | The running text's font, weight and size |
+| [`headingTypography`](#headingtypography) | `ContentTypography` | none | The headings' font, weight and size |
 
 ## Props
 
@@ -71,10 +72,18 @@ Turns each link into `{ href?, newTab, onClick? }`. A link without an `href` dra
 
 #### `typography`
 
-The running text's font, weight and size ([0115](../../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): paragraphs, list items and quotes take it, and sub-headings keep the display font and their sizes. `fontSize` is `{ base, md? }` in px. **Type:** `{ fontFamily?, fontWeight?, fontSize? }` (`ContentTypography`).
+The running text's font, weight and size ([0115](../../decisions/0115-style-text-in-the-page-builder-per-part-and-per-word.md)): paragraphs, list items and quotes take it, and headings keep the display font and their sizes (see `headingTypography`). `fontSize` is `{ base, md? }` in px. **Type:** `{ fontFamily?, fontWeight?, fontSize? }` (`ContentTypography`).
 
 ```tsx
 <RichTextView doc={doc} typography={{ fontFamily: 'display', fontWeight: 300, fontSize: { base: 16, md: 18 } }} />
+```
+
+#### `headingTypography`
+
+The headings' font, weight and size ([0116](../../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), for every heading level in the document. Left out, headings use the display font at their level's size (h1 36px, 48px from `md`; h2 26px; h3 21px; h4 18px). A content page's Text element passes it. **Type:** `{ fontFamily?, fontWeight?, fontSize? }` (`ContentTypography`).
+
+```tsx
+<RichTextView doc={doc} headingTypography={{ fontFamily: 'body', fontWeight: 600, fontSize: { base: 18 } }} />
 ```
 
 ## Examples

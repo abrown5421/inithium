@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { expectSeedIsIdempotent } from '@inithium/api-testing';
 import { createTestApiWithAuth, signedInClient } from '@inithium/api-testing-accounts';
-import { emptyContentDocument, createContentId, type ContentDocument } from '@inithium/shared-contracts';
+import { emptyContentDocumentV1, createContentId, type ContentDocumentV1 } from '@inithium/shared-contracts';
 import { PageModel } from './pages.model';
 import { pagesRouter, siteRouter } from './pages.routes';
 import { corePageSeeds, seedCorePages, seedPages } from './pages.seed';
@@ -22,8 +22,8 @@ const quietly = async <T>(work: () => Promise<T>) => {
   }
 };
 
-const withHeading = (text: string): ContentDocument => {
-  const doc = emptyContentDocument(createContentId);
+const withHeading = (text: string): ContentDocumentV1 => {
+  const doc = emptyContentDocumentV1(createContentId);
   doc.sections[0]?.columns[0]?.blocks.push({ id: createContentId(), type: 'heading', level: 2, text });
   return doc;
 };

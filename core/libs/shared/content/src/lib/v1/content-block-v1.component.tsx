@@ -1,19 +1,14 @@
-import type { Breakpoint, ContentAlign, ContentBlock, ContentVisibility } from '@inithium/shared-contracts';
+import { headingSizesV1, type Breakpoint, type ContentAlign, type ContentBlock, type ContentVisibility } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Icon, Text, type IconName } from '@inithium/shared-ui-components';
 import { PolyBanner } from '@inithium/shared-ui-composites';
-import { useContentDecorators } from './content-decorators.context';
-import { useContentLinks } from './content-links.context';
-import { ImageBlockView } from './image-block.component';
-import { RichText } from './rich-text.component';
-import { typographyProps } from './content-typography.service';
+import { typographyProps } from '../content-typography.service';
+import { useContentLinks } from '../content-links.context';
+import { RichText } from '../rich-text.component';
+import { useContentDecoratorsV1 } from './content-decorators-v1.context';
+import { ImageBlockView } from './image-block-v1.component';
 
 /** Each heading level's default size, on phones and from md up (the editor's starting sizes match). */
-export const HEADING_SIZES = {
-  1: { base: 36, md: 48 },
-  2: { base: 28, md: 34 },
-  3: { base: 22, md: 24 },
-  4: { base: 18, md: 19 },
-} as const;
+export const HEADING_SIZES = headingSizesV1;
 const JUSTIFY = { start: 'start', center: 'center', end: 'end' } as const;
 const ALIGN_ITEMS = { start: 'start', center: 'center', end: 'end' } as const;
 
@@ -31,7 +26,7 @@ export type ContentBlockViewProps = {
 
 /** Draws one content block (decision 0093) with the UI library's components. */
 export function ContentBlockView({ block, stackBelow }: ContentBlockViewProps) {
-  const decorators = useContentDecorators();
+  const decorators = useContentDecoratorsV1();
   const drawn = <BlockBody block={block} />;
   return (
     <Container hidden={hiddenFor(block.hideOn, stackBelow)} minWidth={0} data-block={block.type}>

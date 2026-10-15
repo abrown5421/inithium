@@ -9,13 +9,13 @@ import {
   assetUrl,
   fontFileInfoSchema,
   publicProfileName,
-  readContentDocument,
+  readContentDocumentV1,
   type Asset,
   type AssetKind,
   type AssetPurpose,
   type AssetUpdate,
   type AssetUsage,
-  type ContentDocument,
+  type ContentDocumentV1,
   type FontFileInfo,
   type StorageInfo,
 } from '@inithium/shared-contracts';
@@ -164,7 +164,7 @@ export async function updateAsset(doc: AssetDocument, update: AssetUpdate): Prom
 }
 
 /** Every image block's asset id in a content document. */
-function imageIds(doc: ContentDocument | undefined): Set<string> {
+function imageIds(doc: ContentDocumentV1 | undefined): Set<string> {
   const ids = new Set<string>();
   for (const section of doc?.sections ?? []) {
     for (const column of section.columns) {
@@ -198,8 +198,8 @@ export async function assetUsage(id: string): Promise<AssetUsage> {
   const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
   for (const page of pages) {
     const content = page.content as { draft?: unknown; published?: unknown } | undefined;
-    const draft = imageIds(readContentDocument(content?.draft));
-    const published = imageIds(readContentDocument(content?.published));
+    const draft = imageIds(readContentDocumentV1(content?.draft));
+    const published = imageIds(readContentDocumentV1(content?.published));
     if (published.has(id)) places.push({ label: `Page: ${page.title}`, blocking: false });
     else if (draft.has(id)) places.push({ label: `Page: ${page.title} (unpublished changes)`, blocking: false });
   }
