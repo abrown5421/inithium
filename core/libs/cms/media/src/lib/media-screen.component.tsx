@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { assetKinds, type Asset, type AssetKind } from '@inithium/shared-contracts';
-import { useGetAssetsQuery, useGetCurrentUserQuery, useGetStorageInfoQuery } from '@inithium/shared-data-access';
+import { useGetAssetsQuery, useGetCurrentUserQuery, useGetFontFamiliesQuery, useGetStorageInfoQuery } from '@inithium/shared-data-access';
 import { formatBytes, UploadDialog } from '@inithium/shared-media';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Button, Container, Input, Loader, Select, Text } from '@inithium/shared-ui-components';
 import { AssetDetails } from './asset-details.component';
 import { AssetGrid } from './asset-grid.component';
+import { FontLibrary } from './font-library.component';
 
 const KIND_LABELS: Record<AssetKind, string> = {
   image: 'Images',
-  font: 'Fonts',
+  font: 'Font families',
   document: 'Documents',
   audio: 'Audio',
   video: 'Video',
@@ -47,7 +48,8 @@ function StorageMeter() {
 /**
  * The CMS's Media screen (decision 0098): every uploaded file with search and a kind filter, how much storage is
  * used, uploading (with the crop or fit step for images), and a details modal to rename, describe, check where a file
- * is used and delete it.
+ * is used and delete it. Fonts show as the font library (decision 0111): files in a family are listed under it, not
+ * among the loose files.
  */
 export function MediaScreen() {
   const { data: user } = useGetCurrentUserQuery();
@@ -57,6 +59,11 @@ export function MediaScreen() {
     q: search.trim() || undefined,
     ...(show === 'members' ? { group: 'members' as const } : show === 'all' ? {} : { kind: show }),
   });
+  const families = useGetFontFamiliesQuery();
+  const inFamilies = new Set((families.data ?? []).flatMap((family) => family.files.map((file) => file.assetId)));
+  const looseAssets = assets?.filter((asset) => !inFamilies.has(asset.id));
+  // A search finds every file; otherwise a family's files are listed under it on the font library only.
+  const listed = search.trim() ? assets : looseAssets;
   const [uploading, setUploading] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const canDelete = user ? hasPermission(user.role, 'assets.delete') : false;
@@ -86,23 +93,25 @@ export function MediaScreen() {
         <Select label="Show" value={show} onValueChange={(value) => setShow(value as Show)} options={SHOW_OPTIONS} />
       </Container>
 
-      {isLoading ? (
+      {isLoading || (show === 'font' && families.isLoading) ? (
         <Container flex={{ justify: 'center' }} padding={{ all: 32 }}>
           <Loader size={32} label="Loading files" />
         </Container>
-      ) : isError ? (
+      ) : isError || (show === 'font' && families.isError) ? (
         <Container flex={{ direction: 'column', align: 'start', gap: 12 }}>
           <Text as="p">We couldn’t load the files.</Text>
-          <Button variant="outlined" onClick={() => void refetch()}>
+          <Button variant="outlined" onClick={() => void (families.isError ? families.refetch() : refetch())}>
             Try again
           </Button>
         </Container>
-      ) : !assets?.length ? (
+      ) : show === 'font' && !search ? (
+        <FontLibrary families={families.data ?? []} looseFonts={looseAssets ?? []} onSelectFile={(asset) => setOpenId(asset.id)} />
+      ) : !listed?.length ? (
         <Text as="p" textColor={{ color: 'surface', intensity: 700 }}>
           {show === 'members' && !search ? 'No member uploads.' : search || show !== 'all' ? 'No files match.' : 'No files yet. Upload one to get started.'}
         </Text>
       ) : (
-        <AssetGrid assets={assets} onSelect={(asset) => setOpenId(asset.id)} selectedId={openId ?? undefined} />
+        <AssetGrid assets={listed} onSelect={(asset) => setOpenId(asset.id)} selectedId={openId ?? undefined} />
       )}
 
       <UploadDialog open={uploading} onClose={() => setUploading(false)} onUploaded={(asset) => setOpenId(asset.id)} />

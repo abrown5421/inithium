@@ -17,7 +17,7 @@ export type AssetUploadInput = { file: Blob; filename: string; purpose: AssetPur
 /** Filters for the asset list. `group: 'members'` lists members' avatars and banners instead of staff files. */
 export type AssetListFilter = { group?: 'members'; purpose?: AssetPurpose; kind?: AssetKind; q?: string };
 
-const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage'] }).injectEndpoints({
+const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage', 'FontFamily'] }).injectEndpoints({
   endpoints: (build) => ({
     /** Where files go, the limits and how much is used (decision 0098). */
     getStorageInfo: build.query<StorageInfo, void>({
@@ -59,12 +59,14 @@ const assetsApi = baseApi.enhanceEndpoints({ addTagTypes: ['Asset', 'Storage'] }
     updateAsset: build.mutation<Asset, { id: string; update: AssetUpdate }>({
       query: ({ id, update }) => ({ url: `/assets/${encodeURIComponent(id)}`, method: 'PATCH', body: update }),
       transformResponse: (response: unknown) => assetSchema.parse(response),
-      invalidatesTags: (_asset, _error, { id }) => [{ type: 'Asset', id }],
+      // A font family keeps a copy of its files' names.
+      invalidatesTags: (_asset, _error, { id }) => [{ type: 'Asset', id }, 'FontFamily'],
     }),
     /** Deletes an asset (needs assets.delete); refused while the site logo uses it. */
     deleteAsset: build.mutation<void, string>({
       query: (id) => ({ url: `/assets/${encodeURIComponent(id)}`, method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Asset', id: 'LIST' }, 'Storage'],
+      // A deleted font leaves its family.
+      invalidatesTags: [{ type: 'Asset', id: 'LIST' }, 'Storage', 'FontFamily'],
     }),
     /** Where an asset is used. */
     getAssetUsage: build.query<AssetUsage, string>({

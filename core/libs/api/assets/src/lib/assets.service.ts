@@ -1,11 +1,13 @@
 import { randomBytes } from 'node:crypto';
 import { loadEnv } from '@inithium/api-config';
+import { findFontFamilyWithFile, removeFontFile, renameFontFile } from '@inithium/api-fonts';
 import { PageModel } from '@inithium/api-pages';
 import { getSiteSettings } from '@inithium/api-settings';
 import { clearProfileImage, findUsersWithProfileImage } from '@inithium/api-users';
 import {
   assetFileTypes,
   assetUrl,
+  fontFileInfoSchema,
   publicProfileName,
   readContentDocument,
   type Asset,
@@ -14,11 +16,18 @@ import {
   type AssetUpdate,
   type AssetUsage,
   type ContentDocument,
+  type FontFileInfo,
   type StorageInfo,
 } from '@inithium/shared-contracts';
 import { failure, processUpload, type ProcessOptions } from './asset-processing.service';
 import { AssetModel, type AssetDocument } from './assets.model';
 import { driverFor, storageDriver, usedBytes } from './storage-drivers.service';
+
+/** A font asset's stored file details, if it has valid ones (fonts uploaded before decision 0111 have none until read). */
+export function fontInfo(doc: AssetDocument): FontFileInfo | undefined {
+  const parsed = fontFileInfoSchema.safeParse(doc.font);
+  return parsed.success ? parsed.data : undefined;
+}
 
 /** Maps a stored asset to the shape the API returns. */
 export function toAsset(doc: AssetDocument): Asset {
@@ -32,6 +41,7 @@ export function toAsset(doc: AssetDocument): Asset {
     ...(doc.height ? { height: doc.height } : {}),
     filename: doc.filename,
     ...(doc.alt ? { alt: doc.alt } : {}),
+    ...(fontInfo(doc) ? { font: fontInfo(doc) } : {}),
     uploadedBy: doc.uploadedBy,
     driver: doc.driver,
     url: assetUrl(doc._id),
@@ -94,6 +104,7 @@ export async function createAsset(
       size: processed.data.length,
       width: processed.width,
       height: processed.height,
+      font: processed.font,
       filename: processed.filename,
       alt: input.alt || undefined,
       uploadedBy: input.uploadedBy,
@@ -147,7 +158,9 @@ export function assetPublicUrl(doc: AssetDocument): string | undefined {
 export async function updateAsset(doc: AssetDocument, update: AssetUpdate): Promise<AssetDocument> {
   if (update.filename !== undefined) doc.filename = update.filename;
   if (update.alt !== undefined) doc.set('alt', update.alt || undefined);
-  return doc.save();
+  const saved = await doc.save();
+  if (update.filename !== undefined && saved.kind === 'font') await renameFontFile(saved._id, saved.filename);
+  return saved;
 }
 
 /** Every image block's asset id in a content document. */
@@ -170,6 +183,10 @@ export async function assetUsage(id: string): Promise<AssetUsage> {
   const settings = await getSiteSettings();
   if (settings.logo?.assetId === id) places.push({ label: 'Site settings: the logo', blocking: true });
   if (settings.favicon?.assetId === id) places.push({ label: 'Site settings: the favicon', blocking: true });
+
+  // A font family's file: deleting it takes it out of the family (decision 0111).
+  const family = await findFontFamilyWithFile(id);
+  if (family) places.push({ label: `Font family: ${family.name}`, blocking: false });
 
   const pages = await PageModel.find({ content: { $exists: true } }, { title: 1, content: 1 });
   for (const page of pages) {
@@ -196,6 +213,7 @@ export async function deleteAsset(doc: AssetDocument): Promise<void> {
   await driverFor(doc.driver).remove(doc.key);
   await doc.deleteOne();
   await clearProfileImage(doc._id);
+  await removeFontFile(doc._id);
 }
 
 /**

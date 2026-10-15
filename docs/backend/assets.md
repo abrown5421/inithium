@@ -11,7 +11,7 @@ decisions: ["0098", "0099", "0101", "0029"]
 
 Assets are uploaded files: images, fonts, documents, audio and video. The api owns them in `@inithium/api-assets` ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). Staff manage them on the CMS's [Media screen](../architecture/cms.md#media) and pick them with `AssetField`.
 
-> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). **Not built yet:** font families (step C, planned in [0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)).
+> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). Step C, font families ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), is being built in phases: the [font library](#font-families) is built; the theme's fonts, the font picker and fonts in the page builder are not built yet.
 
 ## Rules
 
@@ -55,7 +55,7 @@ Files are identified by their contents, not by their name or the browser's claim
 | Image | PNG, JPEG, WebP, GIF, AVIF | Rotated upright, then converted to WebP within 2560 px. Quality steps down (82 → 40), then the size shrinks, until the file is under 2 MB. Animations are kept. |
 | Image | SVG | Sanitised with DOMPurify (scripts and event handlers removed). Staff only. |
 | Image | ICO | Kept as it is. |
-| Font | WOFF2, WOFF, TTF, OTF | TTF and OTF are converted to WOFF2. The uploader must confirm the licence (`fontLicence`). |
+| Font | WOFF2, WOFF, TTF, OTF | TTF and OTF are converted to WOFF2. The uploader must confirm the licence (`fontLicence`). The file's family name, weight (a variable font's weight range), style and metrics are read from it and stored on the asset as `font`; a font that can't be read is refused (415). |
 | Document | PDF, TXT, CSV, DOCX, XLSX, PPTX | Kept as they are. |
 | Audio | MP3 | Kept as it is. |
 | Video | MP4 | Kept as it is. Only very short clips fit in 2 MB. |
@@ -77,6 +77,20 @@ Every upload says what it's for. The purpose limits which kinds are accepted and
 | `banner` | Raster images | 4:1 |
 
 Cropping happens in the browser, before upload ([Image cropper](../ui-library/composites/image-cropper.md)). The api never crops.
+
+## Font families
+
+Font files are grouped into **families** in a font library ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)). A family is a record in `font_families` (`@inithium/api-fonts`): a **name**, a **fallback** (`sans`, `serif` or `mono`, the generic family used while the font loads or if it fails) and its **files**. Each file is a `font` asset with the weight and style read from the file when it was uploaded (`readFontInfo()`, using `fontkit`):
+
+- A single-weight file covers one weight (`{ min: 700, max: 700 }`); a variable font covers its weight axis (`{ min: 300, max: 800 }`).
+- Two files in a family can't cover the same style and an overlapping weight (400, naming both files).
+- A file belongs to at most one family (409).
+- Font uploads from before files were read get read when they're first added to a family.
+- The library holds at most **six** families (`MAX_FONT_FAMILIES`; 409 after that). Inithium's two default fonts are built in and don't count.
+- Removing a family keeps its files, which go back to being loose fonts. Deleting a file takes it out of its family, and the family stays even if that leaves it empty.
+- Every family will be served under an internal name, `Inithium Font <familyId>` (`fontFamilyCssName()`), never the font's own name. `fontFaceCss()` writes its `@font-face` rules, and `fontStack()` its CSS `font-family` value.
+
+Not built yet: pointing the theme's `display` and `body` at families, loading them without a flash ([0114](../decisions/0114-load-the-clients-fonts-without-a-flash.md)), the font picker, and fonts in the page builder ([0113](../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)).
 
 ## Members' pictures
 
@@ -104,6 +118,15 @@ Mounted at `/api/assets`:
 | `DELETE /:id` | `assets.delete` | 204, or 409 while a blocking use remains. |
 | `GET /:id` | Anyone | The file itself, or a redirect to the bucket's public address with `R2_PUBLIC_URL`. |
 
+The font library is mounted at `/api/fonts`, all routes needing `assets.upload`:
+
+| Route | What |
+| --- | --- |
+| `GET /` | Every family, by name, each with its files (`assetId`, `filename`, `contentType`, `url`, `weight`, `style`). |
+| `POST /` | `{ name, fallback, assetIds }`: adds a family. 201; 400 for a file that isn't a font, no longer exists or overlaps another; 409 for a file in another family or a full library. |
+| `PATCH /:id` | Any of `{ name, fallback, assetIds }` (`assetIds` is the whole new list). |
+| `DELETE /:id` | 204. Its files stay. |
+
 Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 415 (type refused), 429 (member upload limit), 507 (database quota full). Errors carry `field` where a form field is at fault.
 
 ## Serving
@@ -121,11 +144,12 @@ Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 4
 - **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)). Its asset can't be deleted while it's the logo.
 - **Favicon**: `settings.favicon` is `{ assetId }`. Its asset can't be deleted while it's the favicon.
 - **Image block** in content pages ([Content pages](../architecture/content-pages.md)). Deleting its asset warns first; the page then shows a "missing image" placeholder.
+- **Font families**: a font file's family. Deleting the file warns first, then takes it out of the family.
 - **Profiles**: `profile.avatarAssetId` and `profile.bannerAssetId`. Deleting the asset clears them, so the profile shows its generated picture. Deleting an account deletes the avatars and banners it uploaded (`deleteMemberUploads()`); files staff uploaded stay ([User management](user-management.md#deleting-accounts)).
 
 ## Permissions
 
 | Permission | Roles | Allows |
 | --- | --- | --- |
-| `assets.upload` | owner, admin, editor | Uploading, listing, renaming and describing files |
+| `assets.upload` | owner, admin, editor | Uploading, listing, renaming and describing files; managing font families |
 | `assets.delete` | owner, admin | Deleting files |

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { fontFileInfoSchema } from '../fonts/fonts.schema';
 
 /** Every stored file is at most this big, in every storage mode (decision 0098). */
 export const MAX_ASSET_BYTES = 2 * 1024 * 1024;
@@ -94,6 +95,8 @@ export const assetSchema = z
     filename: z.string(),
     /** Describes an image for screen readers; each use can override it. */
     alt: z.string().optional(),
+    /** For fonts: what the file covers, read from it (decision 0111). */
+    font: fontFileInfoSchema.optional(),
     /** The id of the user who uploaded it. */
     uploadedBy: z.string(),
     /** Which storage holds the bytes. */

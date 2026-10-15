@@ -111,6 +111,9 @@
       ],
       "@inithium/api-testing-accounts": [
         "./libs/api/testing-accounts/src/index.ts"
+      ],
+      "@inithium/api-fonts": [
+        "./libs/api/fonts/src/index.ts"
       ]
     }
   },

@@ -89,10 +89,17 @@ The editor is a Modal over a draft, with five tabs:
 `MediaScreen` (`@inithium/cms-media`, needs `assets.upload`) is the library of uploaded files ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md), [Assets](../backend/assets.md)):
 
 - **Storage meter:** in `database` mode, how much of the quota is used (red from 90%).
-- **Search and filter:** words in the file name or description, and a kind (images, fonts, documents, audio, video). **Member uploads** shows members' avatars and banners instead, which are otherwise kept apart from the site's files; owners and admins can delete one, and that profile goes back to its generated picture ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)).
-- **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it).
+- **Search and filter:** words in the file name or description, and a kind (images, font families, documents, audio, video). **Member uploads** shows members' avatars and banners instead, which are otherwise kept apart from the site's files; owners and admins can delete one, and that profile goes back to its generated picture ([0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)).
+- **Grid:** a card per file with its preview (or kind icon), name, size and dimensions. Clicking anywhere on a card opens its details modal (in the picker, picks it). Font files in a family are listed under the family, not here, unless you search.
+- **Font families** ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md), [Assets](../backend/assets.md#font-families)): the font library. It shows a card per family, drawn in its own font, with what its files cover; how many of the six are used; **New font family** (disabled when full); and the fonts not in a family. A card opens `FontFamilyDialog`:
+  - **Files:** a row per file, previewed in it, with its weight and style (read from the file) and **Remove**.
+  - **Upload font files:** several at once, after ticking the licence box.
+  - **Uploaded fonts not in a family:** a button for each, to add it.
+  - A file covering a weight and style already in the list isn't added, and an alert says why.
+  - **Name** (suggested from the first file's own family name) and **Fallback** (sans serif, serif or monospace).
+  - **Save** or **Add family**, Cancel, and **Remove family** (confirmed in the footer; the files stay in Media).
 - **Upload** opens `UploadDialog` (`@inithium/shared-media`): choose what the file is for, choose or drop a file, then for PNG, JPEG, WebP and AVIF images choose a shape and **crop to fill** or **fit inside** (on a background colour) with the [ImageCropper](../ui-library/composites/image-cropper.md), describe it, and for fonts confirm the licence. The new file opens in the details modal.
-- **Details modal:** a preview (audio and video play) beside the name and default description to edit, its type, size, dimensions, date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo or favicon, with a note saying to choose another in Settings first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
+- **Details modal:** a preview (audio and video play; fonts draw a sample) beside the name and default description to edit, its type, size, dimensions (fonts: their family name, weight and style), date and storage, and **where it's used**. The footer holds **Save** (enabled once something changed), **Copy address**, **Open** and **Delete** (needs `assets.delete`; disabled while the file is the site logo or favicon, with a note saying to choose another in Settings first). Delete asks for confirmation in the footer, listing how many places will show a missing image.
 
 Other screens use the library through two components:
 

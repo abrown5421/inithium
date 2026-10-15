@@ -14,6 +14,8 @@ const assetsSchema = new Schema(
     height: { type: Number },
     filename: { type: String, required: true, trim: true },
     alt: { type: String, trim: true },
+    // Fonts only: what the file covers, read from it on upload (decision 0111), validated by fontFileInfoSchema.
+    font: { type: Schema.Types.Mixed },
     uploadedBy: { type: String, required: true, index: true },
     // Which storage holds the bytes, and where within it.
     driver: { type: String, enum: ['database', 'r2'], required: true },

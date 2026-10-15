@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { assetFileTypes, type Asset } from '@inithium/shared-contracts';
+import { assetFileTypes, fontWeightLabel, type Asset } from '@inithium/shared-contracts';
 import {
   readApiFailure,
   useAlerts,
@@ -10,6 +10,8 @@ import {
 import { AssetThumbnail, formatBytes, PURPOSE_LABELS } from '@inithium/shared-media';
 import { Button, Container, Divider, Image, Input, Loader, Text } from '@inithium/shared-ui-components';
 import { Modal } from '@inithium/shared-ui-composites';
+import { FontFaces } from '@inithium/shared-ui-theme';
+import { FontSample } from './font-sample.component';
 
 export type AssetDetailsProps = {
   /** The asset to show; the modal is open while there is one. */
@@ -93,7 +95,9 @@ export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
         <Text as="strong" fontWeight={600}>
           Delete {target.filename}?
         </Text>{' '}
-        {uses > 0 ? `It’s used in ${uses} ${uses === 1 ? 'place' : 'places'}, which will show a missing image. ` : ''}This can’t be undone.
+        {uses > 0
+          ? `It’s used in ${uses} ${uses === 1 ? 'place' : 'places'}, which will ${target.kind === 'font' ? 'lose it' : 'show a missing image'}. `
+          : ''}This can’t be undone.
       </Text>
       <Container flex={{ gap: 8 }} flexItem={{ shrink: 0 }}>
         <Button color="red" leadingIcon="trash-2" loading={deleting.isLoading} onClick={() => void remove()}>
@@ -149,6 +153,20 @@ export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
             <audio controls src={target.url} style={{ width: '100%', margin: 12 }} />
           ) : target.kind === 'video' ? (
             <video controls src={target.url} style={{ width: '100%', maxHeight: 420, display: 'block' }} />
+          ) : target.kind === 'font' && target.font ? (
+            <Container flex={{ direction: 'column', gap: 8 }} padding={{ all: 24 }} minWidth={0}>
+              <FontFaces sets={[{ cssName: `Inithium Font file ${target.id}`, files: [{ url: target.url, contentType: target.contentType, weight: target.font.weight, style: target.font.style }] }]} />
+              <FontSample
+                cssName={`Inithium Font file ${target.id}`}
+                fallback="sans"
+                weight={Math.min(target.font.weight.max, Math.max(target.font.weight.min, 400))}
+                italic={target.font.style === 'italic'}
+              >
+                <Text as="span" fontSize={40} lineHeight={1.2}>
+                  Aa Bb Cc 123
+                </Text>
+              </FontSample>
+            </Container>
           ) : (
             <AssetThumbnail url={target.url} kind={target.kind} size={96} />
           )}
@@ -170,6 +188,9 @@ export function AssetDetails({ asset, onClose, canDelete }: AssetDetailsProps) {
             <Fact label="Type" value={assetFileTypes[target.contentType]?.label ?? target.contentType} />
             <Fact label="Size" value={formatBytes(target.size)} />
             {target.width && target.height ? <Fact label="Dimensions" value={`${target.width} × ${target.height}`} /> : null}
+            {target.font ? <Fact label="Font" value={target.font.family} /> : null}
+            {target.font ? <Fact label="Weight" value={fontWeightLabel(target.font.weight)} /> : null}
+            {target.font ? <Fact label="Style" value={target.font.style === 'italic' ? 'Italic' : 'Upright'} /> : null}
             <Fact label="Uploaded" value={new Date(target.createdAt).toLocaleDateString()} />
             <Fact label="Stored in" value={target.driver === 'database' ? 'The site’s database' : 'Cloud storage'} />
           </Container>
