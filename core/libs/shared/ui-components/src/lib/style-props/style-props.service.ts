@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import {
+  fontFamilyVariable,
   variantKeys,
   type ButtonStyleProps,
   type ButtonVariant,
@@ -269,7 +270,10 @@ function applyContainer(builder: StyleBuilder, props: ContainerStyleProps): void
 // --- Text ---
 
 function applyText(builder: StyleBuilder, props: TextStyleProps): void {
-  builder.each(props.fontFamily, (key, value) => builder.set('font', key, `var(--font-${value})`));
+  // A theme role reads its variable; a library family reads its own, falling back to body if it's gone (decision 0112).
+  builder.each(props.fontFamily, (key, value) =>
+    builder.set('font', key, typeof value === 'string' ? `var(--font-${value})` : `var(${fontFamilyVariable(value.familyId)}, var(--font-body))`),
+  );
   builder.each(props.fontSize, (key, value) => builder.set('font-size', key, px(value)));
   builder.each(props.fontWeight, (key, value) => builder.set('font-weight', key, String(value)));
   builder.each(props.align, (key, value) => builder.set('text-align', key, value));

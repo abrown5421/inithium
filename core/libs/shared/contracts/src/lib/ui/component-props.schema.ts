@@ -293,6 +293,23 @@ export const iconPickerPropsSchema = inputStylePropsSchema
   .strict();
 
 /**
+ * A FontPicker's storable props (decision 0111): the Input field's look plus label, placeholder, helper text and
+ * animation. The families it offers and its value are runtime only.
+ */
+export const fontPickerPropsSchema = inputStylePropsSchema
+  .extend({
+    /** Sits in the field and floats above it once a font is chosen or the panel is open. */
+    label: z.string().min(1).optional(),
+    /** Shown while no font is chosen. Default 'Default'. */
+    placeholder: z.string().optional(),
+    /** A line of guidance under the field. */
+    helperText: z.string().optional(),
+    required: z.boolean().optional(),
+    animation: animationSchema.optional(),
+  })
+  .strict();
+
+/**
  * An AutoIncrementingList's storable props (decision 0070): its label, limits, button colours and wording,
  * alignment, spacing and animation. Its items and how they render are runtime only.
  */

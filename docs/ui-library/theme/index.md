@@ -58,13 +58,13 @@ Two families ([0046](../../decisions/0046-theme-fonts-display-and-body.md)):
 | `display` | Branding, logo-style headings | Bruno Ace SC | 400 only | `--font-display` |
 | `body` | Everything else (the page default) | Merriweather Sans | 300–800 (variable) | `--font-body` |
 
-- Select a family with Text's [`fontFamily`](../components/text.md) prop.
+- Select a family with Text's [`fontFamily`](../components/text.md#fontfamily) prop: a role, or a library family as `{ familyId }` ([0112](../../decisions/0112-give-text-typography-props-with-library-font-families.md)). The theme's font CSS gives every library family a `--font-family-<id>` variable (`fontFamilyVariable()`), which Text reads with `--font-body` as the fallback. In a form, choose one with [FontPicker](../composites/font-picker.md).
 - A heavier weight on `display` is synthesised by the browser.
 - Both defaults use the SIL Open Font License 1.1. Their licences ship beside the font files in `libs/shared/ui-theme/src/fonts/` (`display-ofl.txt`, `body-ofl.txt`), so every client clone carries them.
 - "Merriweather" is a Reserved Font Name: a modified copy, such as these web fonts, can't be offered under it. That's one reason the families are exposed as `Inithium Display` and `Inithium Body`.
 - Clients group uploaded fonts into a font library of up to six families on the Media screen ([Assets: font families](../../backend/assets.md#font-families)). `FontFaces` (`@inithium/shared-ui-theme`) declares families' files with `@font-face` rules: `<FontFaces sets={[{ cssName, files }]} />`.
 - Settings points `display` and `body` at library families ([Site settings](../../backend/site-settings.md)). The api writes the font rules into each app's page, and `ThemeFonts` (`@inithium/shared-ui-theme`) applies them again at runtime: `<ThemeFonts families={site.fontFamilies} fonts={site.settings.fonts} />`. `--font-display` and `--font-body` then name the client's families, so nothing in the components changes ([0114](../../decisions/0114-load-the-clients-fonts-without-a-flash.md)).
-- Not built yet: clients will choose library families in the page builder ([0111](../../decisions/0111-keep-uploaded-font-families-in-a-library.md), [0113](../../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)). The api will write the font rules into each app's page so they load without a flash ([0114](../../decisions/0114-load-the-clients-fonts-without-a-flash.md)).
+- Not built yet: choosing fonts in the page builder ([0111](../../decisions/0111-keep-uploaded-font-families-in-a-library.md), [0113](../../decisions/0113-choose-typography-in-the-page-builder-per-block-and-per-word.md)). The api will write the font rules into each app's page so they load without a flash ([0114](../../decisions/0114-load-the-clients-fonts-without-a-flash.md)).
 
 ## Examples
 

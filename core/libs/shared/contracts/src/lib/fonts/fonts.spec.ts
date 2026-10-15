@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { fontFamilySchema } from '../ui/typography.schema';
+import { textStylePropsSchema } from '../ui/style-props.schema';
 import { fallbackFaceCss, fontFaceCss, mainFontFile, themeFontPreloads, themeFontsCss, type FontFaceSource, type ThemeFontFamily } from './fonts.schema';
 
 const metrics = { unitsPerEm: 1000, ascent: 900, descent: 250, lineGap: 0, xAvgCharWidth: 500 };
@@ -36,7 +38,7 @@ describe('font CSS (decisions 0111, 0114)', () => {
 
   it('point only the roles with a usable family at it, keeping defaults otherwise', () => {
     const css = themeFontsCss([brand, plain, empty], { display: 'aaa', body: 'ccc' });
-    expect(css).toContain(":root{--font-display:'Inithium Font aaa', 'Inithium Font aaa Fallback', ui-serif, Georgia, serif;}");
+    expect(css).toContain("--font-display:'Inithium Font aaa', 'Inithium Font aaa Fallback', ui-serif, Georgia, serif;}");
     expect(css).not.toContain('--font-body');
     // Every family is declared, chosen or not.
     expect(css).toContain("font-family:'Inithium Font bbb'");
@@ -44,9 +46,31 @@ describe('font CSS (decisions 0111, 0114)', () => {
     expect(themeFontsCss([], undefined)).toBe('');
   });
 
+  it('give every family a variable for Text to read, even one without files (decision 0112)', () => {
+    const css = themeFontsCss([brand, empty], undefined);
+    expect(css).toContain("--font-family-aaa:'Inithium Font aaa', 'Inithium Font aaa Fallback', ui-serif, Georgia, serif;");
+    expect(css).toContain("--font-family-ccc:'Inithium Font ccc', ui-monospace, SFMono-Regular, Menlo, monospace;");
+  });
+
   it('preload each theme font’s main file once', () => {
     expect(themeFontPreloads([brand, plain], { display: 'aaa', body: 'aaa' }).map((preload) => preload.url)).toEqual(['/b400']);
     expect(themeFontPreloads([brand, plain], { body: 'bbb' }).map((preload) => preload.url)).toEqual(['/p']);
     expect(themeFontPreloads([brand], { display: 'missing' })).toEqual([]);
+  });
+});
+
+describe('fontFamilySchema (decision 0112)', () => {
+  it('takes a theme role or a library family id, nothing else', () => {
+    expect(fontFamilySchema.safeParse('display').success).toBe(true);
+    expect(fontFamilySchema.safeParse({ familyId: '0123456789abcdef01234567' }).success).toBe(true);
+    expect(fontFamilySchema.safeParse('heading').success).toBe(false);
+    // Ids end up in CSS, so only real family ids get through.
+    expect(fontFamilySchema.safeParse({ familyId: 'x);background:red' }).success).toBe(false);
+    expect(fontFamilySchema.safeParse({ familyId: '0123456789abcdef01234567', extra: 1 }).success).toBe(false);
+  });
+
+  it('works as a style prop, alone or in variants', () => {
+    expect(textStylePropsSchema.safeParse({ fontFamily: { familyId: '0123456789abcdef01234567' } }).success).toBe(true);
+    expect(textStylePropsSchema.safeParse({ fontFamily: { base: 'body', md: { familyId: '0123456789abcdef01234567' } } }).success).toBe(true);
   });
 });

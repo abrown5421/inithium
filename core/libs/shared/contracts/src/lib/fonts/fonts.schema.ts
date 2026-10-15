@@ -107,6 +107,12 @@ export const fontFamilyUpdateSchema = fontFamilyCreateSchema.partial().strict();
 /** The CSS family name a library family is served under (decision 0111), never the font's own name. */
 export const fontFamilyCssName = (familyId: string) => `Inithium Font ${familyId}`;
 
+/**
+ * The CSS variable holding a library family's `font-family` value, set for every family by the theme's font CSS. Text
+ * reads it with `var(--font-body)` as the fallback, so a family that's gone draws as `body` (decision 0112).
+ */
+export const fontFamilyVariable = (familyId: string) => `--font-family-${familyId}`;
+
 /** Generic families, by fallback type, ending a family's CSS stack. */
 const FALLBACK_STACKS: Record<(typeof fontFallbacks)[number], string> = {
   sans: 'ui-sans-serif, system-ui, sans-serif',
@@ -198,19 +204,21 @@ export function themeFontFamilies(families: readonly ThemeFontFamily[], fonts: {
 }
 
 /**
- * The theme's font CSS (decisions 0111, 0114): `@font-face` rules for every library family and their fallback faces,
- * then `--font-display` / `--font-body` pointed at the families the theme uses. A role without a usable family keeps
- * Inithium's default. The api writes it into each app's page and the apps apply it again at runtime.
+ * The theme's font CSS (decisions 0111, 0112, 0114): `@font-face` rules for every library family and their fallback
+ * faces, a `--font-family-<id>` variable for each family (what Text's `{ familyId }` reads), then `--font-display` /
+ * `--font-body` pointed at the families the theme uses. A role without a usable family keeps Inithium's default. The
+ * api writes it into each app's page and the apps apply it again at runtime.
  */
 export function themeFontsCss(families: readonly ThemeFontFamily[], fonts: { display?: string; body?: string } | undefined): string {
   const faces = families.flatMap((family) => [fontFaceCss(fontFamilyCssName(family.id), family.files), fallbackFaceCss(family)]).filter(Boolean);
   const roles = themeFontFamilies(families, fonts);
-  const variables = (['display', 'body'] as const)
-    .flatMap((role) => {
+  const variables = [
+    ...families.map((family) => `${fontFamilyVariable(family.id)}:${familyFontStack(family)};`),
+    ...(['display', 'body'] as const).flatMap((role) => {
       const family = roles[role];
       return family ? [`--font-${role}:${familyFontStack(family)};`] : [];
-    })
-    .join('');
+    }),
+  ].join('');
   return [...faces, ...(variables ? [`:root{${variables}}`] : [])].join('\n');
 }
 
