@@ -24,7 +24,7 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `updatedAt` | ISO date-time | |
 
-Fonts and SEO defaults come later. Logos saved as URLs before assets existed are dropped, so those sites show the default logo until one is chosen.
+The theme's fonts come later (the `display` and `body` families, [0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)), and so do SEO defaults. Logos saved as URLs before assets existed are dropped, so those sites show the default logo until one is chosen.
 
 ## Endpoints
 

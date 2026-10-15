@@ -11,7 +11,7 @@ decisions: ["0098", "0099", "0101", "0029"]
 
 Assets are uploaded files: images, fonts, documents, audio and video. The api owns them in `@inithium/api-assets` ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). Staff manage them on the CMS's [Media screen](../architecture/cms.md#media) and pick them with `AssetField`.
 
-> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). **Not built yet:** font families (step C).
+> **Built:** the database driver, the api, the Media screen, the picker, the logo and the Image block (step A); the R2 driver, the cloud modes and members' avatar and banner uploads (step B, [0099](../decisions/0099-store-cloud-files-in-r2-and-let-members-upload-profile-pictures.md)). **Not built yet:** font families (step C, planned in [0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)).
 
 ## Rules
 
