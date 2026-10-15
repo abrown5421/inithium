@@ -10,7 +10,9 @@ import {
   MAX_ASSET_BYTES,
   type AssetKind,
   type AssetPurpose,
+  type FontFileInfo,
 } from '@inithium/shared-contracts';
+import { readFontInfo } from './font-files.service';
 
 /** An error the API's error handler sends with its status, message and the form field it's about. */
 export const failure = (status: number, message: string, field?: string) => Object.assign(new Error(message), { status, field });
@@ -24,6 +26,8 @@ export type ProcessedFile = {
   filename: string;
   width?: number;
   height?: number;
+  /** For fonts: what the file covers, read from it (decision 0111). */
+  font?: FontFileInfo;
 };
 
 export type ProcessOptions = {
@@ -133,8 +137,10 @@ export async function processUpload(data: Buffer, originalName: string, options:
     if (!options.fontLicence) throw failure(400, 'Confirm you may use this font on the web', 'fontLicence');
     const converted = detected === 'font/ttf' || detected === 'font/otf' ? Buffer.from(await toWoff2(data)) : data;
     if (converted.length > MAX_ASSET_BYTES) throw failure(413, TOO_BIG, 'file');
+    const font = readFontInfo(converted);
+    if (!font) throw failure(415, 'This font file can’t be read. Try another copy of the font.', 'file');
     const contentType = detected === 'font/woff' ? 'font/woff' : 'font/woff2';
-    return { data: converted, contentType, kind: 'font', filename: cleanName(originalName, contentType === 'font/woff' ? 'woff' : 'woff2') };
+    return { data: converted, contentType, kind: 'font', font, filename: cleanName(originalName, contentType === 'font/woff' ? 'woff' : 'woff2') };
   }
 
   const type = assetFileTypes[detected];

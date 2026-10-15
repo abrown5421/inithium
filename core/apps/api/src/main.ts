@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { assetsRouter, startStorage } from '@inithium/api-assets';
+import { assetsRouter, fontFamiliesRouter, startStorage } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
@@ -30,6 +30,7 @@ api.get('/', (_req, res) => {
 api.use('/health', healthRouter);
 api.use('/auth', authRouter);
 api.use('/assets', assetsRouter);
+api.use('/fonts', fontFamiliesRouter);
 api.use('/site', siteRouter);
 api.use('/pages', pagesRouter);
 api.use('/profiles', profilesRouter);

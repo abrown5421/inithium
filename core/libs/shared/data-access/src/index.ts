@@ -12,3 +12,4 @@ export * from './lib/site.api';
 export * from './lib/store.config';
 export * from './lib/use-alerts.hook';
 export * from './lib/use-modal.hook';
+export * from './lib/fonts.api';
