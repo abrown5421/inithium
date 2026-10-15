@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { assetUrl, type ImageElementProps } from '@inithium/shared-contracts';
 import { Container, Icon, Image, Text } from '@inithium/shared-ui-components';
+import { withoutBoxProps } from './element-box.service';
 import { typographyProps } from './content-typography.service';
 import { useContentLinks } from './content-links.context';
 
@@ -23,11 +24,8 @@ export function ImageElementView({ props }: { props: ImageElementProps }) {
     captionTypography,
     align = 'center',
     link,
-    hidden: _hidden,
-    margin: _margin,
-    animation: _animation,
     ...style
-  } = props;
+  } = withoutBoxProps(props);
   const missing = !assetId || failedId === assetId;
   const width = style.width ?? 'full';
 

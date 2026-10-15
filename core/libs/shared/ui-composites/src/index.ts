@@ -9,6 +9,7 @@ export * from './lib/font-picker/font-picker.component';
 export * from './lib/footer/footer.component';
 export * from './lib/icon-picker/icon-picker.component';
 export * from './lib/image-cropper/image-cropper.component';
+export * from './lib/menu/menu.component';
 export * from './lib/modal/modal.component';
 export * from './lib/navbar/navbar.component';
 export * from './lib/pagination/pagination.component';

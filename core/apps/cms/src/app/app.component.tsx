@@ -21,6 +21,16 @@ const screens: CmsScreen[] = [
     inSidebar: false,
     fill: true,
   },
+  // The new page builder while it's built (decision 0116): reached by its address only, and it doesn't save yet.
+  {
+    path: '/pages/:id/builder',
+    label: 'Page builder',
+    icon: 'layout-template',
+    element: <ContentEditorScreen builder />,
+    permission: 'pages.edit',
+    inSidebar: false,
+    fill: true,
+  },
   { path: '/media', label: 'Media', icon: 'images', element: <MediaScreen />, permission: 'assets.upload' },
   { path: '/users', label: 'Users', icon: 'users', element: <UsersScreen />, permission: 'users.view' },
   { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },

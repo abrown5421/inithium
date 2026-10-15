@@ -23,6 +23,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [Footer](footer.md) | The site footer: main links over the copyright and secondary links |
 | [IconPicker](icon-picker.md) | Choosing a Lucide icon from a searchable grid |
 | [ImageCropper](image-cropper.md) | Cropping or fitting an image to a shape before it is uploaded |
+| [Menu](menu.md) | Lists of actions opening from a button, e.g. a row's ⋯ |
 | [Modal](modal.md) | Dialogs over the page, openable from anywhere through Redux |
 | [Navbar](navbar.md) | The main navigation bar, collapsing into a drawer by width and sign-in state |
 | [Pagination](pagination.md) | Paging through long lists |
@@ -31,4 +32,4 @@ Composites combine components into larger pieces, for example a modal built from
 | [RichTextView](rich-text-view.md) | Drawing saved rich text, never as HTML |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
-Every composite planned for the first version is built, plus FontPicker (0111). Layouts come next.
+Every composite planned for the first version is built, plus FontPicker (0111) and Menu (0117). Layouts come next.

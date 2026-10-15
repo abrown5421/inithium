@@ -12,6 +12,8 @@ export type RichTextToolbarProps = {
   pages: Page[];
   /** The buttons' colour when they're not active, e.g. light on a dark canvas. Default primary. */
   color?: SolidColorValue;
+  /** Offers Heading 1, for a content page's Text (decision 0116). The editor must allow it too. Default false. */
+  titleHeading?: boolean;
 };
 
 type Tool = { label: string; icon: IconName; active: boolean; run: () => void };
@@ -21,7 +23,7 @@ type Tool = { label: string; icon: IconName; active: boolean; run: () => void };
  * text style (font, weight, size and colour for the selected words, decision 0115), paragraph and sub-headings, lists
  * and quote. It sits above the preview and drives the in-place editor.
  */
-export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) {
+export function RichTextToolbar({ editor, pages, color, titleHeading = false }: RichTextToolbarProps) {
   const state = useEditorState({
     editor,
     selector: ({ editor: current }) => ({
@@ -31,6 +33,7 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
       link: current.isActive('link'),
       styled: current.isActive(RICH_TEXT_STYLE_MARK),
       paragraph: current.isActive('paragraph') && !current.isActive('bulletList') && !current.isActive('orderedList'),
+      h1: current.isActive('heading', { level: 1 }),
       h2: current.isActive('heading', { level: 2 }),
       h3: current.isActive('heading', { level: 3 }),
       h4: current.isActive('heading', { level: 4 }),
@@ -64,6 +67,7 @@ export function RichTextToolbar({ editor, pages, color }: RichTextToolbarProps) 
     ],
     [
       { label: 'Paragraph', icon: 'pilcrow', active: state.paragraph, run: () => chain().setParagraph().run() },
+      ...(titleHeading ? [{ label: 'Heading 1', icon: 'heading-1' as IconName, active: state.h1, run: () => chain().toggleHeading({ level: 1 }).run() }] : []),
       { label: 'Heading 2', icon: 'heading-2', active: state.h2, run: () => chain().toggleHeading({ level: 2 }).run() },
       { label: 'Heading 3', icon: 'heading-3', active: state.h3, run: () => chain().toggleHeading({ level: 3 }).run() },
       { label: 'Heading 4', icon: 'heading-4', active: state.h4, run: () => chain().toggleHeading({ level: 4 }).run() },

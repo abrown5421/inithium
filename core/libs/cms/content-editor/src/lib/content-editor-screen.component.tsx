@@ -3,6 +3,7 @@ import { useGetCurrentUserQuery, useGetPageQuery, useGetPagesQuery } from '@init
 import { hasPermission } from '@inithium/shared-permissions';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { ContentEditor } from './content-editor.component';
+import { PageBuilder } from './page-builder.component';
 
 /** A full-screen message with a way back to Pages. */
 function Notice({ title, message }: { title: string; message: string }) {
@@ -22,11 +23,17 @@ function Notice({ title, message }: { title: string; message: string }) {
   );
 }
 
+export type ContentEditorScreenProps = {
+  /** Opens the new page builder (decision 0116) instead, while it's built: it doesn't save yet. Default false. */
+  builder?: boolean;
+};
+
 /**
- * The CMS screen for editing a content page's blocks, `/pages/:id/content` (decisions 0093, 0094): it fills the space
- * under the CMS's top bar, with no sidebar (a `fill` screen). Needs pages.edit; publishing needs pages.publish.
+ * The CMS screen for editing a content page, `/pages/:id/content` (decisions 0093, 0094), or trying the new page
+ * builder, `/pages/:id/builder` (0116): it fills the space under the CMS's top bar, with no sidebar (a `fill`
+ * screen). Needs pages.edit; publishing needs pages.publish.
  */
-export function ContentEditorScreen() {
+export function ContentEditorScreen({ builder = false }: ContentEditorScreenProps) {
   const { id = '' } = useParams();
   const { data: user } = useGetCurrentUserQuery();
   const canEdit = user ? hasPermission(user.role, 'pages.edit') : false;
@@ -45,6 +52,7 @@ export function ContentEditorScreen() {
   const { content } = page.data;
   if (!content) return <Notice title="This page has no blocks" message="It’s drawn by its own code. Change its settings from the Pages list instead." />;
 
+  if (builder) return <PageBuilder key={page.data.id} page={{ ...page.data, content }} pages={pages.data ?? []} />;
   return (
     <ContentEditor
       key={page.data.id}

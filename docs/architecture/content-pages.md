@@ -122,7 +122,7 @@ Ids are kept, and new elements get ids made from their source's (e.g. `<section 
 
 `ContentRenderer` (`@inithium/shared-content`) draws a content document's elements with the UI library's components. `web`'s `content` template uses it, and the rebuilt editor's preview will too, so the preview always matches the site.
 
-It takes the content and `links` (`{ pagePath(pageId), onNavigate(path), preview? }`), which resolves page links against the site's pages and follows them through the app's router; with `preview`, links and buttons go nowhere. A host can pass `decorators` (`{ element?, children? }`): `element` wraps or replaces each element as it's drawn (one the site can't draw arrives as `null`), and `children` gets each Container's children as drawn (none, when it's empty), e.g. for an empty Container's placeholder:
+It takes the content and `links` (`{ pagePath(pageId), onNavigate(path), preview? }`), which resolves page links against the site's pages and follows them through the app's router; with `preview`, links and buttons go nowhere. Everything it draws carries its element's id as `data-element-id` (and its type as `data-element`), so a host can find an element without wrapping it, which would change the layout. A host can also pass `decorators` (`{ element?, body?, children? }`): `element` wraps or replaces each element as it's drawn (one the site can't draw arrives as `null`); `body` replaces a non-Container element's body inside its box (the builder swaps a selected Text for its in-place editor this way, keeping the box's margin and hiding); and `children` gets each Container's children as drawn (none, when it's empty), e.g. for an empty Container's placeholder:
 
 ```tsx
 import { readContentDocument } from '@inithium/shared-contracts';
@@ -141,6 +141,41 @@ A hero band, then a row of three cards built once and duplicated: each card is a
 ```example
 architecture/content-pages/sample
 ```
+
+## The page builder (being built)
+
+The new editor ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)) is being built in steps. Until it can save, it lives at its own address, `/cms/pages/:id/builder`, with no link to it, and works on a copy of the page's draft (upgraded to version 2): **nothing it does is saved**. "Open the current editor" goes back to the editor below. It needs `pages.edit` and a window at least 1024px wide.
+
+| Part | Does |
+| --- | --- |
+| Top bar | Back to Pages, the page's title (with a reminder that nothing is saved yet), **Preview width** (desktop, tablet 768px, phone 390px), **Undo** and **Redo**, **Open the current editor** |
+| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens a [Menu](../ui-library/composites/menu.md) of the six elements; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle and a "⋯" menu. |
+| Preview (middle) | The draft drawn by the site's renderer in an iframe at the chosen width. Click an element to select it; the one under the pointer is outlined dashed, the selected one solid. Empty Containers show a dashed box. Click a selected Text to type in it, with the formatting toolbar above the preview (which adds Heading 1). An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. |
+| Properties (right) | For now, where the selection sits: a trail from the page through its Containers (click one to select it), and its type. Its settings come in the next step. |
+
+**Each element's ⋯ menu:** Duplicate, Copy, Cut, Paste inside (a Container) or Paste after (anything else), Move up, Move down, **Move to…** (a list of the page and every Container it could go into; it lands at the end), Rename, Delete.
+
+**Moving by dragging:** drag a row onto another. Over the top quarter of a Container (half, for other elements) it goes before it, over the bottom quarter after it, and over the middle inside it, at the end. A line or an outline shows where it'll land; places it can't go (inside itself, or past the page's limits) show nothing. While dragging, a box under the tree moves it to the end of the page.
+
+**Copying** works within the page: Copy or Cut, then Paste puts a copy (with new ids, and without its anchor) where new elements go. Duplicate puts the copy just after the original: build one card, duplicate it twice, and there's a row of cards.
+
+**Keyboard**, anywhere in the builder except while typing:
+
+| Keys | Does |
+| --- | --- |
+| ↑ ↓, Home, End (in the Layers) | Select the row above, below, first or last |
+| ← → (in the Layers) | Collapse or expand a Container; ← again goes to its parent, → to its first child |
+| Shift+F10 or the menu key (in the Layers) | Open the selected row's ⋯ menu |
+| F2, or a double click | Rename (Enter keeps it; empty clears the label; Escape cancels) |
+| Ctrl+D, Ctrl+C, Ctrl+X, Ctrl+V | Duplicate, copy, cut, paste |
+| Delete or Backspace | Delete (Ctrl+Z brings it back) |
+| Alt+↑, Alt+↓ | Move up or down among its siblings |
+| Escape | Select the parent |
+| Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y | Undo, redo |
+
+Anything that would break the page's limits (250 elements, 10 deep) is refused with an alert.
+
+The operations are pure functions in `content-tree.service.ts` (`findElement`, `insertElement`, `moveElement`, `copyElement`, `insertionTarget`, `limitProblem`, …), tested on their own.
 
 ## Editing
 
@@ -197,8 +232,8 @@ Admins edit it like any content page. The seed never touches it again, so their 
 5. **Assets and the Image block (built):** the [Media library](cms.md#media), the picker and the Image block ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)).
 6. **The element tree** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), in steps:
    1. **Model (built):** the element contracts and limits, version 2 with the upgrade from version 1, and the renderer, which the site uses.
-   2. Editor model and Layers: the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts.
-   3. Properties: the panels, spacing steps and responsive overrides. Drafts are saved as version 2 from here.
+   2. **Editor model and Layers (built, not saving yet):** the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts, at `/cms/pages/:id/builder` ([above](#the-page-builder-being-built)); the [Menu](../ui-library/composites/menu.md) composite.
+   3. Properties: the panels, spacing steps and responsive overrides. Drafts are saved as version 2 from here, and the builder replaces the version 1 editor at `/cms/pages/:id/content`.
    4. Interface: the Add picker, toolbar, empty state and canvas outlines.
    5. The edit lock.
    6. Accessibility warnings, and usage checks walking the tree.
