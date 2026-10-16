@@ -35,6 +35,7 @@ import {
   type InsertTarget,
 } from './content-tree.service';
 import { DEVICE_LABELS, DEVICE_WIDTHS, type EditDevice } from './device-values.service';
+import { sharingTheRow, stacksOn } from './property-values.service';
 import { ElementProperties, type FieldProblems, type PropertiesTab } from './element-properties.component';
 import { LayersPanel, type DropPosition } from './layers-panel.component';
 import { MoveToDialog } from './move-to-dialog.component';
@@ -235,7 +236,14 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
 
   // --- Actions, shared by the menus and the keyboard ---
 
-  const add = (type: ContentElementType) => place(createElement(type), insertionTarget(doc, selectedId));
+  const add = (type: ContentElementType) => {
+    const target = insertionTarget(doc, selectedId);
+    const parent = target.parentId ? findElement(doc, target.parentId)?.element : undefined;
+    const element = createElement(type);
+    // A Container added to a row takes an equal share of it, like the ones already there.
+    const [placed = element] = parent?.type === 'container' && !stacksOn(parent, 'desktop') && !parent.props.grid ? sharingTheRow([element]) : [element];
+    place(placed, target);
+  };
 
   const duplicate = (id: string) => {
     const found = findElement(doc, id);

@@ -13,7 +13,7 @@ import type {
   Variants,
 } from '@inithium/shared-contracts';
 import { AssetField } from '@inithium/cms-media';
-import { Container, Input, Select, Slider, Switch, type IconName } from '@inithium/shared-ui-components';
+import { Button, Container, Input, Select, Slider, Switch, type IconName } from '@inithium/shared-ui-components';
 import { IconPicker, Tabs, type PickedColor } from '@inithium/shared-ui-composites';
 import { readAt, readState, writeAt, writeState, type EditDevice } from './device-values.service';
 import { ColorField, LinkField } from './editor-fields.component';
@@ -32,7 +32,7 @@ import {
   StepField,
   VisibilityField,
 } from './property-fields.component';
-import type { Sides } from './property-values.service';
+import { arrangedInRow, stacksOn, type Sides } from './property-values.service';
 import { TypographyFields } from './typography-fields.component';
 
 /** Each field's problem, keyed by its path within the element, e.g. 'props.label'. */
@@ -102,6 +102,7 @@ export function ElementProperties(props: ElementPropertiesProps) {
           label: panel.label,
           content: (
             <Container flex={{ direction: 'column', gap: 16 }} padding={{ top: 4 }}>
+              {panel.value === 'layout' && <SideBySide parent={props.parent} onChange={props.onChange} device={props.device} />}
               {panel.content}
             </Container>
           ),
@@ -208,6 +209,22 @@ function boxStyle(props: Styled, set: (changes: Styled) => void, device: EditDev
 // --- Container ---
 
 type Direction = 'row' | 'column' | 'row-reverse' | 'column-reverse';
+
+/**
+ * Widths don't put things side by side: what holds them does. In a stacked Container, a button that arranges it in a
+ * row, so the element sits beside its neighbours.
+ */
+function SideBySide({ parent, onChange, device }: { parent: ContainerElement | null; onChange: (element: ContentElement) => void; device: EditDevice }) {
+  if (!parent || !stacksOn(parent, device) || parent.children.length < 2) return null;
+  return (
+    <Container flex={{ direction: 'column', align: 'start', gap: 8 }} padding={{ all: 12 }} radius={{ all: 8 }} bgColor={{ color: 'surface', intensity: 100 }}>
+      <FieldNote>It’s stacked with its neighbours because the Container holding it stacks what’s inside. To sit them side by side, put that Container in a row.</FieldNote>
+      <Button variant="outlined" leadingIcon="columns-3" onClick={() => onChange(arrangedInRow(parent, device))}>
+        Put it side by side with its neighbours
+      </Button>
+    </Container>
+  );
+}
 type AlignItems = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 type Justify = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
 
@@ -233,9 +250,8 @@ function containerPanels(element: ContainerElement, { parent, onChange, device, 
       set({ flex: undefined, grid: tidy({ columns, gap: flex.gap ?? 16, align: flex.align }) });
       return;
     }
-    let nextDirection = writeAt<Direction>(grid ? undefined : flex.direction, grid ? 'desktop' : device, next === 'row' ? 'row' : 'column', 'column');
-    // A new row stacks its children on phones (decision 0116).
-    if (next === 'row' && (grid || device === 'desktop') && readAt(nextDirection, 'phone') === 'row') nextDirection = writeAt(nextDirection, 'phone', 'column', 'column');
+    if (next === 'row') return onChange(arrangedInRow(element, device));
+    const nextDirection = writeAt<Direction>(grid ? undefined : flex.direction, grid ? 'desktop' : device, 'column', 'column');
     if (grid) set({ grid: undefined, flex: tidy({ direction: nextDirection, gap: grid.gap, align: grid.align }) });
     else setFlex({ direction: nextDirection });
   };

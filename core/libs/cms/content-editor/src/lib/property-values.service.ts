@@ -1,7 +1,38 @@
+import type { ContainerElement, ContentElement } from '@inithium/shared-contracts';
+import { readAt, writeAt, type EditDevice } from './device-values.service';
+
 /*
- * The page builder's plain-language values (decision 0116): named spacing steps, and the four sides of padding and
- * margin as one value or four.
+ * The page builder's plain-language values (decision 0116): named spacing steps, the four sides of padding and
+ * margin as one value or four, and arranging a Container in a row.
  */
+
+type Direction = 'row' | 'column' | 'row-reverse' | 'column-reverse';
+
+/** An object without its undefined fields, or undefined when nothing's left. */
+function tidy<T extends object>(value: T): T | undefined {
+  const entries = Object.entries(value).filter(([, entry]) => entry !== undefined);
+  return entries.length ? (Object.fromEntries(entries) as T) : undefined;
+}
+
+/** Containers inside a row without a width of their own take an equal share of it, so a row of cards lines up. */
+export const sharingTheRow = (children: ContentElement[]): ContentElement[] =>
+  children.map((child) => (child.type === 'container' && !child.props.flexItem ? { ...child, props: { ...child.props, flexItem: { grow: 1, basis: 0 } } } : child));
+
+/**
+ * A Container arranged in a row on a device (decision 0116). Set from Desktop (or from a grid, on every device), the
+ * row stacks on phones; the Containers inside share it equally unless they have their own width.
+ */
+export function arrangedInRow(container: ContainerElement, device: EditDevice): ContainerElement {
+  const { flex = {}, grid } = container.props;
+  const everywhere = Boolean(grid) || device === 'desktop';
+  let direction = writeAt<Direction>(grid ? undefined : flex.direction, grid ? 'desktop' : device, 'row', 'column');
+  if (everywhere && readAt(direction, 'phone') === 'row') direction = writeAt(direction, 'phone', 'column', 'column');
+  const nextFlex = grid ? { direction, gap: grid.gap, align: grid.align } : { ...flex, direction };
+  return { ...container, props: tidy({ ...container.props, grid: undefined, flex: tidy(nextFlex) }) ?? {}, children: sharingTheRow(container.children) };
+}
+
+/** Whether a Container shows what it holds stacked, one under another, on a device. */
+export const stacksOn = (container: ContainerElement, device: EditDevice) => !container.props.grid && !readAt(container.props.flex?.direction, device)?.startsWith('row');
 
 /** Spacing as named steps, with Custom for any other pixel value. */
 export const SPACING_STEPS = [
