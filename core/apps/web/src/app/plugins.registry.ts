@@ -1,3 +1,4 @@
+import type { ContentElementRenderer } from '@inithium/shared-content';
 import type { ProfileSlots } from '@inithium/web-pages';
 import type { PageTemplate } from '@inithium/web-shell';
 
@@ -12,3 +13,9 @@ export const registeredTemplates: PageTemplate[] = [];
  * Owned by the install/eject tooling: core ships them empty and never adds entries.
  */
 export const registeredProfileSlots: ProfileSlots = { tabs: [], sidebarSections: [], headerActions: [] };
+
+/**
+ * How installed plugins' and libs/client's content elements draw on the site (decisions 0116, 0118), from their `shared`
+ * libs. Owned by the install/eject tooling: core ships it empty and never adds entries.
+ */
+export const registeredContentElementRenderers: ContentElementRenderer[] = [];

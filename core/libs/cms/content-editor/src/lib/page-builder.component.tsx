@@ -10,6 +10,8 @@ import {
   type ContentElement,
   type ContentElementType,
   type Page,
+  type PluginElement,
+  type PluginElementType,
 } from '@inithium/shared-contracts';
 import { ContentRenderer, type ContentDecorators, type ContentLinks } from '@inithium/shared-content';
 import { readApiFailure, useAlerts, useDiscardContentDraftMutation, usePublishContentMutation, useSaveContentDraftMutation } from '@inithium/shared-data-access';
@@ -19,6 +21,7 @@ import { Drawer, Modal, type MenuItem } from '@inithium/shared-ui-composites';
 import { contrastWarning, emptyTextWarnings, headingWarnings, type AccessibilityCheck, type AccessibilityWarning } from './accessibility-checks.service';
 import { scanContrast, type ContrastResult } from './contrast-scan.service';
 import {
+  childrenOf,
   copyElement,
   createElement,
   elementName,
@@ -39,6 +42,7 @@ import {
 import { DEVICE_LABELS, DEVICE_WIDTHS, type EditDevice } from './device-values.service';
 import { sharingTheRow, stacksOn } from './property-values.service';
 import { ElementProperties, type FieldProblems, type PropertiesTab } from './element-properties.component';
+import { PluginElementProperties } from './plugin-element-properties.component';
 import { LayersPanel, type DropPosition } from './layers-panel.component';
 import { MoveToDialog } from './move-to-dialog.component';
 import { PreviewFrame } from './preview-frame.component';
@@ -289,7 +293,7 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
 
   // --- Actions, shared by the menus and the keyboard ---
 
-  const add = (type: ContentElementType, afterId?: string) => {
+  const add = (type: ContentElementType | PluginElementType, afterId?: string) => {
     const after = afterId ? findElement(doc, afterId) : undefined;
     const target = after ? { parentId: after.parent?.id ?? null, index: after.index + 1 } : insertionTarget(doc, selectedId);
     const parent = target.parentId ? findElement(doc, target.parentId)?.element : undefined;
@@ -342,7 +346,7 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
     if (targetId === null) return { parentId: null, index: doc.elements.length };
     const found = findElement(doc, targetId);
     if (!found) return undefined;
-    if (position === 'inside') return holdsChildren(found.element) ? { parentId: targetId, index: found.element.children.length } : undefined;
+    if (position === 'inside') return holdsChildren(found.element) ? { parentId: targetId, index: childrenOf(found.element).length } : undefined;
     return { parentId: found.parent?.id ?? null, index: found.index + (position === 'after' ? 1 : 0) };
   };
 
@@ -356,7 +360,7 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
 
   const menuFor = (element: ContentElement): MenuItem[] => {
     const found = findElement(doc, element.id);
-    const siblings = found?.parent ? found.parent.children : doc.elements;
+    const siblings = found?.parent ? childrenOf(found.parent) : doc.elements;
     return [
       { label: 'Duplicate', icon: 'copy-plus', shortcut: KEYS.duplicate, onSelect: () => duplicate(element.id) },
       { label: 'Copy', icon: 'copy', shortcut: KEYS.copy, onSelect: () => copy(element.id) },
@@ -553,14 +557,19 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
           </Container>
         )}
         {selected.element.type.startsWith('plugin-') ? (
-          <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-            This comes from a plugin. Its settings arrive with the plugin.
-          </Text>
+          <PluginElementProperties
+            key={`${selected.element.id}:${device}`}
+            element={selected.element as PluginElement}
+            onChange={(element) => change(updateElement(doc, element), `props:${element.id}`)}
+            device={device}
+            pages={pages}
+            problems={problems.get(selected.element.id) ?? {}}
+          />
         ) : (
           <ElementProperties
             key={`${selected.element.id}:${device}`}
             element={selected.element as Parameters<typeof ElementProperties>[0]['element']}
-            parent={selected.parent}
+            parent={selected.parent?.type === 'container' ? selected.parent : null}
             onChange={(element) => change(updateElement(doc, element), `props:${element.id}`)}
             device={device}
             pages={pages}
@@ -855,7 +864,7 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
           setMovingId(null);
           if (!id) return;
           const parent = parentId ? findElement(doc, parentId)?.element : undefined;
-          move(id, { parentId, index: parent && holdsChildren(parent) ? parent.children.length : doc.elements.length });
+          move(id, { parentId, index: parent && holdsChildren(parent) ? childrenOf(parent).length : doc.elements.length });
         }}
       />
     </Container>

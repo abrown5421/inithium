@@ -74,4 +74,4 @@ Every lib has one tag from each of `scope:`, `type:` and `origin:`; UI libs also
 | `ui:component` | `ui:theme` (not composites or layouts) |
 | `ui:composite` | `ui:component`, `ui:theme` (not layouts) |
 
-Only app registry files import plugin or client libs. Only `*.spec.ts(x)` files import test kits (`@inithium/*-testing*`), which `no-restricted-imports` enforces; the kits' own configs turn the rule off. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.
+Only app registry files import plugin or client libs. A plugin's layers are libs tagged `origin:plugin` with their layer's scope: `api`, `web` and `cms`, `contracts` (`scope:shared`, `type:util`) and, optionally, `shared` (`scope:shared`, `type:feature`) for React both frontends draw ([0118](../decisions/0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)). Only `*.spec.ts(x)` files import test kits (`@inithium/*-testing*`), which `no-restricted-imports` enforces; the kits' own configs turn the rule off. Fix a boundary error by changing the dependency, never with an `eslint-disable` comment.

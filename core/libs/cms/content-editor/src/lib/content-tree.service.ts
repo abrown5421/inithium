@@ -1,22 +1,24 @@
 import {
+  contentElementContract,
   createContentId,
   MAX_CONTENT_DEPTH,
   MAX_CONTENT_ELEMENTS,
   richTextFromPlainText,
-  type ContainerElement,
   type ContentDocument,
   type ContentElement,
   type ContentElementType,
+  type PluginElementType,
   type RichTextDocument,
 } from '@inithium/shared-contracts';
+import { contentElementEditor, contentElementEditors } from './content-element-editors.service';
 
 /*
  * The page builder's operations on a content page's element tree (decision 0116). Each takes a document and returns
  * a new one (or the same one, when there's nothing to do), so undo and redo can keep every version.
  */
 
-/** Where an element sits: its parent Container (null for the page itself), its place there, and its Containers from the page down. */
-export type ElementLocation = { element: ContentElement; parent: ContainerElement | null; index: number; ancestors: ContainerElement[] };
+/** Where an element sits: what holds it (null for the page itself), its place there, and what holds that, from the page down. */
+export type ElementLocation = { element: ContentElement; parent: ContentElement | null; index: number; ancestors: ContentElement[] };
 
 /** A place for an element: inside a Container (null for the page itself), at an index among its children. */
 export type InsertTarget = { parentId: string | null; index: number };
@@ -24,16 +26,17 @@ export type InsertTarget = { parentId: string | null; index: number };
 /** The elements inside an element: a Container's, or a plugin element's when it holds some. */
 export const childrenOf = (element: ContentElement): ContentElement[] => ('children' in element && element.children) || [];
 
-/** Whether elements can be put inside it. Only Containers, until a plugin element's contract says otherwise. */
-export const holdsChildren = (element: ContentElement): element is ContainerElement => element.type === 'container';
+/** Whether elements can be put inside it: a Container, or a plugin's element whose contract says it holds others. */
+export const holdsChildren = (element: ContentElement): boolean =>
+  element.type === 'container' || (element.type.startsWith('plugin-') && Boolean(contentElementContract(element.type)?.children));
 
 export function findElement(doc: ContentDocument, id: string): ElementLocation | undefined {
-  const search = (elements: ContentElement[], parent: ContainerElement | null, ancestors: ContainerElement[]): ElementLocation | undefined => {
+  const search = (elements: ContentElement[], parent: ContentElement | null, ancestors: ContentElement[]): ElementLocation | undefined => {
     for (const [index, element] of elements.entries()) {
       if (element.id === id) return { element, parent, index, ancestors };
       const inner = childrenOf(element);
       if (inner.length) {
-        const found = search(inner, holdsChildren(element) ? element : parent, holdsChildren(element) ? [...ancestors, element] : ancestors);
+        const found = search(inner, element, [...ancestors, element]);
         if (found) return found;
       }
     }
@@ -89,6 +92,8 @@ export function insertElement(doc: ContentDocument, element: ContentElement, tar
   if (target.parentId !== null) {
     const parent = findElement(doc, target.parentId)?.element;
     if (!parent || !holdsChildren(parent)) return doc;
+    // A plugin's element may not have started a list of children yet.
+    if (!('children' in parent) || !parent.children) doc = updateElement(doc, { ...parent, children: [] } as ContentElement);
   }
   return mapLists(doc, (elements, parentId) => {
     if (parentId !== target.parentId) return elements;
@@ -122,7 +127,7 @@ export function moveElement(doc: ContentDocument, id: string, target: InsertTarg
 export function moveElementBy(doc: ContentDocument, id: string, by: -1 | 1): ContentDocument {
   const found = findElement(doc, id);
   if (!found) return doc;
-  const siblings = found.parent ? found.parent.children : doc.elements;
+  const siblings = found.parent ? childrenOf(found.parent) : doc.elements;
   const index = found.index + by;
   if (index < 0 || index >= siblings.length) return doc;
   return moveElement(doc, id, { parentId: found.parent?.id ?? null, index: by === 1 ? index + 1 : index });
@@ -148,7 +153,7 @@ export function copyElement(element: ContentElement): ContentElement {
 export function insertionTarget(doc: ContentDocument, selectedId: string | null): InsertTarget {
   const found = selectedId ? findElement(doc, selectedId) : undefined;
   if (!found) return { parentId: null, index: doc.elements.length };
-  if (holdsChildren(found.element)) return { parentId: found.element.id, index: found.element.children.length };
+  if (holdsChildren(found.element)) return { parentId: found.element.id, index: childrenOf(found.element).length };
   return { parentId: found.parent?.id ?? null, index: found.index + 1 };
 }
 
@@ -161,22 +166,27 @@ export function limitProblem(doc: ContentDocument, element: ContentElement, targ
   return undefined;
 }
 
-/** A new element of a type, ready to show (an image waits for one to be chosen). */
-export function createElement(type: ContentElementType): ContentElement {
+/** A new element of a type, ready to show (an image waits for one to be chosen). A plugin's starts as its entry says. */
+export function createElement(type: ContentElementType | PluginElementType): ContentElement {
   const id = createContentId();
-  switch (type) {
+  if (type.startsWith('plugin-')) {
+    const { props, children } = contentElementEditor(type)?.create() ?? { props: {} };
+    return { id, type: type as PluginElementType, props, ...(children ? { children } : {}) };
+  }
+  const kind = type as ContentElementType;
+  switch (kind) {
     case 'container':
-      return { id, type, props: { flex: { direction: 'column', gap: 16 }, padding: { all: 16 } }, children: [] };
+      return { id, type: kind, props: { flex: { direction: 'column', gap: 16 }, padding: { all: 16 } }, children: [] };
     case 'text':
-      return { id, type, props: { doc: richTextFromPlainText('Write something here.') } };
+      return { id, type: kind, props: { doc: richTextFromPlainText('Write something here.') } };
     case 'image':
-      return { id, type, props: { assetId: '' } };
+      return { id, type: kind, props: { assetId: '' } };
     case 'icon':
-      return { id, type, props: { name: 'star', size: 32 } };
+      return { id, type: kind, props: { name: 'star', size: 32 } };
     case 'button':
-      return { id, type, props: { label: 'Find out more', link: { type: 'url', href: 'https://example.com' } } };
+      return { id, type: kind, props: { label: 'Find out more', link: { type: 'url', href: 'https://example.com' } } };
     case 'divider':
-      return { id, type, props: {} };
+      return { id, type: kind, props: {} };
   }
 }
 
@@ -197,9 +207,26 @@ export const ELEMENT_GROUPS: { label: string; types: ContentElementType[] }[] = 
   { label: 'Actions', types: ['button'] },
 ];
 
+/**
+ * The Add picker's groups with registered plugin elements in them: each joins the group its entry names, or a new
+ * group after core's.
+ */
+export function addPickerGroups(): { label: string; items: { type: ContentElementType | PluginElementType; label: string; icon: string; description: string }[] }[] {
+  const groups = ELEMENT_GROUPS.map((group) => ({ label: group.label, items: group.types.map((type) => ({ type, ...ELEMENT_TYPES[type] })) as { type: ContentElementType | PluginElementType; label: string; icon: string; description: string }[] }));
+  for (const editor of contentElementEditors()) {
+    const label = editor.group ?? 'More';
+    let group = groups.find((entry) => entry.label === label);
+    if (!group) groups.push((group = { label, items: [] }));
+    group.items.push({ type: editor.type, label: editor.label, icon: editor.icon, description: editor.description });
+  }
+  return groups;
+}
+
 /** The type's name and icon, for core elements and plugins' alike. */
 export function elementType(element: ContentElement): { label: string; icon: string } {
   if (element.type in ELEMENT_TYPES) return ELEMENT_TYPES[element.type as ContentElementType];
+  const editor = contentElementEditor(element.type);
+  if (editor) return { label: editor.label, icon: editor.icon };
   const [plugin = '', name = ''] = element.type.replace(/^plugin-/, '').split(':');
   return { label: `${name.replace(/-/g, ' ')} (${plugin})`, icon: 'puzzle' };
 }
@@ -252,7 +279,7 @@ export function moveDestinations(doc: ContentDocument, id: string): { parentId: 
     for (const element of elements) {
       if (element.id === id || !holdsChildren(element)) continue;
       destinations.push({ parentId: element.id, label: elementName(element), depth });
-      walk(element.children, depth + 1);
+      walk(childrenOf(element), depth + 1);
     }
   };
   walk(doc.elements, 1);

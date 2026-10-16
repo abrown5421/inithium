@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining step (plugin elements) are listed in the [build status](#build-status).
+> **Rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder; every step of the rebuild is done ([build status](#build-status)).
 
 Pages come in three kinds:
 
@@ -68,7 +68,7 @@ Every element but Container also takes `margin`, `hidden` (e.g. `{ base: true, m
 
 **Limits:** at most `MAX_CONTENT_ELEMENTS` (250) elements on a page, nested ones included, and at most `MAX_CONTENT_DEPTH` (10) deep. They're checked before the elements are parsed, along with every id being unique. Problems point at the field, e.g. `elements.0.children.2.props.label`, because each element is checked against its own type's contract only.
 
-**Plugin elements:** a plugin's element has the type `plugin-<name>:<element>`, e.g. `plugin-ecom:product-grid`. Core keeps any props it has, and its `children` if it holds some, so content still saves while the plugin is inactive or after it's ejected. On the site, an element no installed plugin draws draws nothing; plugins will draw theirs through the content elements slot ([0015](../decisions/0015-slot-catalogue.md)), which isn't built yet.
+**Plugin elements:** a plugin's element has the type `plugin-<name>:<element>`, e.g. `plugin-ecom:product-grid`, and comes through the content elements slot ([0015](../decisions/0015-slot-catalogue.md); how to write one: [Adding content elements](../plugins/how-plugins-work.md#adding-content-elements)). A registered element is checked against its contract, drawn by its renderer (on the site and in the builder's preview, [0118](../decisions/0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)), offered in the Add picker in the group it names, and edited with its own properties panel; if its contract says so, it holds other elements, which the builder adds and drops into as into a Container. An unregistered one (its plugin inactive or ejected) keeps any props and children, so content still saves: the builder shows a placeholder that can be moved or deleted, and the site leaves it out.
 
 Accordion, video, carousel, Modal, PolyBanner, Avatar and Tabs elements come later. Forms aren't planned.
 
@@ -285,4 +285,4 @@ Admins edit it like any content page. The seed never touches it again, so their 
    4. **Interface (built):** the Add picker (grouped, described, saying where), a **+** on each Layers row, the empty page, name tags in the preview, and the toolbar's buttons ([above](#the-add-picker)).
    5. **The edit lock (built):** one page builder session per page, with a heartbeat, expiry after two minutes, and who's editing shown to others ([above](#one-editor-at-a-time)).
    6. **Accessibility warnings and usage (built):** contrast, heading order and empty text, never blocking ([above](#accessibility-warnings)); asset, font and page usage walking the tree, with Delete warning about pages that link to the page ([Usage](#usage)).
-   7. Plugin elements: the content elements slot through the api, web and cms registries.
+   7. **Plugin elements (built):** the content elements slot through the api, `web` and CMS registries (the CMS's registry is new), with renderers in plugins' new `shared` layer ([0118](../decisions/0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)).

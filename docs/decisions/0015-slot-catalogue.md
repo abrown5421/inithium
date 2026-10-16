@@ -2,10 +2,10 @@
 id: "0015"
 title: Define the slot catalogue and contract shapes
 status: proposed
-date: "2026-10-15"
+date: "2026-10-16"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118"]
 supersedes: []
 ---
 
@@ -24,7 +24,11 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
 - **Profile tabs, sidebar sections and header actions,** each aware of who is viewing ([0081](0081-extend-the-profile-page-through-slots-by-viewer.md)). Their contract shapes are settled in [0090](0090-generate-and-show-user-profiles.md): entries `{ key, order, viewers, component }` registered as `registeredProfileSlots` in the web registry.
 - **User deleted:** `UserDeletionHook` `{ key, label, deleteUserData(userIds) }` from `@inithium/api-user-management`, registered as `registeredUserDeletionHooks` in the api's registry, `apps/api/src/app/plugins.registry.ts` ([0100](0100-manage-accounts-from-the-cms.md)). Hooks run before core deletes anything and must be safe to repeat.
 
-- **Content elements:** elements for the content page builder ([0116](0116-build-content-pages-from-a-tree-of-library-elements.md)), typed `plugin-<name>:<element>`. Each is defined across three registries: its contract (props schema, allowed children, and the props holding asset, font family or page ids) in the api's, its renderer in `web`'s, and its editor entry (label, icon, category, defaults, property form) in a new CMS registry. Core's own elements use the same definitions. An inactive or ejected plugin's elements stay in stored content, show as a placeholder in the editor and draw nothing on the site. The exact contract shape is settled when the slot is built.
+- **Content elements:** elements for the content page builder ([0116](0116-build-content-pages-from-a-tree-of-library-elements.md)), typed `plugin-<name>:<element>`, in three parts:
+  - **Contract** (`ContentElementContract` in `@inithium/shared-contracts`, from the plugin's `contracts` lib): `{ type, props (a strict Zod object), children?, references? }`. Listed as `registeredContentElementContracts` in the api's registry and the CMS's, and set with `registerContentElementContracts()` at startup, so both check content alike.
+  - **Renderer** (`ContentElementRenderer` in `@inithium/shared-content`, from the plugin's `shared` lib, [0118](0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)): `{ type, component }`, the component getting `{ element, children }`. Listed as `registeredContentElementRenderers` in `web`'s registry and the CMS's, given through `ContentElementRenderersProvider`.
+  - **Editor entry** (`ContentElementEditor` in `@inithium/cms-content-editor`, from the plugin's `cms` lib): `{ type, label, icon, description, group?, create(), properties? }`. Listed as `registeredContentElementEditors` in the CMS's registry (`apps/cms/src/app/plugins.registry.ts`, new), set with `registerContentElementEditors()`.
+  - An unregistered element (its plugin inactive or ejected) stays in stored content with any props, shows as a placeholder in the builder and draws nothing on the site. Core's six elements keep their own built-in definitions rather than registering through the slot.
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 

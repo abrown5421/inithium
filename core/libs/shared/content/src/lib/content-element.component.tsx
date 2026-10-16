@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import type { ContainerElement, ContentElement, CoreContentElement } from '@inithium/shared-contracts';
+import type { ContainerElement, ContentElement, CoreContentElement, PluginElement } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Icon, type IconName } from '@inithium/shared-ui-components';
 import { useContentDecorators } from './content-decorators.context';
+import { useContentElementRenderer } from './content-element-renderers.context';
 import { withoutBoxProps } from './element-box.service';
 import { useContentLinks } from './content-links.context';
 import { ImageElementView } from './image-element.component';
@@ -13,17 +14,30 @@ import { RichText } from './rich-text.component';
  */
 export function ContentElementView({ element }: { element: ContentElement }) {
   const decorators = useContentDecorators();
-  const drawn = element.type === 'container' ? <ContainerView element={element} /> : isCore(element) ? <ElementBox element={element} /> : null;
+  const drawn = element.type === 'container' ? <ContainerView element={element} /> : isCore(element) ? <ElementBox element={element} /> : <PluginElementView element={element} />;
   return decorators.element ? decorators.element(element, drawn) : drawn;
+}
+
+/**
+ * A plugin's element, drawn by its registered renderer (decisions 0116, 0118) in a box carrying its id, with its
+ * children drawn first. Unregistered (its plugin inactive or ejected), it draws nothing.
+ */
+function PluginElementView({ element }: { element: PluginElement }) {
+  const renderer = useContentElementRenderer(element.type);
+  if (!renderer) return null;
+  const Component = renderer.component;
+  const children = element.children?.map((child) => <ContentElementView key={child.id} element={child} />);
+  return (
+    <Container minWidth={0} data-element="plugin" data-element-type={element.type} data-element-id={element.id}>
+      <Component element={element}>{children}</Component>
+    </Container>
+  );
 }
 
 type LeafElement = Exclude<CoreContentElement, ContainerElement>;
 
 
-/**
- * Whether core draws it. A plugin's element is drawn by its plugin once the content elements slot exists (decision
- * 0116, step 7); until then, and whenever its plugin is inactive or ejected, it draws nothing.
- */
+/** Whether core draws it; a plugin's element is drawn by its plugin's registered renderer. */
 const isCore = (element: ContentElement): element is CoreContentElement => !element.type.startsWith('plugin-');
 
 function ContainerView({ element }: { element: ContainerElement }) {

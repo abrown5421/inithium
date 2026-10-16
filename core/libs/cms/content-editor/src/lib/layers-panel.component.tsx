@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
-import type { ContentDocument, ContentElement, ContentElementType } from '@inithium/shared-contracts';
+import type { ContentDocument, ContentElement, ContentElementType, PluginElementType } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Input, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
 import { Menu, type MenuItem } from '@inithium/shared-ui-composites';
 import { AddElementMenu } from './add-element-menu.component';
@@ -28,7 +28,7 @@ export type LayersPanelProps = {
   /** The actions in an element's ⋯ menu. */
   menuFor: (element: ContentElement) => MenuItem[];
   /** Adds an element where new elements go (see `insertionTarget`), or just after an element (a row's +). */
-  onAdd: (type: ContentElementType, afterId?: string) => void;
+  onAdd: (type: ContentElementType | PluginElementType, afterId?: string) => void;
   /** Says where Add puts things, e.g. 'Inside “Card”'. */
   addHint: string;
 };
