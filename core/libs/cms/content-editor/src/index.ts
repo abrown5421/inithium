@@ -10,3 +10,4 @@ export * from './lib/rich-text-editor.component';
 export * from './lib/rich-text-toolbar.component';
 export * from './lib/use-autosave.hook';
 export * from './lib/use-content-history.hook';
+export * from './lib/use-content-lock.hook';

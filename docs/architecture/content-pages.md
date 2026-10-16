@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (the edit lock, accessibility warnings, plugin elements) are listed in the [build status](#build-status).
+> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (accessibility warnings, plugin elements) are listed in the [build status](#build-status).
 
 Pages come in three kinds:
 
@@ -226,6 +226,15 @@ Anything that would break the page's limits (250 elements, 10 deep) is refused w
 
 **Typography** (in a Text's Style tab, and an image's caption): `TypographyFields`, the font (a FontField with "Default"), the weight (only the weights the font has, from `useFontWeights()`), and **Custom size**, with a size for phones and, optionally, one for wider screens.
 
+### One editor at a time
+
+Only one person can have a page open in the builder at a time ([edit lock](../backend/pages.md#the-edit-lock)). Opening a page takes its lock, and the builder keeps it alive every 30 seconds while it's open; leaving the builder, or closing the tab, lets go.
+
+- **Someone else has it open:** the builder shows "Jane Smith is editing this page", with when they opened it, **Try again** and **Back to Pages**. The same person in a second tab is turned away too. The Pages list says who's editing each page.
+- **An abandoned page** (a closed or crashed browser, a computer gone to sleep) frees itself after two minutes without word from the builder. Nobody can take over a page someone is still working in.
+- **A lock that went stale** while its window was asleep can be taken by someone else meanwhile. The window then says who's editing now, stops saving, and offers **Back to Pages** or **Try to carry on** (which works once the other person has gone).
+- **Page settings** aren't locked: they can be changed while someone builds the page.
+
 ### Saving and publishing
 
 - **Autosave:** the draft (version 2) saves 1.2 seconds after the last change. A draft with problems (e.g. a button without text) isn't saved: the field shows its problem, the Layers mark the element, and the status says to fix it. Leaving the page with unsaved changes asks first.
@@ -254,6 +263,6 @@ Admins edit it like any content page. The seed never touches it again, so their 
    2. **Editor model and Layers (built):** the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts ([above](#moving-copying-and-the-keyboard)); the [Menu](../ui-library/composites/menu.md) composite.
    3. **Properties (built):** the tabs, spacing steps and per-device values ([above](#properties)); drafts saved as version 2; the builder replaced the version 1 editor at `/cms/pages/:id/content`.
    4. **Interface (built):** the Add picker (grouped, described, saying where), a **+** on each Layers row, the empty page, name tags in the preview, and the toolbar's buttons ([above](#the-add-picker)).
-   5. The edit lock.
+   5. **The edit lock (built):** one page builder session per page, with a heartbeat, expiry after two minutes, and who's editing shown to others ([above](#one-editor-at-a-time)).
    6. Accessibility warnings, and usage checks walking the tree.
    7. Plugin elements: the content elements slot through the api, web and cms registries.

@@ -52,9 +52,9 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
 `PagesScreen` (`@inithium/cms-pages`) lists every [page record](pages-and-routing.md#page-records):
 
 - search by title or path, and sort by title, path or status;
-- a "Site page" badge on protected pages, and each page's path, layout and status;
+- a "Site page" badge on protected pages, and each page's path, layout and status, and who has it open in the page builder, if anyone ([one editor at a time](content-pages.md#one-editor-at-a-time));
 - **View on the site** for published pages without parameters. It opens the path on the CMS's origin, which is the site in production; under `nx serve cms` it lands on the CMS dev server.
-- **Edit content** (content pages) opens the full-screen [content editor](content-pages.md#editing) at `/pages/:id/content`, outside the sidebar frame.
+- **Edit content** (content pages) opens the full-screen [page builder](content-pages.md#editing) at `/pages/:id/content`, outside the sidebar frame.
 - **Settings** opens the page editor.
 - **New page** (with `pages.create`) opens a dialog with:
   - the template (the reusable ones; today "Content page", with its description);

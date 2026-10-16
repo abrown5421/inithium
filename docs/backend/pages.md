@@ -44,9 +44,11 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |
 | `POST /api/pages/:id/duplicate` | `pages.create` | Copies a page made from a reusable template, with a `pageDuplicateSchema` body (`title`, `path`). `201` with the copy. |
 | `GET /api/pages/:id` | `pages.edit` | One page, or 404. |
-| `PUT /api/pages/:id/content` | `pages.edit` | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 for a page that isn't a content page. |
-| `POST /api/pages/:id/content/publish` | `pages.publish` | Copies the draft to `published` and sets the page's `status` to `published`. |
-| `POST /api/pages/:id/content/discard` | `pages.edit` | Sets the draft back to the published version (or an empty page if it was never published). |
+| `POST /api/pages/:id/content/lock` | `pages.edit` | Takes the page's [edit lock](#the-edit-lock) for a page builder session (`{ lockId }`), or keeps it alive: 204, or 409 with who's editing. |
+| `POST /api/pages/:id/content/unlock` | `pages.edit` | Lets go of the lock if this session (`{ lockId }`) holds it: 204. |
+| `PUT /api/pages/:id/content` | `pages.edit` + the lock | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 without the lock, or for a page that isn't a content page. |
+| `POST /api/pages/:id/content/publish` | `pages.publish` + the lock | Copies the draft to `published` and sets the page's `status` to `published`. |
+| `POST /api/pages/:id/content/discard` | `pages.edit` + the lock | Sets the draft back to the published version (or an empty page if it was never published). |
 | `PATCH /api/pages/:id` | `pages.edit` | Edits a page with a `pageUpdateSchema` body (any of `title`, `status`, `layout`, `bgColor`, `textColor`, `animation`, `audience`, `navigation`, `seo`, `path`). `null` for `bgColor`, `textColor` or `animation` clears it, so the page falls back to its template's or the site's default. |
 | `DELETE /api/pages/:id` | `pages.delete` | Deletes a page that isn't protected. |
 
@@ -70,6 +72,17 @@ A duplicate copies the source's template, layout, colours, animation, audience, 
 | Duplicating a page drawn by its own code | 409 |
 
 `pathFromTitle(title)` from `@inithium/shared-contracts` suggests a path, e.g. `'Our Café & Team!'` → `'/our-cafe-team'`. A static path beats a parameterised one, so `/profile/settings` would win over `/profile/:id`.
+
+### The edit lock
+
+Only one page builder session works on a page's content at a time ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), in `content-lock.service.ts`:
+
+- **Taking it:** the builder makes a random lock id (`contentLockIdSchema`) each time it opens a page and posts it to `/content/lock`. A free lock, or one without a heartbeat for `CONTENT_LOCK_TTL_MS` (2 minutes), is taken; the builder's own lock is kept alive. A live lock held by another session (the same person in another tab included) is refused with 409 `{ message, code: 'CONTENT_LOCKED', editing }`. Taking is a conditional update, so two people opening a page at once can't both get it. Nobody can take over a live lock.
+- **Keeping it:** the builder posts again every `CONTENT_LOCK_HEARTBEAT_MS` (30 seconds), and `/content/unlock` lets go when it closes (by `sendBeacon` if the tab closes).
+- **Holding it to write:** saving, publishing and discarding send the lock id in the `x-content-lock` header (`CONTENT_LOCK_HEADER`) and are refused with the same 409 when the session doesn't hold the lock. A session whose lock expired but which nobody else has taken gets it back.
+- **Seen by others:** the page record's `editing` (`{ userId, name, since }`, `pageEditingSchema`) says who has a live lock; `web` never gets it.
+- **Stored** as the page's `contentLock` `{ lockId, userId, name, since, heartbeatAt }`, never copied by Duplicate.
+- **Not locked:** the page's settings (`PATCH /api/pages/:id`), which anyone with `pages.edit` can change meanwhile.
 
 Content pages carry `content`: `{ draft, published }` content documents, trees of elements ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions (stored version 1 content is returned as version 2 and stays stored as it was until it's next saved or published). `content` also records `draftSavedAt` / `draftSavedBy` and `publishedAt` / `publishedBy` (ISO dates and user ids). The page builder saves and publishes through the endpoints above ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md), [0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)).
 

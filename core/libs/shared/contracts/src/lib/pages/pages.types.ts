@@ -6,6 +6,8 @@ import type {
   pageDuplicateSchema,
   pageAudienceSchema,
   pageNavigationSchema,
+  contentLockRequestSchema,
+  pageEditingSchema,
   pageSchema,
   pageSeoSchema,
   pageStatusSchema,
@@ -21,6 +23,8 @@ export type PageNavigation = z.infer<typeof pageNavigationSchema>;
 export type PageSeo = z.infer<typeof pageSeoSchema>;
 export type PageAnimation = z.infer<typeof pageAnimationSchema>;
 export type Page = z.infer<typeof pageSchema>;
+export type PageEditing = z.infer<typeof pageEditingSchema>;
+export type ContentLockRequest = z.infer<typeof contentLockRequestSchema>;
 export type PublicPage = z.infer<typeof publicPageSchema>;
 export type PageUpdate = z.infer<typeof pageUpdateSchema>;
 export type PageCreate = z.infer<typeof pageCreateSchema>;

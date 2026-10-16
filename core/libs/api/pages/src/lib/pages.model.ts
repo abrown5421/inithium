@@ -35,6 +35,8 @@ const pagesSchema = new Schema(
     seedKey: { type: String, index: { unique: true, sparse: true } },
     // Content pages' blocks (decision 0093): { draft, published }, read through readContentDocument() (decision 0116), which upgrades older versions.
     content: { type: Schema.Types.Mixed },
+    // The page builder's edit lock (decision 0116): { lockId, userId, name, since, heartbeatAt }, see content-lock.service.
+    contentLock: { type: Schema.Types.Mixed },
   },
   { timestamps: true, minimize: false },
 );

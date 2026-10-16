@@ -1,9 +1,20 @@
 import { Router, type Request, type Response } from 'express';
-import { pageCreateSchema, pageDraftSaveSchema, pageDuplicateSchema, pageUpdateSchema, type SiteBundle } from '@inithium/shared-contracts';
+import {
+  CONTENT_LOCK_HEADER,
+  contentLockIdSchema,
+  contentLockRequestSchema,
+  pageCreateSchema,
+  pageDraftSaveSchema,
+  pageDuplicateSchema,
+  pageUpdateSchema,
+  type PageEditing,
+  type SiteBundle,
+} from '@inithium/shared-contracts';
 import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requirePermission } from '@inithium/api-auth';
 import { listFontFamilies, toSiteFontFamily } from '@inithium/api-fonts';
 import { getSiteSettings, toSiteSettings } from '@inithium/api-settings';
+import { checkContentLock, releaseContentLock, takeContentLock } from './content-lock.service';
 import type { PageDocument } from './pages.model';
 import {
   createPage,
@@ -77,29 +88,72 @@ pagesRouter.patch('/:id', ...requirePermission('pages.edit'), async (req, res) =
   res.send(toPage(updated));
 });
 
-/** Saves a content page's draft (decision 0093); the CMS editor autosaves through it. */
+/** 409: someone else has the page open in the page builder (decision 0116), or this request didn't come from it. */
+function locked(res: Response, editing: PageEditing | undefined): void {
+  res.status(409).send({
+    message: editing ? `${editing.name} is editing this page` : 'Open the page in the page builder to change its content',
+    code: 'CONTENT_LOCKED',
+    ...(editing ? { editing } : {}),
+  });
+}
+
+/** The page, if the request comes from the page builder session holding its lock; otherwise it answers itself. */
+async function lockedPage(req: Request, res: Response): Promise<PageDocument | undefined> {
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  const lockId = contentLockIdSchema.safeParse(req.get(CONTENT_LOCK_HEADER)).data;
+  const lock = await checkContentLock(page, lockId, getAuth(res).sub);
+  if (!lock.held) return void locked(res, lock.editing);
+  return page;
+}
+
+/**
+ * Takes the page's edit lock for a page builder session, or keeps it alive (decision 0116): 204, or 409 with who's
+ * editing. The builder calls it when it opens a page and then every CONTENT_LOCK_HEARTBEAT_MS.
+ */
+pagesRouter.post('/:id/content/lock', ...requirePermission('pages.edit'), async (req, res) => {
+  const parsed = contentLockRequestSchema.safeParse(req.body);
+  if (!parsed.success) return void res.status(400).send({ message: 'Send a lock id' });
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  const lock = await takeContentLock(page, parsed.data.lockId, getAuth(res).sub);
+  if (!lock.held) return void locked(res, lock.editing);
+  res.status(204).end();
+});
+
+/** Lets go of the page's edit lock, if the session holds it (also sent with sendBeacon as the builder's tab closes). */
+pagesRouter.post('/:id/content/unlock', ...requirePermission('pages.edit'), async (req, res) => {
+  const parsed = contentLockRequestSchema.safeParse(req.body);
+  if (!parsed.success) return void res.status(400).send({ message: 'Send a lock id' });
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  await releaseContentLock(page, parsed.data.lockId);
+  res.status(204).end();
+});
+
+/** Saves a content page's draft (decision 0093); the page builder autosaves through it, holding the edit lock. */
 pagesRouter.put('/:id/content', ...requirePermission('pages.edit'), async (req, res) => {
   const parsed = pageDraftSaveSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).send({ message: 'Some blocks have problems', issues: parsed.error.issues });
+    res.status(400).send({ message: 'Some elements have problems', issues: parsed.error.issues });
     return;
   }
-  const page = await findPageById(pageId(req));
-  if (!page) return void notFound(res);
+  const page = await lockedPage(req, res);
+  if (!page) return;
   res.send(toPage(await saveContentDraft(page, parsed.data.draft, getAuth(res).sub)));
 });
 
-/** Publishes a content page's draft, and the page itself if it wasn't live. */
+/** Publishes a content page's draft, and the page itself if it wasn't live (holding the edit lock). */
 pagesRouter.post('/:id/content/publish', ...requirePermission('pages.publish'), async (req, res) => {
-  const page = await findPageById(pageId(req));
-  if (!page) return void notFound(res);
+  const page = await lockedPage(req, res);
+  if (!page) return;
   res.send(toPage(await publishContent(page, getAuth(res).sub)));
 });
 
-/** Throws away a content page's unpublished changes. */
+/** Throws away a content page's unpublished changes (holding the edit lock). */
 pagesRouter.post('/:id/content/discard', ...requirePermission('pages.edit'), async (req, res) => {
-  const page = await findPageById(pageId(req));
-  if (!page) return void notFound(res);
+  const page = await lockedPage(req, res);
+  if (!page) return;
   res.send(toPage(await discardContentDraft(page, getAuth(res).sub)));
 });
 
