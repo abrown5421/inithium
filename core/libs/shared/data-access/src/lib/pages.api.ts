@@ -1,10 +1,12 @@
 import {
   CONTENT_LOCK_HEADER,
   pageSchema,
+  pageUsageSchema,
   reusableTemplateSchema,
   type Page,
   type ContentDocument,
   type PageCreate,
+  type PageUsage,
   type PageDuplicate,
   type PageUpdate,
   type ReusableTemplate,
@@ -27,6 +29,12 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
       query: (id) => `/pages/${id}`,
       transformResponse: (response: unknown) => pageSchema.parse(response),
       providesTags: (_page, _error, id) => [{ type: 'Page', id }],
+    }),
+    /** Where a page is linked from (needs pages.edit; decision 0116), e.g. before deleting it. */
+    getPageUsage: build.query<PageUsage, string>({
+      query: (id) => `/pages/${id}/usage`,
+      transformResponse: (response: unknown) => pageUsageSchema.parse(response),
+      providesTags: (_usage, _error, id) => [{ type: 'Page', id }],
     }),
     /**
      * Takes a content page's edit lock for a page builder session, or keeps it alive (needs pages.edit; decision 0116).
@@ -113,6 +121,7 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
 
 export const {
   useGetPageQuery,
+  useGetPageUsageQuery,
   useLockContentMutation,
   useUnlockContentMutation,
   useSaveContentDraftMutation,

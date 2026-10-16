@@ -2,9 +2,11 @@ import { FontFamilyModel, findFontFamilyWithFile, markFontsChanged, type FontFam
 import { PageModel } from '@inithium/api-pages';
 import { fontRolesUsing } from '@inithium/api-settings';
 import {
+  contentReferences,
   fontFilesOverlap,
   fontWeightLabel,
   MAX_FONT_FAMILIES,
+  readContentDocument,
   type AssetUsage,
   type FontFamilyCreate,
   type FontFamilyUpdate,
@@ -72,13 +74,8 @@ export async function updateFontFamily(doc: FontFamilyDocument, update: FontFami
   return saved;
 }
 
-/** Whether a content document (draft or published) uses a family anywhere: a block's typography or restyled words. */
-function usesFamily(value: unknown, familyId: string): boolean {
-  if (Array.isArray(value)) return value.some((item) => usesFamily(item, familyId));
-  if (!value || typeof value !== 'object') return false;
-  const record = value as Record<string, unknown>;
-  return record['familyId'] === familyId || Object.values(record).some((item) => usesFamily(item, familyId));
-}
+/** Whether stored content (draft or published, any version) uses a family: a text part's typography or restyled words. */
+const usesFamily = (stored: unknown, familyId: string): boolean => contentReferences(readContentDocument(stored)).fontFamilyIds.has(familyId);
 
 /**
  * Where a family is used (decision 0111): the theme's roles, which stop it being removed, and pages whose content uses

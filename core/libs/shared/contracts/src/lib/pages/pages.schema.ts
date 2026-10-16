@@ -102,6 +102,11 @@ export const contentLockRequestSchema = z.object({ lockId: contentLockIdSchema }
 /** Who's editing a page's content, and since when. */
 export const pageEditingSchema = z.object({ userId: z.string(), name: z.string(), since: z.iso.datetime() }).strict();
 
+/** Where a page is linked from (decision 0116): other content pages' links, which only warn before it's deleted. */
+export const pageUsageSchema = z
+  .object({ places: z.array(z.object({ label: z.string(), blocking: z.boolean() }).strict()) })
+  .strict();
+
 /** A page record as the API returns it to the CMS. */
 export const pageSchema = z
   .object({

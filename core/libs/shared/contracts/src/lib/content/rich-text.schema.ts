@@ -149,7 +149,7 @@ export const richTextFeatures = [
 export type RichTextFeature = (typeof richTextFeatures)[number];
 
 /** Every text run and line break in a document, nested lists and quotes included. */
-function inlineParts(doc: RichTextDocument): RichTextInline[] {
+export function richTextInlineParts(doc: RichTextDocument): RichTextInline[] {
   const parts: RichTextInline[] = [];
   const fromList = (list: RichTextList): void => {
     for (const item of list.content) {
@@ -172,11 +172,11 @@ function inlineParts(doc: RichTextDocument): RichTextInline[] {
  * character count, so the editor's limit and the api's agree.
  */
 export function richTextLength(doc: RichTextDocument): number {
-  return inlineParts(doc).reduce((total, part) => total + (part.type === 'text' ? [...part.text].length : 1), 0);
+  return richTextInlineParts(doc).reduce((total, part) => total + (part.type === 'text' ? [...part.text].length : 1), 0);
 }
 
 /** Whether a document has no visible text. */
-export const richTextIsEmpty = (doc: RichTextDocument) => inlineParts(doc).every((part) => part.type === 'hardBreak' || !part.text.trim());
+export const richTextIsEmpty = (doc: RichTextDocument) => richTextInlineParts(doc).every((part) => part.type === 'hardBreak' || !part.text.trim());
 
 /** The features a document uses, e.g. to check it against what a field allows. */
 export function richTextFeaturesUsed(doc: RichTextDocument): Set<RichTextFeature> {
@@ -189,7 +189,7 @@ export function richTextFeaturesUsed(doc: RichTextDocument): Set<RichTextFeature
     if (node.type === 'heading' || node.type === 'blockquote') used.add(node.type);
     else if (node.type !== 'paragraph') visitList(node);
   }
-  for (const part of inlineParts(doc)) {
+  for (const part of richTextInlineParts(doc)) {
     for (const mark of part.type === 'text' ? (part.marks ?? []) : []) {
       if (mark.type !== 'textStyle') {
         used.add(mark.type);
@@ -218,7 +218,7 @@ export function restrictedRichTextSchema(options: { features: readonly RichTextF
       ctx.addIssue({ code: 'custom', message: `Use ${options.maxLength} characters or fewer` });
     }
     if (options.urlLinksOnly) {
-      const pageLink = inlineParts(doc).some((part) => part.type === 'text' && part.marks?.some((mark) => mark.type === 'link' && mark.attrs.link.type === 'page'));
+      const pageLink = richTextInlineParts(doc).some((part) => part.type === 'text' && part.marks?.some((mark) => mark.type === 'link' && mark.attrs.link.type === 'page'));
       if (pageLink) ctx.addIssue({ code: 'custom', message: 'Links here must be web addresses' });
     }
   });

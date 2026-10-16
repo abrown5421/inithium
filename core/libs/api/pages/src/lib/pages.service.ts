@@ -1,6 +1,7 @@
 import { isValidObjectId } from 'mongoose';
 import { pageEditing } from './content-lock.service';
 import {
+  contentReferences,
   emptyContentDocument,
   navigationAllowed,
   readContentDocument,
@@ -9,6 +10,7 @@ import {
   type Page,
   type PageAnimation,
   type PageContent,
+  type PageUsage,
   type PageCreate,
   type PageDuplicate,
   type PageUpdate,
@@ -53,6 +55,21 @@ export function toPage(doc: PageDocument): Page {
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
+}
+
+/**
+ * Where a page is linked from (decision 0116): other content pages whose published content or draft links to it, by
+ * their elements' declared references. Deleting it only warns: the links then show as plain text.
+ */
+export async function pageUsage(id: string): Promise<PageUsage> {
+  const places: PageUsage['places'] = [];
+  const pages = await PageModel.find({ content: { $exists: true }, _id: { $ne: id } }, { title: 1, content: 1 });
+  for (const page of pages) {
+    const content = page.content as { draft?: unknown; published?: unknown } | undefined;
+    if (contentReferences(readContentDocument(content?.published)).pageIds.has(id)) places.push({ label: `Page: ${page.title}`, blocking: false });
+    else if (contentReferences(readContentDocument(content?.draft)).pageIds.has(id)) places.push({ label: `Page: ${page.title} (unpublished changes)`, blocking: false });
+  }
+  return { places };
 }
 
 /** A published page as `web` receives it. */

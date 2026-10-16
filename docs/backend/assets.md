@@ -94,7 +94,7 @@ Font files are grouped into **families** in a font library ([0111](../decisions/
 - **The theme's fonts:** Settings points `display` and `body` at families ([Site settings](site-settings.md)), and the api writes them into each app's page so they load without a flash ([Theme fonts in the page](site-settings.md#theme-fonts-in-the-page)). A family the theme uses can't be removed (409), and its only file can't be deleted (blocking usage). Add another file or choose another font in Settings first.
 - **With `R2_PUBLIC_URL`**, fonts come from the bucket's address, another origin, and browsers only use cross-origin fonts with CORS. Give the bucket a CORS policy allowing `GET` from the site's origin (Cloudflare dashboard → R2 → the bucket → Settings → CORS policy). Without `R2_PUBLIC_URL`, fonts are served from the site's own origin and need nothing.
 
-- **In page content:** blocks' typography and restyled words store `{ familyId }` ([Content pages](../architecture/content-pages.md#blocks)). Removing a family warns with the pages that use it (`GET /api/fonts/:id/usage`, `fontFamilyUsage()`), and that text then draws in the body font.
+- **In page content:** text parts' typography and restyled words store `{ familyId }` ([Content pages](../architecture/content-pages.md#elements)). Removing a family warns with the pages that use it (`GET /api/fonts/:id/usage`, `fontFamilyUsage()`, which reads content of any version through `readContentDocument()` and `contentReferences()`), and that text then draws in the body font.
 
 ## Members' pictures
 
@@ -117,7 +117,7 @@ Mounted at `/api/assets`:
 | `GET /` | `assets.upload` | Staff files, newest first (at most 500); `group=members` lists members' avatars and banners instead. Query also: `purpose`, `kind`, `q` (words in the filename or alt text). |
 | `POST /` | Signed in | Multipart upload: `file` (at most 25 MB before processing), `purpose`, `alt?`, `fontLicence?` (`'true'`). `avatar` and `banner` need `memberUploads` and are rate-limited for members; other purposes need `assets.upload`. Returns 201 with the asset. |
 | `GET /:id/info` | `assets.upload` | One asset's record. |
-| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site logo and favicon (blocking), pages whose content (draft or published) uses it, and profiles showing it. |
+| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site logo and favicon (blocking), pages whose content (draft or published) uses it (by `contentReferences()`, walking every element), and profiles showing it. |
 | `PATCH /:id` | `assets.upload` | `{ filename?, alt? }`. |
 | `DELETE /:id` | `assets.delete` | 204, or 409 while a blocking use remains. |
 | `GET /:id` | Anyone | The file itself, or a redirect to the bucket's public address with `R2_PUBLIC_URL`. |
