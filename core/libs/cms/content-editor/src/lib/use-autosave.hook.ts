@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ContentDocumentV1 } from '@inithium/shared-contracts';
 
 /** How long after the last change the draft saves, in ms. */
 const DELAY = 1200;
@@ -7,20 +6,20 @@ const DELAY = 1200;
 /** Where the draft stands: saved, waiting to save, saving, failed, or blocked by problems in its blocks. */
 export type SaveStatus = 'saved' | 'pending' | 'saving' | 'error' | 'invalid';
 
-export type AutosaveOptions = {
-  doc: ContentDocumentV1;
+export type AutosaveOptions<Doc> = {
+  doc: Doc;
   /** Whether the draft passes its contract; an invalid draft isn't saved. */
   valid: boolean;
   /** Saves the draft; rejects on failure. */
-  save: (doc: ContentDocumentV1) => Promise<unknown>;
+  save: (doc: Doc) => Promise<unknown>;
 };
 
 /**
- * Autosaves the editor's draft (decision 0093): a moment after the last change, only when it's valid and differs
+ * Autosaves the editor's draft (decisions 0093, 0116): a moment after the last change, only when it's valid and differs
  * from what was last saved. `flush()` saves now (e.g. before publishing) and resolves whether everything is saved;
  * `markSaved()` records a draft the server already has (e.g. after discarding).
  */
-export function useAutosave({ doc, valid, save }: AutosaveOptions) {
+export function useAutosave<Doc>({ doc, valid, save }: AutosaveOptions<Doc>) {
   const json = JSON.stringify(doc);
   const [savedJson, setSavedJson] = useState(json);
   const [request, setRequest] = useState<'idle' | 'saving' | 'error'>('idle');
@@ -76,7 +75,7 @@ export function useAutosave({ doc, valid, save }: AutosaveOptions) {
     };
   }, [run]);
 
-  const markSaved = useCallback((next: ContentDocumentV1) => {
+  const markSaved = useCallback((next: Doc) => {
     const nextJson = JSON.stringify(next);
     latest.current = { ...latest.current, savedJson: nextJson };
     setSavedJson(nextJson);

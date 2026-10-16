@@ -208,6 +208,11 @@ export const pluginElementSchema: z.ZodType<PluginElement> = z
   })
   .strict();
 
+/** Every element in a list and inside them, depth first, in the order a page shows them. */
+export function flattenContentElements(elements: ContentElement[]): ContentElement[] {
+  return elements.flatMap((element) => [element, ...flattenContentElements(('children' in element && element.children) || [])]);
+}
+
 /** The contract for an element's type, if there is one. */
 function schemaForType(type: unknown): z.ZodType | undefined {
   if (typeof type !== 'string') return undefined;

@@ -6,8 +6,8 @@ import { breakpoints } from '../../ui/variants.schema';
 import { contentIdSchema } from '../content-common.schema';
 import { contentBlockSchema } from './content-blocks-v1.schema';
 
-// Version 1 of the content format (decision 0093, superseded by 0116). Kept so stored version 1 content can be read
-// and upgraded; until the editor edits version 2, it's also what drafts are saved as.
+// Version 1 of the content format (decision 0093, superseded by 0116). Kept so stored version 1 content can always be
+// read and upgraded (`readContentDocument`).
 
 /**
  * How a section splits into columns, as the share of the width each column takes. The number of columns a section
@@ -82,12 +82,3 @@ export const contentDocumentV1Schema = z
     sections: z.array(contentSectionSchema).max(50, { error: 'Use 50 sections or fewer' }),
   })
   .strict();
-
-/** Stored version 1 content, or undefined when it isn't valid version 1 content. */
-export const readContentDocumentV1 = (stored: unknown): z.infer<typeof contentDocumentV1Schema> | undefined =>
-  contentDocumentV1Schema.safeParse(stored).data;
-
-/** An empty version 1 document: one single-column section with no blocks. */
-export function emptyContentDocumentV1(id: () => string): z.infer<typeof contentDocumentV1Schema> {
-  return { schemaVersion: 1, sections: [{ id: id(), layout: 'one', columns: [{ id: id(), blocks: [] }] }] };
-}

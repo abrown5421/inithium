@@ -33,15 +33,12 @@ export function readContentDocument(stored: unknown): z.infer<typeof contentDocu
   return contentDocumentSchema.safeParse(stored).data;
 }
 
-// Drafts are still saved as version 1 until the editor edits version 2 (decision 0116, build order). The site reads
-// them through `readContentDocument`.
-
 /** A content page's working draft and its published version, which is what visitors see. */
 export const pageContentSchema = z
   .object({
-    draft: contentDocumentV1Schema,
+    draft: contentDocumentSchema,
     /** Null until the draft is first published. */
-    published: contentDocumentV1Schema.nullable(),
+    published: contentDocumentSchema.nullable(),
     /** When the draft was last saved, and by whom (a user id). */
     draftSavedAt: z.iso.datetime().optional(),
     draftSavedBy: z.string().optional(),
@@ -52,4 +49,4 @@ export const pageContentSchema = z
   .strict();
 
 /** `PUT /api/pages/:id/content`: the editor saves the whole draft (decision 0093). */
-export const pageDraftSaveSchema = z.object({ draft: contentDocumentV1Schema }).strict();
+export const pageDraftSaveSchema = z.object({ draft: contentDocumentSchema }).strict();

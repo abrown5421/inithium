@@ -68,7 +68,7 @@ The formatting the toolbar offers, and the only formatting the editor knows. Pas
 <RichTextField label="Post" features={richTextFeatures} />              // everything
 ```
 
-- **Links** open a row under the toolbar for the address. It must start with `https://`, `http://`, `mailto:` or `tel:`. A link to one of the site's pages is only possible in the page editor.
+- **Links** open a row under the toolbar for the address. It must start with `https://`, `http://`, `mailto:` or `tel:`. A link to one of the site's pages is only possible in the page builder.
 - **Heading** makes an h2 (the page's title is its h1).
 - Keyboard shortcuts work for what's allowed: Ctrl/⌘+B, Ctrl/⌘+I, Ctrl/⌘+U.
 

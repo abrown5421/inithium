@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { entranceAnimationSchema, exitAnimationSchema } from '../ui/animation.schema';
 import { colorValueSchema } from '../ui/colors.schema';
 import { iconNameSchema } from '../ui/icon.schema';
-import { pageContentSchema } from '../content/content.schema';
-import { contentDocumentV1Schema } from '../content/v1/content-v1.schema';
+import { contentDocumentSchema, pageContentSchema } from '../content/content.schema';
 
 /** Whether a page is live on the site (decision 0078). */
 export const pageStatuses = ['published', 'unpublished'] as const;
@@ -109,7 +108,7 @@ export const publicPageSchema = pageSchema
   .omit({ status: true, layouts: true, protected: true, content: true, createdAt: true, updatedAt: true })
   .extend({
     /** A content page's published blocks (decision 0093); never its draft. */
-    content: contentDocumentV1Schema.optional(),
+    content: contentDocumentSchema.optional(),
   });
 
 /**

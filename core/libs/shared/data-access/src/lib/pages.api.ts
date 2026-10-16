@@ -2,7 +2,7 @@ import {
   pageSchema,
   reusableTemplateSchema,
   type Page,
-  type ContentDocumentV1,
+  type ContentDocument,
   type PageCreate,
   type PageDuplicate,
   type PageUpdate,
@@ -28,7 +28,7 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
       providesTags: (_page, _error, id) => [{ type: 'Page', id }],
     }),
     /** Saves a content page's draft (needs pages.edit; decision 0093). The saved page replaces the cached one. */
-    saveContentDraft: build.mutation<Page, { id: string; draft: ContentDocumentV1 }>({
+    saveContentDraft: build.mutation<Page, { id: string; draft: ContentDocument }>({
       query: ({ id, draft }) => ({ url: `/pages/${id}/content`, method: 'PUT', body: { draft } }),
       transformResponse: (response: unknown) => pageSchema.parse(response),
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {

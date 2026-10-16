@@ -62,7 +62,7 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
   - an address, suggested from the title until you edit it;
   - a layout, from the template's.
 
-  The page is created unpublished and out of menus, and opens straight away: content pages in the content editor, others in the page editor ([Creating pages](../backend/pages.md#creating-pages)).
+  The page is created unpublished and out of menus, and opens straight away: content pages in the page builder, others in the page settings dialog ([Creating pages](../backend/pages.md#creating-pages)).
 - **Duplicate** (with `pages.create`, on pages made from a reusable template) opens the same dialog with "(copy)" titles and addresses.
 - **Delete** (with `pages.delete`, on pages that aren't protected) asks first, since it can't be undone.
 
