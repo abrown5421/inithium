@@ -149,13 +149,13 @@ Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content
 | Part | Does |
 | --- | --- |
 | Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Desktop**, **Tablet** and **Phone** (the one shown is outlined); **Undo** and **Redo**; **Page settings** (the page editor); **Discard changes**; **Publish**, the only filled button. Every icon button has a tooltip. |
-| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens the Add picker; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle, a **+** that adds just after it, and a "⋯" menu. An empty page shows **Add your first element**. |
+| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens the Add picker; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle, a **+** (on a Container it adds inside it, at the end; on anything else, just after it), and a "⋯" menu. An empty page shows **Add your first element**. |
 | Preview (middle) | The draft drawn by the site's renderer in an iframe at the device's width (1280px, 768px or 390px), scaled down to fit when the canvas is narrower, so each device shows its own layout. Click an element to select it; the one under the pointer is outlined dashed and the selected one solid, each with a small tag of its name (inside a Container's top corner; just above anything else, clear of text being typed). Empty Containers show a dashed box, and an empty page says how to start. Click a selected Text to type in it, with the formatting toolbar above the preview. An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. Links go nowhere in the preview. |
 | Properties (right) | Where the selection sits (a trail from the page through its Containers; click one to select it), its name in the Layers, then its properties in tabs (below). |
 
 ### The Add picker
 
-**Add** (at the top of the Layers, on an empty page, and as each row's **+**) opens a [Menu](../ui-library/composites/menu.md) that first says where the element goes ("Inside “Card”", "After “Heading”", "At the end of the page"), then lists the elements in groups, each with a line about it:
+**Add** (at the top of the Layers, on an empty page, and as each row's **+**) opens a dialog (`AddElementDialog`) titled "Add an element", saying where it goes ("Inside “Card”", "After “Heading”", "At the end of the page"). Under a search box (every word must match a name, description or group; Enter adds the first match), the elements are cards in groups, each with its icon, name and a line about it. A row's **+** puts it inside that row if it's a Container (or a plugin element that holds others), otherwise just after it; **Add** at the top follows the selection (inside the selected Container, after anything else, or at the end of the page).
 
 | Group | Elements |
 | --- | --- |
@@ -163,7 +163,7 @@ Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content
 | Text and media | Text, Image, Icon |
 | Actions | Button |
 
-A Container added to a row takes an equal share of it. The groups are `ELEMENT_GROUPS` in `content-tree.service.ts`; plugins' elements will join them with the content elements slot.
+A Container added to a row takes an equal share of it. The groups are `ELEMENT_GROUPS` in `content-tree.service.ts`; registered plugins' elements join the group their entry names, or a new one after core's (`addPickerGroups()`).
 
 ### Properties
 

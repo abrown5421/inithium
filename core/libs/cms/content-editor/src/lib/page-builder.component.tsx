@@ -43,7 +43,7 @@ import { DEVICE_LABELS, DEVICE_WIDTHS, type EditDevice } from './device-values.s
 import { sharingTheRow, stacksOn } from './property-values.service';
 import { ElementProperties, type FieldProblems, type PropertiesTab } from './element-properties.component';
 import { PluginElementProperties } from './plugin-element-properties.component';
-import { LayersPanel, type DropPosition } from './layers-panel.component';
+import { LayersPanel, type AddPlace, type DropPosition } from './layers-panel.component';
 import { MoveToDialog } from './move-to-dialog.component';
 import { PreviewFrame } from './preview-frame.component';
 import { RichTextEditor } from './rich-text-editor.component';
@@ -293,9 +293,13 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
 
   // --- Actions, shared by the menus and the keyboard ---
 
-  const add = (type: ContentElementType | PluginElementType, afterId?: string) => {
-    const after = afterId ? findElement(doc, afterId) : undefined;
-    const target = after ? { parentId: after.parent?.id ?? null, index: after.index + 1 } : insertionTarget(doc, selectedId);
+  const add = (type: ContentElementType | PluginElementType, spot?: AddPlace) => {
+    const at = spot ? findElement(doc, 'inside' in spot ? spot.inside : spot.after) : undefined;
+    const target: InsertTarget = !spot || !at
+      ? insertionTarget(doc, selectedId)
+      : 'inside' in spot
+        ? { parentId: at.element.id, index: childrenOf(at.element).length }
+        : { parentId: at.parent?.id ?? null, index: at.index + 1 };
     const parent = target.parentId ? findElement(doc, target.parentId)?.element : undefined;
     const element = createElement(type);
     // A Container added to a row takes an equal share of it, like the ones already there.

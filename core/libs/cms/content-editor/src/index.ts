@@ -1,5 +1,5 @@
 export * from './lib/accessibility-checks.service';
-export * from './lib/add-element-menu.component';
+export * from './lib/add-element-dialog.component';
 export * from './lib/content-editor-screen.component';
 export * from './lib/content-element-editors.service';
 export * from './lib/content-tree.service';

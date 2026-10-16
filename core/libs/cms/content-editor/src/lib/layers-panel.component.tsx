@@ -2,8 +2,11 @@ import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 
 import type { ContentDocument, ContentElement, ContentElementType, PluginElementType } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Input, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
 import { Menu, type MenuItem } from '@inithium/shared-ui-composites';
-import { AddElementMenu } from './add-element-menu.component';
+import { AddElementDialog } from './add-element-dialog.component';
 import { childrenOf, elementName, elementType, holdsChildren, layerRows, type LayerRow } from './content-tree.service';
+
+/** Where a row's + adds: inside a Container (at its end), or just after the row. Leave it out for Add's usual place. */
+export type AddPlace = { inside: string } | { after: string };
 
 /** Where a dragged element lands relative to the row it's over. */
 export type DropPosition = 'before' | 'after' | 'inside';
@@ -27,8 +30,8 @@ export type LayersPanelProps = {
   onDrop: (id: string, targetId: string | null, position: DropPosition) => void;
   /** The actions in an element's ⋯ menu. */
   menuFor: (element: ContentElement) => MenuItem[];
-  /** Adds an element where new elements go (see `insertionTarget`), or just after an element (a row's +). */
-  onAdd: (type: ContentElementType | PluginElementType, afterId?: string) => void;
+  /** Adds an element where new elements go (see `insertionTarget`), or where a row's + says (`place`). */
+  onAdd: (type: ContentElementType | PluginElementType, place?: AddPlace) => void;
   /** Says where Add puts things, e.g. 'Inside “Card”'. */
   addHint: string;
 };
@@ -67,6 +70,8 @@ export function LayersPanel(props: LayersPanelProps) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [drop, setDrop] = useState<{ id: string | null; position: DropPosition } | null>(null);
   const [menuId, setMenuId] = useState<string | null>(null);
+  // The Add dialog: what it says about where the element goes, and the place a row's + chose.
+  const [adding, setAdding] = useState<{ where: string; place?: AddPlace } | null>(null);
 
   // Keyboard moves focus with the selection; a click elsewhere (e.g. the preview) doesn't steal it.
   useEffect(() => {
@@ -163,9 +168,9 @@ export function LayersPanel(props: LayersPanelProps) {
         <Text as="h2" fontSize={13} fontWeight={600} letterSpacing={0.5} textColor={{ color: 'surface', intensity: 700 }}>
           LAYERS
         </Text>
-        <AddElementMenu where={props.addHint} onAdd={(type) => props.onAdd(type)} align="end">
-          <Button leadingIcon="plus">Add</Button>
-        </AddElementMenu>
+        <Button leadingIcon="plus" onClick={() => setAdding({ where: props.addHint })}>
+          Add
+        </Button>
       </Container>
       <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
         Adds {props.addHint.charAt(0).toLowerCase() + props.addHint.slice(1)}.
@@ -187,9 +192,9 @@ export function LayersPanel(props: LayersPanelProps) {
           <Text as="p" fontSize={13} align="center" textColor={{ color: 'surface', intensity: 700 }}>
             Start with a Container to hold things, or add Text, an Image or a Button straight onto the page.
           </Text>
-          <AddElementMenu where="On the page" onAdd={(type) => props.onAdd(type)} align="center">
-            <Button leadingIcon="plus">Add your first element</Button>
-          </AddElementMenu>
+          <Button leadingIcon="plus" onClick={() => setAdding({ where: 'On the page' })}>
+            Add your first element
+          </Button>
         </Container>
       ) : (
         <Container as="ul" role="tree" aria-label="Layers" flex={{ direction: 'column', gap: 1 }} onKeyDown={handleKeyDown}>
@@ -290,17 +295,21 @@ export function LayersPanel(props: LayersPanelProps) {
                   <Container flex={{ align: 'center' }} textColor={{ color: 'surface', intensity: 600 }} aria-hidden="true">
                     <Icon name="grip-vertical" size={16} />
                   </Container>
-                  <AddElementMenu where={`After “${name}”`} onAdd={(type) => props.onAdd(type, id)} align="end">
+                  {/* A Container's + adds inside it; anything else's, just after it. */}
+                  <Tooltip content={holdsChildren(element) ? `Add inside ${name}` : `Add after ${name}`}>
                     <Button
                       variant="ghost"
                       color={{ color: 'surface', intensity: 800 }}
                       leadingIcon="plus"
-                      aria-label={`Add after ${name}`}
+                      aria-label={holdsChildren(element) ? `Add inside ${name}` : `Add after ${name}`}
                       tabIndex={-1}
                       padding={{ x: 4 }}
-                      onClick={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setAdding(holdsChildren(element) ? { where: `Inside “${name}”`, place: { inside: id } } : { where: `After “${name}”`, place: { after: id } });
+                      }}
                     />
-                  </AddElementMenu>
+                  </Tooltip>
                   <Menu
                     items={props.menuFor(element)}
                     aria-label={`Actions for ${name}`}
@@ -324,6 +333,16 @@ export function LayersPanel(props: LayersPanelProps) {
           })}
         </Container>
       )}
+
+      <AddElementDialog
+        where={adding?.where ?? null}
+        onClose={() => setAdding(null)}
+        onAdd={(type) => {
+          const place = adding?.place;
+          setAdding(null);
+          props.onAdd(type, place);
+        }}
+      />
 
       {/* While dragging: a place to drop at the end of the page. */}
       {dragId && (
