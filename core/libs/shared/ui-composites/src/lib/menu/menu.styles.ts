@@ -17,6 +17,11 @@ export const menuStyleSheet = [
   '.ui-menu-item[data-danger]{color:var(--color-red-600)}',
   '.ui-menu-item[data-danger][data-highlighted]{background:color-mix(in oklab,var(--color-red-500) 12%,transparent)}',
   '.ui-menu-label{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}',
+  // A row with a description grows to two lines, its icon beside the label.
+  '.ui-menu-item[data-described]{height:auto;min-height:32px;padding:8px 10px;align-items:flex-start}',
+  '.ui-menu-item[data-described] .ui-menu-label{white-space:normal}',
+  '.ui-menu-description{display:block;margin-top:2px;font-size:12px;font-weight:400;line-height:16px;color:var(--color-surface-600)}',
+  '.ui-menu-heading{padding:8px 10px 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--color-surface-600)}',
   '.ui-menu-shortcut{margin-left:16px;font-size:12px;color:var(--color-surface-600)}',
   '.ui-menu-separator{height:1px;margin:4px 6px;background:color-mix(in oklab,var(--color-surface-500) 30%,transparent)}',
 ].join('');

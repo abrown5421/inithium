@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
-import { contentElementTypes, type ContentDocument, type ContentElement, type ContentElementType } from '@inithium/shared-contracts';
+import type { ContentDocument, ContentElement, ContentElementType } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Input, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
 import { Menu, type MenuItem } from '@inithium/shared-ui-composites';
-import { childrenOf, elementName, elementType, ELEMENT_TYPES, holdsChildren, layerRows, type LayerRow } from './content-tree.service';
+import { AddElementMenu } from './add-element-menu.component';
+import { childrenOf, elementName, elementType, holdsChildren, layerRows, type LayerRow } from './content-tree.service';
 
 /** Where a dragged element lands relative to the row it's over. */
 export type DropPosition = 'before' | 'after' | 'inside';
@@ -26,9 +27,9 @@ export type LayersPanelProps = {
   onDrop: (id: string, targetId: string | null, position: DropPosition) => void;
   /** The actions in an element's ⋯ menu. */
   menuFor: (element: ContentElement) => MenuItem[];
-  /** Adds an element where new elements go (see `insertionTarget`). */
-  onAdd: (type: ContentElementType) => void;
-  /** Says where Add puts things, e.g. 'Inside Card'. */
+  /** Adds an element where new elements go (see `insertionTarget`), or just after an element (a row's +). */
+  onAdd: (type: ContentElementType, afterId?: string) => void;
+  /** Says where Add puts things, e.g. 'Inside “Card”'. */
   addHint: string;
 };
 
@@ -162,27 +163,33 @@ export function LayersPanel(props: LayersPanelProps) {
         <Text as="h2" fontSize={13} fontWeight={600} letterSpacing={0.5} textColor={{ color: 'surface', intensity: 700 }}>
           LAYERS
         </Text>
-        <Menu
-          aria-label="Elements to add"
-          align="end"
-          items={contentElementTypes.map((type) => ({
-            label: ELEMENT_TYPES[type].label,
-            icon: ELEMENT_TYPES[type].icon as IconName,
-            onSelect: () => props.onAdd(type),
-          }))}
-        >
+        <AddElementMenu where={props.addHint} onAdd={(type) => props.onAdd(type)} align="end">
           <Button leadingIcon="plus">Add</Button>
-        </Menu>
+        </AddElementMenu>
       </Container>
       <Text as="p" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
-        {props.addHint}
+        Adds {props.addHint.charAt(0).toLowerCase() + props.addHint.slice(1)}.
       </Text>
 
       {rows.length === 0 ? (
-        <Container padding={{ y: 16 }}>
-          <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-            This page is empty. Add an element to start.
+        <Container
+          flex={{ direction: 'column', align: 'center', gap: 10 }}
+          padding={{ x: 16, y: 24 }}
+          radius={{ all: 8 }}
+          borderWidth={{ all: 2 }}
+          borderStyle="dashed"
+          borderColor={{ color: 'surface', intensity: 500, opacity: 50 }}
+        >
+          <Icon name="layout-template" size={28} />
+          <Text as="p" fontWeight={600}>
+            This page is empty
           </Text>
+          <Text as="p" fontSize={13} align="center" textColor={{ color: 'surface', intensity: 700 }}>
+            Start with a Container to hold things, or add Text, an Image or a Button straight onto the page.
+          </Text>
+          <AddElementMenu where="On the page" onAdd={(type) => props.onAdd(type)} align="center">
+            <Button leadingIcon="plus">Add your first element</Button>
+          </AddElementMenu>
         </Container>
       ) : (
         <Container as="ul" role="tree" aria-label="Layers" flex={{ direction: 'column', gap: 1 }} onKeyDown={handleKeyDown}>
@@ -283,6 +290,17 @@ export function LayersPanel(props: LayersPanelProps) {
                   <Container flex={{ align: 'center' }} textColor={{ color: 'surface', intensity: 600 }} aria-hidden="true">
                     <Icon name="grip-vertical" size={16} />
                   </Container>
+                  <AddElementMenu where={`After “${name}”`} onAdd={(type) => props.onAdd(type, id)} align="end">
+                    <Button
+                      variant="ghost"
+                      color={{ color: 'surface', intensity: 800 }}
+                      leadingIcon="plus"
+                      aria-label={`Add after ${name}`}
+                      tabIndex={-1}
+                      padding={{ x: 4 }}
+                      onClick={(event) => event.stopPropagation()}
+                    />
+                  </AddElementMenu>
                   <Menu
                     items={props.menuFor(element)}
                     aria-label={`Actions for ${name}`}

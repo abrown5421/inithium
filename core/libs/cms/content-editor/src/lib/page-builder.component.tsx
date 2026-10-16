@@ -115,19 +115,31 @@ function ScaledPreview({ width, children }: { width: number; children: ReactNode
 }
 
 /**
- * Outlines in the preview (decision 0092: the editor's internals; Container has no outline props yet, 0033): the
- * element under the pointer dashed, the selected one solid. Containers are outlined inside their edges, so a
- * full-width one's outline isn't cut off at the frame's sides.
+ * Outlines and name tags in the preview (decision 0092: the editor's internals; Container has no outline props yet,
+ * 0033): the element under the pointer dashed with its name, the selected one solid with its name. Containers are
+ * outlined, and tagged, inside their edges, so a full-width one's isn't cut off at the frame's sides; other elements'
+ * tags sit just above them, clear of the text being typed.
  */
-function previewStyles(selectedId: string | null): string {
-  const selected = selectedId ? `[data-element-id="${selectedId}"]` : '';
+function previewStyles(selected: { id: string; name: string } | null): string {
+  const target = selected ? `[data-element-id="${selected.id}"]` : '';
+  // The name as a CSS string: quotes and backslashes escaped, line breaks dropped.
+  const name = selected ? `"${selected.name.replace(/[\\"]/g, '\\$&').replace(/[\r\n]+/g, ' ')}"` : '';
   return `
 [data-element-id] { cursor: pointer; }
-[data-editor-hover] { outline: 1px dashed color-mix(in oklab, var(--color-primary-500) 70%, transparent); outline-offset: 2px; }
+[data-editor-hover] { position: relative; outline: 1px dashed color-mix(in oklab, var(--color-primary-500) 70%, transparent); outline-offset: 2px; }
 [data-element=container][data-editor-hover] { outline-offset: -1px; }
-${selected ? `${selected} { outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
-[data-element=container]${selected} { outline-offset: -2px; }
-[data-element=text]${selected} { cursor: text; }` : ''}
+[data-editor-hover]::before, ${target || '[data-editor-none]'}::before {
+  position: absolute; top: 0; left: 0; z-index: 20; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 1px 6px; border-radius: 4px 4px 0 0; pointer-events: none; transform: translateY(-100%);
+  font: 500 11px/16px var(--font-body); letter-spacing: 0; text-transform: none; font-style: normal;
+  color: var(--color-primary-100); background: color-mix(in oklab, var(--color-primary-500) 85%, transparent);
+}
+[data-editor-hover]::before { content: attr(data-editor-name); }
+[data-element=container][data-editor-hover]::before, [data-element=container]${target || '[data-editor-none]'}::before { transform: none; border-radius: 0 0 4px 0; }
+${target ? `${target} { position: relative; outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
+${target}::before { content: ${name}; background: var(--color-primary-600); }
+[data-element=container]${target} { outline-offset: -2px; }
+[data-element=text]${target} { cursor: text; }` : ''}
 `;
 }
 
@@ -236,8 +248,9 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
 
   // --- Actions, shared by the menus and the keyboard ---
 
-  const add = (type: ContentElementType) => {
-    const target = insertionTarget(doc, selectedId);
+  const add = (type: ContentElementType, afterId?: string) => {
+    const after = afterId ? findElement(doc, afterId) : undefined;
+    const target = after ? { parentId: after.parent?.id ?? null, index: after.index + 1 } : insertionTarget(doc, selectedId);
     const parent = target.parentId ? findElement(doc, target.parentId)?.element : undefined;
     const element = createElement(type);
     // A Container added to a row takes an equal share of it, like the ones already there.
@@ -361,8 +374,14 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
     const element = event.type === 'mouseleave' ? null : elementAt(event);
     if (element === hovered.current) return;
     hovered.current?.removeAttribute('data-editor-hover');
-    element?.setAttribute('data-editor-hover', '');
-    hovered.current = element;
+    // The selected element shows its own tag; another under the pointer shows its name as it's outlined.
+    const id = element?.getAttribute('data-element-id');
+    const found = id && id !== selectedId ? findElement(doc, id) : undefined;
+    if (element && found) {
+      element.setAttribute('data-editor-name', elementName(found.element));
+      element.setAttribute('data-editor-hover', '');
+    }
+    hovered.current = found ? element : null;
   };
 
   const editText = useCallback(
@@ -432,9 +451,9 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
 
   const addHint = selected
     ? holdsChildren(selected.element)
-      ? `Adds inside “${elementName(selected.element)}”.`
-      : `Adds after “${elementName(selected.element)}”.`
-    : 'Adds to the end of the page.';
+      ? `Inside “${elementName(selected.element)}”`
+      : `After “${elementName(selected.element)}”`
+    : 'At the end of the page';
 
   let panel: ReactNode = (
     <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
@@ -538,7 +557,7 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
           {DEVICES.map((entry) => (
             <Tooltip key={entry.value} content={`See and edit it as on a ${DEVICE_LABELS[entry.value].toLowerCase()} (${DEVICE_WIDTHS[entry.value]}px)`}>
               <Button
-                variant={device === entry.value ? 'filled' : 'ghost'}
+                variant={device === entry.value ? 'outlined' : 'ghost'}
                 leadingIcon={entry.icon}
                 aria-pressed={device === entry.value}
                 padding={{ x: 8 }}
@@ -648,11 +667,15 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
                   onMouseOver={handlePreviewHover}
                   onMouseLeave={handlePreviewHover}
                 >
-                  <style>{previewStyles(selectedId)}</style>
+                  <style>{previewStyles(selected ? { id: selected.element.id, name: elementName(selected.element) } : null)}</style>
                   {doc.elements.length === 0 ? (
-                    <Container padding={{ all: 48 }}>
-                      <Text as="p" align="center" textColor={{ color: 'surface', intensity: 700 }}>
-                        This page is empty. Add an element from the Layers on the left.
+                    <Container flex={{ direction: 'column', align: 'center', gap: 12 }} padding={{ x: 24, y: 96 }} textColor={{ color: 'surface', intensity: 700 }}>
+                      <Icon name="layout-template" size={40} />
+                      <Text as="p" fontFamily="display" fontSize={24} align="center" textColor={{ color: 'surface', intensity: 900 }}>
+                        Start building your page
+                      </Text>
+                      <Text as="p" align="center" maxWidth={520}>
+                        Use Add in the Layers on the left. A good start is a Container, to hold things, with Text, Images and Buttons inside it.
                       </Text>
                     </Container>
                   ) : (

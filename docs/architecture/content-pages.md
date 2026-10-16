@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (the Add picker and the rest of the interface, the edit lock, accessibility warnings, plugin elements) are listed in the [build status](#build-status).
+> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (the edit lock, accessibility warnings, plugin elements) are listed in the [build status](#build-status).
 
 Pages come in three kinds:
 
@@ -148,10 +148,22 @@ Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content
 
 | Part | Does |
 | --- | --- |
-| Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Desktop**, **Tablet** and **Phone**; **Undo** and **Redo**; **Page settings** (the page editor); **Discard changes**; **Publish** |
-| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens a [Menu](../ui-library/composites/menu.md) of the six elements; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle and a "⋯" menu. |
-| Preview (middle) | The draft drawn by the site's renderer in an iframe at the device's width (1280px, 768px or 390px), scaled down to fit when the canvas is narrower, so each device shows its own layout. Click an element to select it; the one under the pointer is outlined dashed, the selected one solid. Empty Containers show a dashed box. Click a selected Text to type in it, with the formatting toolbar above the preview. An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. Links go nowhere in the preview. |
+| Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Desktop**, **Tablet** and **Phone** (the one shown is outlined); **Undo** and **Redo**; **Page settings** (the page editor); **Discard changes**; **Publish**, the only filled button. Every icon button has a tooltip. |
+| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens the Add picker; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle, a **+** that adds just after it, and a "⋯" menu. An empty page shows **Add your first element**. |
+| Preview (middle) | The draft drawn by the site's renderer in an iframe at the device's width (1280px, 768px or 390px), scaled down to fit when the canvas is narrower, so each device shows its own layout. Click an element to select it; the one under the pointer is outlined dashed and the selected one solid, each with a small tag of its name (inside a Container's top corner; just above anything else, clear of text being typed). Empty Containers show a dashed box, and an empty page says how to start. Click a selected Text to type in it, with the formatting toolbar above the preview. An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. Links go nowhere in the preview. |
 | Properties (right) | Where the selection sits (a trail from the page through its Containers; click one to select it), its name in the Layers, then its properties in tabs (below). |
+
+### The Add picker
+
+**Add** (at the top of the Layers, on an empty page, and as each row's **+**) opens a [Menu](../ui-library/composites/menu.md) that first says where the element goes ("Inside “Card”", "After “Heading”", "At the end of the page"), then lists the elements in groups, each with a line about it:
+
+| Group | Elements |
+| --- | --- |
+| Layout | Container, Divider |
+| Text and media | Text, Image, Icon |
+| Actions | Button |
+
+A Container added to a row takes an equal share of it. The groups are `ELEMENT_GROUPS` in `content-tree.service.ts`; plugins' elements will join them with the content elements slot.
 
 ### Properties
 
@@ -241,7 +253,7 @@ Admins edit it like any content page. The seed never touches it again, so their 
    1. **Model (built):** the element contracts and limits, version 2 with the upgrade from version 1, and the renderer, which the site uses.
    2. **Editor model and Layers (built):** the tree, selection, insertion, duplicate, copy and paste, drag and shortcuts ([above](#moving-copying-and-the-keyboard)); the [Menu](../ui-library/composites/menu.md) composite.
    3. **Properties (built):** the tabs, spacing steps and per-device values ([above](#properties)); drafts saved as version 2; the builder replaced the version 1 editor at `/cms/pages/:id/content`.
-   4. Interface: the Add picker, toolbar, empty state and canvas outlines.
+   4. **Interface (built):** the Add picker (grouped, described, saying where), a **+** on each Layers row, the empty page, name tags in the preview, and the toolbar's buttons ([above](#the-add-picker)).
    5. The edit lock.
    6. Accessibility warnings, and usage checks walking the tree.
    7. Plugin elements: the content elements slot through the api, web and cms registries.

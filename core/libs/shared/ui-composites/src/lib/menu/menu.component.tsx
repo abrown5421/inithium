@@ -8,6 +8,8 @@ export type MenuAction = {
   label: string;
   onSelect: () => void;
   icon?: IconName;
+  /** A line under the label saying what it does, e.g. 'Holds other elements in a row'. */
+  description?: string;
   /** A hint at the row's end, e.g. 'Ctrl+D'. It only describes the shortcut; the caller handles the keys. */
   shortcut?: string;
   disabled?: boolean;
@@ -15,8 +17,11 @@ export type MenuAction = {
   danger?: boolean;
 };
 
-/** A row of a Menu, or a thin line between groups of rows. */
-export type MenuItem = MenuAction | 'separator';
+/** A heading over a group of rows, e.g. 'Text and media'. */
+export type MenuHeading = { heading: string };
+
+/** A row of a Menu, a heading over a group of rows, or a thin line between groups. */
+export type MenuItem = MenuAction | MenuHeading | 'separator';
 
 export type MenuProps = {
   /** The rows, top to bottom. */
@@ -52,17 +57,26 @@ export function Menu({ items, children, side = 'bottom', align = 'start', 'aria-
           {items.map((item, index) =>
             item === 'separator' ? (
               <RadixMenu.Separator key={`separator-${index}`} className="ui-menu-separator" />
+            ) : 'heading' in item ? (
+              <RadixMenu.Label key={`heading-${index}`} className="ui-menu-heading">
+                {item.heading}
+              </RadixMenu.Label>
             ) : (
               <RadixMenu.Item
-                key={item.label}
+                key={`${index}-${item.label}`}
                 className="ui-menu-item"
                 disabled={item.disabled}
                 data-danger={item.danger ? '' : undefined}
+                data-described={item.description ? '' : undefined}
+                textValue={item.label}
                 onSelect={item.onSelect}
               >
-                {item.icon && <Icon name={item.icon} size={16} />}
+                {item.icon && <Icon name={item.icon} size={item.description ? 20 : 16} />}
                 {/* Plain spans: the menu's own internals, styled by its stylesheet (decision 0092). */}
-                <span className="ui-menu-label">{item.label}</span>
+                <span className="ui-menu-label">
+                  {item.label}
+                  {item.description && <span className="ui-menu-description">{item.description}</span>}
+                </span>
                 {item.shortcut && (
                   <span className="ui-menu-shortcut" aria-hidden="true">
                     {item.shortcut}
