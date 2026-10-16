@@ -1,3 +1,4 @@
+export * from './lib/add-element-menu.component';
 export * from './lib/content-editor-screen.component';
 export * from './lib/content-tree.service';
 export * from './lib/editor-fields.component';

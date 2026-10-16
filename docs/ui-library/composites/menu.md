@@ -1,6 +1,6 @@
 ---
 title: Menu
-description: A list of actions that opens from a button, with icons, shortcut hints, separators and a danger colour.
+description: A list of actions that opens from a button, with icons, descriptions, group headings, shortcut hints, separators and a danger colour.
 scope: core
 tags: [ui, composite, menu, actions]
 order: 19
@@ -18,7 +18,7 @@ Menu opens a list of actions from a button ([0117](../../decisions/0117-open-lis
 ## Import
 
 ```tsx
-import { Menu, type MenuItem } from '@inithium/shared-ui-composites';
+import { Menu, type MenuItem, type MenuAction, type MenuHeading } from '@inithium/shared-ui-composites';
 ```
 
 ## Props at a glance
@@ -37,9 +37,10 @@ import { Menu, type MenuItem } from '@inithium/shared-ui-composites';
 
 #### `items`
 
-The rows. Each is an action, `{ label, onSelect, icon?, shortcut?, disabled?, danger? }`, or `'separator'` for a thin line between groups. **Type:** `MenuItem[]`. **Required.**
+The rows. Each is an action, `{ label, onSelect, icon?, description?, shortcut?, disabled?, danger? }`; a heading over a group of rows, `{ heading }`; or `'separator'` for a thin line between groups. **Type:** `MenuItem[]`. **Required.**
 
-- `icon`: a Lucide icon name, drawn at 16px before the label.
+- `icon`: a Lucide icon name, drawn at 16px before the label (20px beside a description).
+- `description`: a line under the label saying what it does; the row grows to fit. Typing a letter still jumps by the label.
 - `shortcut`: a hint at the row's end, e.g. `'Ctrl+D'`. It only describes the shortcut: handle the keys yourself.
 - `disabled`: shown faded and skipped by the keyboard.
 - `danger`: the row in red, for actions that remove something.
@@ -95,6 +96,14 @@ A button opening three actions, one disabled; choosing one shows which.
 ui-library/menu/basic
 ```
 
+### Example: Groups and descriptions
+
+A picker: headed groups of rows, each with a line saying what it adds, as the page builder's Add uses.
+
+```example
+ui-library/menu/groups-and-descriptions
+```
+
 ### Example: Shortcut hints and a danger row
 
 An icon button's menu, as on a row of a list: shortcut hints, a separator and a red Delete.
@@ -105,7 +114,7 @@ ui-library/menu/shortcuts-and-danger
 
 ## Accessibility
 
-- **Behaviour from Radix:** the panel is a `role="menu"` of `role="menuitem"` rows. Enter, Space or the down arrow on the trigger opens it with the first row focused; the arrow keys move, typing a letter jumps to the matching row, Enter or Space chooses, Escape closes and focus returns to the trigger.
+- **Behaviour from Radix:** the panel is a `role="menu"` of `role="menuitem"` rows; headings are labels, which the keyboard skips. Enter, Space or the down arrow on the trigger opens it with the first row focused; the arrow keys move, typing a letter jumps to the matching row, Enter or Space chooses, Escape closes and focus returns to the trigger.
 - **Name icon-only triggers** with `aria-label` on the button, and name the menu too.
 - **Shortcut hints** are hidden from screen readers; they describe keys the page handles itself.
 - **Danger** is shown by colour and by the action's own words (e.g. "Delete"), never colour alone.
@@ -114,5 +123,5 @@ ui-library/menu/shortcuts-and-danger
 
 - **Layering:** it renders in a portal at the end of the page at z-index 50, above modals (40), so a menu inside a Modal shows above it.
 - **Not modal:** the page stays usable while it's open; a click elsewhere closes it.
-- **Fixed look:** a surface 50 panel, 8px radius, `lg` shadow, 200–320px wide; 32px rows of 14px text; the highlighted row on surface 200. It fades and scales in, without motion under reduced motion.
+- **Fixed look:** a surface 50 panel, 8px radius, `lg` shadow, 200–320px wide; 32px rows of 14px text (taller with a description, in 12px under the label); headings in 11px capitals; the highlighted row on surface 200. It fades and scales in, without motion under reduced motion.
 - **Not yet:** submenus, checkable items, or opening on right-click.

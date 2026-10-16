@@ -190,6 +190,13 @@ export const ELEMENT_TYPES: Record<ContentElementType, { label: string; icon: st
   divider: { label: 'Divider', icon: 'minus', description: 'A line between things' },
 };
 
+/** The Add picker's groups, in order. */
+export const ELEMENT_GROUPS: { label: string; types: ContentElementType[] }[] = [
+  { label: 'Layout', types: ['container', 'divider'] },
+  { label: 'Text and media', types: ['text', 'image', 'icon'] },
+  { label: 'Actions', types: ['button'] },
+];
+
 /** The type's name and icon, for core elements and plugins' alike. */
 export function elementType(element: ContentElement): { label: string; icon: string } {
   if (element.type in ELEMENT_TYPES) return ELEMENT_TYPES[element.type as ContentElementType];
