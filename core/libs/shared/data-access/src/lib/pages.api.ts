@@ -1,4 +1,5 @@
 import {
+  CONTENT_LOCK_HEADER,
   pageSchema,
   reusableTemplateSchema,
   type Page,
@@ -27,29 +28,43 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
       transformResponse: (response: unknown) => pageSchema.parse(response),
       providesTags: (_page, _error, id) => [{ type: 'Page', id }],
     }),
-    /** Saves a content page's draft (needs pages.edit; decision 0093). The saved page replaces the cached one. */
-    saveContentDraft: build.mutation<Page, { id: string; draft: ContentDocument }>({
-      query: ({ id, draft }) => ({ url: `/pages/${id}/content`, method: 'PUT', body: { draft } }),
+    /**
+     * Takes a content page's edit lock for a page builder session, or keeps it alive (needs pages.edit; decision 0116).
+     * Fails with 409 and `editing` when someone else has the page open.
+     */
+    lockContent: build.mutation<void, { id: string; lockId: string }>({
+      query: ({ id, lockId }) => ({ url: `/pages/${id}/content/lock`, method: 'POST', body: { lockId } }),
+    }),
+    /** Lets go of a content page's edit lock (decision 0116). */
+    unlockContent: build.mutation<void, { id: string; lockId: string }>({
+      query: ({ id, lockId }) => ({ url: `/pages/${id}/content/unlock`, method: 'POST', body: { lockId } }),
+    }),
+    /**
+     * Saves a content page's draft (needs pages.edit and the edit lock; decisions 0093, 0116). The saved page replaces
+     * the cached one.
+     */
+    saveContentDraft: build.mutation<Page, { id: string; draft: ContentDocument; lockId: string }>({
+      query: ({ id, draft, lockId }) => ({ url: `/pages/${id}/content`, method: 'PUT', body: { draft }, headers: { [CONTENT_LOCK_HEADER]: lockId } }),
       transformResponse: (response: unknown) => pageSchema.parse(response),
       async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         const result = await queryFulfilled.catch(() => null);
         if (result) replacePage(dispatch, id, result.data);
       },
     }),
-    /** Publishes a content page's draft, and the page if it wasn't live (needs pages.publish). */
-    publishContent: build.mutation<Page, string>({
-      query: (id) => ({ url: `/pages/${id}/content/publish`, method: 'POST' }),
+    /** Publishes a content page's draft, and the page if it wasn't live (needs pages.publish and the edit lock). */
+    publishContent: build.mutation<Page, { id: string; lockId: string }>({
+      query: ({ id, lockId }) => ({ url: `/pages/${id}/content/publish`, method: 'POST', headers: { [CONTENT_LOCK_HEADER]: lockId } }),
       transformResponse: (response: unknown) => pageSchema.parse(response),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         const result = await queryFulfilled.catch(() => null);
         if (result) replacePage(dispatch, id, result.data);
       },
     }),
-    /** Throws away a content page's unpublished changes (needs pages.edit). */
-    discardContentDraft: build.mutation<Page, string>({
-      query: (id) => ({ url: `/pages/${id}/content/discard`, method: 'POST' }),
+    /** Throws away a content page's unpublished changes (needs pages.edit and the edit lock). */
+    discardContentDraft: build.mutation<Page, { id: string; lockId: string }>({
+      query: ({ id, lockId }) => ({ url: `/pages/${id}/content/discard`, method: 'POST', headers: { [CONTENT_LOCK_HEADER]: lockId } }),
       transformResponse: (response: unknown) => pageSchema.parse(response),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
         const result = await queryFulfilled.catch(() => null);
         if (result) replacePage(dispatch, id, result.data);
       },
@@ -98,6 +113,8 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
 
 export const {
   useGetPageQuery,
+  useLockContentMutation,
+  useUnlockContentMutation,
   useSaveContentDraftMutation,
   usePublishContentMutation,
   useDiscardContentDraftMutation,

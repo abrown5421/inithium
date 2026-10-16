@@ -43,6 +43,7 @@ import { PreviewFrame } from './preview-frame.component';
 import { RichTextEditor } from './rich-text-editor.component';
 import { RichTextToolbar } from './rich-text-toolbar.component';
 import { useAutosave, type SaveStatus } from './use-autosave.hook';
+import type { ContentLockState } from './use-content-lock.hook';
 import { useContentHistory } from './use-content-history.hook';
 
 /** The editor's colours (decisions 0094, 0096): surface 200 panels and toolbar around a surface 950 canvas. */
@@ -151,6 +152,12 @@ export type PageBuilderProps = {
   /** Every page, for links. */
   pages: Page[];
   canPublish: boolean;
+  /** The edit lock this builder session holds (decision 0116), sent with every save, publish and discard. */
+  lockId: string;
+  /** The lock's state: once it's lost, the builder says so and stops saving. */
+  lock: ContentLockState;
+  /** Asks for the lock again, e.g. after a save is refused. */
+  onLockCheck: () => void;
 };
 
 /**
@@ -160,7 +167,7 @@ export type PageBuilderProps = {
  * place), and the selection's properties on the right, edited for the device previewed. The draft autosaves;
  * Publish puts it live and Discard goes back to what's published. Undo and redo work for the session.
  */
-export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
+export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck }: PageBuilderProps) {
   const navigate = useNavigate();
   const { show: showAlert } = useAlerts();
   const history = useContentHistory<ContentDocument>(readContentDocument(page.content.draft) ?? emptyContentDocument());
@@ -187,8 +194,19 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
 
   const problems = useMemo(() => problemsOf(doc), [doc]);
   const invalid = useMemo(() => new Set(problems.keys()), [problems]);
-  const save = useCallback((draft: ContentDocument) => saveDraft({ id: page.id, draft }).unwrap(), [saveDraft, page.id]);
-  const autosave = useAutosave({ doc, valid: invalid.size === 0, save });
+  const lockLost = lock.status === 'lost';
+  const save = useCallback(
+    (draft: ContentDocument) =>
+      saveDraft({ id: page.id, draft, lockId })
+        .unwrap()
+        .catch((error: unknown) => {
+          // Refused for the lock: find out who has it.
+          if (readApiFailure(error).status === 409) onLockCheck();
+          throw error;
+        }),
+    [saveDraft, page.id, lockId, onLockCheck],
+  );
+  const autosave = useAutosave({ doc, valid: invalid.size === 0 && !lockLost, save });
   const published = page.content.published;
   const unpublishedChanges = !published || !sameContent(published, doc);
 
@@ -198,7 +216,7 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
       return;
     }
     try {
-      await publish(page.id).unwrap();
+      await publish({ id: page.id, lockId }).unwrap();
       showAlert({ color: 'green', icon: 'circle-check', title: 'Published', message: `${page.title} is live at ${page.path}.` });
     } catch (error) {
       showAlert({ color: 'red', icon: 'circle-alert', title: 'We couldn’t publish', message: readApiFailure(error).message ?? 'Something went wrong. Please try again.', urgent: true });
@@ -207,7 +225,7 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
 
   const handleDiscard = async () => {
     try {
-      const result = await discard(page.id).unwrap();
+      const result = await discard({ id: page.id, lockId }).unwrap();
       const draft = readContentDocument(result.content?.draft) ?? emptyContentDocument();
       history.reset(draft);
       autosave.markSaved(draft);
@@ -710,6 +728,23 @@ export function PageBuilder({ page, pages, canPublish }: PageBuilderProps) {
         </Container>
       </Container>
 
+      <Modal
+        open={lockLost}
+        onOpenChange={() => undefined}
+        dismissible={false}
+        title={`${lock.status === 'lost' && lock.editing ? lock.editing.name : 'Someone else'} is editing this page now`}
+        description="The page went two minutes without word from this window (e.g. the computer slept), so someone else opened it. Changes made here since then aren’t saved."
+        maxWidth={500}
+      >
+        <Container flex={{ justify: 'end', gap: 8 }}>
+          <Button variant="outlined" leadingIcon="arrow-left" onClick={() => navigate('/pages')}>
+            Back to Pages
+          </Button>
+          <Button leadingIcon="refresh-cw" onClick={onLockCheck}>
+            Try to carry on
+          </Button>
+        </Container>
+      </Modal>
       <PageEditor page={settingsOpen ? page : null} onClose={() => setSettingsOpen(false)} canPublish={canPublish} />
       <Modal open={discarding} onOpenChange={setDiscarding} title="Discard your changes?" description="The draft goes back to what’s published. This can’t be undone." maxWidth={460}>
         <Container flex={{ justify: 'end', gap: 8 }}>

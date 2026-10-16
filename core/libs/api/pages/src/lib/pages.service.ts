@@ -1,4 +1,5 @@
 import { isValidObjectId } from 'mongoose';
+import { pageEditing } from './content-lock.service';
 import {
   emptyContentDocument,
   navigationAllowed,
@@ -25,6 +26,7 @@ const definedOnly = <T extends object>(value: T) =>
 /** Maps a stored page to the shape the API returns to the CMS. */
 export function toPage(doc: PageDocument): Page {
   const navigation = doc.navigation ?? { locations: [], order: 0 };
+  const editing = pageEditing(doc);
   return {
     id: doc._id.toString(),
     title: doc.title,
@@ -47,6 +49,7 @@ export function toPage(doc: PageDocument): Page {
     seo: definedOnly({ title: doc.seo?.title ?? undefined, description: doc.seo?.description ?? undefined }),
     protected: doc.protected,
     ...readPageContent(doc.content),
+    ...(editing ? { editing } : {}),
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

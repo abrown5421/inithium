@@ -125,6 +125,11 @@ export function PagesScreen() {
                   <Text as="span" fontSize={13} textColor={page.status === 'published' ? { color: 'green', intensity: 700 } : { color: 'surface', intensity: 600 }}>
                     {page.status === 'published' ? 'Published' : 'Unpublished'}
                   </Text>
+                  {page.editing && (
+                    <Text as="span" fontSize={13} textColor={{ color: 'amber', intensity: 700 }}>
+                      {' '}· {page.editing.name} is editing it
+                    </Text>
+                  )}
                 </Text>
               </Container>
               {pathHasParams(page.path) || page.status !== 'published' ? (

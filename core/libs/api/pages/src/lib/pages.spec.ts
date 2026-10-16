@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { expectSeedIsIdempotent } from '@inithium/api-testing';
 import { createTestApiWithAuth, signedInClient } from '@inithium/api-testing-accounts';
+import type { TestClient } from '@inithium/api-testing';
 import { createContentId, richTextFromPlainText, type ContentDocument } from '@inithium/shared-contracts';
 import { PageModel } from './pages.model';
 import { pagesRouter, siteRouter } from './pages.routes';
@@ -21,6 +22,19 @@ const quietly = async <T>(work: () => Promise<T>) => {
     warn.mockRestore();
   }
 };
+
+/** A page builder session on a page: it takes the edit lock, then saves, publishes and discards holding it. */
+async function builder(client: TestClient, id: string, lockId = `lock-${createContentId()}`) {
+  const lock = await client.post(`/api/pages/${id}/content/lock`, { lockId });
+  const headers = { 'x-content-lock': lockId };
+  return {
+    lockId,
+    lock,
+    save: (draft: ContentDocument) => client.request('PUT', `/api/pages/${id}/content`, { draft }, headers),
+    publish: () => client.request('POST', `/api/pages/${id}/content/publish`, undefined, headers),
+    discard: () => client.request('POST', `/api/pages/${id}/content/discard`, undefined, headers),
+  };
+}
 
 const withHeading = (text: string): ContentDocument => ({
   schemaVersion: 2,
@@ -106,9 +120,10 @@ describe('content and what visitors get (decision 0093)', () => {
     const page = (await client.post('/api/pages', { title: 'News', path: '/news', template: 'content' })).body;
     expect((await client.get('/api/site')).body.pages.map((p: { path: string }) => p.path)).not.toContain('/news');
 
-    await client.put(`/api/pages/${page.id}/content`, { draft: withHeading('First') });
-    await client.post(`/api/pages/${page.id}/content/publish`);
-    await client.put(`/api/pages/${page.id}/content`, { draft: withHeading('Second, unpublished') });
+    const session = await builder(client, page.id);
+    await session.save(withHeading('First'));
+    await session.publish();
+    await session.save(withHeading('Second, unpublished'));
 
     const site = await client.get('/api/site');
     const news = site.body.pages.find((p: { path: string }) => p.path === '/news');
@@ -119,10 +134,11 @@ describe('content and what visitors get (decision 0093)', () => {
   it('discarding puts the draft back to what’s published', async () => {
     const { client } = await signedInClient(app, 'owner');
     const page = (await client.post('/api/pages', { title: 'News', path: '/news', template: 'content' })).body;
-    await client.put(`/api/pages/${page.id}/content`, { draft: withHeading('Live') });
-    await client.post(`/api/pages/${page.id}/content/publish`);
-    await client.put(`/api/pages/${page.id}/content`, { draft: withHeading('Scrapped') });
-    const discarded = await client.post(`/api/pages/${page.id}/content/discard`);
+    const session = await builder(client, page.id);
+    await session.save(withHeading('Live'));
+    await session.publish();
+    await session.save(withHeading('Scrapped'));
+    const discarded = await session.discard();
     expect(discarded.body.content.draft).toEqual(discarded.body.content.published);
   });
 
@@ -130,6 +146,77 @@ describe('content and what visitors get (decision 0093)', () => {
     const { client } = await signedInClient(app, 'owner');
     const page = (await client.post('/api/pages', { title: 'News', path: '/news', template: 'content' })).body;
     const bad = { schemaVersion: 1, sections: [{ id: 'a', layout: 'halves', columns: [{ id: 'b', blocks: [] }] }] };
-    expect((await client.put(`/api/pages/${page.id}/content`, { draft: bad })).status).toBe(400);
+    expect((await (await builder(client, page.id)).save(bad as unknown as ContentDocument)).status).toBe(400);
+  });
+});
+
+describe('the page builder’s edit lock (decision 0116)', () => {
+  const contentPage = async (client: TestClient) => (await client.post('/api/pages', { title: 'News', path: '/news', template: 'content' })).body as { id: string };
+
+  it('lets one builder session hold a page, and refuses everyone else, the same person in another tab included', async () => {
+    const { client: jane, account } = await signedInClient(app, 'editor');
+    const { client: sam } = await signedInClient(app, 'owner');
+    const page = await contentPage(jane);
+    const first = await builder(jane, page.id);
+    expect(first.lock.status).toBe(204);
+    expect((await jane.post(`/api/pages/${page.id}/content/lock`, { lockId: first.lockId })).status).toBe(204);
+
+    const other = await builder(sam, page.id);
+    expect(other.lock.status).toBe(409);
+    expect(other.lock.body).toMatchObject({ code: 'CONTENT_LOCKED', editing: { userId: account.id, name: account.email } });
+    expect((await builder(jane, page.id)).lock.status).toBe(409);
+    expect((await sam.get(`/api/pages/${page.id}`)).body.editing).toMatchObject({ name: account.email });
+  });
+
+  it('refuses saving, publishing and discarding without the lock', async () => {
+    const { client: jane } = await signedInClient(app, 'owner');
+    const { client: sam } = await signedInClient(app, 'owner');
+    const page = await contentPage(jane);
+    await builder(jane, page.id);
+    expect((await sam.put(`/api/pages/${page.id}/content`, { draft: withHeading('Sneaky') })).status).toBe(409);
+    const intruder = await builder(sam, page.id);
+    expect((await intruder.save(withHeading('Sneaky'))).status).toBe(409);
+    expect((await intruder.publish()).status).toBe(409);
+    expect((await intruder.discard()).status).toBe(409);
+  });
+
+  it('frees the page when the session lets go', async () => {
+    const { client: jane } = await signedInClient(app, 'owner');
+    const { client: sam } = await signedInClient(app, 'owner');
+    const page = await contentPage(jane);
+    const session = await builder(jane, page.id);
+    expect((await jane.post(`/api/pages/${page.id}/content/unlock`, { lockId: session.lockId })).status).toBe(204);
+    expect((await jane.get(`/api/pages/${page.id}`)).body.editing).toBeUndefined();
+    expect((await builder(sam, page.id)).lock.status).toBe(204);
+  });
+
+  it('lets anyone take a lock with no heartbeat for two minutes, and never a live one', async () => {
+    const { client: jane } = await signedInClient(app, 'owner');
+    const { client: sam } = await signedInClient(app, 'owner');
+    const page = await contentPage(jane);
+    const abandoned = await builder(jane, page.id);
+    await PageModel.updateOne({ _id: page.id }, { $set: { 'contentLock.heartbeatAt': new Date(Date.now() - 3 * 60 * 1000) } });
+    expect((await jane.get(`/api/pages/${page.id}`)).body.editing).toBeUndefined();
+    const taken = await builder(sam, page.id);
+    expect(taken.lock.status).toBe(204);
+    // The abandoned session can't save over the one that took over.
+    expect((await abandoned.save(withHeading('Late'))).status).toBe(409);
+    expect((await taken.save(withHeading('Fresh'))).status).toBe(200);
+  });
+
+  it('keeps settings out of the lock', async () => {
+    const { client: jane } = await signedInClient(app, 'owner');
+    const { client: sam } = await signedInClient(app, 'owner');
+    const page = await contentPage(jane);
+    await builder(jane, page.id);
+    expect((await sam.patch(`/api/pages/${page.id}`, { title: 'Latest news' })).status).toBe(200);
+  });
+
+  it('needs pages.edit to take a lock', async () => {
+    const { client: owner } = await signedInClient(app, 'owner');
+    const { client: member } = await signedInClient(app, 'user');
+    const page = await contentPage(owner);
+    expect((await member.post(`/api/pages/${page.id}/content/lock`, { lockId: 'lock-12345678' })).status).toBe(403);
+    expect((await owner.post(`/api/pages/${page.id}/content/lock`, { lockId: 'x' })).status).toBe(400);
   });
 });

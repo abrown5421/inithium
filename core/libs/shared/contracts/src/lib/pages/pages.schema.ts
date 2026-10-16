@@ -84,6 +84,24 @@ const editableFields = {
   seo: pageSeoSchema,
 };
 
+// --- The page builder's edit lock (decision 0116): one editor per page's content at a time ---
+
+/** How long a lock lasts without a heartbeat before anyone else may take it, in ms. */
+export const CONTENT_LOCK_TTL_MS = 2 * 60 * 1000;
+/** How often the page builder keeps its lock alive, in ms. */
+export const CONTENT_LOCK_HEARTBEAT_MS = 30 * 1000;
+/** The header that carries the builder's lock id on saves, publishes and discards. */
+export const CONTENT_LOCK_HEADER = 'x-content-lock';
+
+/** A lock id: random, made by the builder for each time it opens a page. */
+export const contentLockIdSchema = z.string().regex(/^[a-zA-Z0-9-]{8,64}$/, { error: 'Not a lock id' });
+
+/** `POST /api/pages/:id/content/lock` and `/unlock`. */
+export const contentLockRequestSchema = z.object({ lockId: contentLockIdSchema }).strict();
+
+/** Who's editing a page's content, and since when. */
+export const pageEditingSchema = z.object({ userId: z.string(), name: z.string(), since: z.iso.datetime() }).strict();
+
 /** A page record as the API returns it to the CMS. */
 export const pageSchema = z
   .object({
@@ -98,6 +116,8 @@ export const pageSchema = z
     protected: z.boolean(),
     /** Content pages' blocks (decision 0093): the working draft and the published version. Other templates have none. */
     content: pageContentSchema.optional(),
+    /** Who has its content open in the page builder right now, if anyone (decision 0116's edit lock). */
+    editing: pageEditingSchema.optional(),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime(),
   })
@@ -105,7 +125,7 @@ export const pageSchema = z
 
 /** A published page as `web` receives it: no CMS-only fields. */
 export const publicPageSchema = pageSchema
-  .omit({ status: true, layouts: true, protected: true, content: true, createdAt: true, updatedAt: true })
+  .omit({ status: true, layouts: true, protected: true, content: true, editing: true, createdAt: true, updatedAt: true })
   .extend({
     /** A content page's published blocks (decision 0093); never its draft. */
     content: contentDocumentSchema.optional(),
@@ -185,3 +205,4 @@ export function pathFromTitle(title: string): string {
     .replace(/-+$/, '');
   return slug ? `/${slug}` : '/';
 }
+
