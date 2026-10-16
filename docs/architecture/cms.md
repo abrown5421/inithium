@@ -64,7 +64,7 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
 
   The page is created unpublished and out of menus, and opens straight away: content pages in the page builder, others in the page settings dialog ([Creating pages](../backend/pages.md#creating-pages)).
 - **Duplicate** (with `pages.create`, on pages made from a reusable template) opens the same dialog with "(copy)" titles and addresses.
-- **Delete** (with `pages.delete`, on pages that aren't protected) asks first, since it can't be undone.
+- **Delete** (with `pages.delete`, on pages that aren't protected) asks first, since it can't be undone, and lists the content pages that link to it (their links then show as plain text).
 
 Problems in these dialogs show like every form's: a red alert, each field's reason, and the first field focused. A taken address marks the Address field.
 

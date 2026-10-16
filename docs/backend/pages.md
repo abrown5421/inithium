@@ -44,6 +44,7 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `POST /api/pages` | `pages.create` | Creates a page from a `pageCreateSchema` body: `title`, `path` (no parameters), `template` (a reusable one) and optional `layout` (default the template's first). `201` with the page. See [Creating pages](#creating-pages). |
 | `POST /api/pages/:id/duplicate` | `pages.create` | Copies a page made from a reusable template, with a `pageDuplicateSchema` body (`title`, `path`). `201` with the copy. |
 | `GET /api/pages/:id` | `pages.edit` | One page, or 404. |
+| `GET /api/pages/:id/usage` | `pages.edit` | `{ places: [{ label, blocking }] }` (`pageUsageSchema`): other content pages linking to it, published or in their draft (`pageUsage()`, by `contentReferences()`). Never blocking: the CMS's Delete warns with them. |
 | `POST /api/pages/:id/content/lock` | `pages.edit` | Takes the page's [edit lock](#the-edit-lock) for a page builder session (`{ lockId }`), or keeps it alive: 204, or 409 with who's editing. |
 | `POST /api/pages/:id/content/unlock` | `pages.edit` | Lets go of the lock if this session (`{ lockId }`) holds it: 204. |
 | `PUT /api/pages/:id/content` | `pages.edit` + the lock | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 without the lock, or for a page that isn't a content page. |

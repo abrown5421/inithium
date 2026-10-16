@@ -24,6 +24,7 @@ import {
   findPageById,
   listPages,
   listPublishedPages,
+  pageUsage,
   publishContent,
   saveContentDraft,
   toPage,
@@ -74,6 +75,13 @@ pagesRouter.get('/:id', ...requirePermission('pages.edit'), async (req, res) => 
   const page = await findPageById(pageId(req));
   if (!page) return void notFound(res);
   res.send(toPage(page));
+});
+
+/** Where a page is linked from (decision 0116), so deleting it can warn. */
+pagesRouter.get('/:id/usage', ...requirePermission('pages.edit'), async (req, res) => {
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  res.send(await pageUsage(String(page._id)));
 });
 
 pagesRouter.patch('/:id', ...requirePermission('pages.edit'), async (req, res) => {

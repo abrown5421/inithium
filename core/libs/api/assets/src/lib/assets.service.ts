@@ -9,7 +9,7 @@ import {
   assetUrl,
   fontFileInfoSchema,
   publicProfileName,
-  flattenContentElements,
+  contentReferences,
   readContentDocument,
   type Asset,
   type AssetKind,
@@ -164,10 +164,8 @@ export async function updateAsset(doc: AssetDocument, update: AssetUpdate): Prom
   return saved;
 }
 
-/** Every Image element's asset id in a content document. */
-function imageIds(doc: ContentDocument | undefined): Set<string> {
-  return new Set(flattenContentElements(doc?.elements ?? []).flatMap((element) => (element.type === 'image' ? [element.props.assetId] : [])));
-}
+/** Every asset a content document shows, by its elements' declared references (decision 0116). */
+const imageIds = (doc: ContentDocument | undefined): Set<string> => contentReferences(doc).assetIds;
 
 /**
  * Where an asset is used. Blocking uses (the site logo and favicon) stop it being deleted; others only warn, and the page shows

@@ -9,6 +9,7 @@ import type {
   contentLockRequestSchema,
   pageEditingSchema,
   pageSchema,
+  pageUsageSchema,
   pageSeoSchema,
   pageStatusSchema,
   pageUpdateSchema,
@@ -24,6 +25,7 @@ export type PageSeo = z.infer<typeof pageSeoSchema>;
 export type PageAnimation = z.infer<typeof pageAnimationSchema>;
 export type Page = z.infer<typeof pageSchema>;
 export type PageEditing = z.infer<typeof pageEditingSchema>;
+export type PageUsage = z.infer<typeof pageUsageSchema>;
 export type ContentLockRequest = z.infer<typeof contentLockRequestSchema>;
 export type PublicPage = z.infer<typeof publicPageSchema>;
 export type PageUpdate = z.infer<typeof pageUpdateSchema>;

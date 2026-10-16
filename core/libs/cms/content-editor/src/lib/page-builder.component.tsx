@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
 import {
@@ -15,7 +15,9 @@ import { ContentRenderer, type ContentDecorators, type ContentLinks } from '@ini
 import { readApiFailure, useAlerts, useDiscardContentDraftMutation, usePublishContentMutation, useSaveContentDraftMutation } from '@inithium/shared-data-access';
 import { PageEditor } from '@inithium/cms-pages';
 import { Button, Container, Icon, Text, Tooltip, type IconName } from '@inithium/shared-ui-components';
-import { Modal, type MenuItem } from '@inithium/shared-ui-composites';
+import { Drawer, Modal, type MenuItem } from '@inithium/shared-ui-composites';
+import { contrastWarning, emptyTextWarnings, headingWarnings, type AccessibilityCheck, type AccessibilityWarning } from './accessibility-checks.service';
+import { scanContrast, type ContrastResult } from './contrast-scan.service';
 import {
   copyElement,
   createElement,
@@ -144,6 +146,9 @@ ${target}::before { content: ${name}; background: var(--color-primary-600); }
 `;
 }
 
+/** Each accessibility check's icon. */
+const CHECK_ICONS: Record<AccessibilityCheck, IconName> = { contrast: 'contrast', heading: 'heading', empty: 'text-cursor-input' };
+
 /** Shortcuts as the menus show them. */
 const KEYS = { duplicate: 'Ctrl+D', copy: 'Ctrl+C', cut: 'Ctrl+X', paste: 'Ctrl+V', remove: 'Del', up: 'Alt+↑', down: 'Alt+↓', rename: 'F2' };
 
@@ -181,6 +186,9 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
   const [tab, setTab] = useState<PropertiesTab>('content');
   const [richEditor, setRichEditor] = useState<Editor | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [checksOpen, setChecksOpen] = useState(false);
+  const [previewRoot, setPreviewRoot] = useState<HTMLElement | null>(null);
+  const [contrast, setContrast] = useState<ContrastResult[]>([]);
   const [discarding, setDiscarding] = useState(false);
   const hovered = useRef<Element | null>(null);
 
@@ -236,6 +244,21 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
       showAlert({ color: 'red', icon: 'circle-alert', title: 'We couldn’t discard the changes', message: readApiFailure(error).message ?? 'Something went wrong.', urgent: true });
     }
   };
+
+  // Contrast is measured as drawn, at the device shown, a moment after each change (so styles have applied).
+  useEffect(() => {
+    if (!previewRoot) return;
+    const timer = window.setTimeout(() => setContrast(scanContrast(previewRoot)), 400);
+    return () => window.clearTimeout(timer);
+  }, [previewRoot, doc, device]);
+
+  const warnings = useMemo<AccessibilityWarning[]>(
+    () =>
+      [...headingWarnings(doc), ...emptyTextWarnings(doc), ...contrast.map((result) => contrastWarning(result.elementId, result.ratio, result.needed))].filter(
+        (warning) => findElement(doc, warning.elementId),
+      ),
+    [doc, contrast],
+  );
 
   const links = useMemo<ContentLinks>(() => {
     const paths = new Map(pages.filter((entry) => !pathHasParams(entry.path)).map((entry) => [entry.id, entry.path]));
@@ -507,6 +530,20 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
             {elementType(selected.element).label}
           </Text>
         </Container>
+        {warnings.some((warning) => warning.elementId === selected.element.id) && (
+          <Container flex={{ direction: 'column', gap: 6 }} padding={{ all: 12 }} radius={{ all: 8 }} bgColor={{ color: 'amber', intensity: 100 }} textColor={{ color: 'amber', intensity: 800 }}>
+            {warnings
+              .filter((warning) => warning.elementId === selected.element.id)
+              .map((warning) => (
+                <Container key={warning.check + warning.message} flex={{ direction: 'row', gap: 8 }}>
+                  <Icon name={CHECK_ICONS[warning.check]} size={16} />
+                  <Text as="p" fontSize={13}>
+                    {warning.message}
+                  </Text>
+                </Container>
+              ))}
+          </Container>
+        )}
         {device !== 'desktop' && (
           <Container padding={{ x: 12, y: 8 }} radius={{ all: 6 }} bgColor={{ color: 'primary', intensity: 100 }} textColor={{ color: 'primary', intensity: 800 }}>
             <Text as="p" fontSize={13}>
@@ -586,6 +623,17 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
             </Tooltip>
           ))}
         </Container>
+        <Tooltip content={warnings.length ? 'Things that may make the page hard to use' : 'No accessibility problems found'}>
+          <Button
+            variant="ghost"
+            color={warnings.length ? { color: 'amber', intensity: 700 } : { color: 'surface', intensity: 800 }}
+            leadingIcon={warnings.length ? 'triangle-alert' : 'circle-check'}
+            padding={{ x: 8 }}
+            onClick={() => setChecksOpen(true)}
+          >
+            {warnings.length ? `${warnings.length} to check` : 'Accessible'}
+          </Button>
+        </Tooltip>
         <Container flex={{ direction: 'row', gap: 2 }}>
           <Tooltip content="Undo (Ctrl+Z)">
             <Button variant="ghost" leadingIcon="undo-2" aria-label="Undo" padding={{ x: 6 }} disabled={!history.canUndo} onClick={history.undo} />
@@ -678,6 +726,7 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
             <ScaledPreview width={DEVICE_WIDTHS[device]}>
               <PreviewFrame width="full" title={`Preview of ${page.title}`}>
                 <Container
+                  ref={setPreviewRoot}
                   minHeight="screen"
                   bgColor={page.bgColor ?? { color: 'surface', intensity: 50 }}
                   textColor={page.textColor ?? { color: 'surface', intensity: 950 }}
@@ -745,6 +794,47 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
           </Button>
         </Container>
       </Modal>
+      <Drawer
+        open={checksOpen}
+        onOpenChange={setChecksOpen}
+        title="Accessibility"
+        description="Things that may make the page hard to read or use. They never stop you saving or publishing. Contrast is checked as the page looks on the device shown."
+        size={420}
+      >
+        {warnings.length === 0 ? (
+          <Text as="p">Nothing to check: no hard-to-read text, skipped headings or empty Text.</Text>
+        ) : (
+          <Container as="ul" flex={{ direction: 'column', gap: 12 }}>
+            {warnings.map((warning) => {
+              const found = findElement(doc, warning.elementId);
+              return (
+                <Container as="li" key={warning.elementId + warning.check + warning.message} flex={{ direction: 'row', gap: 10 }}>
+                  <Container flex={{ align: 'start' }} padding={{ top: 2 }} textColor={{ color: 'amber', intensity: 700 }}>
+                    <Icon name={CHECK_ICONS[warning.check]} size={18} />
+                  </Container>
+                  <Container flex={{ direction: 'column', align: 'start', gap: 4 }} minWidth={0}>
+                    <Text as="p" fontWeight={600}>
+                      {found ? elementName(found.element) : 'An element'}
+                    </Text>
+                    <Text as="p" fontSize={14}>
+                      {warning.message}
+                    </Text>
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        select(warning.elementId);
+                        setChecksOpen(false);
+                      }}
+                    >
+                      Select it
+                    </Button>
+                  </Container>
+                </Container>
+              );
+            })}
+          </Container>
+        )}
+      </Drawer>
       <PageEditor page={settingsOpen ? page : null} onClose={() => setSettingsOpen(false)} canPublish={canPublish} />
       <Modal open={discarding} onOpenChange={setDiscarding} title="Discard your changes?" description="The draft goes back to what’s published. This can’t be undone." maxWidth={460}>
         <Container flex={{ justify: 'end', gap: 8 }}>

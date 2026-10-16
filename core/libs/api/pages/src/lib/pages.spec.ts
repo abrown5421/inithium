@@ -150,6 +150,21 @@ describe('content and what visitors get (decision 0093)', () => {
   });
 });
 
+describe('where a page is linked from (decision 0116)', () => {
+  it('lists content pages linking to it, published or only in their draft', async () => {
+    const { client } = await signedInClient(app, 'owner');
+    const target = (await client.post('/api/pages', { title: 'Prices', path: '/prices', template: 'content' })).body;
+    const linking = (await client.post('/api/pages', { title: 'Home page', path: '/welcome', template: 'content' })).body;
+    expect((await client.get(`/api/pages/${target.id}/usage`)).body).toEqual({ places: [] });
+
+    const session = await builder(client, linking.id);
+    await session.save({ schemaVersion: 2, elements: [{ id: 'go', type: 'button', props: { label: 'See prices', link: { type: 'page', pageId: target.id } } }] });
+    expect((await client.get(`/api/pages/${target.id}/usage`)).body.places).toEqual([{ label: 'Page: Home page (unpublished changes)', blocking: false }]);
+    await session.publish();
+    expect((await client.get(`/api/pages/${target.id}/usage`)).body.places).toEqual([{ label: 'Page: Home page', blocking: false }]);
+  });
+});
+
 describe('the page builder’s edit lock (decision 0116)', () => {
   const contentPage = async (client: TestClient) => (await client.post('/api/pages', { title: 'News', path: '/news', template: 'content' })).body as { id: string };
 

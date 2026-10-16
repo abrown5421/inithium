@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining steps (accessibility warnings, plugin elements) are listed in the [build status](#build-status).
+> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining step (plugin elements) are listed in the [build status](#build-status).
 
 Pages come in three kinds:
 
@@ -226,6 +226,26 @@ Anything that would break the page's limits (250 elements, 10 deep) is refused w
 
 **Typography** (in a Text's Style tab, and an image's caption): `TypographyFields`, the font (a FontField with "Default"), the weight (only the weights the font has, from `useFontWeights()`), and **Custom size**, with a size for phones and, optionally, one for wider screens.
 
+### Accessibility warnings
+
+The builder warns about things that may make the page hard to read or use. **They never stop saving or publishing.** The top bar shows how many there are ("3 to check", or "Accessible"); clicking it opens a list, each with **Select it**, and the selected element's own warnings sit at the top of its properties.
+
+| Check | Warns when | How |
+| --- | --- | --- |
+| Contrast | Text, captions and other text in an element (not Buttons, whose colours are fixed) fall below WCAG AA against what's behind them: 4.5:1, or 3:1 for large text (24px, or 18.66px bold) | Measured in the preview as drawn, at the device shown, a moment after each change: each piece of text's computed colour over its composited background (`scanContrast()`, `contrast-scan.service.ts`), so theme colours, see-through colours and restyled words all count |
+| Heading order | A heading skips a level going down the page (e.g. Heading 4 after Heading 2); the page may start at Heading 1 or 2 | From the document, across every Text (`headingWarnings()`) |
+| Empty text | A Text has no words in it | `emptyTextWarnings()` |
+
+An image's description is a rule of its own, not a warning: an Image can't be saved without one unless it's marked decorative.
+
+### Usage
+
+What content refers to is read by `contentReferences(doc)` (`@inithium/shared-contracts`), which walks the element tree by each element type's declared references: an Image's asset and link, a Button's link, a Text's page links and fonts, every text part's typography. (A plugin's element is scanned for anything shaped like a reference until its contract declares its own.) It drives:
+
+- **assets:** deleting a file warns with the pages that show it ([Assets](../backend/assets.md));
+- **font families:** removing one warns with the pages that use it;
+- **pages:** deleting a page warns with the content pages that link to it (`GET /api/pages/:id/usage`); those links then show as plain text, and buttons to it are switched off.
+
 ### One editor at a time
 
 Only one person can have a page open in the builder at a time ([edit lock](../backend/pages.md#the-edit-lock)). Opening a page takes its lock, and the builder keeps it alive every 30 seconds while it's open; leaving the builder, or closing the tab, lets go.
@@ -264,5 +284,5 @@ Admins edit it like any content page. The seed never touches it again, so their 
    3. **Properties (built):** the tabs, spacing steps and per-device values ([above](#properties)); drafts saved as version 2; the builder replaced the version 1 editor at `/cms/pages/:id/content`.
    4. **Interface (built):** the Add picker (grouped, described, saying where), a **+** on each Layers row, the empty page, name tags in the preview, and the toolbar's buttons ([above](#the-add-picker)).
    5. **The edit lock (built):** one page builder session per page, with a heartbeat, expiry after two minutes, and who's editing shown to others ([above](#one-editor-at-a-time)).
-   6. Accessibility warnings, and usage checks walking the tree.
+   6. **Accessibility warnings and usage (built):** contrast, heading order and empty text, never blocking ([above](#accessibility-warnings)); asset, font and page usage walking the tree, with Delete warning about pages that link to the page ([Usage](#usage)).
    7. Plugin elements: the content elements slot through the api, web and cms registries.

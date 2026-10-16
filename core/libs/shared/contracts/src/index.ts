@@ -51,6 +51,7 @@ export * from './lib/users/user-management.types';
 export * from './lib/content/content-common.schema';
 export * from './lib/content/content-elements.schema';
 export * from './lib/content/content-links.schema';
+export * from './lib/content/content-references.service';
 export * from './lib/content/content.schema';
 export * from './lib/content/content.types';
 export * from './lib/content/rich-text.schema';
