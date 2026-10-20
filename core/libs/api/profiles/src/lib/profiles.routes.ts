@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { updateProfileRequestSchema, type PublicProfile } from '@inithium/shared-contracts';
+import { updatePreferencesRequestSchema, updateProfileRequestSchema, type PublicProfile, type UserPreferences } from '@inithium/shared-contracts';
 import { checkProfileImage, releaseProfileImage } from '@inithium/api-assets';
 import { getAuth, readAuth, requireAuth } from '@inithium/api-auth';
-import { findUserById, toPublicProfile, updateUserProfile } from '@inithium/api-users';
+import { findUserById, toPublicProfile, toUser, updateUserPreferences, updateUserProfile } from '@inithium/api-users';
 
 /** Mounted at /api/profiles (decision 0090). */
 export const profilesRouter = Router();
@@ -40,6 +40,22 @@ profilesRouter.patch('/me', requireAuth, async (req, res) => {
     }
   }
   const body: PublicProfile = toPublicProfile(updated, { owner: true });
+  res.send(body);
+});
+
+/** Changes the signed-in user's private preferences (decision 0119), e.g. their colour scheme. Fields left out stay. */
+profilesRouter.patch('/me/preferences', requireAuth, async (req, res) => {
+  const parsed = updatePreferencesRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).send({ message: 'Check the highlighted fields and try again', issues: parsed.error.issues });
+    return;
+  }
+  const user = await findUserById(getAuth(res).sub);
+  if (!user) {
+    res.status(401).send({ message: 'Not authenticated' });
+    return;
+  }
+  const body: UserPreferences = toUser(await updateUserPreferences(user, parsed.data)).preferences;
   res.send(body);
 });
 

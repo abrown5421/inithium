@@ -133,7 +133,7 @@ assetsRouter.patch('/:id', ...requirePermission('assets.upload'), async (req, re
   res.send(toAsset(await updateAsset(asset, parsed.data)));
 });
 
-/** Deletes an asset, unless the site logo uses it. */
+/** Deletes an asset, unless a blocking use (e.g. the site's logo) holds it. */
 assetsRouter.delete('/:id', ...requirePermission('assets.delete'), async (req, res) => {
   const asset = await findAsset(param(req, 'id'));
   if (!asset) return void notFound(res);

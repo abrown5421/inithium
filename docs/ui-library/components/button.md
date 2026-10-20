@@ -4,7 +4,7 @@ description: A button in one of four variants (filled, outlined, ghost, link) st
 scope: core
 tags: [ui, component, forms]
 order: 1
-decisions: ["0036", "0042", "0048", "0050", "0054", "0058"]
+decisions: ["0036", "0042", "0048", "0050", "0054", "0058", "0119"]
 component:
   name: Button
   layer: component
@@ -256,7 +256,7 @@ ui-library/button/animated-save
 ## Notes
 
 - **Fixed metrics:** 32px tall, 12px side padding, 6px radius, 2px border, the `body` font at 14px weight 500, and a 150ms transition. `ghost` keeps a transparent 2px border so it lines up with the other variants.
-- **Dark mode:** `[color]-100` text is meant to stay light in both modes. Dark mode isn't built yet; when it is, this text must not mirror ([0054](../../decisions/0054-style-buttons-by-variant-from-one-colour.md)).
+- **Dark mode:** with a theme colour, the button mirrors like everything else in the theme: `[color]-100` text becomes the colour's 900 step on its unchanged 500 ([0119](../../decisions/0119-let-each-user-choose-light-or-dark-mode.md), replacing [0054](../../decisions/0054-style-buttons-by-variant-from-one-colour.md)'s un-mirrored text). A Tailwind colour stays the same in both modes.
 - **Disabled holds the resting colours.** Each colour's `disabled` key defaults to its `base`. Set a `disabled` key in an override to change it.
 - **No navigation:** `link` only looks like a link. Navigating will need its own decision, because the UI library doesn't know about the router.
 - **Not yet:** sizes and button groups.

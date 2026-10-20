@@ -11,17 +11,19 @@ function storedFonts(doc: SettingsDocument): ThemeFonts | undefined {
 }
 
 /** The settings a new site starts with (decision 0082). */
-export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'Inithium' };
+export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'Inithium', darkMode: true };
 
 /** Maps the stored settings to the shape the API returns. */
 export function toSiteSettings(doc: SettingsDocument): SiteSettings {
   return {
     siteTitle: doc.siteTitle,
     ...(doc.logo?.assetId ? { logo: { assetId: doc.logo.assetId, alt: doc.logo.alt ?? '' } } : {}),
+    ...(doc.logoDark?.assetId ? { logoDark: { assetId: doc.logoDark.assetId, alt: doc.logoDark.alt ?? '' } } : {}),
     ...(doc.favicon?.assetId ? { favicon: { assetId: doc.favicon.assetId } } : {}),
     ...(doc.copyright ? { copyright: doc.copyright } : {}),
     ...(doc.theme?.colors ? { theme: { colors: doc.theme.colors as ThemeConfig['colors'] } } : {}),
     ...(storedFonts(doc) ? { fonts: storedFonts(doc) } : {}),
+    darkMode: doc.darkMode !== false,
     updatedAt: doc.updatedAt.toISOString(),
   };
 }
@@ -51,17 +53,20 @@ async function checkThemeFonts(fonts: ThemeFonts | undefined): Promise<void> {
   }
 }
 
-/** Replaces the settings with a validated input; fields left out are cleared. */
+/** Replaces the settings with a validated input; fields left out are cleared (`darkMode` left out means on). */
 export async function updateSiteSettings(input: SiteSettingsInput): Promise<SettingsDocument> {
   await checkThemeFonts(input.fonts);
   const doc = await getSiteSettings();
   doc.siteTitle = input.siteTitle;
   doc.set('logo', input.logo ?? undefined);
+  doc.set('logoDark', input.logoDark ?? undefined);
   doc.set('favicon', input.favicon ?? undefined);
   doc.set('copyright', input.copyright ?? undefined);
   doc.set('theme', input.theme ?? undefined);
   doc.set('fonts', input.fonts && (input.fonts.display || input.fonts.body) ? input.fonts : undefined);
+  doc.darkMode = input.darkMode !== false;
   const saved = await doc.save();
+  // Rebuilds what the api writes into each app page: the theme's fonts and whether dark mode is on.
   markFontsChanged();
   return saved;
 }

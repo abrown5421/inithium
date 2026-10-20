@@ -3,6 +3,7 @@ import { assetUrl } from '../assets/assets.schema';
 import { restrictedRichTextSchema, richTextDocumentSchema, type RichTextFeature } from '../content/rich-text.schema';
 import { avatarRecipeSchema } from '../ui/avatar.schema';
 import { polyPatternSchema } from '../ui/poly-pattern.schema';
+import { userPreferencesSchema } from './preferences.schema';
 
 /** Every role a user can hold, from most to least privileged. */
 export const roles = ['dev', 'owner', 'admin', 'editor', 'user'] as const;
@@ -45,6 +46,8 @@ export const userSchema = z.object({
   role: roleSchema,
   passwordChangeRequired: z.boolean(),
   profile: userProfileSchema,
+  /** Private: only the user sees them (decision 0119). */
+  preferences: userPreferencesSchema,
   createdAt: z.iso.datetime(),
 });
 

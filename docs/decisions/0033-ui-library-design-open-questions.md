@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-12"
 scope: core
 tags: [ui, components, props, design-system]
-related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047", "0048", "0092", "0112"]
+related: ["0008", "0030", "0031", "0032", "0034", "0035", "0036", "0037", "0038", "0039", "0040", "0041", "0042", "0043", "0044", "0045", "0046", "0047", "0048", "0092", "0112", "0119"]
 supersedes: []
 ---
 
@@ -30,7 +30,7 @@ Undecided. These are being worked through in order; each will be recorded as an 
 
 **Colour**
 
-- Text on brand colours in dark mode. A brand 500 background stays the same in dark mode, but surface or brand text on it flips, so contrast can change between modes. Should mode-fixed text use Tailwind's fixed colours (e.g. `neutral-50`), or is another pattern needed? Can be decided when dark mode is built. (Settled for buttons by [0054](0054-style-buttons-by-variant-from-one-colour.md): their text stays `[color]-100` in both modes.)
+- Text on brand colours in dark mode. A brand 500 background stays the same in dark mode, but surface or brand text on it flips, so contrast can change between modes. (Settled by [0119](0119-let-each-user-choose-light-or-dark-mode.md): theme text on brand colours mirrors like everything else in the theme, buttons included; text that must stay the same in both modes uses a Tailwind colour.)
 
 **Other families and components** (needed by later component batches, not by `feat/ui-foundation`)
 

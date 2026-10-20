@@ -1,13 +1,18 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { Container, Text } from '@inithium/shared-ui-components';
+import { Container, Switch, Text } from '@inithium/shared-ui-components';
+import { useColorScheme } from '@inithium/shared-ui-theme';
 import { findPage, readingOrder } from '../manual/manual.service';
 import { ManualPageView } from '../page/manual-page.component';
 import { SearchBox } from './search-box.component';
 import { SidebarNav } from './sidebar-nav.component';
 
-/** Header, sidebar and the current page. The URL path is the page's path inside docs/. */
+/**
+ * Header (title, search and the dark mode switch), sidebar and the current page. The URL path is the page's path inside
+ * docs/. The manual starts light; the switch's choice is kept in this browser (decision 0119).
+ */
 export function DocsLayout() {
   const { pathname } = useLocation();
+  const { resolved, setPreference } = useColorScheme({ fallback: 'light' });
   const slug = decodeURIComponent(pathname).replace(/^\/+|\/+$/g, '');
   const page = findPage(slug);
 
@@ -32,7 +37,17 @@ export function DocsLayout() {
             developer manual
           </Text>
         </Container>
-        <SearchBox />
+        <Container flex={{ align: 'center', gap: 16 }} width={{ base: 'full', md: 'auto' }}>
+          <SearchBox />
+          <Switch
+            label="Dark mode"
+            labelPlacement="start"
+            uncheckedIcon="sun"
+            checkedIcon="moon"
+            checked={resolved === 'dark'}
+            onCheckedChange={(dark) => setPreference(dark ? 'dark' : 'light')}
+          />
+        </Container>
       </Container>
 
       <Container flex={{ direction: { base: 'column', md: 'row' } }}>

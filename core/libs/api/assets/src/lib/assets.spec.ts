@@ -157,4 +157,14 @@ describe('managing files (decision 0098)', () => {
     ]);
     expect((await client.delete(`/api/assets/${asset.id}`)).status).toBe(409);
   });
+
+  it('won’t delete the dark mode logo (decision 0119)', async () => {
+    const { client } = await signedInClient(app, 'admin');
+    const asset = (await upload(client, { data: await png(), name: 'logo-dark.png', type: 'image/png' }, { purpose: 'logo' })).body;
+    await updateSiteSettings({ siteTitle: 'Acme', logoDark: { assetId: asset.id, alt: 'Acme' } });
+    expect((await client.get<AssetUsage>(`/api/assets/${asset.id}/usage`)).body.places).toEqual([
+      { label: 'Site settings: the dark mode logo', blocking: true },
+    ]);
+    expect((await client.delete(`/api/assets/${asset.id}`)).status).toBe(409);
+  });
 });

@@ -1,6 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { bioFeatures, profileLimits, updateProfileRequestSchema, type RichTextDocument } from '@inithium/shared-contracts';
-import { PasswordChangeForm } from '@inithium/shared-auth-ui';
 import {
   fieldErrorsFrom,
   focusFirstError,
@@ -20,8 +19,9 @@ const FIELDS: readonly Field[] = ['firstName', 'lastName', 'bio'];
 const INVALID = { title: 'There were problems saving your profile', message: 'Check the highlighted fields below.' };
 
 /**
- * Core's Account tab, for the profile's owner only (decision 0090): their names and bio (rich text, decision 0102), their email (read-only
- * until email changes exist), and a password change. Saving follows every form's pattern (decision 0083).
+ * Core's Account tab, for the profile's owner only (decision 0090): their names and bio (rich text, decision 0102) and
+ * their email (read-only until email changes exist). The password change is on the Settings tab (decision 0119).
+ * Saving follows every form's pattern (decision 0083).
  */
 export function ProfileAccountTab({ profile }: ProfileSlotProps) {
   const [updateProfile, { isLoading }] = useUpdateMyProfileMutation();
@@ -96,20 +96,6 @@ export function ProfileAccountTab({ profile }: ProfileSlotProps) {
             </Container>
           </Container>
         </form>
-      </Container>
-      <Container as="section" {...profileCard}>
-        <PasswordChangeForm
-          intro={
-            <Container flex={{ direction: 'column', gap: 6 }}>
-              <Text as="h2" fontFamily="display" fontSize={20}>
-                Password
-              </Text>
-              <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-                Changing it signs you out everywhere else.
-              </Text>
-            </Container>
-          }
-        />
       </Container>
     </Container>
   );

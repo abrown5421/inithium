@@ -1,5 +1,5 @@
 import { themeColors, type ThemeColor, type ThemeConfig } from '@inithium/shared-contracts';
-import { generateBrandScale, generateSurfaceScale, scaleSteps, type ColorScale } from './color-scales.service';
+import { generateBrandScale, generateSurfaceScale, scaleSteps, type ColorScale, type ScaleStep } from './color-scales.service';
 
 export type ThemeScales = Record<ThemeColor, ColorScale>;
 
@@ -13,13 +13,28 @@ export function generateThemeScales(theme: ThemeConfig): ThemeScales {
   ) as ThemeScales;
 }
 
-/** The theme as CSS custom properties on :root, e.g. --color-primary-500. */
+/**
+ * The step a step shows in dark mode (decision 0119): the scale read from the other end, so 50 ↔ 950, 100 ↔ 900 …
+ * and 500 stays. Backgrounds (50–400) become dark and text (600–950) light, and every text/background pair keeps its
+ * contrast, because it's the same two colours swapped.
+ */
+export function mirroredStep(step: ScaleStep): ScaleStep {
+  return (1000 - step) as ScaleStep;
+}
+
+/** The CSS selector dark mode's mirrored scales sit under. The colour scheme sets it on <html>. */
+export const DARK_THEME_SELECTOR = ':root[data-theme="dark"]';
+
+/**
+ * The theme as CSS custom properties, e.g. --color-primary-500: the scales on :root, and mirrored under
+ * `:root[data-theme="dark"]` for dark mode (decision 0119). Only the theme's six tokens mirror; Tailwind's palette
+ * colours never do.
+ */
 export function themeToCss(theme: ThemeConfig): string {
   const scales = generateThemeScales(theme);
-  const declarations = themeColors.flatMap((token) =>
-    scaleSteps.map((step) => `--color-${token}-${step}:${scales[token][step]};`),
-  );
-  return `:root{${declarations.join('')}}`;
+  const declarations = (stepFor: (step: ScaleStep) => ScaleStep) =>
+    themeColors.flatMap((token) => scaleSteps.map((step) => `--color-${token}-${step}:${scales[token][stepFor(step)]};`)).join('');
+  return `:root{${declarations((step) => step)}}${DARK_THEME_SELECTOR}{color-scheme:dark;${declarations(mirroredStep)}}`;
 }
 
 /**

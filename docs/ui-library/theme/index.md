@@ -4,7 +4,7 @@ description: The six colour tokens, how their scales are generated, surface role
 scope: core
 tags: [ui, theme, colour, typography]
 order: 2
-decisions: ["0031", "0032", "0041", "0046", "0101"]
+decisions: ["0031", "0032", "0041", "0046", "0101", "0119"]
 ---
 
 # Theme
@@ -27,7 +27,7 @@ Six tokens, each on an 11-step scale (50, 100, 200 … 900, 950), generated in O
 - The client's colour is exactly the 500 (brand tokens) or 100 (surface) step.
 - **Clients set them in the CMS's Settings** as hex codes, with a live preview of each scale ([0087](../../decisions/0087-set-theme-colours-in-cms-settings.md)). Both `web` and the CMS render that theme over `UiProvider`'s default once settings load; without one, core's defaults apply.
 - **Surface must be light enough:** its generated text steps (600–950) have to meet WCAG AA against its backgrounds, so a dark surface (e.g. `#006a8e`) can't be used; `generateSurfaceScale` throws for one. `themeColorProblem(token, hex)` returns the reason (or null) without throwing, and the CMS shows it on the field. `ThemeStyles` falls back to the default theme, with a console warning, if a stored theme can't be generated, so a bad value never breaks an app.
-- **Default logo:** `defaultLogo` (`{ src, alt: 'Inithium' }`, a 178 × 160 PNG bundled from `libs/shared/ui-theme/src/assets/`) is shown wherever the site has no logo in settings.
+- **Default logos:** `defaultLogo` (`{ src, alt: 'Inithium' }`, a 178 × 160 PNG bundled from `libs/shared/ui-theme/src/assets/`) is shown wherever the site has no logo in settings, and `defaultLogoDark` (`inithium-logo-dark.png`, the same size) in dark mode when the site has neither a logo nor a dark mode logo. `siteLogo(settings, scheme)` picks the one to draw ([Dark mode](dark-mode.md)).
 - **Default favicon:** each app's `public/favicon.ico` (`web`, the CMS and the docs app) is Inithium's logo at 16, 32, 48 and 64 px, shown wherever the site has no favicon in settings ([0101](../../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). If the logo changes, regenerate it from `inithium-logo.png` and replace all three.
 - Every step is published as a CSS variable, `--color-<token>-<step>` (e.g. `--color-primary-200`).
 - Colour props use them through a [colour value](../style-props.md#colour-value), e.g. `{ color: 'primary', intensity: 200 }`.
@@ -47,7 +47,7 @@ The generator guarantees every text step meets WCAG AA (4.5:1) on every backgrou
 
 ## Dark mode
 
-Not built yet. When it is, every scale mirrors around 500 (50↔950, 100↔900, 200↔800, 300↔700, 400↔600; 500 stays). UI that follows the surface roles flips correctly with no extra code ([0032](../../decisions/0032-dark-mode-mirrors-the-theme-scales.md)). Don't use fixed colours (e.g. Tailwind `neutral-50`) for anything that should follow the mode.
+Every theme scale mirrors around 500 (50↔950, 100↔900, 200↔800, 300↔700, 400↔600; 500 stays); Tailwind's colours don't. UI that follows the surface roles flips correctly with no extra code ([0032](../../decisions/0032-dark-mode-mirrors-the-theme-scales.md)). Each user chooses System, Light or Dark, and the site can switch it off: see [Dark mode](dark-mode.md) for how it works and the rules every UI follows ([0119](../../decisions/0119-let-each-user-choose-light-or-dark-mode.md)).
 
 ## Fonts
 
@@ -104,8 +104,9 @@ From `@inithium/shared-ui-theme`:
 | `generateBrandScale(hex500)` | A brand token's 11-step scale, as hex values. |
 | `generateSurfaceScale(hex100)` | The surface scale. Throws if no text band could meet the contrast guarantee. |
 | `generateThemeScales(theme)` | All six scales. |
-| `themeToCss(theme)` | The `:root { --color-… }` CSS. |
+| `themeToCss(theme)` | The `:root { --color-… }` CSS, then the mirrored scales under `:root[data-theme="dark"]`. |
 | `contrastRatio(hexA, hexB)` | WCAG contrast ratio, 1–21. |
+| `useColorScheme()`, `useAppliedColorScheme()`, `colorSchemeScript()`, `siteLogo()` … | Dark mode: see its [API](dark-mode.md#api). |
 
 From `@inithium/shared-contracts`: `themeConfigSchema` and its type `ThemeConfig`.
 

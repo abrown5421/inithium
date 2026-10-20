@@ -168,13 +168,14 @@ export async function updateAsset(doc: AssetDocument, update: AssetUpdate): Prom
 const imageIds = (doc: ContentDocument | undefined): Set<string> => contentReferences(doc).assetIds;
 
 /**
- * Where an asset is used. Blocking uses (the site logo and favicon) stop it being deleted; others only warn, and the page shows
+ * Where an asset is used. Blocking uses (the site's logos and favicon) stop it being deleted; others only warn, and the page shows
  * a placeholder once it's gone.
  */
 export async function assetUsage(id: string): Promise<AssetUsage> {
   const places: AssetUsage['places'] = [];
   const settings = await getSiteSettings();
   if (settings.logo?.assetId === id) places.push({ label: 'Site settings: the logo', blocking: true });
+  if (settings.logoDark?.assetId === id) places.push({ label: 'Site settings: the dark mode logo', blocking: true });
   if (settings.favicon?.assetId === id) places.push({ label: 'Site settings: the favicon', blocking: true });
 
   // A font family's file: deleting it takes it out of the family (decision 0111). A theme font's only file can't go.

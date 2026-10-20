@@ -42,3 +42,26 @@ describe('PATCH /api/profiles/me', () => {
     expect((await client.patch('/api/profiles/me', { avatarAssetId: '64b0c0ffee64b0c0ffee64b0' })).status).toBeGreaterThanOrEqual(400);
   });
 });
+
+describe('PATCH /api/profiles/me/preferences (decision 0119)', () => {
+  it('changes the signed-in user’s colour scheme, which /auth/me then reports', async () => {
+    const { client } = await signedInClient(app);
+    expect((await client.get('/api/auth/me')).body.user.preferences).toEqual({ colorScheme: 'system' });
+    const response = await client.patch('/api/profiles/me/preferences', { colorScheme: 'dark' });
+    expect(response).toMatchObject({ status: 200, body: { colorScheme: 'dark' } });
+    expect((await client.get('/api/auth/me')).body.user.preferences).toEqual({ colorScheme: 'dark' });
+  });
+
+  it('needs a session, and refuses unknown schemes and fields', async () => {
+    expect((await testClient(app).patch('/api/profiles/me/preferences', { colorScheme: 'dark' })).status).toBe(401);
+    const { client } = await signedInClient(app);
+    expect((await client.patch('/api/profiles/me/preferences', { colorScheme: 'sepia' })).status).toBe(400);
+    expect((await client.patch('/api/profiles/me/preferences', { role: 'owner' })).status).toBe(400);
+  });
+
+  it('keeps preferences off the public profile', async () => {
+    const { client, account } = await signedInClient(app);
+    await client.patch('/api/profiles/me/preferences', { colorScheme: 'light' });
+    expect((await client.get(`/api/profiles/${account.id}`)).body).not.toHaveProperty('preferences');
+  });
+});

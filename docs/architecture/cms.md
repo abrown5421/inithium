@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in, the 
 scope: core
 tags: [cms, architecture, permissions]
 order: 7
-decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119"]
 ---
 
 # The CMS
@@ -122,11 +122,12 @@ Other screens use the library through two components:
 
 `SettingsScreen` (`@inithium/cms-settings`) edits the [site settings](../backend/site-settings.md) ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)):
 
-- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview (Inithium's logo when none is set), the favicon (an `AssetField` listing only favicon uploads: ICO, PNG or SVG, previewed at 16 and 32 px, [0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)), and the copyright holder.
+- **Site:** the title (Navbar, Footer and browser tabs; default "Inithium"), the logo (an [`AssetField`](#media): choose an image from the Media library or upload one, cropped or fitted) and its description, with a preview on light mode's background (Inithium's logo when none is set), the **dark mode logo** and its description, previewed on dark mode's background (the logo, or Inithium's dark logo, when none is set; [0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)), the favicon (an `AssetField` listing only favicon uploads: ICO, PNG or SVG, previewed at 16 and 32 px, [0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)), and the copyright holder.
 - **Theme fonts** ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)): `ThemeFontField`, a `FontField` per role (**Display font**, **Body font**) offering **Inithium's default** and every family in the font library that has files, each drawn in its own font, with a sample drawn in the choice below it. The body font's note says it's used for all running text, so it should be easy to read.
+- **Dark mode** ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)): **Offer dark mode**, a Switch saving `darkMode`. Off, everyone sees light mode and the profile's Settings tab hides the choice; people's choices are kept. See [Dark mode](../ui-library/theme/dark-mode.md).
 - **Theme colours:** six hex fields, the 500 of `primary`, `secondary`, `tertiary`, `quaternary` and `accent` and the 100 of `surface`. Each has a swatch and a live row of its generated 50–950 scale, the client's own step outlined. A surface too dark for readable text shows why on the field instead of a preview, and Save refuses it. **Reset to defaults** restores core's colours; saved, it removes the stored theme.
 
-Saving updates the CMS at once: `CmsTheme` renders the client's theme and fonts (`ThemeStyles`, `ThemeFonts`) at the app's root from the site bundle, which a save refreshes. `web` visitors see changes on their next full page load.
+Saving updates the CMS at once: `CmsTheme` renders the client's theme and fonts (`ThemeStyles`, `ThemeFonts`) at the app's root from the site bundle, which a save refreshes. It also applies the signed-in user's light or dark mode (`useColorScheme()`), so the CMS follows the same preference as `web`. `web` visitors see changes on their next full page load.
 
 ## Forms
 

@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0090", "0091", "0098", "0099", "0102"]
+decisions: ["0074", "0075", "0081", "0088", "0090", "0091", "0098", "0099", "0102", "0119"]
 ---
 
 # Profiles
@@ -51,13 +51,24 @@ No account is ever without a saved avatar and banner. `createUser()` in `@inithi
 | --- | --- | --- | --- | --- |
 | `GET /api/profiles/:id` | none (a session is read if present) | none | `200` `PublicProfile` | `404 { message }` for an unknown or malformed id |
 | `PATCH /api/profiles/me` | `requireAuth` | `UpdateProfileRequest` | `200` `PublicProfile` (with the email) | `400` with Zod `issues`, `401`, `403 PASSWORD_CHANGE_REQUIRED` |
+| `PATCH /api/profiles/me/preferences` | `requireAuth` | `UpdatePreferencesRequest` (`{ colorScheme? }`; fields left out stay) | `200` `UserPreferences` | `400` with Zod `issues`, `401`, `403 PASSWORD_CHANGE_REQUIRED` |
 
-Both are in `profilesRouter` from `@inithium/api-profiles`, mounted at `/api/profiles`.
+All three are in `profilesRouter` from `@inithium/api-profiles`, mounted at `/api/profiles`.
 
 - **`PublicProfile`** (`publicProfileSchema`): `id`, `firstName?`, `lastName?`, `bio?`, `avatar`, `banner`, `avatarAssetId?`, `bannerAssetId?`, `joinedAt` (ISO), and `email` only when the viewer is the profile's owner. The route reads the session with `readAuth(req)` from `@inithium/api-auth`, which never rejects a request.
 - **`UpdateProfileRequest`** (`updateProfileRequestSchema`): any of `firstName` (1–50), `lastName` (up to 50), `bio` (a `bioSchema` document, or `null`), `avatar`, `banner`, `avatarAssetId`, `bannerAssetId`; unknown keys are rejected. Fields left out stay as they are; an empty `lastName`, or a `bio` that's `null` or has no text, removes it. Names are trimmed. An asset id must be the user's own upload of that kind (`400` with `field` otherwise); `null` goes back to the generated picture. A picture that's replaced or removed is deleted.
 
 From the frontends, use `useGetProfileQuery(id)` and `useUpdateMyProfileMutation()` from `@inithium/shared-data-access` ([Calling the API](calling-the-api.md)). A saved edit goes straight into that profile's cache entry, and the current user refetches so the Navbar's name and avatar follow.
+
+## Preferences
+
+Private settings live in the user's `preferences` subdocument, apart from the public `profile` ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)). Only the user sees them, as `user.preferences` from `GET /api/auth/me`; the profile endpoints never return them.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `colorScheme` | `'system' \| 'light' \| 'dark'` | The user's [dark mode](../ui-library/theme/dark-mode.md) choice. Default `system` (accounts without one read as it). Sign-up saves the browser's current choice. |
+
+Change them with `PATCH /api/profiles/me/preferences` (`updateUserPreferences()` in `@inithium/api-users`), or from a frontend with `useUpdateMyPreferencesMutation()`, which updates the current user at once and undoes it if the request fails.
 
 ## The Profile page
 
@@ -71,7 +82,7 @@ The page works out who is looking (`ProfileViewer`):
 | --- | --- | --- |
 | `visitor` | Signed out | Banner, avatar, name, bio and join date |
 | `member` | Signed in, someone else's profile | The same as a visitor in core; plugins may show more |
-| `owner` | The profile's own account | Also their email, edit buttons on the avatar and banner (saved straight away), the Account tab's form, and a prompt to add a name if they have none |
+| `owner` | The profile's own account | Also their email, edit buttons on the avatar and banner (saved straight away), the Account and Settings tabs, and a prompt to add a name if they have none |
 
 Staff accounts have profiles like everyone else, and no role is shown.
 
@@ -80,11 +91,12 @@ Staff accounts have profiles like everyone else, and no role is shown.
 | Slot | Entry | Viewers | Order |
 | --- | --- | --- | --- |
 | Sidebar section | **About**: the bio (drawn with [RichTextView](../ui-library/composites/rich-text-view.md)), the join date, and the email for its owner | everyone | 0 |
-| Tab | **Account**: the editable form, with names, the bio (a [RichTextField](../ui-library/composites/rich-text-field.md) with bold, italic, links and a 280 count), the email (read-only) and a password change (`PasswordChangeForm`: current password, new one meeting the policy; signs out other sessions, keeps this one) | owner | 1000 |
+| Tab | **Account**: the editable form, with names, the bio (a [RichTextField](../ui-library/composites/rich-text-field.md) with bold, italic, links and a 280 count), and the email (read-only); icon `user-round` | owner | 1000 |
+| Tab | **Settings** (`ProfileSettingsTab`, icon `settings`): **Appearance**, the colour scheme (System, Light or Dark as a card RadioGroup, saved as soon as it's picked; hidden while the site has [dark mode](../ui-library/theme/dark-mode.md) off), and **Password** (`PasswordChangeForm`: current password, new one meeting the policy; signs out other sessions, keeps this one) ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)) | owner | 1001 |
 
 Core has no other tabs and no header actions: the owner never has to press a button to start editing, because the form is already there.
 
-The main column (surface 200) holds **cards**: the tab bar (Tabs' [`bar`](../ui-library/composites/tabs.md#bar)), and in the Account tab one card for the profile form and one for the password, 24px apart. Each is surface 100 with padding, 12px corners and the sidebar's `2xl` shadow. Their props are exported as `profileCard` (and the gap as `PROFILE_CARD_GAP`) from `@inithium/web-pages`; spread `profileCard` onto a Container so a plugin tab's sections match.
+The main column (surface 200) holds **cards**: the tab bar (Tabs' [`bar`](../ui-library/composites/tabs.md#bar)), the Account tab's profile form, and the Settings tab's Appearance and Password cards, 24px apart. Each is surface 100 with padding, 12px corners and the sidebar's `2xl` shadow. Their props are exported as `profileCard` (and the gap as `PROFILE_CARD_GAP`) from `@inithium/web-pages`; spread `profileCard` onto a Container so a plugin tab's sections match.
 
 - **Tabs are in the URL** as `?tab=<key>`, e.g. `/profile/:id?tab=account`. An unknown or hidden tab opens the first visible one. The tab bar shows whenever there's a tab; with none (visitors and members, until plugins add some), the main column says there's nothing to show yet.
 - **An unknown profile** shows the Not Found page in place, keeping the address.
@@ -107,7 +119,7 @@ export const registeredProfileSlots: ProfileSlots = {
 Every entry (`ProfileSlotEntry`) has:
 
 - `key`: unique within its slot; a tab's key is its `?tab=` value;
-- `order`: position, lowest first (core's own use 0 and 1000);
+- `order`: position, lowest first (core's own use 0, and 1000 and up);
 - `viewers`: who sees it;
 - `component`: gets `{ profile, viewer }` (`ProfileSlotProps`) and may render differently for each viewer.
 

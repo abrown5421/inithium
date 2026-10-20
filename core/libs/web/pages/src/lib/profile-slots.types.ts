@@ -12,7 +12,7 @@ export type ProfileSlotProps = {
 export type ProfileSlotEntry = {
   /** Unique within its slot, e.g. 'orders'. A tab's key is its `?tab=` value. */
   key: string;
-  /** Position within its slot, lowest first. Core's own entries use 0 (first) and 1000 (last). */
+  /** Position within its slot, lowest first. Core's own entries use 0 (first), and 1000 and up (last). */
   order: number;
   /** Who sees it; it's left out for everyone else. */
   viewers: readonly ProfileViewer[];

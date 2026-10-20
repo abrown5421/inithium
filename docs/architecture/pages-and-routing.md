@@ -4,7 +4,7 @@ description: How web pages are stored as records, drawn by code templates, route
 scope: core
 tags: [pages, routing, navigation, cms, plugins]
 order: 6
-decisions: ["0078", "0079", "0080", "0081", "0082"]
+decisions: ["0078", "0079", "0080", "0081", "0082", "0119"]
 ---
 
 # Pages and routing
@@ -87,6 +87,7 @@ The profile's frame (a full-width banner, an overlapping avatar, an identity sid
 
 ## Routing in `web`
 
+- **Light or dark:** `SiteShell` applies the signed-in user's colour scheme, or the browser's last one, unless the site has dark mode off, and draws the matching logo. `index.html`'s script has already applied it before the first paint ([Dark mode](../ui-library/theme/dark-mode.md), [0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)).
 - **Startup:** `web` loads its site bundle once (site settings and the published page records), with a Loader until it arrives, and builds its routes from the records ([0079](../decisions/0079-route-web-pages-through-a-shell-with-audiences-and-sequential-transitions.md)). CMS changes reach visitors on their next full load.
 - **Not Found:** unknown paths and unpublished pages render the Not Found page.
 - **Audiences:**
@@ -125,7 +126,7 @@ The page, its core tabs and the slot contracts are described in [Profiles](../ba
 
 ## Site settings
 
-One `settings` record holds the site title, logo and copyright holder for the Navbar and Footer, edited on the CMS Settings screen ([0082](../decisions/0082-keep-site-wide-settings-in-one-record.md)). Theme colours, fonts and SEO defaults come later.
+One `settings` record holds the site title, logos (light and dark mode), favicon, copyright holder, theme colours and fonts, and the dark mode switch, edited on the CMS Settings screen ([0082](../decisions/0082-keep-site-wide-settings-in-one-record.md), [Site settings](../backend/site-settings.md)). SEO defaults come later.
 
 ## Permissions
 

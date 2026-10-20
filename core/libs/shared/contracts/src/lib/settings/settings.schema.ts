@@ -22,6 +22,11 @@ export const siteSettingsInputSchema = z
     siteTitle: z.string().trim().min(1, { error: "Enter the site's title" }).max(100, { error: 'Use 100 characters or fewer' }),
     /** The Navbar logo, an uploaded image. Leave it out for Inithium's default logo. */
     logo: siteLogoSchema.optional(),
+    /**
+     * The Navbar logo in dark mode (decision 0119), an uploaded image. Leave it out to keep `logo` in dark mode too (or,
+     * without one, Inithium's default dark logo).
+     */
+    logoDark: siteLogoSchema.optional(),
     /** The browser-tab icon of `web` and the CMS. Leave it out for Inithium's default. */
     favicon: siteFaviconSchema.optional(),
     /** The copyright holder in the Footer. */
@@ -30,14 +35,19 @@ export const siteSettingsInputSchema = z
     theme: themeConfigSchema.optional(),
     /** The theme's fonts (decision 0111): the library family for `display` and `body`. Leave one out for Inithium's default. */
     fonts: themeFontsSchema.optional(),
+    /**
+     * Whether visitors and users may use dark mode (decision 0119). Leave it out for on. Off draws everyone in light mode,
+     * hides the choice from the profile's Settings tab and keeps each user's stored preference for when it's back on.
+     */
+    darkMode: z.boolean().optional(),
   })
   .strict();
 
 /** The site logo as the Navbar takes it: the image's address and description. */
 export const logoImage = (logo: { assetId: string; alt: string }) => ({ src: assetUrl(logo.assetId), alt: logo.alt });
 
-/** Site settings as the API returns them. */
-export const siteSettingsSchema = siteSettingsInputSchema.extend({ updatedAt: z.iso.datetime() }).strict();
+/** Site settings as the API returns them: `darkMode` is always given. */
+export const siteSettingsSchema = siteSettingsInputSchema.extend({ darkMode: z.boolean(), updatedAt: z.iso.datetime() }).strict();
 
 /** What `web` loads once at startup (decision 0079): the settings and every published page. */
 export const siteBundleSchema = z

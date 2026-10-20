@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Dark mode before the first paint (decision 0119): colorSchemeScript('light') from @inithium/shared-ui-theme. -->
+    <script>(function(){try{var r=document.documentElement,s=window.localStorage,a=r.getAttribute('data-dark-mode')||s.getItem('inithium-dark-mode'),p=s.getItem('inithium-color-scheme')||'light';if(a!=='off'&&(p==='dark'||(p==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)))r.setAttribute('data-theme','dark')}catch(e){}})();</script>
     <title>Inithium docs</title>
     <base href="/" />
 

@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { assetUrl, logoImage, siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
+import { assetUrl, siteSettingsInputSchema, themeColors, type SiteSettings, type SiteSettingsInput, type ThemeColor } from '@inithium/shared-contracts';
 import {
   fieldErrorsFrom,
   focusFirstError,
@@ -10,8 +10,8 @@ import {
   type FieldErrors,
 } from '@inithium/shared-data-access';
 import { AssetField } from '@inithium/cms-media';
-import { Button, Container, Image, Input, Loader, Text } from '@inithium/shared-ui-components';
-import { defaultLogo, defaultTheme, themeColorProblem } from '@inithium/shared-ui-theme';
+import { Button, Container, Image, Input, Loader, Switch, Text } from '@inithium/shared-ui-components';
+import { defaultTheme, siteLogo, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 import { DEFAULT_FONT, ThemeFontField } from './theme-font-field.component';
 
@@ -19,6 +19,8 @@ type Draft = {
   siteTitle: string;
   logoAssetId: string;
   logoAlt: string;
+  logoDarkAssetId: string;
+  logoDarkAlt: string;
   faviconAssetId: string;
   copyright: string;
   colors: Record<ThemeColor, string>;
@@ -27,12 +29,16 @@ type Draft = {
   /** Each theme font's family id, or DEFAULT_FONT. */
   fontDisplay: string;
   fontBody: string;
+  /** Whether visitors and users may use dark mode (decision 0119). */
+  darkMode: boolean;
 };
 
 const FIELDS = [
   'siteTitle',
   'logo.assetId',
   'logo.alt',
+  'logoDark.assetId',
+  'logoDark.alt',
   'favicon.assetId',
   'copyright',
   ...themeColors.map((token) => `theme.colors.${token}` as const),
@@ -45,12 +51,15 @@ const draftOf = (settings: SiteSettings): Draft => ({
   siteTitle: settings.siteTitle,
   logoAssetId: settings.logo?.assetId ?? '',
   logoAlt: settings.logo?.alt ?? '',
+  logoDarkAssetId: settings.logoDark?.assetId ?? '',
+  logoDarkAlt: settings.logoDark?.alt ?? '',
   faviconAssetId: settings.favicon?.assetId ?? '',
   copyright: settings.copyright ?? '',
   colors: { ...(settings.theme ?? defaultTheme).colors },
   customTheme: Boolean(settings.theme),
   fontDisplay: settings.fonts?.display ?? DEFAULT_FONT,
   fontBody: settings.fonts?.body ?? DEFAULT_FONT,
+  darkMode: settings.darkMode,
 });
 
 function Section({ title, description, children }: { title: string; description: string; children: ReactNode }) {
@@ -78,9 +87,9 @@ function Section({ title, description, children }: { title: string; description:
 }
 
 /**
- * The CMS's Settings screen (decisions 0082, 0087, 0101 and 0111, needs settings.edit): the site's title, logo, favicon and
- * copyright holder, its theme colours as hex codes, each previewing the scale generated from it, and its display and
- * body fonts from the font library. Save reports problems like every CMS form; the CMS takes on a new theme as soon as
+ * The CMS's Settings screen (decisions 0082, 0087, 0101, 0111 and 0119, needs settings.edit): the site's title, logos
+ * (light and dark mode), favicon and copyright holder, its theme colours as hex codes, each previewing the scale
+ * generated from it, its display and body fonts from the font library, and whether dark mode is offered. Save reports problems like every CMS form; the CMS takes on a new theme as soon as
  * it's saved.
  */
 export function SettingsScreen() {
@@ -90,6 +99,7 @@ export function SettingsScreen() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [loadedFrom, setLoadedFrom] = useState<string | null>(null);
   const [errors, setErrors] = useState<FieldErrors<Field>>({});
+  const colorScheme = useAppliedColorScheme();
   // Start (and restart after each save) from the stored settings.
   if (settings && settings.updatedAt !== loadedFrom) {
     setLoadedFrom(settings.updatedAt);
@@ -115,6 +125,11 @@ export function SettingsScreen() {
   }
 
   const change = (next: Partial<Draft>) => setDraft({ ...draft, ...next });
+  // The logos as the site would draw them, for the previews.
+  const logos = {
+    ...(draft.logoAssetId ? { logo: { assetId: draft.logoAssetId, alt: draft.logoAlt } } : {}),
+    ...(draft.logoDarkAssetId ? { logoDark: { assetId: draft.logoDarkAssetId, alt: draft.logoDarkAlt } } : {}),
+  };
   const changeColor = (token: ThemeColor, value: string) =>
     change({ colors: { ...draft.colors, [token]: value }, customTheme: true });
 
@@ -130,6 +145,7 @@ export function SettingsScreen() {
     const input: SiteSettingsInput = {
       siteTitle: draft.siteTitle,
       ...(draft.logoAssetId ? { logo: { assetId: draft.logoAssetId, alt: draft.logoAlt.trim() } } : {}),
+      ...(draft.logoDarkAssetId ? { logoDark: { assetId: draft.logoDarkAssetId, alt: draft.logoDarkAlt.trim() } } : {}),
       ...(draft.faviconAssetId ? { favicon: { assetId: draft.faviconAssetId } } : {}),
       ...(draft.copyright.trim() ? { copyright: draft.copyright.trim() } : {}),
       ...(draft.customTheme
@@ -143,6 +159,7 @@ export function SettingsScreen() {
             },
           }
         : {}),
+      darkMode: draft.darkMode,
     };
     const parsed = siteSettingsInputSchema.safeParse(input);
     const found: FieldErrors<Field> = parsed.success ? {} : fieldErrorsFrom<Field>(parsed.error.issues);
@@ -174,7 +191,7 @@ export function SettingsScreen() {
             Settings
           </Text>
           <Text as="p" fontSize={14} textColor={{ color: 'surface', intensity: 700 }}>
-            Your site’s name, logo, colours and fonts.
+            Your site’s name, logos, colours, fonts and dark mode.
           </Text>
         </Container>
 
@@ -202,14 +219,61 @@ export function SettingsScreen() {
             />
           </Container>
           <Container flex={{ align: 'center', gap: 12 }}>
-            <Image
-              {...(draft.logoAssetId ? logoImage({ assetId: draft.logoAssetId, alt: draft.logoAlt }) : defaultLogo)}
-              height={40}
-              width="auto"
-              loading="eager"
-            />
+            {/* On light mode's page background: surface 100, which is surface 900 while the CMS is in dark mode. */}
+            <Container
+              flex={{ align: 'center' }}
+              padding={{ all: 8 }}
+              radius={{ all: 8 }}
+              bgColor={{ color: 'surface', intensity: colorScheme === 'dark' ? 900 : 100 }}
+            >
+              <Image {...siteLogo(logos, 'light')} height={40} width="auto" loading="eager" />
+            </Container>
             <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
               {draft.logoAssetId ? 'Preview of your logo.' : 'No logo set, so Inithium’s default logo is used.'}
+            </Text>
+          </Container>
+          <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }}>
+            <AssetField
+              label="Dark mode logo"
+              kind="image"
+              purpose="logo"
+              helperText="Shown instead of the logo in dark mode, e.g. a light version of it. Remove it to keep the logo above in dark mode."
+              value={draft.logoDarkAssetId || undefined}
+              onChange={(asset) =>
+                change(
+                  asset
+                    ? { logoDarkAssetId: asset.id, logoDarkAlt: draft.logoDarkAlt.trim() || asset.alt || draft.logoAlt }
+                    : { logoDarkAssetId: '', logoDarkAlt: '' },
+                )
+              }
+              error={errors['logoDark.assetId']}
+            />
+            <Input
+              name="logoDark.alt"
+              label="Dark mode logo description"
+              helperText="Read by screen readers when there’s no title beside it."
+              value={draft.logoDarkAlt}
+              disabled={!draft.logoDarkAssetId}
+              onValueChange={(logoDarkAlt) => change({ logoDarkAlt })}
+              error={errors['logoDark.alt']}
+            />
+          </Container>
+          <Container flex={{ align: 'center', gap: 12 }}>
+            {/* On dark mode's page background: surface 100 as dark mode draws it, which is surface 900 in light mode. */}
+            <Container
+              flex={{ align: 'center' }}
+              padding={{ all: 8 }}
+              radius={{ all: 8 }}
+              bgColor={{ color: 'surface', intensity: colorScheme === 'dark' ? 100 : 900 }}
+            >
+              <Image {...siteLogo(logos, 'dark')} height={40} width="auto" loading="eager" />
+            </Container>
+            <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
+              {draft.logoDarkAssetId
+                ? 'Preview of your dark mode logo.'
+                : draft.logoAssetId
+                  ? 'No dark mode logo set, so your logo is used in dark mode too.'
+                  : 'No logos set, so Inithium’s default dark mode logo is used.'}
             </Text>
           </Container>
           <Container grid={{ columns: { base: 1, md: 2 }, gap: 16 }}>
@@ -280,6 +344,22 @@ export function SettingsScreen() {
             <ThemeFontField themeRole="display" value={draft.fontDisplay} onValueChange={(fontDisplay) => change({ fontDisplay })} error={errors['fonts.display']} />
             <ThemeFontField themeRole="body" value={draft.fontBody} onValueChange={(fontBody) => change({ fontBody })} error={errors['fonts.body']} />
           </Container>
+        </Section>
+
+        <Section
+          title="Dark mode"
+          description="Lets visitors and users switch the site and the CMS to dark colours, mirrored from your theme."
+        >
+          <Switch
+            label="Offer dark mode"
+            helperText={
+              draft.darkMode
+                ? 'Each person chooses System, Light or Dark in their profile’s Settings tab; signed-out visitors keep the last choice made in their browser.'
+                : 'Everyone sees light mode, and the choice is hidden. People’s choices are kept for when it’s back on.'
+            }
+            checked={draft.darkMode}
+            onCheckedChange={(darkMode) => change({ darkMode })}
+          />
         </Section>
 
         {/* On the left, under the fields: alerts appear bottom right and would cover it there. */}

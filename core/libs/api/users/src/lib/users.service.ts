@@ -1,5 +1,7 @@
 import { isValidObjectId } from 'mongoose';
 import {
+  DEFAULT_USER_PREFERENCES,
+  colorSchemeSchema,
   richTextDocumentSchema,
   richTextFromPlainText,
   richTextIsEmpty,
@@ -7,8 +9,10 @@ import {
   type PublicProfile,
   type RichTextDocument,
   type Role,
+  type UpdatePreferencesRequest,
   type UpdateProfileRequest,
   type User,
+  type UserPreferences,
   type UserProfile,
 } from '@inithium/shared-contracts';
 import { createProfileAvatar, createProfileBanner, readAvatar, readBanner } from './profiles.service';
@@ -50,6 +54,12 @@ function toProfile(doc: UserDocument): UserProfile {
   };
 }
 
+/** A stored user's preferences (decision 0119), with the defaults for anything missing or no longer valid. */
+function toPreferences(doc: UserDocument): UserPreferences {
+  const colorScheme = colorSchemeSchema.safeParse(doc.preferences?.colorScheme);
+  return { colorScheme: colorScheme.success ? colorScheme.data : DEFAULT_USER_PREFERENCES.colorScheme };
+}
+
 /** Maps a stored user to the shape the API returns. Never includes the password hash. */
 export function toUser(doc: UserDocument): User {
   return {
@@ -58,6 +68,7 @@ export function toUser(doc: UserDocument): User {
     role: doc.role,
     passwordChangeRequired: doc.passwordChangeRequired,
     profile: toProfile(doc),
+    preferences: toPreferences(doc),
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -161,9 +172,12 @@ export async function createUser(input: {
   names?: { firstName: string; lastName?: string };
   /** The account creating this one, when it's made in the CMS. */
   createdBy?: string;
+  /** Preferences chosen before the account existed, e.g. a visitor's colour scheme at sign-up (decision 0119). */
+  preferences?: Partial<UserPreferences>;
 }): Promise<UserDocument> {
-  const { names, ...account } = input;
+  const { names, preferences, ...account } = input;
   const user = new UserModel(account);
+  if (preferences) user.set('preferences', { ...DEFAULT_USER_PREFERENCES, ...preferences });
   user.set('profile', {
     ...names,
     avatar: createProfileAvatar(user._id.toString()),
@@ -199,6 +213,12 @@ export async function updateUserProfile(user: UserDocument, changes: UpdateProfi
     else delete next[key];
   }
   user.set('profile', next);
+  return user.save();
+}
+
+/** Changes a user's preferences (decision 0119); fields left out stay as they are. */
+export async function updateUserPreferences(user: UserDocument, changes: UpdatePreferencesRequest): Promise<UserDocument> {
+  user.set('preferences', { ...toPreferences(user), ...changes });
   return user.save();
 }
 

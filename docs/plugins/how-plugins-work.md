@@ -107,6 +107,15 @@ How unseed identifies exactly what its seed created is still open ([0019](../dec
 - **Deleting a user:** a plugin with per-user data registers a user deletion hook in the api registry, so its data goes when the account does, without core knowing which plugins exist. Its tests prove the hook with `expectUserDeletionHook()` ([Testing plugins](testing-plugins.md)).
 - **Uploads:** staff uploads work in every storage mode; member uploads only in `cloud-all`. Check `memberUploads` from `GET /api/assets/storage`, never the mode or driver ([0029](../decisions/0029-storage-requirements-for-plugin-uploads.md)).
 
+## Drawing in both modes
+
+A plugin's `web`, `cms` and `shared` UI must work in light and [dark mode](../ui-library/theme/dark-mode.md) with no code of its own for it ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)):
+- build from the UI library with theme colours in their roles (backgrounds 50–400, text 600–950, borders 500);
+- use Tailwind colours only for what must look the same in both modes;
+- use no hex codes, `white` or `black`.
+
+Plugin libs spread core's ESLint config, so the `inithium/no-fixed-colors` rule checks them too ([Conventions](../reference/conventions.md#theme-colours)).
+
 ## Ejecting
 
 Ejecting a plugin is:

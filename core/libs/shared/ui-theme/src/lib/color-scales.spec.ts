@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contrastRatio, generateBrandScale, generateSurfaceScale, scaleSteps } from './color-scales.service';
-import { themeColorProblem, themeToCss } from './theme.service';
+import { DARK_THEME_SELECTOR, generateThemeScales, mirroredStep, themeColorProblem, themeToCss } from './theme.service';
 
 // A spread of real-world colours: Tailwind 500s and 100s, greys, near-white, saturated and muddy ones.
 const brandColours = ['#006a8e', '#ef4444', '#22c55e', '#eab308', '#a855f7', '#000000', '#ffffff', '#7c2d12', '#94a3b8'];
@@ -62,12 +62,29 @@ describe('themeColorProblem (decision 0087)', () => {
 });
 
 describe('themeToCss', () => {
-  it('declares all 66 variables', () => {
-    const css = themeToCss({
-      colors: { primary: '#006a8e', secondary: '#ef4444', tertiary: '#22c55e', quaternary: '#eab308', accent: '#a855f7', surface: '#f5f5f4' },
-    });
-    expect(css.match(/--color-[a-z]+-\d+:#[0-9a-f]{6};/g)).toHaveLength(66);
-    expect(css).toContain('--color-primary-500:#006a8e;');
-    expect(css).toContain('--color-surface-100:#f5f5f4;');
+  const theme = {
+    colors: { primary: '#006a8e', secondary: '#ef4444', tertiary: '#22c55e', quaternary: '#eab308', accent: '#a855f7', surface: '#f5f5f4' },
+  };
+  const [light, dark] = themeToCss(theme).split(DARK_THEME_SELECTOR);
+
+  it('declares all 66 variables, then all 66 again for dark mode', () => {
+    expect(light.match(/--color-[a-z]+-\d+:#[0-9a-f]{6};/g)).toHaveLength(66);
+    expect(dark.match(/--color-[a-z]+-\d+:#[0-9a-f]{6};/g)).toHaveLength(66);
+    expect(light).toContain('--color-primary-500:#006a8e;');
+    expect(light).toContain('--color-surface-100:#f5f5f4;');
+  });
+
+  it('mirrors every scale in dark mode (decision 0119), keeping 500', () => {
+    const scales = generateThemeScales(theme);
+    expect(dark).toContain('color-scheme:dark');
+    expect(dark).toContain('--color-primary-500:#006a8e;');
+    expect(dark).toContain(`--color-surface-100:${scales.surface[900]};`);
+    expect(dark).toContain(`--color-surface-900:#f5f5f4;`);
+    expect(dark).toContain(`--color-accent-50:${scales.accent[950]};`);
+    expect(dark).not.toMatch(/--color-(?!primary|secondary|tertiary|quaternary|accent|surface)/);
+  });
+
+  it('pairs steps from the two ends of the scale', () => {
+    expect(scaleSteps.map(mirroredStep)).toEqual([...scaleSteps].reverse());
   });
 });
