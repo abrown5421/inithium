@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { passwordPolicyHint, registerRequestSchema } from '@inithium/shared-contracts';
 import { fieldErrorsFrom, focusFirstError, readApiFailure, useAlerts, useRegisterMutation, type FieldErrors } from '@inithium/shared-data-access';
 import { Button, Container, Input, Text } from '@inithium/shared-ui-components';
+import { readStoredColorScheme } from '@inithium/shared-ui-theme';
 import type { PageTemplateProps } from '@inithium/web-shell';
 
 type Field = 'firstName' | 'lastName' | 'email' | 'password' | 'confirmPassword';
@@ -57,7 +58,9 @@ export function SignUpPage({ page }: PageTemplateProps) {
 
     setErrors({});
     try {
-      await register(parsed.data).unwrap();
+      // The light/dark choice this browser already has becomes the new account's (decision 0119).
+      const colorScheme = readStoredColorScheme();
+      await register({ ...parsed.data, ...(colorScheme ? { colorScheme } : {}) }).unwrap();
     } catch (error) {
       const failure = readApiFailure(error);
       if (failure.issues) return fail(form, fieldErrorsFrom<Field>(failure.issues), INVALID);

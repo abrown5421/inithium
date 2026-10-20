@@ -9,6 +9,7 @@ import { ProfileLayout } from '@inithium/shared-ui-layouts';
 import { usePageReady, useSite, type PageTemplateProps } from '@inithium/web-shell';
 import { NotFoundPage } from './not-found-page.component';
 import { ProfileAccountTab } from './profile-account-tab.component';
+import { ProfileSettingsTab } from './profile-settings-tab.component';
 import { PROFILE_CARD_GAP, profileCard } from './profile-card.config';
 import { useProfileSlots } from './profile-slots.context';
 import type { ProfileSidebarSection, ProfileSlotEntry, ProfileSlotProps, ProfileTab } from './profile-slots.types';
@@ -37,7 +38,8 @@ function ProfileAbout({ profile }: ProfileSlotProps) {
 
 // Core's own entries (decisions 0090, 0091); the registry's are merged in by order.
 const CORE_TABS: ProfileTab[] = [
-  { key: 'account', label: 'Account', icon: 'settings', order: 1000, viewers: ['owner'], component: ProfileAccountTab },
+  { key: 'account', label: 'Account', icon: 'user-round', order: 1000, viewers: ['owner'], component: ProfileAccountTab },
+  { key: 'settings', label: 'Settings', icon: 'settings', order: 1001, viewers: ['owner'], component: ProfileSettingsTab },
 ];
 const CORE_SIDEBAR: ProfileSidebarSection[] = [
   { key: 'about', label: 'About', order: 0, viewers: ['visitor', 'member', 'owner'], component: ProfileAbout },

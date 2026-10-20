@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { matchPath, Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
-import { logoImage, profileImage, userDisplayName } from '@inithium/shared-contracts';
+import { profileImage, userDisplayName } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Container, Text } from '@inithium/shared-ui-components';
 import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
-import { defaultLogo } from '@inithium/shared-ui-theme';
+import { siteLogo, useAppliedColorScheme } from '@inithium/shared-ui-theme';
 import type { CmsScreen } from './cms-screen.types';
 
 export type CmsShellProps = {
@@ -23,6 +23,7 @@ export function CmsShell({ screens }: CmsShellProps) {
   const { data: user } = useGetCurrentUserQuery();
   const { data: site } = useGetSiteQuery();
   const [logout] = useLogoutMutation();
+  const colorScheme = useAppliedColorScheme();
 
   // Sidebar links are real addresses (with the CMS's base, e.g. /cms/pages); the router works without it.
   const base = useHref('/').replace(/\/$/, '');
@@ -49,7 +50,7 @@ export function CmsShell({ screens }: CmsShellProps) {
     <SidebarLayout
       fill={fill}
       title={site?.settings.siteTitle ?? 'CMS'}
-      logo={site ? (site.settings.logo ? logoImage(site.settings.logo) : defaultLogo) : undefined}
+      logo={site ? siteLogo(site.settings, colorScheme) : undefined}
       homeHref={toHref('/')}
       items={items}
       currentPath={toHref(location.pathname)}

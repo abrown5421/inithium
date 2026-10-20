@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Dark mode before the first paint (decision 0119): colorSchemeScript('system') from @inithium/shared-ui-theme. -->
+    <script>(function(){try{var r=document.documentElement,s=window.localStorage,a=r.getAttribute('data-dark-mode')||s.getItem('inithium-dark-mode'),p=s.getItem('inithium-color-scheme')||'system';if(a!=='off'&&(p==='dark'||(p==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)))r.setAttribute('data-theme','dark')}catch(e){}})();</script>
     <title>Cms</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />

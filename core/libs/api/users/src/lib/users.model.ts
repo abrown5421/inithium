@@ -1,5 +1,5 @@
 import { model, Schema, type HydratedDocument, type InferSchemaType } from 'mongoose';
-import { roles } from '@inithium/shared-contracts';
+import { colorSchemes, roles } from '@inithium/shared-contracts';
 
 // Profile data, apart from the auth fields (decisions 0074, 0083, 0090). The avatar and banner are recipes, validated
 // by their Zod schemas in the service before they're stored.
@@ -28,6 +28,11 @@ const usersSchema = new Schema(
     passwordChangeRequired: { type: Boolean, required: true, default: false },
     // Every account gets one, with a generated avatar and banner, when it's created (decision 0090).
     profile: { type: profileSchema, required: false },
+    // Private preferences (decision 0119); missing on older accounts, which read as the defaults.
+    preferences: {
+      type: new Schema({ colorScheme: { type: String, enum: [...colorSchemes] } }, { _id: false }),
+      required: false,
+    },
     // The account that created this one in the CMS (decision 0100); missing for sign-ups and the seeded dev account.
     createdBy: { type: String },
   },

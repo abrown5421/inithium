@@ -128,6 +128,13 @@ describe('POST /api/auth/register (decision 0083)', () => {
     expect((await testClient(app).post('/api/auth/register', { firstName: 'A', email: 'b@example.com', password: 'weak' })).status).toBe(400);
   });
 
+  it('saves the visitor’s colour scheme as the account’s, and defaults to system (decision 0119)', async () => {
+    const dark = await testClient(app).post('/api/auth/register', { firstName: 'A', email: 'd@example.com', password: PASSWORD, colorScheme: 'dark' });
+    expect(dark.body.user.preferences).toEqual({ colorScheme: 'dark' });
+    const plain = await testClient(app).post('/api/auth/register', { firstName: 'A', email: 'e@example.com', password: PASSWORD });
+    expect(plain.body.user.preferences).toEqual({ colorScheme: 'system' });
+  });
+
   it('can never be used to choose a role', async () => {
     const response = await testClient(app).post('/api/auth/register', { firstName: 'A', email: 'c@example.com', password: PASSWORD, role: 'owner' });
     expect(response.status).toBe(400);

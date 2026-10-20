@@ -1,4 +1,13 @@
-import { publicProfileSchema, type PublicProfile, type UpdateProfileRequest } from '@inithium/shared-contracts';
+import {
+  publicProfileSchema,
+  userPreferencesSchema,
+  type PublicProfile,
+  type UpdatePreferencesRequest,
+  type UpdateProfileRequest,
+  type User,
+  type UserPreferences,
+} from '@inithium/shared-contracts';
+import { authApi } from './auth.api';
 import { baseApi } from './base.api';
 
 const profilesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Profile'] }).injectEndpoints({
@@ -20,7 +29,24 @@ const profilesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Profile'] }).injec
       },
       invalidatesTags: (result) => (result ? ['CurrentUser'] : []),
     }),
+    /**
+     * Changes the signed-in user's private preferences (decision 0119). The current user updates at once, so the colour
+     * scheme switches before the request returns, and goes back if it fails.
+     */
+    updateMyPreferences: build.mutation<UserPreferences, UpdatePreferencesRequest>({
+      query: (body) => ({ url: '/profiles/me/preferences', method: 'PATCH', body }),
+      transformResponse: (response: unknown) => userPreferencesSchema.parse(response),
+      async onQueryStarted(changes, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          authApi.util.updateQueryData('getCurrentUser', undefined, (user: User) => {
+            user.preferences = { ...user.preferences, ...changes };
+          }),
+        );
+        const result = await queryFulfilled.catch(() => null);
+        if (!result) patch.undo();
+      },
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateMyProfileMutation } = profilesApi;
+export const { useGetProfileQuery, useUpdateMyPreferencesMutation, useUpdateMyProfileMutation } = profilesApi;

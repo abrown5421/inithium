@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { assetUrl, logoImage, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
+import { assetUrl, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
 import { BareLayout, DefaultLayout, FullWidthLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
-import { defaultLogo, ThemeFonts, ThemeStyles, useFavicon } from '@inithium/shared-ui-theme';
+import { siteLogo, ThemeFonts, ThemeStyles, useColorScheme, useFavicon, type ResolvedColorScheme } from '@inithium/shared-ui-theme';
 import { buildMenus } from './menus.service';
 import { PageSlot, type PageEntry, type PageLayout } from './page-slot.component';
 import type { PageTemplate } from './page-template.types';
@@ -43,13 +43,16 @@ export function SiteShell({ templates }: SiteShellProps) {
   // Wait for the first answer about the session; after that, a refetch never holds the site back.
   const [sessionKnown, setSessionKnown] = useState(false);
   if (!sessionKnown && (auth.data !== undefined || auth.error !== undefined)) setSessionKnown(true);
+  // Light or dark (decision 0119): the signed-in user's preference, else this browser's last one, unless the site has
+  // dark mode off. index.html's script already applied the stored answer before the first paint.
+  const { resolved: colorScheme } = useColorScheme({ enabled: bundle?.settings.darkMode, account: auth.data?.preferences.colorScheme });
 
   if (!bundle || !sessionKnown) {
     return <StartupScreen failed={site.isError && !bundle} onRetry={() => void site.refetch()} />;
   }
   // Accounts with a temporary password choose their own before anything else (decision 0088).
   if (auth.data?.passwordChangeRequired) return <PasswordChangeGate />;
-  return <SiteRouter bundle={bundle} user={auth.data ?? null} templates={templates} />;
+  return <SiteRouter bundle={bundle} user={auth.data ?? null} templates={templates} colorScheme={colorScheme} />;
 }
 
 function PasswordChangeGate() {
@@ -85,9 +88,9 @@ function StartupScreen({ failed, onRetry }: { failed: boolean; onRetry: () => vo
   );
 }
 
-type SiteRouterProps = { bundle: SiteBundle; user: User | null; templates: PageTemplate[] };
+type SiteRouterProps = { bundle: SiteBundle; user: User | null; templates: PageTemplate[]; colorScheme: ResolvedColorScheme };
 
-function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
+function SiteRouter({ bundle, user, templates, colorScheme }: SiteRouterProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -215,7 +218,7 @@ function SiteRouter({ bundle, user, templates }: SiteRouterProps) {
       <Container ref={frame} minHeight="screen" flex={{ direction: 'column' }} bgColor={BACKDROP}>
         <Navbar
           title={bundle.settings.siteTitle}
-          logo={bundle.settings.logo ? logoImage(bundle.settings.logo) : defaultLogo}
+          logo={siteLogo(bundle.settings, colorScheme)}
           links={menus.primary}
           userLinks={menus.profile}
           user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId) } : undefined}

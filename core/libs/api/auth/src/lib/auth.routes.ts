@@ -83,7 +83,7 @@ authRouter.post('/register', registerRateLimit, async (req, res) => {
     return;
   }
 
-  const { firstName, lastName, email, password } = parsed.data;
+  const { firstName, lastName, email, password, colorScheme } = parsed.data;
   if (await userExistsWithEmail(email)) {
     res.status(409).send({ message: 'An account with this email already exists', field: 'email' });
     return;
@@ -94,6 +94,8 @@ authRouter.post('/register', registerRateLimit, async (req, res) => {
     passwordHash: await hashPassword(password),
     role: 'user',
     names: { firstName, ...(lastName ? { lastName } : {}) },
+    // The light/dark choice the visitor already had becomes the account's (decision 0119).
+    ...(colorScheme ? { preferences: { colorScheme } } : {}),
   });
   const userId = user._id.toString();
   setAuthCookies(res, {

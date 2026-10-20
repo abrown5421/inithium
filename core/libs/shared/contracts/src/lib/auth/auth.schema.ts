@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { colorSchemeSchema } from '../users/preferences.schema';
 import { userSchema } from '../users/users.schema';
 
 /** An email address: no spaces, an @, and a dot after it, e.g. name@example.com. Stored lowercased. */
@@ -38,6 +39,8 @@ export const registerRequestSchema = z
     lastName: z.string().trim().max(50, { error: 'Use 50 characters or fewer' }).optional(),
     email: emailSchema,
     password: newPasswordSchema,
+    /** The visitor's light/dark choice so far, saved as the new account's preference (decision 0119). */
+    colorScheme: colorSchemeSchema.optional(),
   })
   .strict();
 

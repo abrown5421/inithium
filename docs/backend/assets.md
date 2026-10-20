@@ -117,7 +117,7 @@ Mounted at `/api/assets`:
 | `GET /` | `assets.upload` | Staff files, newest first (at most 500); `group=members` lists members' avatars and banners instead. Query also: `purpose`, `kind`, `q` (words in the filename or alt text). |
 | `POST /` | Signed in | Multipart upload: `file` (at most 25 MB before processing), `purpose`, `alt?`, `fontLicence?` (`'true'`). `avatar` and `banner` need `memberUploads` and are rate-limited for members; other purposes need `assets.upload`. Returns 201 with the asset. |
 | `GET /:id/info` | `assets.upload` | One asset's record. |
-| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site logo and favicon (blocking), pages whose content (draft or published) uses it (by `contentReferences()`, walking every element), and profiles showing it. |
+| `GET /:id/usage` | `assets.upload` | `{ places: [{ label, blocking }] }`: the site's logo, dark mode logo and favicon (blocking), pages whose content (draft or published) uses it (by `contentReferences()`, walking every element), and profiles showing it. |
 | `PATCH /:id` | `assets.upload` | `{ filename?, alt? }`. |
 | `DELETE /:id` | `assets.delete` | 204, or 409 while a blocking use remains. |
 | `GET /:id` | Anyone | The file itself, or a redirect to the bucket's public address with `R2_PUBLIC_URL`. |
@@ -146,7 +146,7 @@ Errors: 400 (fields), 403, 409 (member uploads off, or in use), 413 (too big), 4
 
 ## Where assets are used
 
-- **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)). Its asset can't be deleted while it's the logo.
+- **Site logo**: `settings.logo` is `{ assetId, alt }` ([Site settings](site-settings.md)), and so is `settings.logoDark`, the [dark mode](../ui-library/theme/dark-mode.md) logo. Neither's asset can be deleted while it's in use.
 - **Favicon**: `settings.favicon` is `{ assetId }`. Its asset can't be deleted while it's the favicon.
 - **Image block** in content pages ([Content pages](../architecture/content-pages.md)). Deleting its asset warns first; the page then shows a "missing image" placeholder.
 - **Font families**: a font file's family. Deleting the file warns first, then takes it out of the family. If it's the only file of a family the theme uses, it can't be deleted.

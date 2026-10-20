@@ -5,3 +5,5 @@ export * from './lib/theme.service';
 export * from './lib/favicon.hook';
 export * from './lib/font-faces.component';
 export * from './lib/theme-fonts.component';
+export * from './lib/color-scheme.hook';
+export * from './lib/color-scheme.service';

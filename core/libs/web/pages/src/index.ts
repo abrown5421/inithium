@@ -6,6 +6,7 @@ export * from './lib/not-found-page.component';
 export * from './lib/profile-account-tab.component';
 export * from './lib/profile-card.config';
 export * from './lib/profile-page.component';
+export * from './lib/profile-settings-tab.component';
 export * from './lib/profile-slots.context';
 export * from './lib/profile-slots.types';
 export * from './lib/sign-up-page.component';

@@ -34,7 +34,7 @@ Pages are full width by default; don't cap them at a maximum width unless the de
 
 ## Theme colours
 
-The UI library isn't built yet, but these rules already apply to anything designed for it: core screens, plugin UIs and generated pages. See [0031](../decisions/0031-theme-colour-tokens-and-scales.md) and [0032](../decisions/0032-dark-mode-mirrors-the-theme-scales.md).
+These rules apply to everything that draws: core screens, plugin UIs, `libs/client/` code, generated pages, the docs app and its examples. See [0031](../decisions/0031-theme-colour-tokens-and-scales.md), [0032](../decisions/0032-dark-mode-mirrors-the-theme-scales.md) and [0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md).
 
 - **Tokens:** `primary`, `secondary`, `tertiary`, `quaternary`, `accent`, `surface`, each on a 50–950 scale.
 - **Surface roles:**
@@ -46,7 +46,11 @@ The UI library isn't built yet, but these rules already apply to anything design
   | 600–950 | Text |
 
   Any text step is readable on any background step, so pick by look, not by contrast checking.
-- **Dark mode mirrors every scale** (50↔950, 100↔900, 200↔800, 300↔700, 400↔600, 500 stays). Follow the roles above and UI flips correctly with no extra work. Don't use fixed colours (e.g. Tailwind `white` or `gray-900`) for anything that should follow the mode.
+- **Dark mode mirrors every theme scale** (50↔950, 100↔900, 200↔800, 300↔700, 400↔600, 500 stays). Follow the roles above and UI flips correctly with no extra work ([Dark mode](../ui-library/theme/dark-mode.md)).
+  - Use the theme's tokens for anything that should follow the mode: backgrounds from 50–400, text from 600–950, borders 500, brand colours at 500.
+  - Tailwind's colours (e.g. `{ color: 'emerald', intensity: 600 }`, `neutral`) **never** mirror. Use one only for something that must look the same in both modes, such as the Modal's overlay.
+  - No hex codes, and no `white` or `black`, in code. The `inithium/no-fixed-colors` lint rule (`core/eslint.config.mjs`) refuses them in strings and template text in every project, plugins and client libs included. It allows shadows' `rgb(0 0 0 / …)` and pictures drawn as inline SVG. A file whose subject is raw colour (the theme's defaults, hex validation) turns it off in its project's `eslint.config.mjs`, with a comment saying why.
+  - Check new UI in both modes: switch your profile's Settings tab to Dark, or flip the docs app's Dark mode switch for examples.
 
 ## Tags and module boundaries
 

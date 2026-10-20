@@ -36,3 +36,11 @@
     font-family: var(--font-body);
   }
 }
+
+/*
+ * Dark mode (decision 0119): index.html's colour scheme script sets data-theme="dark" on <html> before the first paint.
+ * Until the app publishes the mirrored scales, the browser's own dark canvas keeps the page from flashing white.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

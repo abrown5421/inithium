@@ -12,6 +12,8 @@ const settingsSchema = new Schema(
       type: new Schema({ assetId: { type: String }, alt: { type: String, default: '' } }, { _id: false }),
       required: false,
     },
+    // The logo in dark mode (decision 0119), as `logo`.
+    logoDark: { type: new Schema({ assetId: { type: String }, alt: { type: String, default: '' } }, { _id: false }), required: false },
     // The favicon's asset id (decision 0101).
     favicon: { type: new Schema({ assetId: { type: String } }, { _id: false }), required: false },
     copyright: { type: String, required: false, trim: true },
@@ -30,6 +32,8 @@ const settingsSchema = new Schema(
     },
     // The theme's fonts (decision 0111): library family ids, checked against the library when saved.
     fonts: { type: new Schema({ display: String, body: String }, { _id: false }), required: false },
+    // Whether dark mode is offered (decision 0119). Missing means on.
+    darkMode: { type: Boolean, required: false },
   },
   { timestamps: true },
 );

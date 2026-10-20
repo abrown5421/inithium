@@ -4,7 +4,7 @@ description: Auth endpoints, cookies, roles and permissions, and how frontends a
 scope: core
 tags: [auth, security, roles, permissions]
 order: 4
-decisions: ["0020", "0022", "0023", "0100"]
+decisions: ["0020", "0022", "0023", "0100", "0119"]
 ---
 
 # Authentication
@@ -18,13 +18,13 @@ All are under `/api/auth` and exchange JSON. Errors are `{ "message": "..." }`.
 | Method and path | Body | Success | Failure |
 | --- | --- | --- | --- |
 | `POST /api/auth/login` | `{ email, password }` | `200 { user }`, sets both cookies | `400` invalid body, `401` wrong credentials, `429` after 10 failed attempts per IP in 15 minutes |
-| `POST /api/auth/register` | `{ firstName, lastName?, email, password }` | `201 { user }` (a new `user` account), sets both cookies | `400` with Zod `issues` (e.g. the password policy), `409 { message, field: 'email' }` if the email is taken, `429` after 10 sign-ups per IP in an hour |
+| `POST /api/auth/register` | `{ firstName, lastName?, email, password, colorScheme? }` | `201 { user }` (a new `user` account), sets both cookies | `400` with Zod `issues` (e.g. the password policy), `409 { message, field: 'email' }` if the email is taken, `429` after 10 sign-ups per IP in an hour |
 | `POST /api/auth/refresh` | none | `200 { user }`, rotates both cookies | `401`, clears both cookies |
 | `POST /api/auth/logout` | none | `204`, revokes the refresh token and clears both cookies | n/a |
 | `POST /api/auth/change-password` | `{ currentPassword, newPassword }` | `200 { user }` with `passwordChangeRequired: false`; signs out every other session and sets fresh cookies | `400` with Zod `issues` (the policy), `400 { message, field: 'currentPassword' }` if the current password is wrong, `400 { field: 'newPassword' }` if it's unchanged, `401` |
 | `GET /api/auth/me` | none | `200 { user }` | `401` |
 
-`user` matches `userSchema` in `@inithium/shared-contracts`: `id`, `email`, `role`, `passwordChangeRequired`, `createdAt`. It never includes the password hash.
+`user` matches `userSchema` in `@inithium/shared-contracts`: `id`, `email`, `role`, `passwordChangeRequired`, `profile`, `preferences` (private, [Profiles: preferences](profiles.md#preferences)) and `createdAt`. It never includes the password hash.
 
 ## Sign-up and the password policy
 
@@ -34,7 +34,7 @@ Visitors create `user` accounts on `web`'s Sign up page ([0083](../decisions/008
 | --- | --- |
 | `emailSchema` | Required; no spaces, an `@` and a `.` after it; trimmed and lowercased. Used by sign-in and sign-up. |
 | `newPasswordSchema` | The password policy ([0024](../decisions/0024-password-policy.md)): at least 10 characters, with a lowercase and an uppercase letter, a number and a special character. `passwordPolicyHint` is the same in one sentence, for helper text. |
-| `registerRequestSchema` | `firstName` (required, up to 50), `lastName` (optional, up to 50), `email`, `password`. |
+| `registerRequestSchema` | `firstName` (required, up to 50), `lastName` (optional, up to 50), `email`, `password`, and `colorScheme` (optional: the browser's [dark mode](../ui-library/theme/dark-mode.md) choice, saved as the account's). |
 | `loginRequestSchema` | `email` and any non-empty `password`: existing passwords may predate the policy. |
 
 The first and last name are stored in the user's `profile`, which also gets a generated avatar and banner ([Profiles](profiles.md#generated-on-creation)).

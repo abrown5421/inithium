@@ -155,7 +155,7 @@ The panel's entrance and exit, in the [animation prop's](../animations/index.md)
 
 #### `overlayColor`
 
-The overlay behind the panel, a [colour value](../style-props.md#colour-value). The default is a fixed dark neutral, so it stays dark when dark mode arrives. **Type:** `Colour`. **Default:** `{ color: 'neutral', intensity: 950, opacity: 60 }`.
+The overlay behind the panel, a [colour value](../style-props.md#colour-value). The default is a fixed dark neutral (a Tailwind colour), so it stays dark in [dark mode](../theme/dark-mode.md). **Type:** `Colour`. **Default:** `{ color: 'neutral', intensity: 950, opacity: 60 }`.
 
 ```tsx
 <Modal overlayColor={{ color: 'primary', intensity: 950, opacity: 50 }} …>

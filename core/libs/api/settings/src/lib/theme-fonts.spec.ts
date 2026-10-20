@@ -76,3 +76,14 @@ describe('the page’s font rules (decision 0114)', () => {
     }
   });
 });
+
+describe('dark mode in the page (decision 0119)', () => {
+  it('tells the page’s colour scheme script whether dark mode is on', async () => {
+    const { client } = await signedInClient(app, 'admin');
+    const template = '<!DOCTYPE html><html lang="en"><head></head><body></body></html>';
+    await client.put('/api/settings', { siteTitle: 'Acme' });
+    expect(await renderAppPage(template)).toContain('<html data-dark-mode="on" lang="en">');
+    await client.put('/api/settings', { siteTitle: 'Acme', darkMode: false });
+    expect(await renderAppPage(template)).toContain('<html data-dark-mode="off" lang="en">');
+  });
+});

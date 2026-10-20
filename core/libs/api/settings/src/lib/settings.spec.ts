@@ -36,3 +36,20 @@ describe('/api/settings', () => {
     expect((await client.put('/api/settings', { siteTitle: '' })).status).toBe(400);
   });
 });
+
+describe('dark mode settings (decision 0119)', () => {
+  it('offers dark mode unless it’s turned off, and saves it', async () => {
+    const { client } = await signedInClient(app, 'admin');
+    expect((await client.get('/api/settings')).body.darkMode).toBe(true);
+    expect((await client.put('/api/settings', { siteTitle: 'Acme', darkMode: false })).body.darkMode).toBe(false);
+    // Left out means on.
+    expect((await client.put('/api/settings', { siteTitle: 'Acme' })).body.darkMode).toBe(true);
+  });
+
+  it('saves a dark mode logo and clears it when left out', async () => {
+    const { client } = await signedInClient(app, 'owner');
+    const logoDark = { assetId: 'dark-logo', alt: 'Acme' };
+    expect((await client.put('/api/settings', { siteTitle: 'Acme', logoDark })).body.logoDark).toEqual(logoDark);
+    expect((await client.put('/api/settings', { siteTitle: 'Acme' })).body).not.toHaveProperty('logoDark');
+  });
+});
