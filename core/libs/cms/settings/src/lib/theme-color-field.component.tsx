@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { ThemeColor } from '@inithium/shared-contracts';
 import { Container, Input, Text } from '@inithium/shared-ui-components';
-import { generateBrandScale, generateSurfaceScale, scaleSteps, themeColorProblem } from '@inithium/shared-ui-theme';
+import { generateBrandScale, generateSurfaceScale, mirroredStep, scaleSteps, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
 
 const HEX = /^#?[0-9a-f]{6}$/i;
 
@@ -21,7 +21,8 @@ export type ThemeColorFieldProps = {
 
 /**
  * One theme colour (decision 0087): a hex field with a swatch, and a row of the scale generated from it, the
- * client's own step (500 for brand tokens, 100 for surface) outlined.
+ * client's own step (500 for brand tokens, 100 for surface) outlined. The row shows each step as the current mode
+ * draws it, so in dark mode each slot holds its mirrored colour (decision 0119): surface 100 is the generated 900.
  */
 export function ThemeColorField({ token, value, onValueChange, error }: ThemeColorFieldProps) {
   const isSurface = token === 'surface';
@@ -35,6 +36,8 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
     return isSurface ? generateSurfaceScale(hex) : generateBrandScale(hex);
   }, [valid, problem, value, isSurface]);
   const label = `${token[0].toUpperCase()}${token.slice(1)}`;
+  const dark = useAppliedColorScheme() === 'dark';
+  const drawn = (scaleStep: (typeof scaleSteps)[number]) => (dark ? mirroredStep(scaleStep) : scaleStep);
 
   return (
     <Container flex={{ direction: 'column', gap: 8 }}>
@@ -66,18 +69,24 @@ export function ThemeColorField({ token, value, onValueChange, error }: ThemeCol
             // Raw hex swatches: colour props take theme references, not hex, so these stay plain spans.
             <span
               key={scaleStep}
-              title={`${scaleStep} ${scale[scaleStep]}`}
+              title={`${scaleStep} ${scale[drawn(scaleStep)]}`}
               style={{
                 height: 20,
                 borderRadius: 3,
-                background: scale[scaleStep],
+                background: scale[drawn(scaleStep)],
                 outline: scaleStep === step ? '2px solid var(--color-surface-900)' : undefined,
                 outlineOffset: 1,
               }}
             />
           ))}
         </Container>
-      ) : problem ? null : (
+      ) : null}
+      {scale && dark && (
+        <Text as="p" fontSize={12} textColor={{ color: 'surface', intensity: 700 }}>
+          As dark mode draws it: your colour is the {drawn(step)} here{step === 500 ? ', unchanged' : ''}.
+        </Text>
+      )}
+      {scale || problem ? null : (
         <Text as="p" fontSize={12} textColor={{ color: 'surface', intensity: 700 }}>
           Enter a 6-digit hex colour to preview its scale.
         </Text>
