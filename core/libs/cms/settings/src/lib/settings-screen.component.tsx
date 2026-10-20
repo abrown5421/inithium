@@ -47,6 +47,10 @@ const FIELDS = [
 ] as const;
 type Field = (typeof FIELDS)[number];
 
+// Lines a description field up with the AssetField beside it: past the AssetField's label (13px text and a 6px gap),
+// then half the difference between its 50px box and the 32px input.
+const ASSET_FIELD_BOX_OFFSET = 35;
+
 const draftOf = (settings: SiteSettings): Draft => ({
   siteTitle: settings.siteTitle,
   logoAssetId: settings.logo?.assetId ?? '',
@@ -211,6 +215,7 @@ export function SettingsScreen() {
             />
             <Input
               name="logo.alt"
+              margin={{ top: ASSET_FIELD_BOX_OFFSET }}
               label="Logo description"
               helperText="Read by screen readers when there’s no title beside it."
               value={draft.logoAlt}
@@ -250,6 +255,7 @@ export function SettingsScreen() {
             />
             <Input
               name="logoDark.alt"
+              margin={{ top: ASSET_FIELD_BOX_OFFSET }}
               label="Dark mode logo description"
               helperText="Read by screen readers when there’s no title beside it."
               value={draft.logoDarkAlt}
