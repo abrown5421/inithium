@@ -4,7 +4,7 @@ description: How a plugin is laid out, installed as libs, wired in through slot 
 scope: ecosystem
 tags: [plugins, architecture, seeding]
 order: 1
-decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100", "0103", "0105"]
+decisions: ["0002", "0015", "0016", "0019", "0026", "0029", "0100", "0103", "0105", "0116", "0118"]
 ---
 
 # How plugins work
@@ -21,6 +21,7 @@ plugins/plugin-<name>/
   web/         React components for the end-user site, and their RTK Query endpoints
   cms/         React components for the client portal, and their RTK Query endpoints
   contracts/   Zod schemas and inferred types shared by the layers above
+  shared/      Optional: React that both web and cms draw, e.g. content element renderers (0118)
   docs/        The plugin's manual pages and decisions (never installed into a client)
 ```
 
@@ -34,6 +35,7 @@ core/libs/plugins/<name>/
   web/        -> @inithium/plugin-<name>-web
   cms/        -> @inithium/plugin-<name>-cms
   contracts/  -> @inithium/plugin-<name>-contracts
+  shared/     -> @inithium/plugin-<name>-shared     (scope:shared, type:feature, origin:plugin)
 ```
 
 A plugin may depend on core libs and on its own layers. Whether one plugin may depend on another (e.g. `ecom` using `storage`) is still open ([0016](../decisions/0016-plugin-to-plugin-dependencies.md)).
@@ -46,12 +48,49 @@ Core defines **slot points**: typed extension contracts such as API route mounts
 - **The install/eject tooling owns the registries.** Don't hand-edit them, and core never adds entries itself. With empty registries, the apps build and run with no plugin code at all.
 - **New extension points are slot contracts.** When core needs one, it adds a new slot contract and wires it in through the registry; core never looks for a particular plugin.
 
-Two registries exist:
+Three registries exist:
 
 - `apps/web/src/app/plugins.registry.ts`, where plugins (and `libs/client/`) register `web` page templates ([Pages and routing](../architecture/pages-and-routing.md#writing-a-template)) and profile tabs, sidebar sections and header actions ([Profiles](../backend/profiles.md#adding-to-the-profile)).
-- `apps/api/src/app/plugins.registry.ts`, where they register **user deletion hooks**, which remove a plugin's data when accounts are deleted ([User management](../backend/user-management.md#plugin-deletion-hooks), [0100](../decisions/0100-manage-accounts-from-the-cms.md)). Any plugin that keeps per-user data needs one.
+- `apps/api/src/app/plugins.registry.ts`, where they register **user deletion hooks**, which remove a plugin's data when accounts are deleted ([User management](../backend/user-management.md#plugin-deletion-hooks), [0100](../decisions/0100-manage-accounts-from-the-cms.md)), and **content element contracts**. Any plugin that keeps per-user data needs a hook.
+- `apps/cms/src/app/plugins.registry.ts`, where they register content elements' contracts, renderers and page builder entries.
 
-The rest of the slot catalogue, and every other contract's exact shape, is still open ([0015](../decisions/0015-slot-catalogue.md)).
+`web`'s registry also lists content element renderers.
+
+## Adding content elements
+
+A plugin can add elements to the [page builder](../architecture/content-pages.md#editing) ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), typed `plugin-<name>:<element>`. Each comes in three parts, one per layer:
+
+```tsx
+// contracts: what it stores, checked by the api and the CMS
+export const productGridContract: ContentElementContract = {
+  type: 'plugin-shop:product-grid',
+  props: z.object({ columns: z.number().int().min(1).max(6), featuredPageId: z.string().optional() }).strict(),
+  // Ids it refers to, so deleting a page or an asset warns. Without it, props are scanned for reference shapes.
+  references: (props) => ({ pageIds: props.featuredPageId ? [String(props.featuredPageId)] : [] }),
+  // children: true lets it hold other elements.
+};
+
+// shared: how it draws, on the site and in the builder's preview (0118)
+export const productGridRenderer: ContentElementRenderer = {
+  type: 'plugin-shop:product-grid',
+  component: ({ element, children }) => <ProductGrid columns={Number(element.props.columns)}>{children}</ProductGrid>,
+};
+
+// cms: how the builder offers and edits it
+export const productGridEditor: ContentElementEditor = {
+  type: 'plugin-shop:product-grid',
+  label: 'Product grid',
+  icon: 'shopping-bag',
+  description: 'Products from the shop, in columns',
+  group: 'Shop', // or an existing group: 'Layout', 'Text and media', 'Actions'
+  create: () => ({ props: { columns: 3 } }),
+  properties: ProductGridProperties, // gets { element, onChange, device, pages, problems }
+};
+```
+
+The registries list them: the contract in the api's and the CMS's, the renderer in `web`'s and the CMS's, and the editor entry in the CMS's. While the plugin isn't registered (inactive or ejected), its elements stay in pages as they are: the builder shows a placeholder that can be moved or deleted, and the site leaves them out.
+
+The rest of the slot catalogue, and every other contract's exact shape, is still open ([0015](../decisions/0015-slot-catalogue.md)). Activation (0105) isn't built yet, so a registered plugin counts as active.
 
 ## Seeding and unseeding
 

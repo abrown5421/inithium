@@ -12,7 +12,11 @@ import { profilesRouter } from '@inithium/api-profiles';
 import { renderAppPage, seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
-import { registeredUserDeletionHooks } from './app/plugins.registry';
+import { registerContentElementContracts } from '@inithium/shared-contracts';
+import { registeredContentElementContracts, registeredUserDeletionHooks } from './app/plugins.registry';
+
+// Page content is checked against installed plugins' element contracts (decision 0116).
+registerContentElementContracts(registeredContentElementContracts);
 
 const app = express();
 

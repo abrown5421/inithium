@@ -9,7 +9,7 @@ decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
 
 # Content pages
 
-> **Being rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder. Its remaining step (plugin elements) are listed in the [build status](#build-status).
+> **Rebuilt** ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). Content is a tree of library elements, built in the page builder; every step of the rebuild is done ([build status](#build-status)).
 
 Pages come in three kinds:
 
@@ -68,7 +68,7 @@ Every element but Container also takes `margin`, `hidden` (e.g. `{ base: true, m
 
 **Limits:** at most `MAX_CONTENT_ELEMENTS` (250) elements on a page, nested ones included, and at most `MAX_CONTENT_DEPTH` (10) deep. They're checked before the elements are parsed, along with every id being unique. Problems point at the field, e.g. `elements.0.children.2.props.label`, because each element is checked against its own type's contract only.
 
-**Plugin elements:** a plugin's element has the type `plugin-<name>:<element>`, e.g. `plugin-ecom:product-grid`. Core keeps any props it has, and its `children` if it holds some, so content still saves while the plugin is inactive or after it's ejected. On the site, an element no installed plugin draws draws nothing; plugins will draw theirs through the content elements slot ([0015](../decisions/0015-slot-catalogue.md)), which isn't built yet.
+**Plugin elements:** a plugin's element has the type `plugin-<name>:<element>`, e.g. `plugin-ecom:product-grid`, and comes through the content elements slot ([0015](../decisions/0015-slot-catalogue.md); how to write one: [Adding content elements](../plugins/how-plugins-work.md#adding-content-elements)). A registered element is checked against its contract, drawn by its renderer (on the site and in the builder's preview, [0118](../decisions/0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)), offered in the Add picker in the group it names, and edited with its own properties panel; if its contract says so, it holds other elements, which the builder adds and drops into as into a Container. An unregistered one (its plugin inactive or ejected) keeps any props and children, so content still saves: the builder shows a placeholder that can be moved or deleted, and the site leaves it out.
 
 Accordion, video, carousel, Modal, PolyBanner, Avatar and Tabs elements come later. Forms aren't planned.
 
@@ -149,13 +149,13 @@ Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content
 | Part | Does |
 | --- | --- |
 | Top bar | Back to Pages; the page's title, address and whether it's live (and has unpublished changes); the save status; **Desktop**, **Tablet** and **Phone** (the one shown is outlined); **Undo** and **Redo**; **Page settings** (the page editor); **Discard changes**; **Publish**, the only filled button. Every icon button has a tooltip. |
-| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens the Add picker; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle, a **+** that adds just after it, and a "⋯" menu. An empty page shows **Add your first element**. |
+| Layers (left) | Every element as a tree, nested as on the page, with guide lines for each level. **Add** opens the Add picker; a new element goes inside the selected Container, otherwise after the selected element, otherwise at the end of the page (the panel says which). Each row: an arrow to collapse a Container, the element's icon and name (its label, else its text, else its type), a red mark for problems, and, on the hovered or selected row, a drag handle, a **+** (on a Container it adds inside it, at the end; on anything else, just after it), and a "⋯" menu. An empty page shows **Add your first element**. |
 | Preview (middle) | The draft drawn by the site's renderer in an iframe at the device's width (1280px, 768px or 390px), scaled down to fit when the canvas is narrower, so each device shows its own layout. Click an element to select it; the one under the pointer is outlined dashed and the selected one solid, each with a small tag of its name (inside a Container's top corner; just above anything else, clear of text being typed). Empty Containers show a dashed box, and an empty page says how to start. Click a selected Text to type in it, with the formatting toolbar above the preview. An element from a plugin that isn't installed or is switched off shows a "Missing element" box, which can still be selected and deleted. Links go nowhere in the preview. |
 | Properties (right) | Where the selection sits (a trail from the page through its Containers; click one to select it), its name in the Layers, then its properties in tabs (below). |
 
 ### The Add picker
 
-**Add** (at the top of the Layers, on an empty page, and as each row's **+**) opens a [Menu](../ui-library/composites/menu.md) that first says where the element goes ("Inside “Card”", "After “Heading”", "At the end of the page"), then lists the elements in groups, each with a line about it:
+**Add** (at the top of the Layers, on an empty page, and as each row's **+**) opens a dialog (`AddElementDialog`) titled "Add an element", saying where it goes ("Inside “Card”", "After “Heading”", "At the end of the page"). Under a search box (every word must match a name, description or group; Enter adds the first match), the elements are cards in groups, each with its icon, name and a line about it. A row's **+** puts it inside that row if it's a Container (or a plugin element that holds others), otherwise just after it; **Add** at the top follows the selection (inside the selected Container, after anything else, or at the end of the page).
 
 | Group | Elements |
 | --- | --- |
@@ -163,7 +163,7 @@ Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content
 | Text and media | Text, Image, Icon |
 | Actions | Button |
 
-A Container added to a row takes an equal share of it. The groups are `ELEMENT_GROUPS` in `content-tree.service.ts`; plugins' elements will join them with the content elements slot.
+A Container added to a row takes an equal share of it. The groups are `ELEMENT_GROUPS` in `content-tree.service.ts`; registered plugins' elements join the group their entry names, or a new one after core's (`addPickerGroups()`).
 
 ### Properties
 
@@ -285,4 +285,4 @@ Admins edit it like any content page. The seed never touches it again, so their 
    4. **Interface (built):** the Add picker (grouped, described, saying where), a **+** on each Layers row, the empty page, name tags in the preview, and the toolbar's buttons ([above](#the-add-picker)).
    5. **The edit lock (built):** one page builder session per page, with a heartbeat, expiry after two minutes, and who's editing shown to others ([above](#one-editor-at-a-time)).
    6. **Accessibility warnings and usage (built):** contrast, heading order and empty text, never blocking ([above](#accessibility-warnings)); asset, font and page usage walking the tree, with Delete warning about pages that link to the page ([Usage](#usage)).
-   7. Plugin elements: the content elements slot through the api, web and cms registries.
+   7. **Plugin elements (built):** the content elements slot through the api, `web` and CMS registries (the CMS's registry is new), with renderers in plugins' new `shared` layer ([0118](../decisions/0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)).

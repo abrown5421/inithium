@@ -217,8 +217,61 @@ export function flattenContentElements(elements: ContentElement[]): ContentEleme
 function schemaForType(type: unknown): z.ZodType | undefined {
   if (typeof type !== 'string') return undefined;
   if (Object.prototype.hasOwnProperty.call(coreElementSchemas, type)) return coreElementSchemas[type as keyof typeof coreElementSchemas];
-  return type.startsWith('plugin-') ? pluginElementSchema : undefined;
+  if (!type.startsWith('plugin-')) return undefined;
+  return registeredSchemas.get(type) ?? pluginElementSchema;
 }
+
+// --- The content elements slot (decisions 0015, 0116) ---
+
+/** What a plugin's element refers to by id, for usage checks (e.g. deleting a page warns about links to it). */
+export type ContentElementReferences = { assetIds?: string[]; pageIds?: string[]; fontFamilyIds?: string[] };
+
+/**
+ * A plugin's (or libs/client's) element, for the api and the CMS (decision 0116): its type, its props' contract, whether
+ * it holds other elements, and what it refers to. The plugin's `contracts` lib exports it; the api's and the CMS's
+ * registries register it, so both check content the same way.
+ */
+export type ContentElementContract = {
+  type: PluginElementType;
+  /** Its props' contract, a strict Zod object. Problems point at its fields, e.g. `props.columns`. */
+  props: z.ZodType<Record<string, unknown>>;
+  /** Whether it holds other elements (any core or plugin element). Default false. */
+  children?: boolean;
+  /** The ids it refers to. Without it, its props are scanned for anything shaped like a reference. */
+  references?: (props: Record<string, unknown>) => ContentElementReferences;
+};
+
+const registeredContracts = new Map<string, ContentElementContract>();
+const registeredSchemas = new Map<string, z.ZodType>();
+
+/**
+ * Sets the plugin element contracts content is checked against, replacing any set before: each app calls it once
+ * with its registry's list. An element whose plugin isn't registered (inactive or ejected) is kept as it is.
+ */
+export function registerContentElementContracts(contracts: readonly ContentElementContract[]): void {
+  registeredContracts.clear();
+  registeredSchemas.clear();
+  for (const contract of contracts) {
+    if (!pluginElementTypePattern.test(contract.type)) throw new Error(`A plugin element's type must be plugin-<name>:<element>, not '${contract.type}'`);
+    if (registeredContracts.has(contract.type)) throw new Error(`Two content element contracts for '${contract.type}'`);
+    registeredContracts.set(contract.type, contract);
+    registeredSchemas.set(
+      contract.type,
+      z
+        .object({
+          id: contentIdSchema,
+          type: z.literal(contract.type),
+          label: contentElementLabelSchema.optional(),
+          props: contract.props,
+          ...(contract.children ? { children: childrenSchema } : {}),
+        })
+        .strict(),
+    );
+  }
+}
+
+/** A registered plugin element's contract, if its plugin is registered. */
+export const contentElementContract = (type: string): ContentElementContract | undefined => registeredContracts.get(type);
 
 /**
  * Any element: checked against its own type's contract, so problems point at the field (e.g. `props.label`) rather

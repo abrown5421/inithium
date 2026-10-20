@@ -1,5 +1,5 @@
 import type { ContentDocument, ContentElement, ContentTypography } from './content.types';
-import { flattenContentElements } from './content-elements.schema';
+import { contentElementContract, flattenContentElements } from './content-elements.schema';
 import { richTextInlineParts, type RichTextDocument } from './rich-text.schema';
 
 /**
@@ -23,8 +23,8 @@ function richTextReferences(doc: RichTextDocument, found: ContentReferences): vo
 }
 
 /**
- * A plugin's element, whose props core doesn't know: anything shaped like a reference counts (a page link, an
- * `assetId`, a `familyId`), until the plugin's own contract declares its references (decision 0116, step 7).
+ * A plugin's element whose contract declares no references (or whose plugin isn't registered): anything shaped like a
+ * reference counts (a page link, an `assetId`, a `familyId`).
  */
 function scanUnknown(value: unknown, found: ContentReferences): void {
   if (Array.isArray(value)) return value.forEach((item) => scanUnknown(item, found));
@@ -57,8 +57,14 @@ function elementReferences(element: ContentElement, found: ContentReferences): v
     case 'icon':
     case 'divider':
       return;
-    default:
-      scanUnknown(element.props, found);
+    default: {
+      const declared = contentElementContract(element.type)?.references;
+      if (!declared) return scanUnknown(element.props, found);
+      const ids = declared(element.props);
+      ids.assetIds?.forEach((id) => found.assetIds.add(id));
+      ids.pageIds?.forEach((id) => found.pageIds.add(id));
+      ids.fontFamilyIds?.forEach((id) => found.fontFamilyIds.add(id));
+    }
   }
 }
 
