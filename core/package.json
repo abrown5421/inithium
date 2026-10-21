@@ -73,6 +73,7 @@
     "@tiptap/react": "^3.31.4",
     "@tiptap/starter-kit": "^3.31.4",
     "animate.css": "^4.1.1",
+    "chart.js": "^4.5.1",
     "cookie-parser": "^1.4.7",
     "dompurify": "^3.4.17",
     "express": "^5.1.0",

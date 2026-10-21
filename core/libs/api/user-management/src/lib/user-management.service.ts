@@ -1,5 +1,6 @@
 import { loadEnv } from '@inithium/api-config';
 import { deleteMemberUploads } from '@inithium/api-assets';
+import { deleteDashboardsOfUsers } from '@inithium/api-dashboards';
 import { endSessionsOfDeletedUsers, hashPassword, revokeSessions } from '@inithium/api-auth';
 import {
   countUsersWithRole,
@@ -127,7 +128,7 @@ export async function resetManagedUserPassword(actor: Actor, id: string): Promis
  * Deletes accounts, permanently (decision 0100). Each one must be manageable by the actor, not the actor themselves,
  * and not leave the site without an owner; the rest are reported as failed with the reason. For the allowed ones:
  * every deletion hook removes its plugin's data first (if one fails, nothing is deleted), then core signs them out,
- * deletes their avatar and banner uploads, and deletes the records.
+ * deletes their avatar and banner uploads and their CMS dashboards, and deletes the records.
  */
 export async function deleteManagedUsers(actor: Actor, ids: string[], hooks: readonly UserDeletionHook[]): Promise<DeleteUsersResponse> {
   const unique = [...new Set(ids)];
@@ -172,6 +173,7 @@ export async function deleteManagedUsers(actor: Actor, ids: string[], hooks: rea
 
   await endSessionsOfDeletedUsers(allowedIds);
   await deleteMemberUploads(allowedIds);
+  await deleteDashboardsOfUsers(allowedIds);
   await deleteUserRecords(allowedIds);
   return { deleted: allowedIds, failed };
 }

@@ -53,6 +53,8 @@ Atlas also requires your IP on its **Network Access** list. Render deploys usual
 | `users` | `UserModel` | `@inithium/api-users` | Every account, with its role. See [Users](users.md). |
 | `pages` | `PageModel` | `@inithium/api-pages` | Every page record. See [Pages](pages.md). |
 | `settings` | `SettingsModel` | `@inithium/api-settings` | The one site settings record. See [Site settings](site-settings.md). |
+| `dashboards` | `DashboardModel` | `@inithium/api-dashboards` | Each CMS user's dashboard widgets, once they've changed it. See [The CMS dashboard](dashboard.md). |
+| `setup_checklist_ticks` | `SetupChecklistTickModel` | `@inithium/api-dashboards` | Setup checklist steps ticked by hand. See [The CMS dashboard](dashboard.md#the-setup-checklist). |
 | `refreshtokens` | `RefreshTokenModel` | `@inithium/api-auth` | Hashed refresh tokens. MongoDB deletes each one when it expires. See [Authentication](authentication.md). |
 
 ## Where models live

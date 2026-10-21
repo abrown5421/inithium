@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { assetsRouter, backfillFontFamilyMetrics, fontFamiliesRouter, startStorage } from '@inithium/api-assets';
 import { authRouter, seedDevUser } from '@inithium/api-auth';
 import { loadEnv } from '@inithium/api-config';
+import { createDashboardRouter } from '@inithium/api-dashboards';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
 import { apiErrorHandler, apiNotFound } from '@inithium/api-http';
 import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
@@ -13,7 +14,7 @@ import { renderAppPage, seedSiteSettings, settingsRouter } from '@inithium/api-s
 import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
 import { registerContentElementContracts } from '@inithium/shared-contracts';
-import { registeredContentElementContracts, registeredUserDeletionHooks } from './app/plugins.registry';
+import { registeredContentElementContracts, registeredSetupChecklistItems, registeredUserDeletionHooks } from './app/plugins.registry';
 
 // Page content is checked against installed plugins' element contracts (decision 0116).
 registerContentElementContracts(registeredContentElementContracts);
@@ -40,6 +41,7 @@ api.use('/pages', pagesRouter);
 api.use('/profiles', profilesRouter);
 api.use('/settings', settingsRouter);
 api.use('/users', createUsersRouter({ deletionHooks: registeredUserDeletionHooks }));
+api.use('/dashboard', createDashboardRouter({ setupChecklistItems: registeredSetupChecklistItems }));
 
 app.use('/api', api);
 app.use('/api', apiNotFound);

@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-16"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118", "0120"]
 supersedes: []
 ---
 
@@ -29,6 +29,9 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
   - **Renderer** (`ContentElementRenderer` in `@inithium/shared-content`, from the plugin's `shared` lib, [0118](0118-give-plugins-a-shared-layer-for-what-both-frontends-draw.md)): `{ type, component }`, the component getting `{ element, children }`. Listed as `registeredContentElementRenderers` in `web`'s registry and the CMS's, given through `ContentElementRenderersProvider`.
   - **Editor entry** (`ContentElementEditor` in `@inithium/cms-content-editor`, from the plugin's `cms` lib): `{ type, label, icon, description, group?, create(), properties? }`. Listed as `registeredContentElementEditors` in the CMS's registry (`apps/cms/src/app/plugins.registry.ts`, new), set with `registerContentElementEditors()`.
   - An unregistered element (its plugin inactive or ejected) stays in stored content with any props, shows as a placeholder in the builder and draws nothing on the site. Core's six elements keep their own built-in definitions rather than registering through the slot.
+
+- **Dashboard widgets:** widgets CMS users add to their own dashboards ([0120](0120-give-each-cms-user-a-dashboard-of-widgets.md)): `DashboardWidgetDefinition` in `@inithium/cms-dashboard`, `{ type, label, description, icon, permission?, widths, defaultWidth, settingsSchema, defaultSettings, component }`, listed as `registeredDashboardWidgets` in the CMS's registry through `defineDashboardWidget()`. They only appear in the Add widget picker; plugins never add them to anyone's dashboard.
+- **Setup checklist steps:** steps on the dashboard's Setup checklist ([0120](0120-give-each-cms-user-a-dashboard-of-widgets.md)): `SetupChecklistItem` in `@inithium/api-dashboards`, `{ id, label, description?, href?, order, isDone? }`, listed as `registeredSetupChecklistItems` in the api's registry. Without `isDone`, owners and admins tick the step by hand.
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 

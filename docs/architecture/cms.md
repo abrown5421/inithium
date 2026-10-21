@@ -1,10 +1,10 @@
 ---
 title: The CMS
-description: How the CMS app is put together - its frame, screens, sign-in, the Pages editor, the Media library and the Users screen - and how to add a screen.
+description: How the CMS app is put together - its frame, screens, sign-in, the Dashboard, the Pages editor, the Media library and the Users screen - and how to add a screen.
 scope: core
 tags: [cms, architecture, permissions]
 order: 7
-decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119", "0120"]
 ---
 
 # The CMS
@@ -18,7 +18,7 @@ apps/cms   App: the routes and the list of screens
   /login                  LoginPage           @inithium/cms-auth
   everything else         CmsAccessGuard      @inithium/cms-auth   (signed in with cms.access)
     CmsShell              SidebarLayout frame  @inithium/cms-shell
-      /                   DashboardPage        @inithium/cms-shell
+      /                   DashboardScreen      @inithium/cms-dashboard
       /pages              PagesScreen          @inithium/cms-pages  (pages.edit)
       /media              MediaScreen          @inithium/cms-media  (assets.upload)
       /users              UsersScreen          @inithium/cms-users  (users.view)
@@ -31,7 +31,7 @@ apps/cms   App: the routes and the list of screens
 - **Sign-in** (`LoginPage`): the same dark backdrop, card, red alerts and field errors as `web`'s Login ([0083](../decisions/0083-let-visitors-sign-up-for-user-accounts.md)). Accounts without `cms.access` are signed back out.
 - **`CmsAccessGuard`** sends signed-out visitors to `/cms/login`, then back where they were going. An account with a temporary password sees the [password change screen](../backend/authentication.md#temporary-passwords) first.
 - **`CmsShell`** draws the [SidebarLayout](../ui-library/layouts/sidebar-layout.md): the site's title and the user's account menu across the top, a sidebar entry per screen down the left. It routes each screen, hiding those the user lacks the permission for. A screen marked `fill` (the content editor) gets the space under the top bar with no sidebar; the sections are then in the top bar's menu.
-- **Dashboard** (`/cms`) is empty for now apart from a welcome. It will later show different things to different roles.
+- **Dashboard** (`/cms`) is each user's own arrangement of widgets; see [The Dashboard](#the-dashboard).
 
 ## Adding a screen
 
@@ -39,13 +39,67 @@ A screen is `{ path, label, icon, element, permission?, inSidebar?, fill? }` (`C
 
 ```tsx
 const screens: CmsScreen[] = [
-  { path: '/', label: 'Dashboard', icon: 'layout-dashboard', element: <DashboardPage /> },
+  { path: '/', label: 'Dashboard', icon: 'layout-dashboard', element: <DashboardScreen widgets={dashboardWidgets} /> },
   { path: '/pages', label: 'Pages', icon: 'file-text', element: <PagesScreen />, permission: 'pages.edit' },
   { path: '/settings', label: 'Settings', icon: 'settings', element: <SettingsScreen />, permission: 'settings.edit' },
 ];
 ```
 
 Plugins will add theirs through a CMS screens slot once the slot catalogue settles it (0015).
+
+## The Dashboard
+
+The Dashboard (`DashboardScreen`, `@inithium/cms-dashboard`) is the CMS's landing screen. Every CMS user arranges their own from **widgets** ([0120](../decisions/0120-give-each-cms-user-a-dashboard-of-widgets.md)):
+
+- **Widgets sit in a wrapping row**, each a quarter, a third, two thirds or the full width of it (each widget allows its own set). Each is half the screen under the top bar tall, at least 300px, so two rows show above the fold and four quarter-width widgets fill a row. On a narrower dashboard quarters and thirds become halves and two thirds full width; on a narrow one every widget is full width.
+- **The default dashboard** is core's: the **Members** and **Setup checklist** widgets, each shown only to users with its permission. Nothing is stored until the user changes something; from then on their own list is kept (see [The CMS dashboard](../backend/dashboard.md)). Plugins never add to anyone's dashboard.
+- **The add tile** always takes the next slot: a quarter-width tile with a dashed border, a darker background and a plus. It opens the **Add a widget** picker: a search box (Enter adds the first match) and a card for every widget the user may add, core's and installed plugins'. The same widget can be added more than once, e.g. two Members charts over different ranges. A new widget goes at the end, at its default width.
+- **Each widget's header** has its icon and title, **← →** buttons that swap it with the widget before or after it, and a **⋯** menu with its widths and **Remove**. There's no edit mode: every change saves at once, and the dashboard goes back (with a red alert) if saving fails.
+- **A widget's own controls** sit in its body and save into its settings, e.g. the Members range.
+- **A widget the CMS no longer knows** (its plugin removed or inactive) or that the user lost the permission for isn't drawn, but stays in their stored list. A widget that throws shows a message inside its own card.
+- Deleting an account deletes its dashboard.
+
+### Core's widgets
+
+| Widget | Type | Permission | Widths | What it shows |
+| --- | --- | --- | --- | --- |
+| **Members** | `member-growth` | `users.view` | 1/3, 2/3, full | The number of members (`user` accounts; staff left out), how many joined in the range, and the running total as a line [Chart](../ui-library/composites/chart.md). The range is a Select in the widget: past week, month, quarter, 6 months, year, or all time. Days are the viewer's own. Deleted accounts drop out of the history. |
+| **Setup checklist** | `setup-checklist` | `settings.edit` | all four | The steps a new site should take, with a progress bar. Steps detected from data (site title, logo, dark mode logo or dark mode off, favicon, brand colours, fonts, copyright holder) tick themselves; the rest (review the privacy policy, design the Home page) are checkboxes, ticked for the whole site. The arrow beside a step opens the screen where it's done. It stays when everything's done, since steps will be added. |
+
+### Adding a widget
+
+A widget is a `DashboardWidgetDefinition`:
+
+```tsx
+import { z } from 'zod';
+import { defineDashboardWidget, type DashboardWidgetProps } from '@inithium/cms-dashboard';
+import { Text } from '@inithium/shared-ui-components';
+
+const settingsSchema = z.object({ count: z.number().int().min(1).max(20) });
+
+function RecentOrdersWidget({ settings }: DashboardWidgetProps<z.infer<typeof settingsSchema>>) {
+  // Fetch from the plugin's own endpoints (which check the same permission) and draw with the UI library.
+  return <Text as="p">The last {settings.count} orders</Text>;
+}
+
+export const recentOrdersWidget = defineDashboardWidget({
+  type: 'plugin-shop:recent-orders',
+  label: 'Recent orders',
+  description: 'The latest orders, newest first.',
+  icon: 'shopping-cart',
+  permission: 'pages.edit',
+  widths: ['1/3', '2/3', 'full'],
+  defaultWidth: '1/3',
+  settingsSchema,
+  defaultSettings: { count: 5 },
+  component: RecentOrdersWidget,
+});
+```
+
+- **`type`** is unique: core's are plain names, a plugin's `plugin-<name>:<widget>`. When the CMS starts, `checkDashboardWidgets()` refuses two widgets of one type, or a default width the widget doesn't allow.
+- **The component** gets `{ settings, onSettingsChange, width }` and draws the widget's body under the header the dashboard gives it. The body scrolls if it doesn't fit. The component may be `React.lazy`; it loads behind a Loader and fails inside its card.
+- **`settings`** are checked against `settingsSchema` and replaced by `defaultSettings` if they don't fit (e.g. after the widget changes shape). Stored settings are at most 4,000 characters of JSON.
+- **Where it's listed:** core's widgets are in `coreDashboardWidgets`, which `apps/cms/src/app/app.component.tsx` lists first. Plugins and `libs/client/` add theirs to `registeredDashboardWidgets` in the CMS's registry (`apps/cms/src/app/plugins.registry.ts`), which core ships empty. A plugin widget whose data needs the plugin's own api routes waits for the API routes slot ([0015](../decisions/0015-slot-catalogue.md)).
 
 ## The Pages screen
 
