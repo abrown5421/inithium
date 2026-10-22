@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import type { NavbarLogo, SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Icon, Tooltip, toCssColor, type IconName } from '@inithium/shared-ui-components';
 import { Drawer, isCurrentPath, Navbar, type NavbarUser } from '@inithium/shared-ui-composites';
 import { sidebarLayoutStyleSheet } from './sidebar-layout.styles';
 
-/** Below this width the sidebar moves into a drawer behind a menu button (the lg breakpoint). */
+/** Below this width the sidebar moves into a drawer behind a round button in the bottom left (the lg breakpoint). */
 const NARROW_WIDTH = 1024;
 
 /** An entry in the sidebar. With `exact`, it's current only at its own address, not the ones under it (e.g. a dashboard at the app's root). */
@@ -32,7 +33,8 @@ export type SidebarLayoutProps = {
   color?: SolidColorValue;
   /**
    * For full-screen tools (e.g. an editor): no sidebar and no padding, and the content fills exactly the space under
-   * the top bar (it scrolls inside itself, not the page). The entries stay reachable from the menu button. Default false.
+   * the top bar (it scrolls inside itself, not the page). The entries stay reachable from a menu button in the top bar
+   * (the round button when narrow), which leaves the tool's corners free. Default false.
    */
   fill?: boolean;
   /** The screen's content. */
@@ -46,7 +48,7 @@ const isPlainClick = (event: MouseEvent) =>
 /**
  * An app frame with a top bar and a sidebar (decision 0086), for the CMS: the title and account menu across the
  * top, the entries down the left (collapsible to icons), and the content beside them. Below 1024px of its own
- * width the entries move into a drawer behind a menu button.
+ * width the entries move into a drawer behind a round button fixed to the bottom left of the screen (decision 0123).
  */
 export function SidebarLayout({
   title,
@@ -79,6 +81,15 @@ export function SidebarLayout({
   }, []);
 
   const accent = { '--ui-sidebar-accent': toCssColor(color) } as CSSProperties;
+  // The round button is filled with the accent, its icon in the colour's 100 step (as on a filled Button).
+  const toggleColors = {
+    ...accent,
+    '--ui-sidebar-toggle-text': toCssColor({ color: typeof color === 'string' ? color : color.color, intensity: 100 }),
+  } as CSSProperties;
+
+  // A click on the round button while the drawer is open first lands outside it, which closes it; remembering the
+  // state at pointer down stops the click from opening it again.
+  const openAtPointerDown = useRef(false);
 
   const link = (item: SidebarItem, compact: boolean, onPick?: () => void) => {
     const anchor = (
@@ -135,7 +146,7 @@ export function SidebarLayout({
           onNavigate={onNavigate}
           color={color}
           ancillary={
-            narrow || fill ? (
+            fill && !narrow ? (
               <Button
                 variant="ghost"
                 color={{ color: 'surface', intensity: 800 }}
@@ -172,12 +183,35 @@ export function SidebarLayout({
             flexItem={{ grow: 1 }}
             minWidth={0}
             flex={fill ? { direction: 'column' } : undefined}
-            padding={fill ? undefined : { x: narrow ? 16 : 32, y: 32 }}
+            // Narrow: room at the bottom so the round button never covers the last of the content.
+            padding={fill ? undefined : { x: narrow ? 16 : 32, y: 32, bottom: narrow ? 88 : undefined }}
           >
             {children}
           </Container>
         </Container>
       </Container>
+      {narrow &&
+        // In a portal at the end of the page, so no ancestor's stacking or transform holds it in place.
+        createPortal(
+          // A plain <button>: Button is a fixed 32px row and can't be round.
+          <button
+            type="button"
+            className="ui-sidebar-toggle"
+            data-open={menuOpen || undefined}
+            aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            style={toggleColors}
+            onPointerDown={() => (openAtPointerDown.current = menuOpen)}
+            onClick={(event) => {
+              // detail 0 is a keyboard click, which has no pointer down before it.
+              setMenuOpen(event.detail === 0 ? !menuOpen : !openAtPointerDown.current);
+            }}
+          >
+            <Icon name={menuOpen ? 'panel-left-close' : 'panel-left-open'} size={22} />
+          </button>,
+          document.body,
+        )}
       {(narrow || fill) && (
         <Drawer open={menuOpen} onOpenChange={setMenuOpen} title={title} side="left" size={280}>
           <nav aria-label="Sections" style={accent}>
