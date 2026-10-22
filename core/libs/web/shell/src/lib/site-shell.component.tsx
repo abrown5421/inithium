@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { assetUrl, profileImage, userDisplayName, type SiteBundle, type User } from '@inithium/shared-contracts';
 import { PasswordChangeScreen } from '@inithium/shared-auth-ui';
 import { useAlerts, useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
+import { useUserPresence } from '@inithium/shared-realtime';
 import { Button, Container, Loader, Text } from '@inithium/shared-ui-components';
 import { AlertStack, Navbar, type FooterProps } from '@inithium/shared-ui-composites';
 import { BareLayout, DefaultLayout, FullWidthLayout, NAVBAR_HEIGHT_VAR } from '@inithium/shared-ui-layouts';
@@ -91,6 +92,8 @@ function StartupScreen({ failed, onRetry }: { failed: boolean; onRetry: () => vo
 type SiteRouterProps = { bundle: SiteBundle; user: User | null; templates: PageTemplate[]; colorScheme: ResolvedColorScheme };
 
 function SiteRouter({ bundle, user, templates, colorScheme }: SiteRouterProps) {
+  // The signed-in user's own status light on the Navbar's avatar (decision 0124).
+  const presence = useUserPresence(user?.id);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -221,7 +224,7 @@ function SiteRouter({ bundle, user, templates, colorScheme }: SiteRouterProps) {
           logo={siteLogo(bundle.settings, colorScheme)}
           links={menus.primary}
           userLinks={menus.profile}
-          user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId) } : undefined}
+          user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId), presence } : undefined}
           currentPath={location.pathname}
           onNavigate={(href) => navigate(href)}
           onLogout={() => void handleLogout()}

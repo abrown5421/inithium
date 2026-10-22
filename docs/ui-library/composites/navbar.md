@@ -4,7 +4,7 @@ description: The application's main navigation bar, which moves its links into a
 scope: core
 tags: [ui, composite, navigation]
 order: 11
-decisions: ["0071", "0072", "0075", "0076"]
+decisions: ["0071", "0072", "0075", "0076", "0124"]
 component:
   name: Navbar
   layer: composite
@@ -83,7 +83,7 @@ The page links, in order (`navItemSchema` in `@inithium/shared-contracts`). Each
 
 #### `user`
 
-The signed-in user, from `GET /api/auth/me`; leave it out when signed out. The bar shows their [Avatar](avatar.md), 36px, which opens the drawer. `avatar` is their avatar's recipe; without one, it shows initials from `name`. `image` is an uploaded picture shown instead, with the recipe as its fallback (the Avatar's [`image`](avatar.md#image)). **Type:** `{ name: string; avatar?: AvatarRecipe; image?: { src: string } }`.
+The signed-in user, from `GET /api/auth/me`; leave it out when signed out. The bar shows their [Avatar](avatar.md), 36px, which opens the drawer. `avatar` is their avatar's recipe; without one, it shows initials from `name`. `image` is an uploaded picture shown instead, with the recipe as its fallback (the Avatar's [`image`](avatar.md#image)). `presence` is their status light (the Avatar's [`presence`](avatar.md#presence), [0124](../../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)); both apps pass `useUserPresence(user.id)`. **Type:** `{ name: string; avatar?: AvatarRecipe; image?: { src: string }; presence?: { color: SolidColorValue; label: string } }`.
 
 #### `userLinks`
 

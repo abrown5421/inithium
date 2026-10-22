@@ -66,7 +66,7 @@ clearUserStatus(userId, 'client-games:playing');
 
 ## Following a status
 
-`core:user-status/<userId>` (`userStatusChannel`) carries one user's status: a new subscriber gets `status.changed` with the status at once (the channel's `snapshot`), then one for each change. Anyone may follow anyone, guests included, except a dev account, which only dev viewers can follow (dev accounts are hidden from everyone else, [0100](../decisions/0100-manage-accounts-from-the-cms.md)). The api side is `userStatusChannelServer`; `main.ts` starts presence with `startPresence()` before `startRealtime()`.
+`core:user-status/<userId>` (`userStatusChannel`) carries one user's status: a new subscriber gets `status.changed` with the status at once (the channel's `snapshot`), then one for each change. Anyone may follow anyone, guests included, whatever either's role (dev accounts too): only an account that doesn't exist is refused. The api side is `userStatusChannelServer`; `main.ts` starts presence with `startPresence()` before `startRealtime()`.
 
 In the browser, `useUserPresence(userId)` from `@inithium/shared-realtime` follows the channel and returns `{ color, label }` (or undefined until known), ready for Avatar's [`presence`](../ui-library/composites/avatar.md#presence):
 
@@ -77,7 +77,10 @@ return <Avatar value={user.avatar} presence={presence} name={name} />;
 
 ## Where core shows it
 
+Everywhere a user's avatar is drawn:
+
+- The **Navbar**'s own avatar, in `web` (`SiteShell`) and the CMS's top bar (`CmsShell`), through the Navbar's [`user.presence`](../ui-library/composites/navbar.md#user).
 - The **Profile page**'s avatar, through ProfileLayout's [`avatarPresence`](../ui-library/layouts/profile-layout.md#avatarpresence) ([Profiles](profiles.md)).
 - The CMS **Users** list and the user details dialog (`UserAvatar` in `@inithium/cms-users`).
 
-Not the Navbar's own avatar: you're always active to yourself.
+Anything new that draws a user's avatar (core, plugin or client) passes `useUserPresence(userId)` as its `presence` too.

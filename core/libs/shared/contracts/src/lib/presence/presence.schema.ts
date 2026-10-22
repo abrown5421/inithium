@@ -18,7 +18,7 @@ export const userStatusSchema = z.object({ status: presenceStatusKeySchema, deta
 
 /**
  * `core:user-status/<userId>` (decision 0124): one user's status, live. Subscribers get it at once, then each
- * change. Anyone may subscribe, guests too, except to dev accounts (dev viewers only).
+ * change. Anyone may subscribe, guests too, to any account's status.
  */
 export const userStatusChannel = defineRealtimeChannel({
   namespace: 'core',

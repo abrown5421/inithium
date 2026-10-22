@@ -177,7 +177,7 @@ To patch cached data from an event rather than refetch, dispatch to the feature'
 | Channel | Who may subscribe | Events |
 | --- | --- | --- |
 | `core:pages` (`pagesChannel`) | `pages.edit` | `editing.changed` `{ pageId, editing }`: someone opened a page in the page builder, or let it go |
-| `core:user-status/<userId>` (`userStatusChannel`) | Anyone, guests too; dev accounts only for dev | `status.changed` `{ status, detail? }`: the user's [presence status](presence.md), sent at once and on each change |
+| `core:user-status/<userId>` (`userStatusChannel`) | Anyone, guests too | `status.changed` `{ status, detail? }`: the user's [presence status](presence.md), sent at once and on each change |
 | `core:content-lock/<pageId>/<lockId>` (`contentLockChannel`) | The user holding that live lock, from that session | `edit.requested` `{ from: { userId, name }, at }`: someone asked for the page |
 
 Both are served from `@inithium/api-pages` (`pagesRealtimeChannels`); see [Pages](pages.md#the-edit-lock) and [0122](../decisions/0122-ask-the-person-editing-a-page-to-make-way.md).

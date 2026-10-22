@@ -105,15 +105,15 @@ describe('plugin statuses', () => {
 });
 
 describe('who may follow a status', () => {
-  it('hides dev accounts from everyone but dev', async () => {
+  it('lets anyone follow any account, whatever its role, but not one that doesn’t exist', async () => {
     const dev = await createTestAccount({ role: 'dev' });
     const guest = await connectTestRealtime(server);
-    expect(await guest.subscribe(userStatusChannel.name({ userId: dev.id }))).toMatchObject({ ok: false, code: 'FORBIDDEN' });
-    const { client } = await signedInClient(app, 'dev');
-    const devViewer = await connectTestRealtime(server, client);
-    expect(await devViewer.subscribe(userStatusChannel.name({ userId: dev.id }))).toEqual({ ok: true });
-    expect(await guest.subscribe(userStatusChannel.name({ userId: '000000000000000000000000' }))).toMatchObject({ ok: false });
+    expect(await guest.subscribe(userStatusChannel.name({ userId: dev.id }))).toEqual({ ok: true });
+    const { client } = await signedInClient(app, 'user');
+    const member = await connectTestRealtime(server, client);
+    expect(await member.subscribe(userStatusChannel.name({ userId: dev.id }))).toEqual({ ok: true });
+    expect(await guest.subscribe(userStatusChannel.name({ userId: '000000000000000000000000' }))).toMatchObject({ ok: false, code: 'FORBIDDEN' });
     guest.close();
-    devViewer.close();
+    member.close();
   });
 });
