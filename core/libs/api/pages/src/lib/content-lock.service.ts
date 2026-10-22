@@ -58,6 +58,9 @@ export async function takeContentLock(doc: PageDocument, lockId: string, userId:
   }
 
   const current = await PageModel.findById(doc._id);
+  // Another request from this same session took it a moment ago (two sent at once, e.g. React's StrictMode
+  // running the builder's effect twice): it's ours.
+  if (current && lockOf(current)?.lockId === lockId) return { held: true };
   const editing = current ? pageEditing(current) : undefined;
   // Released between the two updates: try once more.
   if (!editing && current && retry) return takeContentLock(doc, lockId, userId, false);

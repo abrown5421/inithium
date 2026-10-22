@@ -183,6 +183,14 @@ describe('the page builder’s edit lock (decision 0116)', () => {
     expect((await sam.get(`/api/pages/${page.id}`)).body.editing).toMatchObject({ name: account.email });
   });
 
+  it('gives a session its lock when it asks twice at once', async () => {
+    const { client: jane } = await signedInClient(app, 'editor');
+    const page = await contentPage(jane);
+    const lockId = `lock-${createContentId()}`;
+    const answers = await Promise.all(Array.from({ length: 4 }, () => jane.post(`/api/pages/${page.id}/content/lock`, { lockId })));
+    expect(answers.map((answer) => answer.status)).toEqual([204, 204, 204, 204]);
+  });
+
   it('refuses saving, publishing and discarding without the lock', async () => {
     const { client: jane } = await signedInClient(app, 'owner');
     const { client: sam } = await signedInClient(app, 'owner');
