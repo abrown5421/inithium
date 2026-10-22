@@ -16,7 +16,7 @@ The CMS's Dashboard ([The CMS](../architecture/cms.md#the-dashboard)) is drawn b
 Each CMS user's dashboard is one record in `dashboards`: `{ userId, widgets }`, where each widget is `{ id, type, width, settings }` (`dashboardWidgetSchema` in `@inithium/shared-contracts`).
 
 - **No record means the default dashboard.** A record is written the first time the user changes anything; an empty list is a dashboard of its own, not the default.
-- **The api doesn't know widget types.** It checks the shape: ids unique and made of letters, digits, `_` and `-`; `type` a kebab-case name or `plugin-<name>:<widget>`; `width` one of `1/4`, `1/3`, `2/3`, `full`; `settings` an object of at most 4,000 characters of JSON; at most 32 widgets (`MAX_DASHBOARD_WIDGETS`). Each widget's settings are checked by its definition in the CMS.
+- **The api doesn't know widget types.** It checks the shape: ids unique and made of letters, digits, `_` and `-`; `type` a kebab-case name or `plugin-<name>:<widget>`; `width` one of `1/4`, `1/3`, `2/3`, `3/4`, `full`; `settings` an object of at most 4,000 characters of JSON; at most 32 widgets (`MAX_DASHBOARD_WIDGETS`). Each widget's settings are checked by its definition in the CMS.
 - **Deleting an account** deletes its dashboard (`deleteDashboardsOfUsers()`, after the account's member uploads; [User management](user-management.md#deleting-accounts)).
 
 ## The Members series

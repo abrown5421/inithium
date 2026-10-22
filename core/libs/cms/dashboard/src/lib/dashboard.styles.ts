@@ -1,5 +1,5 @@
 // The fixed CSS behind the dashboard (decision 0120). Widths are fractions of the row with the gaps taken out, so
-// four quarters or a third and two thirds fill it exactly. Each cell is half the screen under the top bar (less the
+// four quarters, a quarter and three quarters, or a third and two thirds fill it exactly. Each cell is half the screen under the top bar (less the
 // screen's padding and the gap between rows) and at least 300px tall, so two rows show above the fold. Narrower
 // dashboards (measured by the dashboard's own width, since the sidebar takes some of the screen) use halves, then
 // full width. Rendered (once) by DashboardScreen.
@@ -14,9 +14,10 @@ export const dashboardStyleSheet = [
   '.cms-dashboard-cell[data-width="1/4"]{--cms-span:0.25}',
   '.cms-dashboard-cell[data-width="1/3"]{--cms-span:0.333333}',
   '.cms-dashboard-cell[data-width="2/3"]{--cms-span:0.666667}',
+  '.cms-dashboard-cell[data-width="3/4"]{--cms-span:0.75}',
   '@container (max-width: 899px){' +
     '.cms-dashboard-cell[data-width="1/4"],.cms-dashboard-cell[data-width="1/3"]{--cms-span:0.5}' +
-    '.cms-dashboard-cell[data-width="2/3"]{--cms-span:1}}',
+    '.cms-dashboard-cell[data-width="2/3"],.cms-dashboard-cell[data-width="3/4"]{--cms-span:1}}',
   '@container (max-width: 559px){.cms-dashboard-cell[data-width]{--cms-span:1}}',
   // The add tile's button: the whole tile is the target.
   '.cms-dashboard-add{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;' +

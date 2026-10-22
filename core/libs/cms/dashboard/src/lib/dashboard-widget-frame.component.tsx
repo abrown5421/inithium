@@ -9,6 +9,7 @@ const WIDTH_LABELS: Record<DashboardWidgetWidth, string> = {
   '1/4': 'Quarter width',
   '1/3': 'Third width',
   '2/3': 'Two thirds width',
+  '3/4': 'Three quarters width',
   full: 'Full width',
 };
 

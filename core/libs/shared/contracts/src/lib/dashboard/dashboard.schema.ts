@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /** How much of the dashboard's row a widget takes (decision 0120). */
-export const dashboardWidgetWidths = ['1/4', '1/3', '2/3', 'full'] as const;
+export const dashboardWidgetWidths = ['1/4', '1/3', '2/3', '3/4', 'full'] as const;
 export const dashboardWidgetWidthSchema = z.enum(dashboardWidgetWidths);
 
 /** At most this many widgets on one dashboard. */

@@ -98,6 +98,7 @@ describe('a widget’s stored values', () => {
   it('draws a width the widget doesn’t allow at its default', () => {
     expect(widgetWidth({ ...widget('a'), width: '1/4' }, definition)).toBe('2/3');
     expect(widgetWidth({ ...widget('a'), width: 'full' }, definition)).toBe('full');
+    expect(widgetWidth({ ...widget('a'), width: '3/4' }, definition)).toBe('2/3');
   });
 
   it('refuses two widgets of one type, or a default width not allowed', () => {

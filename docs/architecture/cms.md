@@ -51,7 +51,7 @@ Plugins will add theirs through a CMS screens slot once the slot catalogue settl
 
 The Dashboard (`DashboardScreen`, `@inithium/cms-dashboard`) is the CMS's landing screen. Every CMS user arranges their own from **widgets** ([0120](../decisions/0120-give-each-cms-user-a-dashboard-of-widgets.md)):
 
-- **Widgets sit in a wrapping row**, each a quarter, a third, two thirds or the full width of it (each widget allows its own set). Each is half the screen under the top bar tall, at least 300px, so two rows show above the fold and four quarter-width widgets fill a row. On a narrower dashboard quarters and thirds become halves and two thirds full width; on a narrow one every widget is full width.
+- **Widgets sit in a wrapping row**, each a quarter, a third, two thirds, three quarters or the full width of it (each widget allows its own set). Each is half the screen under the top bar tall, at least 300px, so two rows show above the fold and four quarter-width widgets fill a row (as do a quarter and three quarters, or a third and two thirds). On a narrower dashboard quarters and thirds become halves, and two thirds and three quarters full width; on a narrow one every widget is full width.
 - **The default dashboard** is core's: the **Members** and **Setup checklist** widgets, each shown only to users with its permission. Nothing is stored until the user changes something; from then on their own list is kept (see [The CMS dashboard](../backend/dashboard.md)). Plugins never add to anyone's dashboard.
 - **The add tile** always takes the next slot: a quarter-width tile with a dashed border, a darker background and a plus. It opens the **Add a widget** picker: a search box (Enter adds the first match) and a card for every widget the user may add, core's and installed plugins'. The same widget can be added more than once, e.g. two Members charts over different ranges. A new widget goes at the end, at its default width.
 - **Each widget's header** has its icon and title, **← →** buttons that swap it with the widget before or after it, and a **⋯** menu with its widths and **Remove**. There's no edit mode: every change saves at once, and the dashboard goes back (with a red alert) if saving fails.
@@ -63,8 +63,8 @@ The Dashboard (`DashboardScreen`, `@inithium/cms-dashboard`) is the CMS's landin
 
 | Widget | Type | Permission | Widths | What it shows |
 | --- | --- | --- | --- | --- |
-| **Members** | `member-growth` | `users.view` | 1/3, 2/3, full | The number of members (`user` accounts; staff left out), how many joined in the range, and the running total as a line [Chart](../ui-library/composites/chart.md). The range is a Select in the widget: past week, month, quarter, 6 months, year, or all time. Days are the viewer's own. Deleted accounts drop out of the history. |
-| **Setup checklist** | `setup-checklist` | `settings.edit` | all four | The steps a new site should take, with a progress bar. Steps detected from data (site title, logo, dark mode logo or dark mode off, favicon, brand colours, fonts, copyright holder) tick themselves, and Inithium's defaults (the "Inithium" title and copyright holder, the bundled favicon) don't count; the rest (review the privacy policy, design the Home page) are checkboxes, ticked for the whole site. The arrow beside a step opens the screen where it's done. It stays when everything's done, since steps will be added. |
+| **Members** | `member-growth` | `users.view` | 1/3, 2/3, 3/4, full | The number of members (`user` accounts; staff left out), how many joined in the range, and the running total as a line [Chart](../ui-library/composites/chart.md). The range is a Select in the widget: past week, month, quarter, 6 months, year, or all time. Days are the viewer's own. Deleted accounts drop out of the history. |
+| **Setup checklist** | `setup-checklist` | `settings.edit` | all five | The steps a new site should take, with a progress bar. Steps detected from data (site title, logo, dark mode logo or dark mode off, favicon, brand colours, fonts, copyright holder) tick themselves, and Inithium's defaults (the "Inithium" title and copyright holder, the bundled favicon) don't count; the rest (review the privacy policy, design the Home page) are checkboxes, ticked for the whole site. The arrow beside a step opens the screen where it's done. It stays when everything's done, since steps will be added. |
 
 ### Adding a widget
 
@@ -88,7 +88,7 @@ export const recentOrdersWidget = defineDashboardWidget({
   description: 'The latest orders, newest first.',
   icon: 'shopping-cart',
   permission: 'pages.edit',
-  widths: ['1/3', '2/3', 'full'],
+  widths: ['1/3', '2/3', '3/4', 'full'],
   defaultWidth: '1/3',
   settingsSchema,
   defaultSettings: { count: 5 },
