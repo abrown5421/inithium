@@ -39,6 +39,34 @@ const connections = new WeakMap<Socket, Connection>();
 /** Each signed-in user's open connections, oldest first. */
 const byUser = new Map<string, Socket[]>();
 
+/** A signed-in user's activity across all their connections: active if any is, idle if all are, offline with none. */
+export type UserActivity = 'active' | 'idle' | 'offline';
+const activityListeners = new Set<(userId: string, activity: UserActivity) => void>();
+
+/** A user's activity now, from their open connections on this instance (decision 0124). */
+export function userActivity(userId: string): UserActivity {
+  const sockets = byUser.get(userId) ?? [];
+  if (!sockets.length) return 'offline';
+  return sockets.some((socket) => connections.get(socket)?.activity === 'active') ? 'active' : 'idle';
+}
+
+/**
+ * Calls the listener whenever a signed-in user's activity changes: they connect, go idle or active, or close their
+ * last connection (decision 0124). Returns a function that stops it.
+ */
+export function onUserActivity(listener: (userId: string, activity: UserActivity) => void): () => void {
+  activityListeners.add(listener);
+  return () => activityListeners.delete(listener);
+}
+
+/** Runs a change to a user's connections and tells the listeners if their activity changed. */
+function trackActivity(userId: string, change: () => void): void {
+  const before = userActivity(userId);
+  change();
+  const after = userActivity(userId);
+  if (after !== before) for (const listener of activityListeners) listener(userId, after);
+}
+
 /**
  * Publishes an event on a channel to everyone subscribed, on every instance (decision 0121). Only api code
  * publishes; the payload is checked against the channel's schema, and a mismatch throws.
@@ -94,7 +122,7 @@ export async function stopRealtime(): Promise<void> {
   if (!state) return;
   running = undefined;
   for (const stop of state.stop) stop();
-  byUser.clear();
+  for (const userId of [...byUser.keys()]) trackActivity(userId, () => byUser.delete(userId));
   broker = createMemoryBroker();
   await new Promise<void>((resolve) => void state.io.close(() => resolve()));
 }
@@ -132,7 +160,7 @@ function connect(state: Running, socket: Socket): void {
   let expiry: NodeJS.Timeout | undefined;
   if (user) {
     const sockets = [...(byUser.get(user.id) ?? []), socket];
-    byUser.set(user.id, sockets);
+    trackActivity(user.id, () => byUser.set(user.id, sockets));
     // Over the limit: the oldest connection makes way.
     if (sockets.length > REALTIME_LIMITS.maxConnectionsPerUser) sockets[0]?.disconnect(true);
     if (auth?.exp) expiry = setTimeout(() => endSession(socket), Math.max(0, auth.exp * 1000 - Date.now()));
@@ -157,7 +185,9 @@ function connect(state: Running, socket: Socket): void {
   socket.on(REALTIME_WIRE.activity, (raw: unknown) => {
     const parsed = realtimeActivitySchema.safeParse(raw);
     if (!parsed.success || !takeToken(connection)) return;
-    connection.activity = parsed.data.activity;
+    const activity = parsed.data.activity;
+    if (user) trackActivity(user.id, () => (connection.activity = activity));
+    else connection.activity = activity;
     for (const { channel, change } of state.presence.setActivity(socket.id, parsed.data.activity)) {
       state.io.to(channel).emit(REALTIME_WIRE.presence, presenceMessage(channel, change));
     }
@@ -167,8 +197,7 @@ function connect(state: Running, socket: Socket): void {
     for (const channel of [...connection.channels]) leave(state, socket, connection, channel);
     if (user) {
       const rest = (byUser.get(user.id) ?? []).filter((other) => other !== socket);
-      if (rest.length) byUser.set(user.id, rest);
-      else byUser.delete(user.id);
+      trackActivity(user.id, () => (rest.length ? byUser.set(user.id, rest) : byUser.delete(user.id)));
     }
   });
 }
@@ -238,6 +267,10 @@ async function subscribe(state: Running, socket: Socket, connection: Connection,
     const change = state.presence.join(name, socket.id, { userId: context.user?.id, activity: connection.activity, meta });
     socket.emit(REALTIME_WIRE.presence, { channel: name, kind: 'sync', members: state.presence.members(name) } satisfies RealtimePresence);
     if (change) socket.to(name).emit(REALTIME_WIRE.presence, presenceMessage(name, change));
+  }
+  for (const event of (await server.snapshot?.(context, params)) ?? []) {
+    const schema = server.channel.events[event.type];
+    if (schema) socket.emit(REALTIME_WIRE.event, { channel: name, type: event.type, payload: schema.parse(event.payload) });
   }
   return { ok: true };
 }

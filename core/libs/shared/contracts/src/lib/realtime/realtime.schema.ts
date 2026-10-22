@@ -21,8 +21,11 @@ export const REALTIME_LIMITS = {
   maxConnectionsPerUser: 10,
 } as const;
 
-/** After this long without input (or with the tab hidden) a connection reports itself idle. */
-export const REALTIME_IDLE_AFTER_MS = 5 * 60 * 1000;
+/**
+ * After this long without input a connection reports itself idle (decision 0124: a user shows as inactive). A hidden
+ * tab gets no input, so it goes idle on the same timer.
+ */
+export const REALTIME_IDLE_AFTER_MS = 10 * 60 * 1000;
 
 /** The Socket.IO event names the client and the api use. */
 export const REALTIME_WIRE = {

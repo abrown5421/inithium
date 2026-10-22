@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { profileImage, publicProfileName, type ProfileViewer, type UpdateProfileRequest } from '@inithium/shared-contracts';
 import { readApiFailure, useAlerts, useGetProfileQuery, useGetStorageInfoQuery, useUpdateMyProfileMutation } from '@inithium/shared-data-access';
 import { UploadDialog } from '@inithium/shared-media';
+import { useUserPresence } from '@inithium/shared-realtime';
 import { Container, Icon, Text } from '@inithium/shared-ui-components';
 import { Alert, RichTextView, Tabs } from '@inithium/shared-ui-composites';
 import { ProfileLayout } from '@inithium/shared-ui-layouts';
@@ -74,6 +75,8 @@ export function ProfilePage({ params }: PageTemplateProps) {
   const tabs = useMemo(() => visible([...CORE_TABS, ...slots.tabs], viewer), [slots.tabs, viewer]);
   const sidebar = useMemo(() => visible([...CORE_SIDEBAR, ...slots.sidebarSections], viewer), [slots.sidebarSections, viewer]);
   const actions = useMemo(() => visible(slots.headerActions, viewer), [slots.headerActions, viewer]);
+  // The profile's status light, live (decision 0124).
+  const presence = useUserPresence(query.data ? id : undefined);
 
   const profile = query.data;
   if (!profile) {
@@ -128,6 +131,7 @@ export function ProfilePage({ params }: PageTemplateProps) {
       bannerImage={profileImage(profile.bannerAssetId)}
       onAvatarUpload={uploads ? () => setUploading('avatar') : undefined}
       onBannerUpload={uploads ? () => setUploading('banner') : undefined}
+      avatarPresence={presence}
       actions={actions.length > 0 ? actions.map((action) => <action.component key={action.key} {...props} />) : undefined}
       sidebar={sidebar.map((section) => (
         <Container as="section" key={section.key} flex={{ direction: 'column', gap: 10 }}>

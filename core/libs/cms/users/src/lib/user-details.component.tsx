@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { profileImage, type ColorValue, type ManagedUser, type Role } from '@inithium/shared-contracts';
+import { type ColorValue, type ManagedUser, type Role } from '@inithium/shared-contracts';
 import {
   readApiFailure,
   useAlerts,
@@ -8,8 +8,9 @@ import {
   useUpdateUserMutation,
 } from '@inithium/shared-data-access';
 import { Button, Container, Divider, Input, Select, Text } from '@inithium/shared-ui-components';
-import { Avatar, Modal } from '@inithium/shared-ui-composites';
+import { Modal } from '@inithium/shared-ui-composites';
 import { ROLE_COLORS, ROLE_HELP, ROLE_LABELS } from './user-roles.config';
+import { UserAvatar } from './user-avatar.component';
 
 /** What the signed-in account may do to the open one. */
 export type UserAbilities = {
@@ -201,7 +202,7 @@ export function UserDetails({ user, abilities, onClose }: UserDetailsProps) {
     <Modal open={user !== null} onOpenChange={(open) => !open && close()} title={name} description={target.email} maxWidth={640} footer={footer}>
       <Container flex={{ direction: 'column', gap: 20 }}>
         <Container flex={{ align: 'center', gap: 16 }}>
-          <Avatar value={target.avatar} image={profileImage(target.avatarAssetId)} name={name} label={`${name}'s avatar`} width={64} height={64} />
+          <UserAvatar user={target} name={name} label={`${name}'s avatar`} size={64} />
           <Container flex={{ direction: 'row', wrap: 'wrap', gap: 6 }}>
             <Badge label={ROLE_LABELS[target.role]} color={ROLE_COLORS[target.role]} />
             {target.passwordChangeRequired && <Badge label="Temporary password" color={{ color: 'amber', intensity: 600 }} />}

@@ -126,6 +126,9 @@
       ],
       "@inithium/shared-realtime": [
         "./libs/shared/realtime/src/index.ts"
+      ],
+      "@inithium/api-presence": [
+        "./libs/api/presence/src/index.ts"
       ]
     }
   },

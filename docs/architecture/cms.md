@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in, the 
 scope: core
 tags: [cms, architecture, permissions]
 order: 7
-decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119", "0120", "0122"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119", "0120", "0122", "0124"]
 ---
 
 # The CMS
@@ -166,7 +166,7 @@ Other screens use the library through two components:
 
 `UsersScreen` (`@inithium/cms-users`, needs `users.view`) manages accounts ([0100](../decisions/0100-manage-accounts-from-the-cms.md), [User management](../backend/user-management.md)):
 
-- **List:** every account the viewer may see (dev accounts only for dev), 25 a page from the server, newest first, with [Pagination](../ui-library/composites/pagination.md). Each row shows the avatar, name, email, role, a **Temporary password** badge until they've chosen their own, and when they joined.
+- **List:** every account the viewer may see (dev accounts only for dev), 25 a page from the server, newest first, with [Pagination](../ui-library/composites/pagination.md). Each row shows the avatar with its live [status light](../backend/presence.md) ([0124](../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md); also in the details dialog), name, email, role, a **Temporary password** badge until they've chosen their own, and when they joined.
 - **Search and filter:** every word in the name or email, and a role.
 - **New account** (`users.create`) opens `NewUserDialog`: first and last name, email and a role from those the viewer may give (editors: Editor and Member). The account signs in with the site's temporary password. With no `USER_TEMP_PASSWORD` set, the button is disabled and an alert explains why.
 - **Details:** clicking a row opens `UserDetails`, a Modal with the avatar, the names and role, and the account's details. Its footer holds **Save**, **View profile**, **Reset password** and **Delete**, as the viewer is allowed. Reset and Delete confirm in the footer. Your own account shows only Save and View profile, with the role locked. Editors see a read-only view.

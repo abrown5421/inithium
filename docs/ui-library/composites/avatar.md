@@ -4,7 +4,7 @@ description: A circular identifier drawn by DiceBear from a small, storable reci
 scope: core
 tags: [ui, composite, profiles]
 order: 4
-decisions: ["0065", "0069", "0075", "0099"]
+decisions: ["0065", "0069", "0075", "0099", "0124"]
 component:
   name: Avatar
   layer: composite
@@ -70,6 +70,7 @@ Type names such as `Size`, `Sides` and `Variants<T>` are defined on [Style props
 | [`editable`](#editable) | `boolean` | `false` | Edit button and editor |
 | [`image`](#image) | `{ src: string }` | none | An uploaded picture shown instead |
 | [`onUpload`](#onupload) | `() => void` | none | Adds Upload a picture to the editor |
+| [`presence`](#presence) | `{ color, label }` | none | A status light on the bottom-right edge |
 | [`name`](#name) | `string` | none | The initials style's letters |
 | [`label`](#label) | `string` | none (decorative) | Describes the avatar |
 | [`width`, `height`](#width-and-height) | `Variants<Size>` | `40` | Size |
@@ -114,6 +115,15 @@ Adds **Upload a picture** to the editor's footer. It closes the editor and calls
 
 ```tsx
 <Avatar editable value={recipe} onChange={save} image={image} onUpload={() => setUploading(true)} />
+```
+
+#### `presence`
+
+A status light on the circle's bottom-right edge ([0124](../../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)): a dot a quarter of the avatar wide (at least 10px), ringed in surface 50 so it stands out on any picture, in `color`, with `label` in a tooltip on hover. With it, the [edit button](#editable) moves to the top-right edge. Avatar only draws it: a user's live status comes from `useUserPresence(userId)` in `@inithium/shared-realtime`, which gives exactly this shape ([Presence](../../backend/presence.md)). `color` is a [solid colour value](../style-props.md#colour-value). **Type:** `{ color: SolidColorValue; label: string }`. **Default:** none.
+
+```tsx
+<Avatar value={recipe} presence={{ color: 'green', label: 'Active' }} />
+<Avatar value={user.avatar} presence={useUserPresence(user.id)} />
 ```
 
 #### `name`
@@ -178,6 +188,14 @@ A picture in place of the generated avatar. Edit it to go back to the generated 
 ui-library/avatar/uploaded-picture
 ```
 
+### Example: Status light
+
+Core's three statuses (Active, Inactive, Away; hover a light for its name), and an editable avatar whose pencil moves up to make room.
+
+```example
+ui-library/avatar/status-light
+```
+
 ### Example: Background and transforms
 
 The style's own background, a theme colour, none, and flip, rotate and scale.
@@ -197,6 +215,7 @@ ui-library/avatar/profile-header
 ## Accessibility
 
 - **The avatar** is decorative and hidden from screen readers unless you give a `label`.
+- **The status light** is an image named by its `label` (e.g. "Active"), so screen readers announce it, and its tooltip shows the same name.
 - **The edit button** is labelled "Edit avatar" and has a tooltip. The editor is a [Modal](modal.md#accessibility): focus moves into it and back to the button when it closes.
 - **In the editor**, the arrows are labelled "Previous avatar" and "Next avatar", and the style thumbnails are a radio group named "Style" (the arrow keys move between them).
 

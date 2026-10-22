@@ -1,5 +1,6 @@
 import type {
   AnyRealtimeChannel,
+  RealtimeEventsOf,
   Permission,
   RealtimeErrorCode,
   RealtimeMessagesOf,
@@ -28,6 +29,11 @@ export type RealtimeMessageHandlers<C extends AnyRealtimeChannel> = {
   }['handle'];
 };
 
+/** One of a channel's events, with its payload. */
+export type RealtimeEventOf<C extends AnyRealtimeChannel> = {
+  [K in keyof RealtimeEventsOf<C>]: { type: K; payload: RealtimeEventsOf<C>[K] };
+}[keyof RealtimeEventsOf<C>];
+
 /** The api's side of a channel (decision 0121): who may subscribe, and what its messages do. */
 export type RealtimeChannelServer<C extends AnyRealtimeChannel = AnyRealtimeChannel> = {
   channel: C;
@@ -42,6 +48,11 @@ export type RealtimeChannelServer<C extends AnyRealtimeChannel = AnyRealtimeChan
    * the client sent. Without it the client's `meta` is used, checked by the channel's schema.
    */
   presenceMeta?(context: RealtimeContext, params: RealtimeParamsOf<C>, requested: RealtimePresenceMetaOf<C> | undefined): Awaitable<RealtimePresenceMetaOf<C>>;
+  /**
+   * Events sent only to a new subscriber, straight after subscribing: the state now, so it doesn't wait for the next
+   * change (decision 0124), e.g. a user's current status.
+   */
+  snapshot?(context: RealtimeContext, params: RealtimeParamsOf<C>): Awaitable<RealtimeEventOf<C>[]>;
 } & (string extends keyof RealtimeMessagesOf<C>
   ? // Any channel (e.g. a list of servers): handlers may or may not be there.
     { messages?: RealtimeMessageHandlers<C> }

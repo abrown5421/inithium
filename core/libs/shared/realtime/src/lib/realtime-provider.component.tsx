@@ -7,8 +7,9 @@ const RealtimeContext = createContext<RealtimeConnection | null>(null);
 
 /**
  * Gives the app its one realtime connection (decision 0121). Render it once inside the store's Provider, around
- * everything that subscribes. The connection opens on the first subscription and reopens when the signed-in user
- * changes, so the api always sees the current session.
+ * everything that subscribes. The connection opens on the first subscription, or at once for a signed-in user (so
+ * they show as present, decision 0124), and reopens when the signed-in user changes, so the api always sees the
+ * current session.
  */
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   const dispatch = useDispatch();
@@ -32,6 +33,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     previous.current = session;
     connection.reconnect();
   }, [connection, session]);
+
+  // Signed in, the connection stays open so the api counts the user as present (decision 0124).
+  const signedIn = Boolean(user && !user.passwordChangeRequired);
+  useEffect(() => connection.setKeepOpen(signedIn), [connection, signedIn]);
 
   useEffect(() => () => connection.close(), [connection]);
 

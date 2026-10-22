@@ -5,7 +5,7 @@ status: proposed
 date: "2026-10-22"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118", "0120", "0121"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118", "0120", "0121", "0124"]
 supersedes: []
 ---
 
@@ -34,6 +34,8 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
 - **Setup checklist steps:** steps on the dashboard's Setup checklist ([0120](0120-give-each-cms-user-a-dashboard-of-widgets.md)): `SetupChecklistItem` in `@inithium/api-dashboards`, `{ id, label, description?, href?, order, isDone? }`, listed as `registeredSetupChecklistItems` in the api's registry. Without `isDone`, owners and admins tick the step by hand.
 
 - **Realtime channels:** channels plugins and client libs serve on the realtime layer ([0121](0121-add-a-realtime-pub-sub-layer-on-socket-io.md)). The contract comes from `defineRealtimeChannel()` in `@inithium/shared-contracts` (in the plugin's `contracts` lib, named `plugin-<name>:<kind>`); the api's side from `serveRealtimeChannel()` in `@inithium/api-realtime` (`{ guests?, permission?, canSubscribe?, presenceMeta?, messages }`), listed as `registeredRealtimeChannels` in the api's registry. Frontends subscribe with `useChannel()` and need no registry entry.
+
+- **Presence statuses:** extra status lights for avatars ([0124](0124-show-who-is-online-with-a-status-light-on-avatars.md)): `PresenceStatusDefinition` from `definePresenceStatus()` in `@inithium/shared-contracts`, `{ key (plugin-<name>:<status>), label (text or a function of a detail), color, priority }`, listed as `registeredPresenceStatuses` in the api's, `web`'s and the CMS's registries. The api sets them with `setUserStatus()` / `clearUserStatus()` from `@inithium/api-presence`.
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 

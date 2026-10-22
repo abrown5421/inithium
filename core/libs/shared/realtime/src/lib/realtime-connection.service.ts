@@ -63,6 +63,7 @@ export class RealtimeConnection {
   private activity: PresenceActivity = 'active';
   private stopTracking: (() => void) | undefined;
   private reauthPending = false;
+  private keepOpen = false;
 
   constructor(private readonly options: RealtimeConnectionOptions) {}
 
@@ -75,6 +76,16 @@ export class RealtimeConnection {
     this.statusListeners.add(listener);
     return () => this.statusListeners.delete(listener);
   };
+
+  /**
+   * Keeps the connection open even with no subscriptions, e.g. while someone is signed in, so the api counts them as
+   * present (decision 0124). Off again, it closes once nothing is subscribed.
+   */
+  setKeepOpen(keepOpen: boolean): void {
+    this.keepOpen = keepOpen;
+    if (keepOpen) this.open();
+    else if (!this.subscriptions.size && this.socket) this.close();
+  }
 
   /** Subscribes to a channel by name; returns a function that unsubscribes. `meta` is presence metadata. */
   subscribe(channel: string, listener: ChannelListener, meta?: unknown): () => void {
@@ -205,7 +216,10 @@ export class RealtimeConnection {
     for (const listener of this.statusListeners) listener();
   }
 
-  /** Reports idle after REALTIME_IDLE_AFTER_MS without input or as soon as the tab is hidden, and active again on input. */
+  /**
+   * Reports idle after REALTIME_IDLE_AFTER_MS without input, and active again on input. Switching tabs doesn't count
+   * as leaving (decision 0124): a hidden tab simply gets no input, so it goes idle on the same timer.
+   */
   private trackActivity(): (() => void) | undefined {
     if (typeof document === 'undefined') return undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -225,7 +239,9 @@ export class RealtimeConnection {
       clearTimeout(timer);
       timer = setTimeout(() => report('idle'), REALTIME_IDLE_AFTER_MS);
     };
-    const visibility = () => (document.hidden ? report('idle') : input());
+    const visibility = () => {
+      if (!document.hidden) input();
+    };
     const inputs = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'] as const;
     for (const name of inputs) window.addEventListener(name, input, { passive: true });
     document.addEventListener('visibilitychange', visibility);

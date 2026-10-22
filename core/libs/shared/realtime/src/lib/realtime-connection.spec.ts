@@ -76,6 +76,14 @@ describe('RealtimeConnection (decision 0121)', () => {
     expect(socket.sent.filter((entry) => entry.event === REALTIME_WIRE.unsubscribe)).toHaveLength(1);
   });
 
+  it('stays open for a signed-in user with nothing subscribed (decision 0124)', () => {
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    expect(socket.connects).toBe(1);
+    connection.setKeepOpen(false);
+    expect(connection.status).toBe('idle');
+  });
+
   it('subscribes again after reconnecting and says events may have been missed', () => {
     const { socket, connection } = setup();
     const watcher = listener();

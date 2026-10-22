@@ -4,7 +4,7 @@ description: Every account's profile, its generated avatar and banner, the profi
 scope: core
 tags: [profiles, users, backend, pages, slots]
 order: 10
-decisions: ["0074", "0075", "0081", "0088", "0090", "0091", "0098", "0099", "0102", "0119"]
+decisions: ["0074", "0075", "0081", "0088", "0090", "0091", "0098", "0099", "0102", "0119", "0124"]
 ---
 
 # Profiles
@@ -72,7 +72,7 @@ Change them with `PATCH /api/profiles/me/preferences` (`updateUserPreferences()`
 
 ## The Profile page
 
-Core's `profile` template (`ProfilePage` in `@inithium/web-pages`) draws the seeded Profile page (`/profile/:id`) in the `full-width` layout, with [ProfileLayout](../ui-library/layouts/profile-layout.md) as its frame.
+Core's `profile` template (`ProfilePage` in `@inithium/web-pages`) draws the seeded Profile page (`/profile/:id`) in the `full-width` layout, with [ProfileLayout](../ui-library/layouts/profile-layout.md) as its frame. The avatar carries the profile's live [status light](presence.md) (Active, Inactive or Away, [0124](../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)) for every viewer.
 
 ### Viewers
 

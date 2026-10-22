@@ -70,3 +70,6 @@ export * from './lib/pages/pages.channels';
 export * from './lib/realtime/realtime.schema';
 export * from './lib/realtime/realtime.types';
 export * from './lib/realtime/realtime-channels.service';
+export * from './lib/presence/presence.schema';
+export * from './lib/presence/presence.types';
+export * from './lib/presence/presence-statuses.service';
