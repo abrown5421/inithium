@@ -92,7 +92,7 @@ export function DashboardScreen({ widgets: definitions }: DashboardScreenProps) 
           );
         })}
         {stored.length < MAX_DASHBOARD_WIDGETS && (
-          <li className="cms-dashboard-cell" data-width="1/4">
+          <li className="cms-dashboard-cell" data-width="1/3">
             <button type="button" className="cms-dashboard-add" aria-haspopup="dialog" onClick={() => setAdding(true)}>
               {/* Plain span: the tile's own internals, styled by its stylesheet. */}
               <span className="cms-dashboard-add-plus">

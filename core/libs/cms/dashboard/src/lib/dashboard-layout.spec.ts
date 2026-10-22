@@ -68,7 +68,7 @@ describe('changing widgets', () => {
     expect(ids(removeWidget(widgets, 'a'))).toEqual(['b']);
     const [members] = coreDashboardWidgets;
     const added = addWidget(widgets, members as DashboardWidgetDefinition, 'new');
-    expect(added.at(-1)).toEqual({ id: 'new', type: 'member-growth', width: '1/3', settings: { range: 'month' } });
+    expect(added.at(-1)).toEqual({ id: 'new', type: 'member-growth', width: '2/3', settings: { range: 'month' } });
   });
 
   it('never adds past the limit', () => {

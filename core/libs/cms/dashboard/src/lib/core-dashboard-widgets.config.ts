@@ -11,7 +11,7 @@ export const coreDashboardWidgets: DashboardWidgetDefinition[] = [
     icon: 'users',
     permission: 'users.view',
     widths: ['1/3', '2/3', '3/4', 'full'],
-    defaultWidth: '1/3',
+    defaultWidth: '2/3',
     settingsSchema: memberGrowthSettingsSchema,
     defaultSettings: { range: 'month' },
     component: MemberGrowthWidget,

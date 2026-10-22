@@ -2,10 +2,10 @@ import type { DashboardWidget, DashboardWidgetWidth } from '@inithium/shared-con
 import { MAX_DASHBOARD_WIDGETS } from '@inithium/shared-contracts';
 import type { DashboardWidgetDefinition } from './dashboard-widget.types';
 
-/** The default dashboard's widgets (decision 0120): core's own, never a plugin's. */
+/** The default dashboard's widgets (decision 0120): core's own, never a plugin's. Together they fill the first row. */
 export const DEFAULT_DASHBOARD: readonly DashboardWidget[] = [
-  { id: 'members', type: 'member-growth', width: '1/3', settings: { range: 'month' } },
   { id: 'setup-checklist', type: 'setup-checklist', width: '1/3', settings: {} },
+  { id: 'members', type: 'member-growth', width: '2/3', settings: { range: 'month' } },
 ];
 
 /** A new widget's id: random, so the same widget can be added twice. */
