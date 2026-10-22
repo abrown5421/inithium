@@ -144,7 +144,7 @@ architecture/content-pages/sample
 
 ## Editing
 
-Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content` ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), which fills the space under the CMS's top bar ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide. Its toolbar and side panels are `surface-200`, divided by thin borders and shadows ([0096](../decisions/0096-divide-the-content-editors-panels-with-borders.md)), around a `surface-950` canvas.
+Content pages are built in the CMS's **page builder** at `/cms/pages/:id/content` ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), which fills the space under the CMS's top bar ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)). The Pages screen opens it with **Edit content**, and new content pages open straight in it. It needs `pages.edit` and a window at least 1024px wide; narrower, the toolbar stays and a `surface-200` card on the canvas asks for a wider window. Its toolbar and side panels are `surface-200`, divided by thin borders and shadows ([0096](../decisions/0096-divide-the-content-editors-panels-with-borders.md)), around a `surface-950` canvas.
 
 | Part | Does |
 | --- | --- |
