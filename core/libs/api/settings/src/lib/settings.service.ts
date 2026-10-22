@@ -10,8 +10,11 @@ function storedFonts(doc: SettingsDocument): ThemeFonts | undefined {
   return Object.keys(fonts).length ? fonts : undefined;
 }
 
-/** The settings a new site starts with (decision 0082). */
-export const DEFAULT_SITE_SETTINGS: SiteSettingsInput = { siteTitle: 'Inithium', darkMode: true };
+/**
+ * The settings a new site starts with (decision 0082): Inithium's own name as the title and copyright holder, until the
+ * client replaces them (the dashboard's setup checklist asks them to, decision 0120).
+ */
+export const DEFAULT_SITE_SETTINGS = { siteTitle: 'Inithium', copyright: 'Inithium', darkMode: true } satisfies SiteSettingsInput;
 
 /** Maps the stored settings to the shape the API returns. */
 export function toSiteSettings(doc: SettingsDocument): SiteSettings {

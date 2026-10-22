@@ -11,7 +11,7 @@ import {
 } from '@inithium/shared-data-access';
 import { AssetField } from '@inithium/cms-media';
 import { Button, Container, Image, Input, Loader, Switch, Text } from '@inithium/shared-ui-components';
-import { defaultTheme, siteLogo, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
+import { defaultFaviconHref, defaultTheme, siteLogo, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 import { DEFAULT_FONT, ThemeFontField } from './theme-font-field.component';
 
@@ -295,8 +295,8 @@ export function SettingsScreen() {
             />
             <Container flex={{ align: 'center', gap: 12 }}>
               {/* Tab icons are drawn small: preview the sizes browsers use. */}
-              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={16} height={16} fit="contain" loading="eager" />
-              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={32} height={32} fit="contain" loading="eager" />
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : defaultFaviconHref()} alt="" decorative width={16} height={16} fit="contain" loading="eager" />
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : defaultFaviconHref()} alt="" decorative width={32} height={32} fit="contain" loading="eager" />
               <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
                 {draft.faviconAssetId ? 'Preview at 16 and 32 pixels.' : 'No favicon set, so Inithium’s default is used.'}
               </Text>

@@ -115,6 +115,14 @@ describe('/api/dashboard/setup-checklist', () => {
     expect(items.find((item) => item.id === 'plugin-shop:terms')?.manual).toBe(true);
   });
 
+  it('leaves Inithium’s defaults unticked on a new site', async () => {
+    const { client } = await signedInClient(app, 'owner');
+    const { items } = (await client.get('/api/dashboard/setup-checklist')).body as { items: { id: string; done: boolean }[] };
+    const done = Object.fromEntries(items.map((item) => [item.id, item.done]));
+    expect(done).toMatchObject({ 'site-title': false, favicon: false, copyright: false, 'logo-dark': false });
+    expect((await SettingsModel.findOne({ key: 'site' }))?.copyright).toBe('Inithium');
+  });
+
   it('ticks hand-ticked steps for the whole site', async () => {
     const { client } = await signedInClient(app, 'admin');
     const ticked = await client.put('/api/dashboard/setup-checklist/privacy-policy', { done: true });

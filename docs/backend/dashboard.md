@@ -36,16 +36,17 @@ The pure parts (`buildMemberGrowth()`, `rangeWindow()`, `startOfPeriod()`, `dayI
 
 | Order | Step | Done when |
 | --- | --- | --- |
-| 100 | Name your site | The site title isn't "Inithium" |
+| 100 | Name your site | The site title isn't "Inithium" (the default) |
 | 200 | Add your logo | A logo is set |
 | 300 | Add a logo for dark mode | A dark mode logo is set, or dark mode is off |
-| 400 | Add a favicon | A favicon is set |
+| 400 | Add your favicon | A favicon is uploaded; Inithium's bundled default doesn't count |
 | 500 | Set your brand colours | A theme is set |
 | 600 | Choose your fonts | A display or body font is chosen |
-| 700 | Name the copyright holder | A copyright holder is set |
+| 700 | Name the copyright holder | The copyright holder is set and isn't "Inithium" (the default) |
 | 800 | Review the privacy policy | Ticked by hand |
 | 900 | Design the Home page | Ticked by hand |
 
+- **Inithium's defaults never count as done:** a new site's title and copyright holder are "Inithium" and it shows Inithium's favicon, so those steps start unticked.
 - **Detected steps** are read from data every time the checklist loads, so they tick and untick themselves. A check that throws shows the step as not done and logs a warning, rather than breaking the list.
 - **Steps ticked by hand** (`manual: true`) are ticked for the whole site with `PUT /api/dashboard/setup-checklist/:id` and `{ done }`. The tick is a record in `setup_checklist_ticks` saying who ticked it. A detected step is refused with 400 (`field: 'done'`), an unknown one with 404. The answer is the whole checklist again.
 - `href` is a CMS path (e.g. `/settings`); the widget's arrow opens it.

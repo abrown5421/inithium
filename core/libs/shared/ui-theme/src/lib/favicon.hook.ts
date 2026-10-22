@@ -1,6 +1,15 @@
 import { useEffect } from 'react';
 
 /**
+ * The address of the app's own default favicon (Inithium's), as its index.html links it, so it carries the app's base
+ * path (e.g. `/cms/favicon.ico`). Read from the <link>, which `useFavicon()` may have pointed at the site's favicon.
+ */
+export function defaultFaviconHref(): string {
+  const link = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
+  return link?.dataset['defaultHref'] ?? link?.getAttribute('href') ?? '/favicon.ico';
+}
+
+/**
  * Shows the site's favicon (decision 0101) in place of the default one in the app's index.html. Without an address
  * (no favicon set, or settings still loading), the default comes back. The default's address and type are kept on the
  * <link> itself, so switching back and forth always restores them.

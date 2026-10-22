@@ -64,7 +64,7 @@ The Dashboard (`DashboardScreen`, `@inithium/cms-dashboard`) is the CMS's landin
 | Widget | Type | Permission | Widths | What it shows |
 | --- | --- | --- | --- | --- |
 | **Members** | `member-growth` | `users.view` | 1/3, 2/3, full | The number of members (`user` accounts; staff left out), how many joined in the range, and the running total as a line [Chart](../ui-library/composites/chart.md). The range is a Select in the widget: past week, month, quarter, 6 months, year, or all time. Days are the viewer's own. Deleted accounts drop out of the history. |
-| **Setup checklist** | `setup-checklist` | `settings.edit` | all four | The steps a new site should take, with a progress bar. Steps detected from data (site title, logo, dark mode logo or dark mode off, favicon, brand colours, fonts, copyright holder) tick themselves; the rest (review the privacy policy, design the Home page) are checkboxes, ticked for the whole site. The arrow beside a step opens the screen where it's done. It stays when everything's done, since steps will be added. |
+| **Setup checklist** | `setup-checklist` | `settings.edit` | all four | The steps a new site should take, with a progress bar. Steps detected from data (site title, logo, dark mode logo or dark mode off, favicon, brand colours, fonts, copyright holder) tick themselves, and Inithium's defaults (the "Inithium" title and copyright holder, the bundled favicon) don't count; the rest (review the privacy policy, design the Home page) are checkboxes, ticked for the whole site. The arrow beside a step opens the screen where it's done. It stays when everything's done, since steps will be added. |
 
 ### Adding a widget
 
