@@ -4,7 +4,7 @@ description: Auth endpoints, cookies, roles and permissions, and how frontends a
 scope: core
 tags: [auth, security, roles, permissions]
 order: 4
-decisions: ["0020", "0022", "0023", "0100", "0119"]
+decisions: ["0020", "0022", "0023", "0100", "0119", "0121"]
 ---
 
 # Authentication
@@ -94,7 +94,7 @@ router.get('/profile', requireAuth, (req, res) => {
 router.put('/settings', ...requirePermission('cms.access'), handler); // 401 if signed out, 403 if not allowed
 ```
 
-A public route that answers differently to a signed-in user reads the session with `readAuth(req)`, which returns the token payload or `null` and never rejects the request (e.g. `GET /api/profiles/:id` adds the email for its owner).
+A public route that answers differently to a signed-in user reads the session with `readAuth(req)`, which returns the token payload or `null` and never rejects the request (e.g. `GET /api/profiles/:id` adds the email for its owner). Connections Express doesn't parse, such as the realtime handshake, use `readAuthFromCookieHeader(header)` the same way.
 
 ### Temporary passwords
 
@@ -106,7 +106,7 @@ Both apps show `PasswordChangeScreen` (`@inithium/shared-auth-ui`) to such an ac
 
 ### Signing an account out everywhere
 
-`revokeSessions(userId)` revokes an account's refresh tokens and refuses its access tokens issued up to that second, so the next request gets 401 and, with nothing to refresh, it's signed out. User management uses it when a role changes or a password is reset, and `endSessionsOfDeletedUsers(ids)` when accounts are deleted ([0100](../decisions/0100-manage-accounts-from-the-cms.md)). Revocations live in memory for one access-token lifetime: an api restart forgets them.
+`revokeSessions(userId)` revokes an account's refresh tokens and refuses its access tokens issued up to that second, so the next request gets 401 and, with nothing to refresh, it's signed out. User management uses it when a role changes or a password is reset, and `endSessionsOfDeletedUsers(ids)` when accounts are deleted ([0100](../decisions/0100-manage-accounts-from-the-cms.md)). Revocations live in memory for one access-token lifetime: an api restart forgets them. `onSessionsRevoked(listener)` is told the account ids whenever this happens; the [realtime server](realtime.md#sessions) uses it to close those accounts' connections at once.
 
 ## Frontend usage
 

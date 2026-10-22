@@ -14,7 +14,7 @@ import { hasPermission } from '@inithium/shared-permissions';
 import { getAuth, requirePermission } from '@inithium/api-auth';
 import { listFontFamilies, toSiteFontFamily } from '@inithium/api-fonts';
 import { getSiteSettings, toSiteSettings } from '@inithium/api-settings';
-import { checkContentLock, releaseContentLock, takeContentLock } from './content-lock.service';
+import { checkContentLock, releaseContentLock, requestContentEdit, takeContentLock } from './content-lock.service';
 import type { PageDocument } from './pages.model';
 import {
   createPage,
@@ -136,6 +136,24 @@ pagesRouter.post('/:id/content/unlock', ...requirePermission('pages.edit'), asyn
   const page = await findPageById(pageId(req));
   if (!page) return void notFound(res);
   await releaseContentLock(page, parsed.data.lockId);
+  res.status(204).end();
+});
+
+/**
+ * Asks whoever has the page open in the page builder to make way (decision 0122): 204 once their builder has been
+ * told. 409 `CONTENT_UNLOCKED` when nobody's editing it (open it instead) or `CONTENT_LOCK_YOURS` when it's the
+ * asker's own other tab; 429 within a minute of their last ask for this page.
+ */
+pagesRouter.post('/:id/content/request-edit', ...requirePermission('pages.edit'), async (req, res) => {
+  const page = await findPageById(pageId(req));
+  if (!page) return void notFound(res);
+  const result = await requestContentEdit(page, getAuth(res).sub);
+  if (result.status === 'free') return void res.status(409).send({ message: 'Nobody is editing this page now, so you can open it', code: 'CONTENT_UNLOCKED' });
+  if (result.status === 'self') return void res.status(409).send({ message: 'You have this page open in another tab', code: 'CONTENT_LOCK_YOURS' });
+  if (result.status === 'too-soon') {
+    res.set('Retry-After', String(Math.ceil(result.retryAfterMs / 1000)));
+    return void res.status(429).send({ message: 'You asked a moment ago. Wait a minute before asking again' });
+  }
   res.status(204).end();
 });
 

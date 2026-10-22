@@ -39,6 +39,26 @@ export function readAuth(req: Request): AccessTokenPayload | null {
 }
 
 /**
+ * The session a raw `Cookie` header carries, as `readAuth` reads it: for connections Express doesn't parse, e.g. the
+ * realtime handshake (decision 0121).
+ */
+export function readAuthFromCookieHeader(header: string | undefined): AccessTokenPayload | null {
+  const pair = (header ?? '')
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${ACCESS_COOKIE}=`));
+  if (!pair) return null;
+  let token: string;
+  try {
+    token = decodeURIComponent(pair.slice(ACCESS_COOKIE.length + 1));
+  } catch {
+    return null;
+  }
+  const payload = verifyAccessToken(token);
+  return payload && !isSessionRevoked(payload.sub, payload.iat) ? payload : null;
+}
+
+/**
  * Rejects the request with 401 unless it carries a valid access token, and with 403 (`code:
  * 'PASSWORD_CHANGE_REQUIRED'`) while the account must change its password first (decision 0088).
  */

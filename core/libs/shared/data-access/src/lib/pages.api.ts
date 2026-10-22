@@ -8,10 +8,12 @@ import {
   type PageCreate,
   type PageUsage,
   type PageDuplicate,
+  type PageEditingChanged,
   type PageUpdate,
   type ReusableTemplate,
 } from '@inithium/shared-contracts';
 import { baseApi } from './base.api';
+import type { AppDispatch } from './store.config';
 
 const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpoints({
   endpoints: (build) => ({
@@ -46,6 +48,14 @@ const pagesApi = baseApi.enhanceEndpoints({ addTagTypes: ['Page'] }).injectEndpo
     /** Lets go of a content page's edit lock (decision 0116). */
     unlockContent: build.mutation<void, { id: string; lockId: string }>({
       query: ({ id, lockId }) => ({ url: `/pages/${id}/content/unlock`, method: 'POST', body: { lockId } }),
+    }),
+    /**
+     * Asks whoever has a page open in the page builder to make way (needs pages.edit; decision 0122). Fails with 409
+     * `CONTENT_UNLOCKED` when nobody has it open, `CONTENT_LOCK_YOURS` for the asker's own tab, and 429 within a
+     * minute of asking for the same page.
+     */
+    requestContentEdit: build.mutation<void, string>({
+      query: (id) => ({ url: `/pages/${id}/content/request-edit`, method: 'POST' }),
     }),
     /**
      * Saves a content page's draft (needs pages.edit and the edit lock; decisions 0093, 0116). The saved page replaces
@@ -124,6 +134,7 @@ export const {
   useGetPageUsageQuery,
   useLockContentMutation,
   useUnlockContentMutation,
+  useRequestContentEditMutation,
   useSaveContentDraftMutation,
   usePublishContentMutation,
   useDiscardContentDraftMutation,
@@ -143,6 +154,24 @@ function replacePage(dispatch: (action: unknown) => unknown, id: string, page: P
     pagesApi.util.updateQueryData('getPages', undefined, (pages) => {
       const index = pages.findIndex((entry) => entry.id === id);
       if (index >= 0) pages[index] = page;
+    }),
+  );
+}
+
+/**
+ * Records who's editing a page (from `pagesChannel`'s `editing.changed`, decision 0122) in the cached page and its row
+ * in the list, without refetching either.
+ */
+export function setPageEditing(dispatch: AppDispatch, { pageId, editing }: PageEditingChanged) {
+  const apply = (page: Page) => {
+    if (editing) page.editing = editing;
+    else delete page.editing;
+  };
+  dispatch(pagesApi.util.updateQueryData('getPage', pageId, apply));
+  dispatch(
+    pagesApi.util.updateQueryData('getPages', undefined, (pages) => {
+      const page = pages.find((entry) => entry.id === pageId);
+      if (page) apply(page);
     }),
   );
 }

@@ -1,5 +1,6 @@
 import type { ContentElementContract } from '@inithium/shared-contracts';
 import type { SetupChecklistItem } from '@inithium/api-dashboards';
+import type { RealtimeChannelServer } from '@inithium/api-realtime';
 import type { UserDeletionHook } from '@inithium/api-user-management';
 
 /**
@@ -19,3 +20,9 @@ export const registeredContentElementContracts: ContentElementContract[] = [];
  * shop's 'Set up payments'. Owned by the install/eject tooling: core ships it empty and never adds entries.
  */
 export const registeredSetupChecklistItems: SetupChecklistItem[] = [];
+
+/**
+ * Realtime channels served for installed plugins and libs/client (decisions 0015, 0121), each from
+ * `serveRealtimeChannel()`. Owned by the install/eject tooling: core ships it empty and never adds entries.
+ */
+export const registeredRealtimeChannels: RealtimeChannelServer[] = [];

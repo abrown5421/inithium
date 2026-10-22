@@ -4,7 +4,7 @@ description: Pages clients build in the CMS from a tree of the UI library's elem
 scope: core
 tags: [pages, content, cms, elements]
 order: 8
-decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116"]
+decisions: ["0078", "0091", "0092", "0093", "0094", "0097", "0102", "0116", "0122"]
 ---
 
 # Content pages
@@ -250,7 +250,9 @@ What content refers to is read by `contentReferences(doc)` (`@inithium/shared-co
 
 Only one person can have a page open in the builder at a time ([edit lock](../backend/pages.md#the-edit-lock)). Opening a page takes its lock, and the builder keeps it alive every 30 seconds while it's open; leaving the builder, or closing the tab, lets go.
 
-- **Someone else has it open:** the builder shows "Jane Smith is editing this page", with when they opened it, **Try again** and **Back to Pages**. The same person in a second tab is turned away too. The Pages list says who's editing each page.
+- **Someone else has it open:** the builder shows "Jane Smith is editing this page", with when they opened it, **Ask to edit**, **Try again** and **Back to Pages**. The same person in a second tab is turned away too. The Pages list says who's editing each page, updated live.
+- **Asking for it** ([0122](../decisions/0122-ask-the-person-editing-a-page-to-make-way.md)): **Ask to edit** tells the editor, once (again after a minute at the earliest). Their builder shows an alert that stays until dismissed: "Sam Lee would like to edit this page", suggesting they let their changes save and leave the builder to hand it over, or keep working. It's one-way: the editor decides, and nothing comes back. The button then reads **Asked**.
+- **When it's let go,** a waiting notice opens the builder by itself ([realtime](../backend/realtime.md), `core:pages`). A page freed by its two-minute expiry isn't announced, so use **Try again** then.
 - **An abandoned page** (a closed or crashed browser, a computer gone to sleep) frees itself after two minutes without word from the builder. Nobody can take over a page someone is still working in.
 - **A lock that went stale** while its window was asleep can be taken by someone else meanwhile. The window then says who's editing now, stops saving, and offers **Back to Pages** or **Try to carry on** (which works once the other person has gone).
 - **Page settings** aren't locked: they can be changed while someone builds the page.

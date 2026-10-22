@@ -2,10 +2,10 @@
 id: "0015"
 title: Define the slot catalogue and contract shapes
 status: proposed
-date: "2026-10-16"
+date: "2026-10-22"
 scope: core
 tags: [plugins, slots, contracts]
-related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118", "0120"]
+related: ["0002", "0026", "0028", "0076", "0078", "0080", "0081", "0090", "0098", "0100", "0105", "0107", "0116", "0118", "0120", "0121"]
 supersedes: []
 ---
 
@@ -32,6 +32,8 @@ Partly settled. Slots decided so far, with contract shapes defined when each is 
 
 - **Dashboard widgets:** widgets CMS users add to their own dashboards ([0120](0120-give-each-cms-user-a-dashboard-of-widgets.md)): `DashboardWidgetDefinition` in `@inithium/cms-dashboard`, `{ type, label, description, icon, permission?, widths, defaultWidth, settingsSchema, defaultSettings, component }`, listed as `registeredDashboardWidgets` in the CMS's registry through `defineDashboardWidget()`. They only appear in the Add widget picker; plugins never add them to anyone's dashboard.
 - **Setup checklist steps:** steps on the dashboard's Setup checklist ([0120](0120-give-each-cms-user-a-dashboard-of-widgets.md)): `SetupChecklistItem` in `@inithium/api-dashboards`, `{ id, label, description?, href?, order, isDone? }`, listed as `registeredSetupChecklistItems` in the api's registry. Without `isDone`, owners and admins tick the step by hand.
+
+- **Realtime channels:** channels plugins and client libs serve on the realtime layer ([0121](0121-add-a-realtime-pub-sub-layer-on-socket-io.md)). The contract comes from `defineRealtimeChannel()` in `@inithium/shared-contracts` (in the plugin's `contracts` lib, named `plugin-<name>:<kind>`); the api's side from `serveRealtimeChannel()` in `@inithium/api-realtime` (`{ guests?, permission?, canSubscribe?, presenceMeta?, messages }`), listed as `registeredRealtimeChannels` in the api's registry. Frontends subscribe with `useChannel()` and need no registry entry.
 
 Plugin menu entries aren't a slot: plugins seed page records with navigation settings ([0080](0080-build-menus-from-page-navigation-settings.md)).
 

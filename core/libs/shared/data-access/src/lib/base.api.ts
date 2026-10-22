@@ -25,16 +25,27 @@ const baseQueryWithRefresh: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQu
   const url = typeof args === 'string' ? args : args.url;
 
   if (result.error?.status === 401 && !NO_REFRESH.includes(url)) {
-    refreshing ??= Promise.resolve(rawBaseQuery({ url: '/auth/refresh', method: 'POST' }, api, extraOptions))
-      .then((refresh) => !refresh.error)
-      .finally(() => {
-        refreshing = null;
-      });
-    if (await refreshing) result = await rawBaseQuery(args, api, extraOptions);
+    if (await refreshSession()) result = await rawBaseQuery(args, api, extraOptions);
   }
 
   return result;
 };
+
+/**
+ * Refreshes the session from the refresh cookie: true if it worked, false if the user is signed out. Shared, so many
+ * callers at once (failed requests, the realtime connection) make one request.
+ */
+export function refreshSession(): Promise<boolean> {
+  refreshing ??= fetch('/api/auth/refresh', { method: 'POST', credentials: 'same-origin' })
+    .then(
+      (response) => response.ok,
+      () => false,
+    )
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
+}
 
 /** The API's `{ message }` for a failed request, or the fallback when there isn't one. */
 export function getApiErrorMessage(error: unknown, fallback: string): string {

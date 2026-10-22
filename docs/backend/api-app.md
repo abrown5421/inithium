@@ -4,7 +4,7 @@ description: How the api starts, how its routes are organised, how errors are re
 scope: core
 tags: [api, express, backend]
 order: 1
-decisions: ["0006", "0007", "0010", "0023", "0103"]
+decisions: ["0006", "0007", "0010", "0023", "0103", "0121"]
 ---
 
 # The api app
@@ -20,8 +20,9 @@ On start, `main.ts`:
 3. Connects to MongoDB **before** listening, and exits if it can't ([0010](../decisions/0010-connect-to-the-database-before-listening.md), [Database](database.md)).
 4. Creates the dev account if no dev user exists ([0023](../decisions/0023-seed-the-dev-account-on-startup.md), [Authentication](authentication.md#the-dev-account)), then the default [site settings](site-settings.md#seeding) and core's [pages](pages.md#seeding) if they're missing.
 5. Listens on `HOST`:`PORT` and logs `[ ready ] http://<host>:<port>`.
+6. Starts the [realtime server](realtime.md) on the same HTTP server at `/api/realtime` (`startRealtime()`), serving core's channels and the api registry's `registeredRealtimeChannels` ([0121](../decisions/0121-add-a-realtime-pub-sub-layer-on-socket-io.md)).
 
-On `SIGTERM` or `SIGINT` (e.g. Render redeploying, or Ctrl+C), it stops accepting connections, disconnects from MongoDB and exits.
+On `SIGTERM` or `SIGINT` (e.g. Render redeploying, or Ctrl+C), it closes the realtime connections (`stopRealtime()`, which then closes the HTTP server), disconnects from MongoDB and exits. Browsers reconnect to the new instance by themselves.
 
 ```
 [ db ] connected to "inithium"
@@ -45,6 +46,7 @@ Every API route is under `/api`, on one router:
 | `/api/assets/*` | `assetsRouter` from `@inithium/api-assets`; `GET /api/assets/:id` serves files to anyone. See [Assets](assets.md). |
 | `/api/users/*` | `createUsersRouter({ deletionHooks })` from `@inithium/api-user-management`, given the api registry's `registeredUserDeletionHooks` (`apps/api/src/app/plugins.registry.ts`, shipped empty). See [User management](user-management.md). |
 | `/api/dashboard/*` | `createDashboardRouter({ setupChecklistItems })` from `@inithium/api-dashboards`, given the api registry's `registeredSetupChecklistItems` (shipped empty). See [The CMS dashboard](dashboard.md). |
+| `/api/realtime` | The realtime connection (Socket.IO), from `startRealtime()` in `@inithium/api-realtime`, not an Express route. See [Realtime](realtime.md). |
 | any other `/api/*` | `404 { "message": "Not found" }`, always JSON, never a page |
 
 The router parses JSON bodies (`express.json()`, up to 1 MB, since content drafts are saved whole) and cookies (`cookie-parser`). Express is configured with `trust proxy = 1`, so `req.ip` is the client's address behind Render's proxy (still to be confirmed on the first deploy).

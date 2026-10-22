@@ -22,11 +22,12 @@ Each client deploys as one Render web service. The `api` process serves the API 
 
 - Every API route is mounted under `/api`.
 - Unknown `/api/*` paths return a JSON 404 (`{ "message": "Not found" }`), never the SPA.
+- `/api/realtime` is the realtime connection (Socket.IO, WebSocket with long-polling as a fallback), on the same server and origin ([Realtime](../backend/realtime.md)). It refuses handshakes from other origins.
 
 ## Frontends
 
 - Call the API with relative `/api/...` URLs. Never hardcode a host.
-- In development, both Vite dev servers proxy `/api` to `http://localhost:3000`, so the same code works locally and in production.
+- In development, both Vite dev servers proxy `/api` to `http://localhost:3000`, WebSockets included (`ws: true`, for the [realtime connection](../backend/realtime.md) at `/api/realtime`), so the same code works locally and in production.
 - `cms` is built with Vite `base: '/cms/'`, and its router `basename` comes from `import.meta.env.BASE_URL`. To change the base path, change it only in `apps/cms/vite.config.mts`.
 - Dev and preview ports use `strictPort`. If a port is taken, Vite fails rather than moving to another port.
 

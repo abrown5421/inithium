@@ -16,3 +16,5 @@ export function createAppStore() {
 }
 
 export type AppStore = ReturnType<typeof createAppStore>;
+/** The store's dispatch, which also takes RTK Query's thunks (e.g. `api.util.updateQueryData`): `useDispatch<AppDispatch>()`. */
+export type AppDispatch = AppStore['dispatch'];

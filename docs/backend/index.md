@@ -1,6 +1,6 @@
 ---
 title: Backend
-description: The api app and its libs, covering environment, database, authentication, users, pages, settings, assets and how frontends call the API.
+description: The api app and its libs, covering environment, database, authentication, users, pages, settings, assets, realtime and how frontends call the API.
 scope: core
 tags: [api, backend]
 order: 3
@@ -24,4 +24,5 @@ The `api` app is an Express server and the only thing that talks to MongoDB. It 
 | [Profiles](profiles.md) | Profile data, generated avatars and banners, the profile API, and the Profile page with its viewers and slots |
 | [Assets](assets.md) | Uploaded files: storage modes, accepted types, processing, the assets API and serving |
 | [The CMS dashboard](dashboard.md) | Each user's saved widgets, the Members series and the setup checklist with its slot |
+| [Realtime](realtime.md) | The realtime pub/sub layer: channels, publishing, messages, presence, sessions, limits, the browser hooks and plugins' channels |
 | [Calling the API](calling-the-api.md) | How `web` and `cms` call the API with RTK Query |

@@ -7,6 +7,7 @@ import { Button, Container, Input, Loader, Select, Text, Tooltip } from '@inithi
 import { DeletePageDialog } from './delete-page-dialog.component';
 import { NewPageDialog } from './new-page-dialog.component';
 import { PageEditor } from './page-editor.component';
+import { useLivePageEditing } from './use-live-page-editing.hook';
 
 type SortKey = 'title' | 'path' | 'status';
 const SORTS: { value: SortKey; label: string }[] = [
@@ -26,7 +27,8 @@ function visiblePages(pages: Page[], search: string, sort: SortKey) {
 /**
  * The CMS's Pages screen (decisions 0086, 0093): every page record with search and sorting, each row showing its path,
  * layout and status, a link to view it on the site and buttons to edit it, duplicate it (pages made from a reusable
- * template) and delete it (pages that aren't protected). "New page" creates one from a reusable template.
+ * template) and delete it (pages that aren't protected). "New page" creates one from a reusable template. Who's
+ * editing each page in the page builder updates live (decision 0122).
  */
 export function PagesScreen() {
   const { data: pages, isLoading, isError, refetch } = useGetPagesQuery();
@@ -43,6 +45,7 @@ export function PagesScreen() {
   const [creating, setCreating] = useState(false);
   const [duplicating, setDuplicating] = useState<Page | null>(null);
   const [deleting, setDeleting] = useState<Page | null>(null);
+  useLivePageEditing();
   const closeNewPage = () => {
     setCreating(false);
     setDuplicating(null);

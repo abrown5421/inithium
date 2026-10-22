@@ -22,7 +22,7 @@ decisions: ["0012", "0007", "0031", "0032", "0038"]
 | Decision records | `NNNN-kebab-title.md` | `0006-serve-each-client-from-one-origin.md` |
 
 - **Plurality:** module-level files use the plural entity (`users.model.ts`, `use-users.hook.ts`). A unit that concerns a single instance uses the singular (`user-avatar.component.tsx`).
-- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`, `spec` (tests, e.g. `pages.spec.ts`), `setup` (Vitest setup files in the test kit), `extension` (TipTap extensions, e.g. `rich-text-style.extension.ts`). A new suffix is added to this list in the same change that first uses it.
+- **Type suffixes in use:** `model`, `service`, `schema`, `types`, `config`, `seed`, `registry`, `routes`, `middleware`, `api`, `context`, `component`, `hook`, `styles`, `slice`, `spec` (tests, e.g. `pages.spec.ts`), `setup` (Vitest setup files in the test kit), `extension` (TipTap extensions, e.g. `rich-text-style.extension.ts`), `channels` (realtime channel contracts and their api sides, e.g. `pages.channels.ts`). A new suffix is added to this list in the same change that first uses it.
 - **Unused parameters:** prefix a parameter with `_` when its position is required but its value isn't (e.g. `_req`, or `_next` in an Express error handler, which Express only recognises by its four parameters). ESLint ignores `_`-prefixed parameters.
 - Files whose names a tool requires (`main.ts`, `index.ts`, `project.json`, `vite.config.mts`, `vitest.config.mts`, `tsconfig*.json`) keep those names. `core/vitest.preset.mts` is the shared Vitest preset.
 

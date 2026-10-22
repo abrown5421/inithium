@@ -8,13 +8,19 @@ import { loadEnv } from '@inithium/api-config';
 import { createDashboardRouter } from '@inithium/api-dashboards';
 import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api-database';
 import { apiErrorHandler, apiNotFound } from '@inithium/api-http';
-import { pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
+import { pagesRealtimeChannels, pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { profilesRouter } from '@inithium/api-profiles';
+import { startRealtime, stopRealtime } from '@inithium/api-realtime';
 import { renderAppPage, seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
 import { registerContentElementContracts } from '@inithium/shared-contracts';
-import { registeredContentElementContracts, registeredSetupChecklistItems, registeredUserDeletionHooks } from './app/plugins.registry';
+import {
+  registeredContentElementContracts,
+  registeredRealtimeChannels,
+  registeredSetupChecklistItems,
+  registeredUserDeletionHooks,
+} from './app/plugins.registry';
 
 // Page content is checked against installed plugins' element contracts (decision 0116).
 registerContentElementContracts(registeredContentElementContracts);
@@ -80,10 +86,13 @@ async function start() {
   const server = app.listen(env.PORT, env.HOST, () => {
     console.log(`[ ready ] http://${env.HOST}:${env.PORT}`);
   });
+  // Realtime connections at /api/realtime on the same server: core's channels, then installed plugins' (decision 0121).
+  startRealtime(server, { channels: [...pagesRealtimeChannels, ...registeredRealtimeChannels] });
 
   const shutdown = (signal: string) => {
     console.log(`[ shutdown ] ${signal} received`);
-    server.close(async () => {
+    // Closing the realtime server ends its connections and then closes the HTTP server.
+    void stopRealtime().then(async () => {
       await disconnectDatabase();
       process.exit(0);
     });
