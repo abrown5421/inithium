@@ -55,7 +55,8 @@ The refused tokens are tracked in memory for one access-token lifetime. An api r
 1. **Plugins' data:** every `UserDeletionHook` in the api registry runs with the batch's ids ([below](#plugin-deletion-hooks)).
 2. **Sessions:** their access tokens are refused and their refresh tokens removed (`endSessionsOfDeletedUsers()`).
 3. **Their pictures:** the avatars and banners they uploaded are deleted (`deleteMemberUploads()`, [Assets](assets.md#members-pictures)). Files staff uploaded for the site stay.
-4. **The records.**
+4. **Their CMS dashboards** (`deleteDashboardsOfUsers()`, [The CMS dashboard](dashboard.md)).
+5. **The records.**
 
 If any hook fails, **nothing in that batch is deleted**, and every account in it comes back in `failed` saying which data couldn't be removed. Deleting again finishes the job.
 

@@ -3,6 +3,7 @@ export * from './lib/alert/alert.component';
 export * from './lib/auto-incrementing-list/auto-incrementing-list.component';
 export * from './lib/avatar/avatar.component';
 export * from './lib/breadcrumbs/breadcrumbs.component';
+export * from './lib/chart/chart.component';
 export * from './lib/color-picker/color-picker.component';
 export * from './lib/drawer/drawer.component';
 export * from './lib/font-picker/font-picker.component';

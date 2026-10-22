@@ -21,7 +21,7 @@ Contracts are in `@inithium/shared-contracts` (`siteSettingsSchema`, type `SiteS
 | `logo` | `{ assetId, alt }`, optional | An uploaded image, by its [asset](assets.md) id, and its description ([0098](../decisions/0098-store-assets-by-storage-mode-with-a-2-mb-limit.md)). `logoImage(logo)` gives the Navbar's `{ src, alt }`. Without one, `web` and the CMS show Inithium's default logo (`defaultLogo` from `@inithium/shared-ui-theme`). Its asset can't be deleted while it's the logo. |
 | `logoDark` | `{ assetId, alt }`, optional | The logo in [dark mode](../ui-library/theme/dark-mode.md) ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)). Without one, dark mode keeps `logo`, and with neither shows Inithium's `defaultLogoDark`; `siteLogo(settings, scheme)` from `@inithium/shared-ui-theme` picks. Its asset can't be deleted while it's the dark mode logo. |
 | `favicon` | `{ assetId }`, optional | The browser-tab icon of `web` and the CMS: an uploaded ICO, PNG or SVG ([0101](../decisions/0101-set-the-favicon-from-an-uploaded-asset.md)). Without one, both show Inithium's default `favicon.ico` (the Inithium logo, bundled in each app). Its asset can't be deleted while it's the favicon. |
-| `copyright` | string, 1–100, optional | The Footer's copyright holder. |
+| `copyright` | string, 1–100, optional | The Footer's copyright holder: '© <year> <holder>. All rights reserved.' New sites start with "Inithium"; left out, the Footer shows no copyright line. |
 | `theme` | `{ colors: { primary, secondary, tertiary, quaternary, accent, surface } }`, optional | The theme as hex codes (`themeConfigSchema`): the brand tokens' 500s and surface's 100 ([0087](../decisions/0087-set-theme-colours-in-cms-settings.md)). Missing means core's default theme. |
 | `fonts` | `{ display?, body? }`, optional | The theme's fonts (`themeFontsSchema`): the [font family](assets.md#font-families) id each role uses ([0111](../decisions/0111-keep-uploaded-font-families-in-a-library.md)). A role left out uses Inithium's default (Bruno Ace SC for `display`, Merriweather Sans for `body`). A family must be in the library and have at least one file (400 naming `fonts.display` or `fonts.body` otherwise). |
 | `darkMode` | boolean | Whether visitors and users may use [dark mode](../ui-library/theme/dark-mode.md) ([0119](../decisions/0119-let-each-user-choose-light-or-dark-mode.md)). Optional in `PUT` (left out means on); always present in responses. Off draws everyone in light mode and hides the choice; users' stored preferences are kept. New sites are seeded with it on. |
@@ -49,7 +49,7 @@ The same step writes `data-dark-mode="on|off"` on each page's `<html>` from `dar
 
 ## Seeding
 
-On every start, `seedSiteSettings()` creates the default settings (`siteTitle: 'Inithium'`) if none exist, and never changes existing ones. `getSiteSettings()` also creates them if they're somehow missing.
+On every start, `seedSiteSettings()` creates the default settings (`siteTitle` and `copyright` both `'Inithium'`, so the Footer reads '© <year> Inithium. All rights reserved.' until the client names themselves) if none exist, and never changes existing ones. `getSiteSettings()` also creates them if they're somehow missing.
 
 ## The lib
 

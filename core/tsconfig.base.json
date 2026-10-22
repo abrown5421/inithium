@@ -114,6 +114,12 @@
       ],
       "@inithium/api-fonts": [
         "./libs/api/fonts/src/index.ts"
+      ],
+      "@inithium/api-dashboards": [
+        "./libs/api/dashboards/src/index.ts"
+      ],
+      "@inithium/cms-dashboard": [
+        "./libs/cms/dashboard/src/index.ts"
       ]
     }
   },

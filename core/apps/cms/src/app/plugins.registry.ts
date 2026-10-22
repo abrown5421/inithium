@@ -1,4 +1,5 @@
 import type { ContentElementEditor } from '@inithium/cms-content-editor';
+import type { DashboardWidgetDefinition } from '@inithium/cms-dashboard';
 import type { ContentElementRenderer } from '@inithium/shared-content';
 import type { ContentElementContract } from '@inithium/shared-contracts';
 
@@ -13,3 +14,9 @@ export const registeredContentElementRenderers: ContentElementRenderer[] = [];
 
 /** Content elements in the page builder (Add picker, Layers, properties), from their `cms` libs. */
 export const registeredContentElementEditors: ContentElementEditor[] = [];
+
+/**
+ * Widgets CMS users can add to their dashboards (decision 0120), from their `cms` libs through
+ * `defineDashboardWidget()`. They appear only in the Add widget picker: never on anyone's dashboard by default.
+ */
+export const registeredDashboardWidgets: DashboardWidgetDefinition[] = [];

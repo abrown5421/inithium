@@ -64,3 +64,5 @@ export * from './lib/assets/assets.schema';
 export * from './lib/assets/assets.types';
 export * from './lib/fonts/fonts.schema';
 export * from './lib/fonts/fonts.types';
+export * from './lib/dashboard/dashboard.schema';
+export * from './lib/dashboard/dashboard.types';

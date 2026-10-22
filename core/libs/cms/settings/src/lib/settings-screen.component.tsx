@@ -11,7 +11,7 @@ import {
 } from '@inithium/shared-data-access';
 import { AssetField } from '@inithium/cms-media';
 import { Button, Container, Image, Input, Loader, Switch, Text } from '@inithium/shared-ui-components';
-import { defaultTheme, siteLogo, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
+import { defaultFaviconHref, defaultTheme, siteLogo, themeColorProblem, useAppliedColorScheme } from '@inithium/shared-ui-theme';
 import { normalizeHex, ThemeColorField } from './theme-color-field.component';
 import { DEFAULT_FONT, ThemeFontField } from './theme-font-field.component';
 
@@ -46,6 +46,10 @@ const FIELDS = [
   'fonts.body',
 ] as const;
 type Field = (typeof FIELDS)[number];
+
+// Lines a description field up with the AssetField beside it: past the AssetField's label (13px text and a 6px gap),
+// then half the difference between its 50px box and the 32px input.
+const ASSET_FIELD_BOX_OFFSET = 35;
 
 const draftOf = (settings: SiteSettings): Draft => ({
   siteTitle: settings.siteTitle,
@@ -211,6 +215,7 @@ export function SettingsScreen() {
             />
             <Input
               name="logo.alt"
+              margin={{ top: ASSET_FIELD_BOX_OFFSET }}
               label="Logo description"
               helperText="Read by screen readers when there’s no title beside it."
               value={draft.logoAlt}
@@ -250,6 +255,7 @@ export function SettingsScreen() {
             />
             <Input
               name="logoDark.alt"
+              margin={{ top: ASSET_FIELD_BOX_OFFSET }}
               label="Dark mode logo description"
               helperText="Read by screen readers when there’s no title beside it."
               value={draft.logoDarkAlt}
@@ -289,8 +295,8 @@ export function SettingsScreen() {
             />
             <Container flex={{ align: 'center', gap: 12 }}>
               {/* Tab icons are drawn small: preview the sizes browsers use. */}
-              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={16} height={16} fit="contain" loading="eager" />
-              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : '/favicon.ico'} alt="" decorative width={32} height={32} fit="contain" loading="eager" />
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : defaultFaviconHref()} alt="" decorative width={16} height={16} fit="contain" loading="eager" />
+              <Image src={draft.faviconAssetId ? assetUrl(draft.faviconAssetId) : defaultFaviconHref()} alt="" decorative width={32} height={32} fit="contain" loading="eager" />
               <Text as="span" fontSize={13} textColor={{ color: 'surface', intensity: 700 }}>
                 {draft.faviconAssetId ? 'Preview at 16 and 32 pixels.' : 'No favicon set, so Inithium’s default is used.'}
               </Text>

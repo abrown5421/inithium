@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { registerContentElementContracts } from '@inithium/shared-contracts';
-import { registeredContentElementContracts, registeredUserDeletionHooks } from './plugins.registry';
+import { setupChecklistItems } from '@inithium/api-dashboards';
+import { registeredContentElementContracts, registeredSetupChecklistItems, registeredUserDeletionHooks } from './plugins.registry';
 
 // Checks whatever the install tooling has registered. Core ships the registry empty, so this matters once a plugin
 // (or libs/client) adds a hook; each plugin also proves its own hook with expectUserDeletionHook (decision 0103).
@@ -19,5 +20,12 @@ describe('the api registryâ€™s content elements (decision 0116)', () => {
   it('names each plugin element plugin-<name>:<element>, once', () => {
     expect(() => registerContentElementContracts(registeredContentElementContracts)).not.toThrow();
     registerContentElementContracts([]);
+  });
+});
+
+describe('the api registry’s setup checklist items (decision 0120)', () => {
+  it('gives every step an id of its own, never one of core’s, and a label', () => {
+    expect(() => setupChecklistItems(registeredSetupChecklistItems)).not.toThrow();
+    for (const item of registeredSetupChecklistItems) expect(item.label, `step ${item.id} has no label`).toMatch(/\S/);
   });
 });

@@ -17,6 +17,7 @@ Composites combine components into larger pieces, for example a modal built from
 | [AutoIncrementingList](auto-incrementing-list.md) | Lists the user grows and shrinks one row at a time, around any content |
 | [Avatar](avatar.md) | Circular identifiers drawn by DiceBear from a storable recipe, with an editor |
 | [Breadcrumbs](breadcrumbs.md) | The path from the top of a site to the current page |
+| [Chart](chart.md) | Line and bar charts in the theme's colours |
 | [ColorPicker](color-picker.md) | Choosing a theme or Tailwind colour at any intensity |
 | [Drawer](drawer.md) | Panels that slide in from a screen edge, openable from anywhere through Redux |
 | [FontPicker](font-picker.md) | Choosing a theme font or a font library family, each shown in its own font |
@@ -32,4 +33,4 @@ Composites combine components into larger pieces, for example a modal built from
 | [RichTextView](rich-text-view.md) | Drawing saved rich text, never as HTML |
 | [Tabs](tabs.md) | One panel at a time, chosen from a bar of tabs |
 
-Every composite planned for the first version is built, plus FontPicker (0111) and Menu (0117). Layouts come next.
+Every composite planned for the first version is built, plus FontPicker (0111), Menu (0117) and Chart (0120). Layouts come next.
