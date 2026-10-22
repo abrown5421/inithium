@@ -17,8 +17,8 @@ supersedes: []
 
 ## Decision
 
-- **Narrow screens:** below 1024px of the layout's width, the section drawer opens from a 48px round button fixed to the bottom left of the screen (16px in, above the safe area), with a `panel-left-open` icon in the accent colour on surface 50. The top bar keeps only the avatar.
-- **Layering:** the button sits at z-index 30, under overlays (40), so an open drawer covers it. The bottom right stays free for alerts.
+- **Narrow screens:** below 1024px of the layout's width, the section drawer opens from a 48px round button fixed to the bottom left of the screen (16px in, above the safe area), filled with the accent colour (primary by default) with its icon in the colour's 100 step. It toggles the drawer: `panel-left-open` while closed, `panel-left-close` while open. The top bar keeps only the avatar.
+- **Layering:** the button is rendered in a portal at the end of the page, at z-index 39: above all content and the Navbar, under overlays (40), so any open modal or drawer covers it. While its own drawer is open it rises to 45 and moves beside the 280px panel, so it can close it. The bottom right stays free for alerts.
 - **Content:** on narrow screens the content gets 88px of bottom padding, so the button never covers its end.
 - **`fill` screens on wide windows** (full-screen tools such as the content editor, [0094](0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md)) keep the menu button in the top bar, so a floating button never covers the tool's own panels.
 

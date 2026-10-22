@@ -20,7 +20,7 @@ SidebarLayout is an app frame for tools such as the CMS ([0086](../../decisions/
 - **The sidebar** runs down the left with an entry per section, the current one tinted. "Collapse" shrinks it to icons, with tooltips.
 - **The content** sits beside the sidebar.
 
-Below 1024px of its own width, the sidebar becomes a drawer opened from a round button fixed to the bottom left of the screen ([0123](../../decisions/0123-open-the-cms-drawer-from-a-round-button-in-the-bottom-left.md)); the top bar keeps only the account menu.
+Below 1024px of its own width, the sidebar becomes a drawer toggled by a round button in the accent colour, fixed to the bottom left of the screen ([0123](../../decisions/0123-open-the-cms-drawer-from-a-round-button-in-the-bottom-left.md)); the top bar keeps only the account menu.
 
 ## Import
 
@@ -110,10 +110,10 @@ ui-library/sidebar-layout/basic
 
 - **Landmarks:** the top bar's `<header>`, a `<nav aria-label="Sections">` for the sidebar and the content's `<main>`.
 - **Current entry:** marked with `aria-current="page"`. Collapsed entries keep their label as their accessible name and show it in a tooltip.
-- **Narrow screens:** the round button ("Open navigation", with a tooltip) reports whether the drawer is open. The drawer closes when an entry is chosen.
+- **Narrow screens:** the round button is named "Open navigation" or "Close navigation" and reports whether the drawer is open. The drawer closes when an entry is chosen.
 
 ## Notes
 
 - **Fixed metrics:** a 240px sidebar (64px collapsed), sticky under the Navbar and scrolling on its own; 40px entries with 20px icons. The background is surface 100 behind the content and surface 50 in the sidebar.
 - **Sticky sidebar:** it sits at `top: var(--ui-navbar-height, 65px)`.
-- **Round button:** 48px, fixed 16px from the bottom left (above the safe area), at z-index 30 so overlays cover it; the bottom right is left to alerts.
+- **Round button:** 48px, filled with `color` (icon in its 100 step), fixed 16px from the bottom left (above the safe area) in a portal at the end of the page. At z-index 39 it stays above all content and the Navbar but under overlays (40), so any open modal covers it; while its own drawer is open it rises to 45 and sits beside the panel to close it. The bottom right is left to alerts.
