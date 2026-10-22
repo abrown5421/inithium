@@ -23,6 +23,7 @@ Every plugin proves these with the contract checks in `@inithium/api-testing` ([
 | `api` | Seed and unseed, with the contract checks below |
 | `api` | The user deletion hook, if the plugin keeps per-user data ([0100](../decisions/0100-manage-accounts-from-the-cms.md)) |
 | `api` | Each route's permission checks (401 signed out, 403 without the permission) and what it refuses |
+| `api` | Each realtime channel's subscribe checks (who's refused) and its message handlers, if it serves any ([0121](../decisions/0121-add-a-realtime-pub-sub-layer-on-socket-io.md)) |
 | `contracts` | Schemas with rules beyond their shape (refinements, limits, links) |
 | `web` / `cms` | Logic in services and hooks; components only where behaviour is subtle |
 
@@ -109,6 +110,38 @@ it('lets members see only their own orders', async () => {
   expect((await client.get('/api/ecom/orders')).body).toEqual([]);
 });
 ```
+
+## Realtime channels
+
+Start the realtime server on a listening test app with the plugin's channels, and connect as different people:
+
+```ts
+import { afterEach, beforeEach, expect, it } from 'vitest';
+import { connectTestRealtime, listenTestApi, type TestServer } from '@inithium/api-testing';
+import { createTestApiWithAuth, signedInClient } from '@inithium/api-testing-accounts';
+import { startRealtime, stopRealtime } from '@inithium/api-realtime';
+import { postCommentsChannel } from '@inithium/plugin-blog-contracts';
+import { postCommentsServer } from './blog.channels';
+
+const app = createTestApiWithAuth((api) => api.use('/blog', blogRouter));
+let server: TestServer;
+beforeEach(async () => {
+  server = await listenTestApi(app);
+  startRealtime(server.server, { channels: [postCommentsServer] });
+});
+afterEach(async () => {
+  await stopRealtime();
+  await server.close();
+});
+
+it('keeps guests off unpublished posts', async () => {
+  const guest = await connectTestRealtime(server);
+  expect(await guest.subscribe(postCommentsChannel.name({ postId: draftId }))).toMatchObject({ ok: false, code: 'FORBIDDEN' });
+  guest.close();
+});
+```
+
+See [Realtime](../backend/realtime.md#testing) for the test client.
 
 ## Where plugin tests run
 

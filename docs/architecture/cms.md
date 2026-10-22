@@ -4,7 +4,7 @@ description: How the CMS app is put together - its frame, screens, sign-in, the 
 scope: core
 tags: [cms, architecture, permissions]
 order: 7
-decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119", "0120"]
+decisions: ["0083", "0086", "0087", "0098", "0099", "0100", "0101", "0119", "0120", "0122"]
 ---
 
 # The CMS
@@ -106,7 +106,7 @@ export const recentOrdersWidget = defineDashboardWidget({
 `PagesScreen` (`@inithium/cms-pages`) lists every [page record](pages-and-routing.md#page-records):
 
 - search by title or path, and sort by title, path or status;
-- a "Site page" badge on protected pages, and each page's path, layout and status, and who has it open in the page builder, if anyone ([one editor at a time](content-pages.md#one-editor-at-a-time));
+- a "Site page" badge on protected pages, and each page's path, layout and status, and who has it open in the page builder, if anyone, kept current live (`useLivePageEditing()`, [one editor at a time](content-pages.md#one-editor-at-a-time), [0122](../decisions/0122-ask-the-person-editing-a-page-to-make-way.md));
 - **View on the site** for published pages without parameters. It opens the path on the CMS's origin, which is the site in production; under `nx serve cms` it lands on the CMS dev server.
 - **Edit content** (content pages) opens the full-screen [page builder](content-pages.md#editing) at `/pages/:id/content`, outside the sidebar frame.
 - **Settings** opens the page editor.

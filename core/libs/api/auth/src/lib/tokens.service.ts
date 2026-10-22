@@ -10,6 +10,8 @@ const accessTokenPayloadSchema = z.object({
   pcr: z.literal(true).optional(),
   /** When it was issued, in seconds, so revoked sessions can be refused (decision 0100). */
   iat: z.number().optional(),
+  /** When it expires, in seconds (e.g. so a realtime connection can end with it, decision 0121). */
+  exp: z.number().optional(),
 });
 
 /** What an access token carries: who the user is and their role. Everything else comes from /api/auth/me. */

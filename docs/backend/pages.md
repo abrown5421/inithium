@@ -4,7 +4,7 @@ description: The pages collection, the endpoints the CMS and web use, the edit r
 scope: core
 tags: [api, pages, cms, seeding]
 order: 6
-decisions: ["0078", "0079", "0080"]
+decisions: ["0078", "0079", "0080", "0116", "0122"]
 ---
 
 # Pages
@@ -47,6 +47,7 @@ Contracts are in `@inithium/shared-contracts` (`pageSchema`, type `Page`):
 | `GET /api/pages/:id/usage` | `pages.edit` | `{ places: [{ label, blocking }] }` (`pageUsageSchema`): other content pages linking to it, published or in their draft (`pageUsage()`, by `contentReferences()`). Never blocking: the CMS's Delete warns with them. |
 | `POST /api/pages/:id/content/lock` | `pages.edit` | Takes the page's [edit lock](#the-edit-lock) for a page builder session (`{ lockId }`), or keeps it alive: 204, or 409 with who's editing. |
 | `POST /api/pages/:id/content/unlock` | `pages.edit` | Lets go of the lock if this session (`{ lockId }`) holds it: 204. |
+| `POST /api/pages/:id/content/request-edit` | `pages.edit` | [Asks whoever holds the lock](#asking-for-a-page) to make way: 204 once their builder has been told; 409 `CONTENT_UNLOCKED` (nobody holds it) or `CONTENT_LOCK_YOURS` (the asker's own other tab); 429 with `Retry-After` within a minute of their last ask for the page. |
 | `PUT /api/pages/:id/content` | `pages.edit` + the lock | Saves a content page's draft from a `pageDraftSaveSchema` body (`{ draft }`). 400 with `issues` if it fails the content contracts; 409 without the lock, or for a page that isn't a content page. |
 | `POST /api/pages/:id/content/publish` | `pages.publish` + the lock | Copies the draft to `published` and sets the page's `status` to `published`. |
 | `POST /api/pages/:id/content/discard` | `pages.edit` + the lock | Sets the draft back to the published version (or an empty page if it was never published). |
@@ -78,12 +79,19 @@ A duplicate copies the source's template, layout, colours, animation, audience, 
 
 Only one page builder session works on a page's content at a time ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)), in `content-lock.service.ts`:
 
-- **Taking it:** the builder makes a random lock id (`contentLockIdSchema`) each time it opens a page and posts it to `/content/lock`. A free lock, or one without a heartbeat for `CONTENT_LOCK_TTL_MS` (2 minutes), is taken; the builder's own lock is kept alive. A live lock held by another session (the same person in another tab included) is refused with 409 `{ message, code: 'CONTENT_LOCKED', editing }`. Taking is a conditional update, so two people opening a page at once can't both get it. Nobody can take over a live lock.
+- **Taking it:** the builder makes a random lock id (`contentLockIdSchema`) each time it opens a page and posts it to `/content/lock`. A free lock, or one without a heartbeat for `CONTENT_LOCK_TTL_MS` (2 minutes), is taken; the builder's own lock is kept alive. A live lock held by another session (the same person in another tab included) is refused with 409 `{ message, code: 'CONTENT_LOCKED', editing }`. Taking is a conditional update, so two people opening a page at once can't both get it; two requests from the same session at once (React's StrictMode runs the builder's effect twice in development) both get it. Nobody can take over a live lock.
 - **Keeping it:** the builder posts again every `CONTENT_LOCK_HEARTBEAT_MS` (30 seconds), and `/content/unlock` lets go when it closes (by `sendBeacon` if the tab closes).
 - **Holding it to write:** saving, publishing and discarding send the lock id in the `x-content-lock` header (`CONTENT_LOCK_HEADER`) and are refused with the same 409 when the session doesn't hold the lock. A session whose lock expired but which nobody else has taken gets it back.
 - **Seen by others:** the page record's `editing` (`{ userId, name, since }`, `pageEditingSchema`) says who has a live lock; `web` never gets it.
 - **Stored** as the page's `contentLock` `{ lockId, userId, name, since, heartbeatAt }`, never copied by Duplicate.
 - **Not locked:** the page's settings (`PATCH /api/pages/:id`), which anyone with `pages.edit` can change meanwhile.
+- **Announced live:** taking a free or expired lock and letting go are published on the [realtime](realtime.md) channel `core:pages` (`pagesChannel`, `pages.edit`) as `editing.changed` `{ pageId, editing }` ([0122](../decisions/0122-ask-the-person-editing-a-page-to-make-way.md)). Heartbeats aren't. A lock that simply expires isn't announced: nothing runs at that moment.
+
+#### Asking for a page
+
+Someone shut out of a page can ask its editor to make way ([0122](../decisions/0122-ask-the-person-editing-a-page-to-make-way.md)), with `requestContentEdit()` behind `POST /content/request-edit`. The request goes to the one builder session holding the lock, on `core:content-lock/<pageId>/<lockId>` (`contentLockChannel`), as `edit.requested` `{ from: { userId, name }, at }`. Only the lock's own user may subscribe to that channel, and only while the lock is live, so nobody else hears requests. It's one-way: nothing is sent back to the asker. Each person may ask once per page per `CONTENT_EDIT_REQUEST_INTERVAL_MS` (a minute), remembered in memory. A builder that's offline at that moment misses the request.
+
+`pagesRealtimeChannels` (both channels' api sides, in `pages.channels.ts`) is passed to `startRealtime()` in `main.ts`.
 
 Content pages carry `content`: `{ draft, published }` content documents, trees of elements ([0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)). `/api/pages` returns both; the site bundle (`GET /api/site`) carries only `published`, as the public page's `content`. Stored content is read through `readContentDocument()`, which upgrades older versions (stored version 1 content is returned as version 2 and stays stored as it was until it's next saved or published). `content` also records `draftSavedAt` / `draftSavedBy` and `publishedAt` / `publishedBy` (ISO dates and user ids). The page builder saves and publishes through the endpoints above ([0094](../decisions/0094-edit-content-pages-in-a-cms-screen-that-fills-the-frame.md), [0116](../decisions/0116-build-content-pages-from-a-tree-of-library-elements.md)).
 
@@ -144,4 +152,5 @@ It's a starting point, not legal advice. Each site's owner edits it to match the
 - **Service functions:** `listPages()`, `listPublishedPages()`, `findPageById()`, `createPage()`, `duplicatePage()`, `updatePage()`, `deletePage()`, `saveContentDraft()`, `publishContent()` and `discardContentDraft()`.
 - **Reusable templates:** `reusableTemplates` and `listReusableTemplates()`.
 - **Routers:** `pagesRouter` (mounted at `/api/pages`) and `siteRouter` (mounted at `/api/site`).
+- **Realtime:** `pagesRealtimeChannels`, `pagesChannelServer` and `contentLockChannelServer` ([Realtime](realtime.md#cores-channels)).
 - **Seeding:** `seedPages()`, `seedCorePages()`, `corePageSeeds` and `privacyPolicyContent()`.

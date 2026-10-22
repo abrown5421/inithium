@@ -112,11 +112,13 @@ describe('/api/settings', () => {
 | Export | What it does |
 | --- | --- |
 | `createTestApi(mount)` | An Express app shaped like the api's own: JSON bodies up to 1 MB, cookies, your routers under `/api`, then the JSON 404 and the real error handler from `@inithium/api-http` |
-| `testClient(app)` / `TestClient` | Calls the app over real HTTP and keeps the cookies it sets, like one browser. `get`, `post`, `put`, `patch`, `delete` return `{ status, body, headers }`; a `FormData` body is sent as a multipart upload (anything else as JSON); `request(method, path, body?, headers?)` adds request headers such as `range` or `if-none-match`; `cookie(name)`, `setCookie()`, `clearCookies()` |
+| `testClient(app)` / `TestClient` | Calls the app over real HTTP and keeps the cookies it sets, like one browser. `get`, `post`, `put`, `patch`, `delete` return `{ status, body, headers }`; a `FormData` body is sent as a multipart upload (anything else as JSON); `request(method, path, body?, headers?)` adds request headers such as `range` or `if-none-match`; `cookie(name)`, `cookieHeader()`, `setCookie()`, `clearCookies()` |
 | `snapshotDatabase()`, `describeChanges()` | The whole database as comparable JSON, and the documents added, removed and changed between two snapshots |
 | `clearDatabase()` | Empties every collection (runs before each test anyway) |
 | `TEST_ENV` | The environment api tests run with |
 | `expectSeedIsIdempotent()`, `expectUnseedRestores()`, `expectUserDeletionHook()` | The plugin contract checks: see [Testing plugins](../plugins/testing-plugins.md) |
+| `listenTestApi(app)` | Starts the app on a free local port and keeps it up: `{ server, url, close() }`, e.g. for `startRealtime(server.server, { channels })` |
+| `connectTestRealtime(server, client?, headers?)` | A [realtime](../backend/realtime.md#testing) connection to that server, signed in with the client's cookies (or a guest without one). It records `events`, `presence` and `reauths`; `subscribe()`, `unsubscribe()`, `send()` and `activity()` resolve with the api's answers; `nextEvent()`, `nextPresence()` and `disconnected()` wait. Call `stopRealtime()` after each test. |
 
 ### `@inithium/api-testing-accounts`
 

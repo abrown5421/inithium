@@ -40,6 +40,11 @@ export class TestClient {
     return this.cookies.get(name);
   }
 
+  /** The client's cookies as a `Cookie` header, e.g. for a realtime connection's handshake. */
+  cookieHeader(): string | undefined {
+    return this.cookies.size ? [...this.cookies].map(([name, value]) => `${name}=${value}`).join('; ') : undefined;
+  }
+
   /** Sets or replaces a cookie by hand, e.g. to replay an old refresh token. */
   setCookie(name: string, value: string): void {
     this.cookies.set(name, value);
@@ -61,7 +66,8 @@ export class TestClient {
       // FormData (multipart uploads) is sent as it is, with fetch's own boundary; anything else as JSON.
       const multipart = body instanceof FormData;
       if (body !== undefined && !multipart) headers['content-type'] = 'application/json';
-      if (this.cookies.size) headers['cookie'] = [...this.cookies].map(([name, value]) => `${name}=${value}`).join('; ');
+      const cookie = this.cookieHeader();
+      if (cookie) headers['cookie'] = cookie;
       const response = await fetch(`http://127.0.0.1:${port}${path}`, {
         method,
         headers,

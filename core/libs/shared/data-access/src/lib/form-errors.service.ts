@@ -16,14 +16,15 @@ export function fieldErrorsFrom<Field extends string>(issues: readonly Issue[]):
   return errors;
 }
 
-/** What a failed API call says: its status, message, `issues` and the `field` it names, when there are any. */
-export function readApiFailure(error: unknown): { status?: number; message?: string; issues?: Issue[]; field?: string } {
+/** What a failed API call says: its status, message, `code`, `issues` and the `field` it names, when there are any. */
+export function readApiFailure(error: unknown): { status?: number; message?: string; code?: string; issues?: Issue[]; field?: string } {
   if (!error || typeof error !== 'object') return {};
   const { status, data } = error as { status?: unknown; data?: unknown };
   const body = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
   return {
     status: typeof status === 'number' ? status : undefined,
     message: typeof body['message'] === 'string' ? body['message'] : undefined,
+    code: typeof body['code'] === 'string' ? body['code'] : undefined,
     issues: Array.isArray(body['issues']) ? (body['issues'] as Issue[]) : undefined,
     field: typeof body['field'] === 'string' ? body['field'] : undefined,
   };

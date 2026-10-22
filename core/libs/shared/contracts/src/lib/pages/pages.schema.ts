@@ -102,6 +102,20 @@ export const contentLockRequestSchema = z.object({ lockId: contentLockIdSchema }
 /** Who's editing a page's content, and since when. */
 export const pageEditingSchema = z.object({ userId: z.string(), name: z.string(), since: z.iso.datetime() }).strict();
 
+/** How long someone waits between asking for the same page, in ms (decision 0122). */
+export const CONTENT_EDIT_REQUEST_INTERVAL_MS = 60 * 1000;
+
+/**
+ * Someone asking the person editing a page for it (decision 0122), as the builder holding the lock receives it on
+ * `contentLockChannel`. One-way: the editor decides what to do and nothing is sent back.
+ */
+export const pageEditRequestSchema = z
+  .object({ from: z.object({ userId: z.string(), name: z.string() }).strict(), at: z.iso.datetime() })
+  .strict();
+
+/** On `pagesChannel`: a page's editor changed (someone opened it in the builder, or it was let go). */
+export const pageEditingChangedSchema = z.object({ pageId: z.string(), editing: pageEditingSchema.nullable() }).strict();
+
 /** Where a page is linked from (decision 0116): other content pages' links, which only warn before it's deleted. */
 export const pageUsageSchema = z
   .object({ places: z.array(z.object({ label: z.string(), blocking: z.boolean() }).strict()) })

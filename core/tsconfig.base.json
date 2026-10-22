@@ -120,6 +120,12 @@
       ],
       "@inithium/cms-dashboard": [
         "./libs/cms/dashboard/src/index.ts"
+      ],
+      "@inithium/api-realtime": [
+        "./libs/api/realtime/src/index.ts"
+      ],
+      "@inithium/shared-realtime": [
+        "./libs/shared/realtime/src/index.ts"
       ]
     }
   },

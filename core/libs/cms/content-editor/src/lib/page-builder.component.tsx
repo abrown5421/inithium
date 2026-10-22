@@ -674,8 +674,25 @@ export function PageBuilder({ page, pages, canPublish, lockId, lock, onLockCheck
         )}
       </Container>
 
-      <Container hidden={{ base: false, lg: true }} padding={{ all: 24 }}>
-        <Text as="p">The page builder needs a wider window. Widen it, or open the CMS on a larger screen.</Text>
+      {/* Under 1024px: a panel-coloured card on the canvas, with its own text colour, so it reads in both modes. */}
+      <Container hidden={{ base: false, lg: true }} flexItem={{ grow: 1 }} flex={{ align: 'center', justify: 'center' }} padding={{ all: 24 }}>
+        <Container
+          flex={{ direction: 'column', align: 'center', gap: 8 }}
+          maxWidth={420}
+          padding={{ all: 24 }}
+          radius={{ all: 12 }}
+          shadow="2xl"
+          bgColor={PANEL}
+          textColor={{ color: 'surface', intensity: 900 }}
+        >
+          <Icon name="monitor" size={32} textColor={{ color: 'primary', intensity: 600 }} />
+          <Text as="h2" fontFamily="display" fontSize={20} align="center">
+            Widen the window to build this page
+          </Text>
+          <Text as="p" align="center" textColor={{ color: 'surface', intensity: 700 }}>
+            The page builder needs a window at least 1024 pixels wide. Widen it, or open the CMS on a larger screen.
+          </Text>
+        </Container>
       </Container>
       <Container hidden={{ base: true, lg: false }} flex={{ direction: 'row' }} flexItem={{ grow: 1 }} minHeight={0}>
         <Container
