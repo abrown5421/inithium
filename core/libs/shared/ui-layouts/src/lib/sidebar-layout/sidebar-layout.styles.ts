@@ -1,6 +1,7 @@
 /**
  * SidebarLayout's fixed CSS (decision 0086): a sticky sidebar under the Navbar, its links (icon and label, the
- * current one tinted), and the collapsed icons-only state. --ui-sidebar-accent is the current link's colour.
+ * current one tinted), the collapsed icons-only state, and the round button that opens the drawer on narrow screens
+ * (0123). --ui-sidebar-accent is the current link's colour.
  */
 export const sidebarLayoutStyleSheet = `
 .ui-sidebar {
@@ -22,5 +23,16 @@ export const sidebarLayoutStyleSheet = `
 .ui-sidebar-link:focus-visible { outline: 2px solid var(--ui-sidebar-accent); outline-offset: 2px; }
 .ui-sidebar-link > svg { flex-shrink: 0; }
 .ui-sidebar[data-collapsed] .ui-sidebar-label { display: none; }
-@media (prefers-reduced-motion: reduce) { .ui-sidebar { transition: none; } }
+/* Fixed to the screen's bottom left (alerts take the bottom right), above the page and Navbar, under overlays (40). */
+.ui-sidebar-toggle {
+  position: fixed; z-index: 30; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0;
+  border-radius: 50%; border: 1px solid color-mix(in oklab, var(--color-surface-500) 40%, transparent);
+  background: var(--color-surface-50); color: var(--ui-sidebar-accent); cursor: pointer;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.18); transition: transform 150ms ease, background 150ms ease;
+}
+.ui-sidebar-toggle:hover { background: color-mix(in oklab, var(--ui-sidebar-accent) 8%, var(--color-surface-50)); transform: scale(1.05); }
+.ui-sidebar-toggle:active { transform: scale(0.97); }
+.ui-sidebar-toggle:focus-visible { outline: 2px solid var(--ui-sidebar-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ui-sidebar, .ui-sidebar-toggle { transition: none; } }
 `;

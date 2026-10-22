@@ -4,7 +4,7 @@ import { Button, Container, Icon, Tooltip, toCssColor, type IconName } from '@in
 import { Drawer, isCurrentPath, Navbar, type NavbarUser } from '@inithium/shared-ui-composites';
 import { sidebarLayoutStyleSheet } from './sidebar-layout.styles';
 
-/** Below this width the sidebar moves into a drawer behind a menu button (the lg breakpoint). */
+/** Below this width the sidebar moves into a drawer behind a round button in the bottom left (the lg breakpoint). */
 const NARROW_WIDTH = 1024;
 
 /** An entry in the sidebar. With `exact`, it's current only at its own address, not the ones under it (e.g. a dashboard at the app's root). */
@@ -32,7 +32,8 @@ export type SidebarLayoutProps = {
   color?: SolidColorValue;
   /**
    * For full-screen tools (e.g. an editor): no sidebar and no padding, and the content fills exactly the space under
-   * the top bar (it scrolls inside itself, not the page). The entries stay reachable from the menu button. Default false.
+   * the top bar (it scrolls inside itself, not the page). The entries stay reachable from a menu button in the top bar
+   * (the round button when narrow), which leaves the tool's corners free. Default false.
    */
   fill?: boolean;
   /** The screen's content. */
@@ -46,7 +47,7 @@ const isPlainClick = (event: MouseEvent) =>
 /**
  * An app frame with a top bar and a sidebar (decision 0086), for the CMS: the title and account menu across the
  * top, the entries down the left (collapsible to icons), and the content beside them. Below 1024px of its own
- * width the entries move into a drawer behind a menu button.
+ * width the entries move into a drawer behind a round button fixed to the bottom left of the screen (decision 0123).
  */
 export function SidebarLayout({
   title,
@@ -135,7 +136,7 @@ export function SidebarLayout({
           onNavigate={onNavigate}
           color={color}
           ancillary={
-            narrow || fill ? (
+            fill && !narrow ? (
               <Button
                 variant="ghost"
                 color={{ color: 'surface', intensity: 800 }}
@@ -172,12 +173,29 @@ export function SidebarLayout({
             flexItem={{ grow: 1 }}
             minWidth={0}
             flex={fill ? { direction: 'column' } : undefined}
-            padding={fill ? undefined : { x: narrow ? 16 : 32, y: 32 }}
+            // Narrow: room at the bottom so the round button never covers the last of the content.
+            padding={fill ? undefined : { x: narrow ? 16 : 32, y: 32, bottom: narrow ? 88 : undefined }}
           >
             {children}
           </Container>
         </Container>
       </Container>
+      {narrow && (
+        // A plain <button>: Button is a fixed 32px row and can't be round.
+        <Tooltip content="Open navigation" side="right">
+          <button
+            type="button"
+            className="ui-sidebar-toggle"
+            aria-label="Open navigation"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            style={accent}
+            onClick={() => setMenuOpen(true)}
+          >
+            <Icon name="panel-left-open" size={22} />
+          </button>
+        </Tooltip>
+      )}
       {(narrow || fill) && (
         <Drawer open={menuOpen} onOpenChange={setMenuOpen} title={title} side="left" size={280}>
           <nav aria-label="Sections" style={accent}>

@@ -4,7 +4,7 @@ description: An app frame with a top bar and a collapsible sidebar of sections, 
 scope: core
 tags: [ui, layout, cms, navigation]
 order: 5
-decisions: ["0076", "0086"]
+decisions: ["0076", "0086", "0123"]
 component:
   name: SidebarLayout
   layer: layout
@@ -20,7 +20,7 @@ SidebarLayout is an app frame for tools such as the CMS ([0086](../../decisions/
 - **The sidebar** runs down the left with an entry per section, the current one tinted. "Collapse" shrinks it to icons, with tooltips.
 - **The content** sits beside the sidebar.
 
-Below 1024px of its own width, the sidebar becomes a drawer opened from a menu button in the top bar.
+Below 1024px of its own width, the sidebar becomes a drawer opened from a round button fixed to the bottom left of the screen ([0123](../../decisions/0123-open-the-cms-drawer-from-a-round-button-in-the-bottom-left.md)); the top bar keeps only the account menu.
 
 ## Import
 
@@ -84,7 +84,7 @@ The current entry's tint, hover and focus, and the Navbar's accent. **Type:** [`
 
 #### `fill`
 
-For full-screen tools such as the CMS's content editor: the sidebar and the content's padding go, and the content fills exactly the space under the top bar (the frame is the screen's height, so the content scrolls inside itself, not the page). The entries move behind the top bar's menu button, as below 1024px. **Type:** `boolean`. **Default:** `false`.
+For full-screen tools such as the CMS's content editor: the sidebar and the content's padding go, and the content fills exactly the space under the top bar (the frame is the screen's height, so the content scrolls inside itself, not the page). The entries move into the drawer, opened from a menu button in the top bar (below 1024px, from the round button instead), so nothing floats over the tool. **Type:** `boolean`. **Default:** `false`.
 
 ```tsx
 <SidebarLayout fill title="CMS" items={items}>
@@ -94,7 +94,7 @@ For full-screen tools such as the CMS's content editor: the sidebar and the cont
 
 #### `children`
 
-The screen's content, in a `<main>` with 32px of padding (16px either side on narrow screens). **Type:** `ReactNode`.
+The screen's content, in a `<main>` with 32px of padding (16px either side on narrow screens, and 88px at the bottom so the round button never covers the end). **Type:** `ReactNode`.
 
 ## Examples
 
@@ -110,9 +110,10 @@ ui-library/sidebar-layout/basic
 
 - **Landmarks:** the top bar's `<header>`, a `<nav aria-label="Sections">` for the sidebar and the content's `<main>`.
 - **Current entry:** marked with `aria-current="page"`. Collapsed entries keep their label as their accessible name and show it in a tooltip.
-- **Narrow screens:** the menu button ("Open navigation") reports whether the drawer is open. The drawer closes when an entry is chosen.
+- **Narrow screens:** the round button ("Open navigation", with a tooltip) reports whether the drawer is open. The drawer closes when an entry is chosen.
 
 ## Notes
 
 - **Fixed metrics:** a 240px sidebar (64px collapsed), sticky under the Navbar and scrolling on its own; 40px entries with 20px icons. The background is surface 100 behind the content and surface 50 in the sidebar.
 - **Sticky sidebar:** it sits at `top: var(--ui-navbar-height, 65px)`.
+- **Round button:** 48px, fixed 16px from the bottom left (above the safe area), at z-index 30 so overlays cover it; the bottom right is left to alerts.
