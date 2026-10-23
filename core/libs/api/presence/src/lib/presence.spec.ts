@@ -16,7 +16,7 @@ beforeEach(async () => {
     definePresenceStatus({ key: 'client-games:playing', label: (game) => `Playing ${game ?? ''}`.trim(), color: 'sky', priority: 20 }),
   ]);
   server = await listenTestApi(app);
-  stopPresence = startPresence();
+  stopPresence = startPresence({ offlineGraceMs: 100 });
   startRealtime(server.server, { channels: [userStatusChannelServer] });
 });
 
@@ -80,6 +80,22 @@ describe('core’s statuses (decision 0124)', () => {
     const watcher = await follow(account.id);
     expect(await nextStatus(watcher)).toEqual({ status: 'active' });
     tab.close();
+    watcher.close();
+  });
+});
+
+describe('reconnecting', () => {
+  it('doesn’t show a user as away while their browser reconnects', async () => {
+    const { client, account } = await signedInClient(app, 'user');
+    const tab = await connectTestRealtime(server, client);
+    const watcher = await follow(account.id);
+    expect(await nextStatus(watcher)).toEqual({ status: 'active' });
+    tab.close();
+    const again = await connectTestRealtime(server, client);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(watcher.events).toHaveLength(1);
+    expect(userStatus(account.id)).toEqual({ status: 'active' });
+    again.close();
     watcher.close();
   });
 });

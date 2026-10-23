@@ -100,6 +100,27 @@ describe('RealtimeConnection (decision 0121)', () => {
     connection.close();
   });
 
+  it('doesn’t count a tab becoming visible, or a cursor over an unfocused window, as activity', () => {
+    vi.useFakeTimers();
+    const debug = vi.spyOn(console, 'debug').mockImplementation(() => undefined);
+    const focused = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    socket.fire('connect');
+    for (let minute = 0; minute < 11; minute++) {
+      vi.advanceTimersByTime(60_000);
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new MouseEvent('pointermove', { screenX: minute, screenY: minute }));
+    }
+    expect(socket.sent).toContainEqual(expect.objectContaining({ event: REALTIME_WIRE.activity, data: { activity: 'idle' } }));
+    focused.mockReturnValue(true);
+    window.dispatchEvent(new MouseEvent('pointermove', { screenX: 500, screenY: 500 }));
+    expect(socket.sent.at(-1)).toMatchObject({ event: REALTIME_WIRE.activity, data: { activity: 'active' } });
+    focused.mockRestore();
+    debug.mockRestore();
+    connection.close();
+  });
+
   it('subscribes again after reconnecting and says events may have been missed', () => {
     const { socket, connection } = setup();
     const watcher = listener();

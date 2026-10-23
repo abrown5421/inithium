@@ -46,6 +46,9 @@ export type RealtimeConnectionOptions = {
   createSocket?(): Socket;
 };
 
+/** How often the browser checks whether the person has gone idle. */
+const IDLE_CHECK_MS = 15_000;
+
 /** How long a message waits for the api's answer. */
 const SEND_TIMEOUT_MS = 10_000;
 
@@ -219,53 +222,46 @@ export class RealtimeConnection {
   }
 
   /**
-   * Reports idle after REALTIME_IDLE_AFTER_MS without input, and active again on input. Switching tabs doesn't count
-   * as leaving (decision 0124): a hidden tab simply gets no input, so it goes idle on the same timer.
+   * Reports idle once REALTIME_IDLE_AFTER_MS pass without input, and active again on input (decision 0124). It keeps
+   * the time of the last input and checks it every IDLE_CHECK_MS, from the moment it starts, so a tab opened or left
+   * in the background goes idle too. Only someone using the page counts: presses, keys and touches, and pointer moves
+   * and wheel turns while the window has focus (not a cursor crossing a window they aren't using, nor a "move" to the
+   * same spot, which browsers send when the page changes under a resting cursor). A tab becoming visible isn't input:
+   * on Windows, browsers report covered windows as hidden, so moving other windows around would count otherwise.
+   * Each change is logged with `console.debug` and its cause.
    */
   private trackActivity(): (() => void) | undefined {
     if (typeof document === 'undefined') return undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let lastInput = 0;
-    const report = (activity: PresenceActivity) => {
+    let lastInputAt = Date.now();
+    let lastPointer: string | undefined;
+    const report = (activity: PresenceActivity, cause: string) => {
       if (activity === this.activity) return;
       this.activity = activity;
+      console.debug(`[realtime] ${activity}: ${cause}`);
       if (this.socket?.connected) this.socket.emit(REALTIME_WIRE.activity, { activity });
     };
-    let lastPointer: string | undefined;
-    const restartTimer = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => report('idle'), REALTIME_IDLE_AFTER_MS);
-    };
-    const input = (event?: Event) => {
+    const input = (event: Event) => {
       if (document.hidden) return;
-      if (event?.type === 'pointermove' || event?.type === 'wheel') {
-        // A cursor crossing a window someone isn't using isn't them using the site.
+      if (event.type === 'pointermove' || event.type === 'wheel') {
         if (!document.hasFocus()) return;
-        // Nor is a "move" that didn't move: browsers send one when the page changes under a resting cursor.
         const { screenX, screenY } = event as MouseEvent;
         const at = `${screenX},${screenY}`;
         if (event.type === 'pointermove' && at === lastPointer) return;
         lastPointer = at;
       }
-      const now = Date.now();
-      // Input comes in floods (pointer moves); look at it at most once a second while active.
-      if (this.activity === 'active' && now - lastInput < 1000) return;
-      lastInput = now;
-      report('active');
-      restartTimer();
+      lastInputAt = Date.now();
+      report('active', event.type);
     };
-    const visibility = () => {
-      if (!document.hidden) input();
+    const check = () => {
+      if (Date.now() - lastInputAt >= REALTIME_IDLE_AFTER_MS) report('idle', `no input for ${REALTIME_IDLE_AFTER_MS / 60_000} minutes`);
     };
     const inputs = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'] as const;
-    for (const name of inputs) window.addEventListener(name, input, { passive: true });
-    document.addEventListener('visibilitychange', visibility);
-    // The timer runs from the start, visible or not: a tab opened (or reloaded) in the background goes idle too.
-    restartTimer();
+    for (const name of inputs) window.addEventListener(name, input, { passive: true, capture: true });
+    const timer = setInterval(check, IDLE_CHECK_MS);
     return () => {
-      clearTimeout(timer);
-      for (const name of inputs) window.removeEventListener(name, input);
-      document.removeEventListener('visibilitychange', visibility);
+      clearInterval(timer);
+      for (const name of inputs) window.removeEventListener(name, input, { capture: true });
     };
   }
+
 }

@@ -12,13 +12,25 @@ import { onUserActivity, publishRealtime, userActivity } from '@inithium/api-rea
 const custom = new Map<string, Map<string, string | undefined>>();
 /** The status last published for each user, to publish only changes. Absent means away. */
 const published = new Map<string, string>();
+/** Users whose last connection just closed, waiting out the grace period before they show as away. */
+const leaving = new Map<string, ReturnType<typeof setTimeout>>();
+
+/**
+ * How long after a user's last connection closes before they show as away: a browser reconnecting (e.g. to refresh
+ * its session as the access token expires, or after a network blip) usually takes well under a second.
+ */
+export const PRESENCE_OFFLINE_GRACE_MS = 5000;
 
 const AWAY = JSON.stringify({ status: awayStatus.key } satisfies UserStatus);
 
 /** A user's status now. */
 export function userStatus(userId: string): UserStatus {
   const activity = userActivity(userId);
-  if (activity === 'offline') return { status: awayStatus.key };
+  if (activity === 'offline') {
+    // Still within the grace period: what they last showed.
+    const last = leaving.has(userId) ? published.get(userId) : undefined;
+    return last ? (JSON.parse(last) as UserStatus) : { status: awayStatus.key };
+  }
   const chosen = [...(custom.get(userId) ?? new Map<string, string | undefined>())]
     .map(([key, detail]) => ({ key, detail, priority: findPresenceStatus(key)?.priority ?? 0 }))
     .sort((a, b) => b.priority - a.priority)[0];
@@ -34,7 +46,7 @@ export function userStatus(userId: string): UserStatus {
  */
 export function setUserStatus(userId: string, key: string, options: { detail?: string } = {}): boolean {
   if (!key.includes(':') || !findPresenceStatus(key)) throw new Error(`Presence status '${key}' isn't registered`);
-  if (userActivity(userId) === 'offline') return false;
+  if (userActivity(userId) === 'offline' || leaving.has(userId)) return false;
   let statuses = custom.get(userId);
   if (!statuses) custom.set(userId, (statuses = new Map()));
   statuses.set(key, options.detail?.trim().slice(0, 60) || undefined);
@@ -62,15 +74,30 @@ function announce(userId: string): void {
 
 /**
  * Follows users' activity from the realtime layer and publishes their statuses (call once at startup, before
- * `startRealtime()`). Returns a function that stops it.
+ * `startRealtime()`). A user whose last connection closes shows as away only after `offlineGraceMs` (default
+ * PRESENCE_OFFLINE_GRACE_MS) without reconnecting; their plugin statuses are cleared then. Returns a function that
+ * stops it.
  */
-export function startPresence(): () => void {
+export function startPresence(options: { offlineGraceMs?: number } = {}): () => void {
+  const grace = options.offlineGraceMs ?? PRESENCE_OFFLINE_GRACE_MS;
   const stop = onUserActivity((userId, activity) => {
-    if (activity === 'offline') custom.delete(userId);
-    announce(userId);
+    clearTimeout(leaving.get(userId));
+    leaving.delete(userId);
+    if (activity !== 'offline') return announce(userId);
+    leaving.set(
+      userId,
+      setTimeout(() => {
+        leaving.delete(userId);
+        if (userActivity(userId) !== 'offline') return;
+        custom.delete(userId);
+        announce(userId);
+      }, grace),
+    );
   });
   return () => {
     stop();
+    for (const timer of leaving.values()) clearTimeout(timer);
+    leaving.clear();
     custom.clear();
     published.clear();
   };
