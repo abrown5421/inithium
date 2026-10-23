@@ -19,7 +19,9 @@ Every user has a **status**, shown as a coloured light on their avatar with its 
 | `inactive` | yellow 500 | Inactive | Signed in and connected, but no input for 10 minutes or more |
 | `away` | surface 500 | Away | Not on the site: signed out, or every tab closed |
 
-- **Activity** comes from the browser: it reports idle after `REALTIME_IDLE_AFTER_MS` (10 minutes) without input, and active again on input. A hidden tab gets no input, so it goes idle on the same timer; switching tabs isn't leaving.
+- **Activity** comes from the browser: it reports idle after `REALTIME_IDLE_AFTER_MS` (10 minutes) without input, and active again on input. The timer runs from the moment the page connects, so a hidden tab, even one opened or reloaded in the background, goes idle on the same timer; switching tabs isn't leaving.
+- **What counts as input:** pointer presses, keys, touches, and pointer moves and wheel turns **while the window has focus**. A cursor crossing a window you're not using doesn't count, and nor does a "move" to the same spot (browsers send one when the page changes under a resting cursor).
+- **Reconnecting** (e.g. when the access token expires and the session is refreshed) keeps the activity: the browser sends it in the handshake's `auth` (`{ activity }`), so an idle user doesn't flash Active.
 - **A signed-in user's browser stays connected** while it's open, whether or not anything subscribes (`RealtimeProvider` calls `setKeepOpen(true)`), so they count as present.
 - **Several tabs or devices** count as one: active if any of them is, away only once the last one closes.
 - Sessions that must change their password first connect as guests, so they show as away.

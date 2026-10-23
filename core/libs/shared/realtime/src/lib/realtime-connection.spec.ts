@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Socket } from 'socket.io-client';
-import { REALTIME_WIRE, type RealtimeAck } from '@inithium/shared-contracts';
+import { REALTIME_IDLE_AFTER_MS, REALTIME_WIRE, type RealtimeAck } from '@inithium/shared-contracts';
 import { RealtimeConnection, type ChannelListener } from './realtime-connection.service';
 
 type Handler = (...args: unknown[]) => void;
@@ -50,6 +50,10 @@ function setup() {
   return { socket, connection, refreshSession };
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 const listener = (): Required<ChannelListener> => ({ onEvent: vi.fn(), onPresence: vi.fn(), onState: vi.fn(), onResubscribed: vi.fn() });
 
 describe('RealtimeConnection (decision 0121)', () => {
@@ -82,6 +86,18 @@ describe('RealtimeConnection (decision 0121)', () => {
     expect(socket.connects).toBe(1);
     connection.setKeepOpen(false);
     expect(connection.status).toBe('idle');
+  });
+
+  it('goes idle after 10 minutes in a tab that opened in the background (decision 0124)', () => {
+    vi.useFakeTimers();
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    socket.fire('connect');
+    vi.advanceTimersByTime(REALTIME_IDLE_AFTER_MS + 1000);
+    expect(socket.sent).toContainEqual(expect.objectContaining({ event: REALTIME_WIRE.activity, data: { activity: 'idle' } }));
+    hidden.mockRestore();
+    connection.close();
   });
 
   it('subscribes again after reconnecting and says events may have been missed', () => {

@@ -106,7 +106,7 @@ A channel with `presence` tracks its subscribers. Each member is `{ key, userId?
 
 - A signed-in user's tabs and devices are **one member** (`key` is their user id), `active` if any of them is, with the most recent connection's `meta`.
 - Each guest connection is its own member (`key` is `guest:<connection id>`).
-- `activity` is `active` or `idle`. The browser reports idle after `REALTIME_IDLE_AFTER_MS` (10 minutes) without input, and active again on input; a hidden tab gets no input, so it goes idle on the same timer ([0124](../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)).
+- `activity` is `active` or `idle`. The browser reports idle after `REALTIME_IDLE_AFTER_MS` (10 minutes) without input (pointer moves and wheel turns only while the window has focus), and active again on input; the timer runs from connecting, so a hidden tab goes idle on the same timer. A connection starts with the activity its handshake's `auth` carries (`{ activity }`), so reconnecting keeps it ([0124](../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)).
 
 A subscriber first gets the whole list (`sync`), then `join`, `update` and `leave` changes. `usePresence()` keeps the list for you.
 

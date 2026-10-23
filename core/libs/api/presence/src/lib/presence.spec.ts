@@ -64,6 +64,16 @@ describe('core’s statuses (decision 0124)', () => {
     second.close();
   });
 
+  it('keeps an idle user inactive when their browser reconnects', async () => {
+    const { client, account } = await signedInClient(app, 'user');
+    const watcher = await follow(account.id);
+    expect(await nextStatus(watcher)).toEqual({ status: 'away' });
+    const tab = await connectTestRealtime(server, client, {}, { activity: 'idle' });
+    expect(await nextStatus(watcher)).toEqual({ status: 'inactive' });
+    tab.close();
+    watcher.close();
+  });
+
   it('sends a new follower the status at once', async () => {
     const { client, account } = await signedInClient(app, 'user');
     const tab = await connectTestRealtime(server, client);

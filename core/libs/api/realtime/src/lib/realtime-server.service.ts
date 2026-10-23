@@ -153,7 +153,8 @@ function connect(state: Running, socket: Socket): void {
     channels: new Set(),
     tokens: REALTIME_LIMITS.messagesPerSecond * 3,
     refilledAt: Date.now(),
-    activity: 'active',
+    // The browser says in its handshake whether the person is active or idle (a reconnect keeps what it was).
+    activity: realtimeActivitySchema.safeParse(socket.handshake.auth).data?.activity ?? 'active',
   };
   connections.set(socket, connection);
 
