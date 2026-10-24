@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { matchPath, Route, Routes, useHref, useLocation, useNavigate } from 'react-router-dom';
 import { profileImage, userDisplayName } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetSiteQuery, useLogoutMutation } from '@inithium/shared-data-access';
+import { useUserPresence } from '@inithium/shared-realtime';
 import { hasPermission } from '@inithium/shared-permissions';
 import { Container, Text } from '@inithium/shared-ui-components';
 import { SidebarLayout, type SidebarItem } from '@inithium/shared-ui-layouts';
@@ -21,6 +22,8 @@ export function CmsShell({ screens }: CmsShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: user } = useGetCurrentUserQuery();
+  // The signed-in user's own status light on the top bar's avatar (decision 0124).
+  const presence = useUserPresence(user?.id);
   const { data: site } = useGetSiteQuery();
   const [logout] = useLogoutMutation();
   const colorScheme = useAppliedColorScheme();
@@ -55,7 +58,7 @@ export function CmsShell({ screens }: CmsShellProps) {
       items={items}
       currentPath={toHref(location.pathname)}
       onNavigate={(href) => navigate(toPath(href))}
-      user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId) } : undefined}
+      user={user ? { name: userDisplayName(user), avatar: user.profile.avatar, image: profileImage(user.profile.avatarAssetId), presence } : undefined}
       onLogout={() => void logout()}
     >
       <Routes>

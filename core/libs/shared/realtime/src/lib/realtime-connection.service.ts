@@ -46,6 +46,9 @@ export type RealtimeConnectionOptions = {
   createSocket?(): Socket;
 };
 
+/** How often the browser checks whether the person has gone idle. */
+const IDLE_CHECK_MS = 15_000;
+
 /** How long a message waits for the api's answer. */
 const SEND_TIMEOUT_MS = 10_000;
 
@@ -63,6 +66,7 @@ export class RealtimeConnection {
   private activity: PresenceActivity = 'active';
   private stopTracking: (() => void) | undefined;
   private reauthPending = false;
+  private keepOpen = false;
 
   constructor(private readonly options: RealtimeConnectionOptions) {}
 
@@ -75,6 +79,16 @@ export class RealtimeConnection {
     this.statusListeners.add(listener);
     return () => this.statusListeners.delete(listener);
   };
+
+  /**
+   * Keeps the connection open even with no subscriptions, e.g. while someone is signed in, so the api counts them as
+   * present (decision 0124). Off again, it closes once nothing is subscribed.
+   */
+  setKeepOpen(keepOpen: boolean): void {
+    this.keepOpen = keepOpen;
+    if (keepOpen) this.open();
+    else if (!this.subscriptions.size && this.socket) this.close();
+  }
 
   /** Subscribes to a channel by name; returns a function that unsubscribes. `meta` is presence metadata. */
   subscribe(channel: string, listener: ChannelListener, meta?: unknown): () => void {
@@ -130,12 +144,14 @@ export class RealtimeConnection {
 
   private open(): Socket {
     if (this.socket) return this.socket;
-    const socket = this.options.createSocket?.() ?? io({ path: REALTIME_PATH, autoConnect: false });
+    // Each handshake carries whether the person is active or idle, so a reconnect doesn't show them active meanwhile.
+    const socket =
+      this.options.createSocket?.() ??
+      io({ path: REALTIME_PATH, autoConnect: false, auth: (send) => send({ activity: this.activity } satisfies { activity: PresenceActivity }) });
     this.socket = socket;
 
     socket.on('connect', () => {
       this.setStatus('connected');
-      if (this.activity === 'idle') socket.emit(REALTIME_WIRE.activity, { activity: 'idle' });
       for (const [channel, subscription] of this.subscriptions) this.join(socket, channel, subscription);
     });
     socket.on('connect_error', () => this.setStatus('offline'));
@@ -205,35 +221,47 @@ export class RealtimeConnection {
     for (const listener of this.statusListeners) listener();
   }
 
-  /** Reports idle after REALTIME_IDLE_AFTER_MS without input or as soon as the tab is hidden, and active again on input. */
+  /**
+   * Reports idle once REALTIME_IDLE_AFTER_MS pass without input, and active again on input (decision 0124). It keeps
+   * the time of the last input and checks it every IDLE_CHECK_MS, from the moment it starts, so a tab opened or left
+   * in the background goes idle too. Only someone using the page counts: presses, keys and touches, and pointer moves
+   * and wheel turns while the window has focus (not a cursor crossing a window they aren't using, nor a "move" to the
+   * same spot, which browsers send when the page changes under a resting cursor). A tab becoming visible isn't input:
+   * on Windows, browsers report covered windows as hidden, so moving other windows around would count otherwise.
+   * Each change is logged with `console.debug` and its cause.
+   */
   private trackActivity(): (() => void) | undefined {
     if (typeof document === 'undefined') return undefined;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let lastInput = 0;
-    const report = (activity: PresenceActivity) => {
+    let lastInputAt = Date.now();
+    let lastPointer: string | undefined;
+    const report = (activity: PresenceActivity, cause: string) => {
       if (activity === this.activity) return;
       this.activity = activity;
+      console.debug(`[realtime] ${activity}: ${cause}`);
       if (this.socket?.connected) this.socket.emit(REALTIME_WIRE.activity, { activity });
     };
-    const input = () => {
+    const input = (event: Event) => {
       if (document.hidden) return;
-      const now = Date.now();
-      // Input comes in floods (pointer moves); look at it at most once a second while active.
-      if (this.activity === 'active' && now - lastInput < 1000) return;
-      lastInput = now;
-      report('active');
-      clearTimeout(timer);
-      timer = setTimeout(() => report('idle'), REALTIME_IDLE_AFTER_MS);
+      if (event.type === 'pointermove' || event.type === 'wheel') {
+        if (!document.hasFocus()) return;
+        const { screenX, screenY } = event as MouseEvent;
+        const at = `${screenX},${screenY}`;
+        if (event.type === 'pointermove' && at === lastPointer) return;
+        lastPointer = at;
+      }
+      lastInputAt = Date.now();
+      report('active', event.type);
     };
-    const visibility = () => (document.hidden ? report('idle') : input());
+    const check = () => {
+      if (Date.now() - lastInputAt >= REALTIME_IDLE_AFTER_MS) report('idle', `no input for ${REALTIME_IDLE_AFTER_MS / 60_000} minutes`);
+    };
     const inputs = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'] as const;
-    for (const name of inputs) window.addEventListener(name, input, { passive: true });
-    document.addEventListener('visibilitychange', visibility);
-    input();
+    for (const name of inputs) window.addEventListener(name, input, { passive: true, capture: true });
+    const timer = setInterval(check, IDLE_CHECK_MS);
     return () => {
-      clearTimeout(timer);
-      for (const name of inputs) window.removeEventListener(name, input);
-      document.removeEventListener('visibilitychange', visibility);
+      clearInterval(timer);
+      for (const name of inputs) window.removeEventListener(name, input, { capture: true });
     };
   }
+
 }

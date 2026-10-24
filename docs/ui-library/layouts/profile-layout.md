@@ -4,7 +4,7 @@ description: A profile's full-width frame like the CMS, with a banner, a raised 
 scope: core
 tags: [ui, layout, profiles]
 order: 4
-decisions: ["0074", "0075", "0081", "0090", "0091", "0092", "0099"]
+decisions: ["0074", "0075", "0081", "0090", "0091", "0092", "0099", "0124"]
 component:
   name: ProfileLayout
   layer: layout
@@ -41,6 +41,7 @@ import { ProfileLayout } from '@inithium/shared-ui-layouts';
 | [`onBannerChange`](#onbannerchange) | `(pattern) => void` | none | Makes the banner editable |
 | [`avatarImage`, `bannerImage`](#avatarimage-and-bannerimage) | `{ src: string }` | none | Uploaded pictures shown instead |
 | [`onAvatarUpload`, `onBannerUpload`](#onavatarupload-and-onbannerupload) | `() => void` | none | Adds Upload a picture to the editors |
+| [`avatarPresence`](#avatarpresence) | `{ color, label }` | none | The avatar's status light |
 | [`subtitle`](#subtitle) | `ReactNode` | none | Under the name |
 | [`actions`](#actions) | `ReactNode` | none | Buttons under the name |
 | [`sidebar`](#sidebar) | `ReactNode` | none | The rest of the sidebar |
@@ -86,6 +87,14 @@ Add **Upload a picture** to the avatar's and the banner's editors (their `onUplo
 
 ```tsx
 <ProfileLayout {...props} onAvatarChange={saveAvatar} onAvatarUpload={() => setUploading('avatar')} />
+```
+
+#### `avatarPresence`
+
+The profile's status light on the avatar, passed to Avatar's [`presence`](../composites/avatar.md#presence) ([0124](../../decisions/0124-show-who-is-online-with-a-status-light-on-avatars.md)). The Profile page passes `useUserPresence(profile.id)`. **Type:** `{ color: SolidColorValue; label: string }`. **Default:** none.
+
+```tsx
+<ProfileLayout {...props} avatarPresence={useUserPresence(profile.id)} />
 ```
 
 #### `subtitle`

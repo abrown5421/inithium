@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { registerContentElementContracts } from '@inithium/shared-contracts';
+import { registerContentElementContracts, registerPresenceStatuses } from '@inithium/shared-contracts';
 import { setupChecklistItems } from '@inithium/api-dashboards';
 import { pagesRealtimeChannels } from '@inithium/api-pages';
 import { checkRealtimeChannels } from '@inithium/api-realtime';
+import { userStatusChannelServer } from '@inithium/api-presence';
 import {
   registeredContentElementContracts,
+  registeredPresenceStatuses,
   registeredRealtimeChannels,
   registeredSetupChecklistItems,
   registeredUserDeletionHooks,
@@ -39,7 +41,14 @@ describe('the api registry’s setup checklist items (decision 0120)', () => {
 
 describe('the api registry’s realtime channels (decision 0121)', () => {
   it('serves each channel once, never one of core’s, and only under a plugin or client namespace', () => {
-    expect(() => checkRealtimeChannels([...pagesRealtimeChannels, ...registeredRealtimeChannels])).not.toThrow();
+    expect(() => checkRealtimeChannels([...pagesRealtimeChannels, userStatusChannelServer, ...registeredRealtimeChannels])).not.toThrow();
     for (const { channel } of registeredRealtimeChannels) expect(channel.namespace, `${channel.pattern} is in core’s namespace`).not.toBe('core');
+  });
+});
+
+describe('the api registry’s presence statuses (decision 0124)', () => {
+  it('names each status plugin-<name>:<status> or client-<name>:<status>, once', () => {
+    expect(() => registerPresenceStatuses(registeredPresenceStatuses)).not.toThrow();
+    registerPresenceStatuses([]);
   });
 });

@@ -3,7 +3,7 @@ import { CmsAccessGuard, LoginPage } from '@inithium/cms-auth';
 import { ContentEditorScreen, registerContentElementEditors } from '@inithium/cms-content-editor';
 import { checkDashboardWidgets, coreDashboardWidgets, DashboardScreen } from '@inithium/cms-dashboard';
 import { ContentElementRenderersProvider } from '@inithium/shared-content';
-import { registerContentElementContracts } from '@inithium/shared-contracts';
+import { registerContentElementContracts, registerPresenceStatuses } from '@inithium/shared-contracts';
 import { PagesScreen } from '@inithium/cms-pages';
 import { MediaScreen } from '@inithium/cms-media';
 import { SettingsScreen } from '@inithium/cms-settings';
@@ -14,11 +14,14 @@ import {
   registeredContentElementEditors,
   registeredContentElementRenderers,
   registeredDashboardWidgets,
+  registeredPresenceStatuses,
 } from './plugins.registry';
 
 // Installed plugins' content elements: the page builder checks, lists and edits them (decision 0116).
 registerContentElementContracts(registeredContentElementContracts);
 registerContentElementEditors(registeredContentElementEditors);
+// Installed plugins' presence statuses, so their lights draw (decision 0124).
+registerPresenceStatuses(registeredPresenceStatuses);
 
 // Every dashboard widget: core's, then installed plugins' (decision 0120). Checked here so a clash shows at once.
 const dashboardWidgets = [...coreDashboardWidgets, ...registeredDashboardWidgets];

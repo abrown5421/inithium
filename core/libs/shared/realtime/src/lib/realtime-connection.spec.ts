@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Socket } from 'socket.io-client';
-import { REALTIME_WIRE, type RealtimeAck } from '@inithium/shared-contracts';
+import { REALTIME_IDLE_AFTER_MS, REALTIME_WIRE, type RealtimeAck } from '@inithium/shared-contracts';
 import { RealtimeConnection, type ChannelListener } from './realtime-connection.service';
 
 type Handler = (...args: unknown[]) => void;
@@ -50,6 +50,10 @@ function setup() {
   return { socket, connection, refreshSession };
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 const listener = (): Required<ChannelListener> => ({ onEvent: vi.fn(), onPresence: vi.fn(), onState: vi.fn(), onResubscribed: vi.fn() });
 
 describe('RealtimeConnection (decision 0121)', () => {
@@ -74,6 +78,47 @@ describe('RealtimeConnection (decision 0121)', () => {
     expect(socket.sent.some((entry) => entry.event === REALTIME_WIRE.unsubscribe)).toBe(false);
     stopSecond();
     expect(socket.sent.filter((entry) => entry.event === REALTIME_WIRE.unsubscribe)).toHaveLength(1);
+  });
+
+  it('stays open for a signed-in user with nothing subscribed (decision 0124)', () => {
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    expect(socket.connects).toBe(1);
+    connection.setKeepOpen(false);
+    expect(connection.status).toBe('idle');
+  });
+
+  it('goes idle after 10 minutes in a tab that opened in the background (decision 0124)', () => {
+    vi.useFakeTimers();
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    socket.fire('connect');
+    vi.advanceTimersByTime(REALTIME_IDLE_AFTER_MS + 1000);
+    expect(socket.sent).toContainEqual(expect.objectContaining({ event: REALTIME_WIRE.activity, data: { activity: 'idle' } }));
+    hidden.mockRestore();
+    connection.close();
+  });
+
+  it('doesn’t count a tab becoming visible, or a cursor over an unfocused window, as activity', () => {
+    vi.useFakeTimers();
+    const debug = vi.spyOn(console, 'debug').mockImplementation(() => undefined);
+    const focused = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    const { socket, connection } = setup();
+    connection.setKeepOpen(true);
+    socket.fire('connect');
+    for (let minute = 0; minute < 11; minute++) {
+      vi.advanceTimersByTime(60_000);
+      document.dispatchEvent(new Event('visibilitychange'));
+      window.dispatchEvent(new MouseEvent('pointermove', { screenX: minute, screenY: minute }));
+    }
+    expect(socket.sent).toContainEqual(expect.objectContaining({ event: REALTIME_WIRE.activity, data: { activity: 'idle' } }));
+    focused.mockReturnValue(true);
+    window.dispatchEvent(new MouseEvent('pointermove', { screenX: 500, screenY: 500 }));
+    expect(socket.sent.at(-1)).toMatchObject({ event: REALTIME_WIRE.activity, data: { activity: 'active' } });
+    focused.mockRestore();
+    debug.mockRestore();
+    connection.close();
   });
 
   it('subscribes again after reconnecting and says events may have been missed', () => {

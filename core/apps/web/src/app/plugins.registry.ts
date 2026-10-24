@@ -1,4 +1,5 @@
 import type { ContentElementRenderer } from '@inithium/shared-content';
+import type { PresenceStatusDefinition } from '@inithium/shared-contracts';
 import type { ProfileSlots } from '@inithium/web-pages';
 import type { PageTemplate } from '@inithium/web-shell';
 
@@ -19,3 +20,9 @@ export const registeredProfileSlots: ProfileSlots = { tabs: [], sidebarSections:
  * libs. Owned by the install/eject tooling: core ships it empty and never adds entries.
  */
 export const registeredContentElementRenderers: ContentElementRenderer[] = [];
+
+/**
+ * Presence statuses from installed plugins and libs/client (decision 0124): the colours and names of their status
+ * lights. The same list as the api's and cms's registries. Owned by the install/eject tooling: core ships it empty.
+ */
+export const registeredPresenceStatuses: PresenceStatusDefinition[] = [];

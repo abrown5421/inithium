@@ -10,13 +10,15 @@ import { connectDatabase, disconnectDatabase, healthRouter } from '@inithium/api
 import { apiErrorHandler, apiNotFound } from '@inithium/api-http';
 import { pagesRealtimeChannels, pagesRouter, seedCorePages, siteRouter } from '@inithium/api-pages';
 import { profilesRouter } from '@inithium/api-profiles';
+import { startPresence, userStatusChannelServer } from '@inithium/api-presence';
 import { startRealtime, stopRealtime } from '@inithium/api-realtime';
 import { renderAppPage, seedSiteSettings, settingsRouter } from '@inithium/api-settings';
 import { createUsersRouter } from '@inithium/api-user-management';
 import { backfillUserProfiles } from '@inithium/api-users';
-import { registerContentElementContracts } from '@inithium/shared-contracts';
+import { registerContentElementContracts, registerPresenceStatuses } from '@inithium/shared-contracts';
 import {
   registeredContentElementContracts,
+  registeredPresenceStatuses,
   registeredRealtimeChannels,
   registeredSetupChecklistItems,
   registeredUserDeletionHooks,
@@ -24,6 +26,8 @@ import {
 
 // Page content is checked against installed plugins' element contracts (decision 0116).
 registerContentElementContracts(registeredContentElementContracts);
+// Installed plugins' presence statuses, on top of core's active, inactive and away (decision 0124).
+registerPresenceStatuses(registeredPresenceStatuses);
 
 const app = express();
 
@@ -87,7 +91,9 @@ async function start() {
     console.log(`[ ready ] http://${env.HOST}:${env.PORT}`);
   });
   // Realtime connections at /api/realtime on the same server: core's channels, then installed plugins' (decision 0121).
-  startRealtime(server, { channels: [...pagesRealtimeChannels, ...registeredRealtimeChannels] });
+  // Presence follows who's connected and publishes each user's status (decision 0124).
+  startPresence();
+  startRealtime(server, { channels: [...pagesRealtimeChannels, userStatusChannelServer, ...registeredRealtimeChannels] });
 
   const shutdown = (signal: string) => {
     console.log(`[ shutdown ] ${signal} received`);

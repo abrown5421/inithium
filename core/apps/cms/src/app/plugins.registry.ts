@@ -1,7 +1,7 @@
 import type { ContentElementEditor } from '@inithium/cms-content-editor';
 import type { DashboardWidgetDefinition } from '@inithium/cms-dashboard';
 import type { ContentElementRenderer } from '@inithium/shared-content';
-import type { ContentElementContract } from '@inithium/shared-contracts';
+import type { ContentElementContract, PresenceStatusDefinition } from '@inithium/shared-contracts';
 
 // What installed plugins and libs/client add to the CMS (decisions 0015, 0116). Owned by the install/eject tooling:
 // core ships every list empty and never adds entries.
@@ -20,3 +20,6 @@ export const registeredContentElementEditors: ContentElementEditor[] = [];
  * `defineDashboardWidget()`. They appear only in the Add widget picker: never on anyone's dashboard by default.
  */
 export const registeredDashboardWidgets: DashboardWidgetDefinition[] = [];
+
+/** Presence statuses (decision 0124): the colours and names of their status lights, the same list as the api's and web's. */
+export const registeredPresenceStatuses: PresenceStatusDefinition[] = [];

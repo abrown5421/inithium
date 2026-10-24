@@ -54,20 +54,27 @@ export type TestRealtimeClient = {
 
 /**
  * Opens a realtime connection to a test server, signed in as `client` (its cookies) or as a guest without one. Fails
- * if the api refuses the connection. `headers` adds to the handshake's, e.g. an `origin`.
+ * if the api refuses the connection. `headers` adds to the handshake's, e.g. an `origin`; `auth` is the handshake's
+ * `auth` payload, e.g. `{ activity: 'idle' }` as a browser reconnecting while idle sends.
  *
  * ```ts
  * const realtime = await connectTestRealtime(server, client);
  * expect(await realtime.subscribe('core:pages')).toEqual({ ok: true });
  * ```
  */
-export async function connectTestRealtime(server: TestServer, client?: TestClient, headers: Record<string, string> = {}): Promise<TestRealtimeClient> {
+export async function connectTestRealtime(
+  server: TestServer,
+  client?: TestClient,
+  headers: Record<string, string> = {},
+  auth?: Record<string, unknown>,
+): Promise<TestRealtimeClient> {
   const cookie = client?.cookieHeader();
   const socket = io(server.url, {
     path: REALTIME_PATH,
     transports: ['websocket'],
     reconnection: false,
     extraHeaders: { ...headers, ...(cookie ? { cookie } : {}) },
+    ...(auth ? { auth } : {}),
   });
   await new Promise<void>((resolve, reject) => {
     socket.once('connect', () => resolve());

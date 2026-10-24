@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { AvatarRecipe, PolyPattern } from '@inithium/shared-contracts';
+import type { AvatarRecipe, PolyPattern, SolidColorValue } from '@inithium/shared-contracts';
 import { Container, Text } from '@inithium/shared-ui-components';
 import { Avatar, PolyBanner } from '@inithium/shared-ui-composites';
 
@@ -19,6 +19,8 @@ export type ProfileLayoutProps = {
   bannerImage?: { src: string };
   /** Add 'Upload a picture' to the avatar's and the banner's editors. */
   onAvatarUpload?: () => void;
+  /** The profile's status light on the avatar (Avatar's `presence`, decision 0124), e.g. from `useUserPresence()`. */
+  avatarPresence?: { color: SolidColorValue; label: string };
   onBannerUpload?: () => void;
   /** Under the name, e.g. a short line about the profile. */
   subtitle?: ReactNode;
@@ -49,6 +51,7 @@ export function ProfileLayout({
   bannerImage,
   onAvatarUpload,
   onBannerUpload,
+  avatarPresence,
   subtitle,
   actions,
   sidebar,
@@ -93,6 +96,7 @@ export function ProfileLayout({
                 editable={Boolean(onAvatarChange)}
                 image={avatarImage}
                 onUpload={onAvatarUpload}
+                presence={avatarPresence}
                 name={name}
                 label={`${name}'s avatar`}
                 width={{ base: 96, md: 128 }}

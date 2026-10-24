@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
-import type { AvatarRecipe, NavGroup, NavItem, NavLink, NavbarSerializableProps } from '@inithium/shared-contracts';
+import type { AvatarRecipe, NavGroup, NavItem, NavLink, NavbarSerializableProps, SolidColorValue } from '@inithium/shared-contracts';
 import { Button, Container, Divider, Icon, toCssColor, type AnimationRuntimeProps, type IconName } from '@inithium/shared-ui-components';
 import { Avatar } from '../avatar/avatar.component';
 import { Drawer } from '../drawer/drawer.component';
@@ -17,6 +17,8 @@ export type NavbarUser = {
   avatar?: AvatarRecipe;
   /** An uploaded picture shown instead of the recipe, which stays as its fallback. */
   image?: { src: string };
+  /** Their status light on the avatar (Avatar's `presence`, decision 0124), e.g. from `useUserPresence()`. */
+  presence?: { color: SolidColorValue; label: string };
 };
 
 export type NavbarProps = NavbarSerializableProps &
@@ -246,7 +248,7 @@ export function Navbar({
                 aria-expanded={menuOpen}
                 onClick={() => setMenuOpen(true)}
               >
-                <Avatar width={36} height={36} name={user.name} value={user.avatar ?? { style: 'initials', seed: user.name }} image={user.image} />
+                <Avatar width={36} height={36} name={user.name} value={user.avatar ?? { style: 'initials', seed: user.name }} image={user.image} presence={user.presence} />
               </button>
             ) : wide ? (
               <Button color={color} onClick={() => go(loginHref)}>

@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
-import { profileImage, roles, type ManagedUser, type Role } from '@inithium/shared-contracts';
+import { roles, type ManagedUser, type Role } from '@inithium/shared-contracts';
 import { useGetCurrentUserQuery, useGetUserManagementInfoQuery, useGetUsersQuery } from '@inithium/shared-data-access';
 import { assignableRoles, canManageRole, hasPermission } from '@inithium/shared-permissions';
 import { Button, Checkbox, Container, Input, Loader, Select, Text, Tooltip } from '@inithium/shared-ui-components';
-import { Alert, Avatar, Pagination } from '@inithium/shared-ui-composites';
+import { Alert, Pagination } from '@inithium/shared-ui-composites';
 import { DeleteUsersDialog } from './delete-users-dialog.component';
 import { NewUserDialog } from './new-user-dialog.component';
 import { Badge, managedUserName, UserDetails, type UserAbilities } from './user-details.component';
 import { ROLE_COLORS, ROLE_LABELS } from './user-roles.config';
+import { UserAvatar } from './user-avatar.component';
 
 const PAGE_SIZE = 25;
 
@@ -199,7 +200,7 @@ export function UsersScreen() {
                   style={{ flex: 1, minWidth: 0, padding: 0, border: 0, background: 'none', font: 'inherit', color: 'inherit', textAlign: 'start', cursor: 'pointer' }}
                 >
                   <Container flex={{ align: 'center', gap: 12 }} padding={{ y: 12, left: can.delete ? 0 : 16, right: 16 }}>
-                    <Avatar value={user.avatar} image={profileImage(user.avatarAssetId)} name={name} width={40} height={40} />
+                    <UserAvatar user={user} name={name} size={40} />
                     <Container flex={{ direction: 'column', gap: 2 }} flexItem={{ grow: 1 }} minWidth={0}>
                       <Text as="span" fontSize={15} fontWeight={600} truncate={1}>
                         {name}

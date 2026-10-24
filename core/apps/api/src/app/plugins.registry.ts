@@ -1,4 +1,4 @@
-import type { ContentElementContract } from '@inithium/shared-contracts';
+import type { ContentElementContract, PresenceStatusDefinition } from '@inithium/shared-contracts';
 import type { SetupChecklistItem } from '@inithium/api-dashboards';
 import type { RealtimeChannelServer } from '@inithium/api-realtime';
 import type { UserDeletionHook } from '@inithium/api-user-management';
@@ -26,3 +26,10 @@ export const registeredSetupChecklistItems: SetupChecklistItem[] = [];
  * `serveRealtimeChannel()`. Owned by the install/eject tooling: core ships it empty and never adds entries.
  */
 export const registeredRealtimeChannels: RealtimeChannelServer[] = [];
+
+/**
+ * Presence statuses from installed plugins and libs/client (decisions 0015, 0124), e.g. 'In a class', set with
+ * `setUserStatus()`. The same list goes in the web and cms registries. Owned by the install/eject tooling: core
+ * ships it empty and never adds entries.
+ */
+export const registeredPresenceStatuses: PresenceStatusDefinition[] = [];
